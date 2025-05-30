@@ -4,6 +4,7 @@ const StyledLogo = styled.img`
   border-radius: var(--border-radius-full);
   width: 5rem;
   height: 5rem;
+  margin-bottom: 1.4rem;
 `;
 
 function Logo() {

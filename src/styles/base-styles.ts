@@ -30,6 +30,7 @@ const baseStyles = css`
     color: var(--body-color);
     font-size: var(--body-font-size);
     font-family: var(--font-family-base);
+    letter-spacing: var(--body-letter-spacing);
   }
 
   input,
@@ -39,12 +40,23 @@ const baseStyles = css`
   a {
     line-height: inherit;
     font-family: inherit;
+    letter-spacing: inherit;
   }
 
   button,
   a,
   select {
     cursor: pointer;
+  }
+
+  button,
+  input {
+    outline: none;
+    border: none;
+  }
+
+  svg {
+    color: var(--color-gray);
   }
 `;
 

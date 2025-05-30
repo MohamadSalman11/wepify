@@ -43,6 +43,7 @@ const variables = css`
     --body-font-size: var(--font-size);
     --body-color: var(--color-white);
     --body-bg: var(--color-black);
+    --body-letter-spacing: var(--letter-spacing);
 
     /* Components */
     /* Define common padding and border radius sizes and more  */
@@ -72,6 +73,7 @@ const variables = css`
       sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol';
     --font-family-base: var(--font-family-sans-serif);
 
+    --letter-spacing: 0.5px;
     --font-size-root: 62.5%;
   }
 `;

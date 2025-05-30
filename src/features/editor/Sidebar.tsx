@@ -2,6 +2,7 @@ import type { IconType } from 'react-icons';
 import { LuCodeXml, LuFile, LuImage, LuLayers3, LuLogOut, LuPlus } from 'react-icons/lu';
 import styled from 'styled-components';
 import Logo from '../../components/Logo';
+import Divider from '../../components/divider';
 
 const StyledSidebar = styled.aside`
   display: flex;
@@ -19,7 +20,6 @@ const StyledSidebar = styled.aside`
     flex-direction: column;
     align-items: center;
     margin-top: 2.4rem;
-    color: var(--color-gray);
     list-style: none;
 
     li {
@@ -61,13 +61,6 @@ const StyledSidebar = styled.aside`
     margin-top: auto;
     color: var(--color-red);
   }
-`;
-
-const Divider = styled.span`
-  margin-top: 1.4rem;
-  width: 6rem;
-  height: 0.1rem;
-  background-color: var(--color-gray-dark-2);
 `;
 
 function Sidebar() {

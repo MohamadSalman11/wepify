@@ -2,30 +2,31 @@ import { css } from 'styled-components';
 
 const baseStyles = css`
   @font-face {
+    font-weight: var(--font-weight-regular);
+    src: url('src/assets/fonts/roboto-regular.woff2') format('woff2');
     font-family: 'Roboto';
-    font-weight: 400;
-    src: url('../assets/fonts/roboto-regular.woff2') format('woff2');
   }
 
   @font-face {
+    font-weight: var(--font-weight-medium);
+    src: url('src/assets/fonts/roboto-medium.woff2') format('woff2');
     font-family: 'Roboto';
-    font-weight: 500;
-    src: url('../assets/fonts/roboto-medium.woff2') format('woff2');
   }
 
   @font-face {
+    font-weight: var(--font-weight-semibold);
+    src: url('src/assets/fonts/roboto-semi-bold.woff2') format('woff2');
     font-family: 'Roboto';
-    font-weight: 600;
-    src: url('../assets/fonts/roboto-semi-bold.woff2') format('woff2');
   }
 
   @font-face {
+    font-weight: var(--font-weight-bold);
+    src: url('src/assets/fonts/roboto-bold.woff2') format('woff2');
     font-family: 'Roboto';
-    font-weight: 700;
-    src: url('../assets/fonts/roboto-bold.woff2') format('woff2');
   }
 
   body {
+    background-color: var(--body-bg);
     color: var(--body-color);
     font-size: var(--body-font-size);
     font-family: var(--font-family-base);
@@ -36,11 +37,8 @@ const baseStyles = css`
   textarea,
   select,
   a {
-    &:focus {
-      font-family: inherit;
-      line-height: inherit;
-      color: inherit;
-    }
+    line-height: inherit;
+    font-family: inherit;
   }
 
   button,

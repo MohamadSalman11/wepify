@@ -5,7 +5,7 @@
  */
 
 export default {
-  plugins: ['prettier-plugin-organize-imports'],
+  plugins: ['prettier-plugin-organize-imports', 'prettier-plugin-css-order'],
   printWidth: 120,
   singleQuote: true,
   trailingComma: 'none',

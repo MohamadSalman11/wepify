@@ -8,7 +8,8 @@ const COLOR_PRIMARY = '#1352F1';
 const COLOR_PRIMARY_LIGHT = '#2b63f2';
 
 const COLOR_BLACK = '#0d1116';
-const COLOR_BLACK_LIGHT = '#161c23';
+const COLOR_BLACK_LIGHT = '#13191d';
+const COLOR_BLACK_LIGHT_2 = '#161c23';
 
 const COLOR_GRAY = '#878d94';
 const COLOR_GRAY_DARK = '#343C44';
@@ -29,6 +30,7 @@ const variables = css`
 
     --color-black: ${COLOR_BLACK};
     --color-black-light: ${COLOR_BLACK_LIGHT};
+    --color-black-light-2: ${COLOR_BLACK_LIGHT_2};
 
     --color-gray: ${COLOR_GRAY};
     --color-gray-dark: ${COLOR_GRAY_DARK};
@@ -40,6 +42,7 @@ const variables = css`
     /* Body */
     --body-font-size: var(--font-size);
     --body-color: var(--color-white);
+    --body-bg: var(--color-black);
 
     /* Components */
     /* Define common padding and border radius sizes and more  */
@@ -48,11 +51,17 @@ const variables = css`
     --font-size: 1.4rem;
     --white-space: nowrap;
 
+    --font-weight-regular: 400;
     --font-weight-medium: 500;
     --font-weight-semibold: 600;
+    --font-weight-bold: 700;
 
     --border-width: 2px;
-    --border-radius: 999px;
+    --border-radius-sm: 4px;
+    --border-radius-md: 6px;
+    --border-radius-lg: 8px;
+    --border-radius-full: 999px;
+    --border-base: 1px solid var(--color-gray-dark-2);
 
     --zindex-base: 999;
     --transition-base: all 0.2s linear;

@@ -1,5 +1,5 @@
 import type { IconType } from 'react-icons';
-import { LuCodeXml, LuFile, LuImage, LuLayers3, LuLogOut, LuPlus } from 'react-icons/lu';
+import { LuCloudUpload, LuCodeXml, LuFile, LuLayers3, LuLogOut, LuPlus } from 'react-icons/lu';
 import styled from 'styled-components';
 import Logo from '../../components/Logo';
 import Divider from '../../components/divider';
@@ -73,7 +73,7 @@ function Sidebar() {
           <NavItem icon={LuPlus} />
           <NavItem icon={LuFile} />
           <NavItem icon={LuLayers3} />
-          <NavItem icon={LuImage} />
+          <NavItem icon={LuCloudUpload} />
           <NavItem icon={LuCodeXml} />
         </ul>
       </nav>

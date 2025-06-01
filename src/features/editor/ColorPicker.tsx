@@ -4,7 +4,8 @@ import styled from 'styled-components';
 
 const StyledSketch = styled(Sketch)`
   position: absolute;
-  transform: translate(-115%, -50%);
+  right: 35rem;
+  bottom: 10rem;
   background-color: var(--color-black-light-2) !important;
 
   [class^='w-color-editable-input'] {

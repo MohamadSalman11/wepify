@@ -186,7 +186,7 @@ const SectionTitle = styled.span`
   font-size: 2rem;
 `;
 
-function Panel() {
+function ElementsPanel() {
   return (
     <PanelContainer>
       <div>
@@ -309,4 +309,4 @@ function Panel() {
   );
 }
 
-export default Panel;
+export default ElementsPanel;

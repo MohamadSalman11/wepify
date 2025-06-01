@@ -1,8 +1,8 @@
 import styled from 'styled-components';
-import ElementsPanel from './features/editor/ElementsPanel';
 import Header from './features/editor/Header';
 import SettingsPanel from './features/editor/SettingsPanel';
 import Sidebar from './features/editor/Sidebar';
+import Uploads from './features/editor/Uploads';
 import GlobalStyles from './styles/GlobalStyles';
 
 const EditorPage = styled.div`
@@ -29,7 +29,8 @@ function App() {
       <EditorPage>
         <Sidebar />
         <Header />
-        <ElementsPanel />
+        <Uploads />
+        {/* <ElementsPanel /> */}
         <div></div>
         <SettingsPanel />
       </EditorPage>

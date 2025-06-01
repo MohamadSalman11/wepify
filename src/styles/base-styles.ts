@@ -58,6 +58,10 @@ const baseStyles = css`
   svg {
     color: var(--color-gray);
   }
+
+  a {
+    color: var(--color-white);
+  }
 `;
 
 export default baseStyles;

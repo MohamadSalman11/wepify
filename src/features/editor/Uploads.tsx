@@ -1,3 +1,4 @@
+import { LuTrash } from 'react-icons/lu';
 import styled from 'styled-components';
 
 const UploadsContainer = styled.div`
@@ -68,10 +69,27 @@ const Media = styled.ul`
   margin-top: 1.6rem;
 
   li {
+    position: relative;
+    cursor: pointer;
     border-radius: var(--border-radius-md);
     background-color: var(--color-primary-light);
     width: 100%;
     height: 7rem;
+    overflow: hidden;
+
+    &:hover svg {
+      transform: translateY(0);
+    }
+
+    svg {
+      position: absolute;
+      top: 8%;
+      right: 5%;
+      transform: translateY(-4rem);
+      transition: var(--transition-base);
+      cursor: pointer;
+      color: var(--color-white);
+    }
   }
 `;
 
@@ -92,7 +110,9 @@ function Uploads() {
 
       <Media>
         {images.map((img) => (
-          <li>&nbsp;</li>
+          <li>
+            <LuTrash />
+          </li>
         ))}
       </Media>
     </UploadsContainer>

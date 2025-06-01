@@ -9,7 +9,7 @@ const Wrapper = styled.div`
 
 const Trigger = styled.button`
   padding: 0.4rem 1.2rem;
-  background: var(--color-black-light-2);
+  background-color: var(--color-black-light-2);
   border: var(--border-base);
   border-radius: var(--border-radius-sm);
   color: var(--color-white);

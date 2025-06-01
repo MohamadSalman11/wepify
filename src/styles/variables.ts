@@ -58,6 +58,7 @@ const variables = css`
     --font-weight-bold: 700;
 
     --border-width: 2px;
+    --border-radius-xs: 2px;
     --border-radius-sm: 4px;
     --border-radius-md: 6px;
     --border-radius-lg: 8px;

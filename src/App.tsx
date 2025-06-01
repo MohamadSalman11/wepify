@@ -47,6 +47,30 @@ const SelectorContainer = styled.div`
   }
 `;
 
+const SizeContainer = styled.div`
+  & > div {
+    display: grid;
+    position: relative;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.6rem;
+
+    div {
+      display: flex;
+      column-gap: 1.6rem;
+      align-items: center;
+      color: var(--color-gray);
+    }
+  }
+
+  input {
+    border-radius: var(--border-radius-md);
+    background-color: var(--color-gray-dark-2);
+    padding: 0.8rem 0.8rem 0.8rem 1.2rem;
+    width: 9rem;
+    color: var(--color-white);
+  }
+`;
+
 function App() {
   return (
     <>
@@ -64,6 +88,28 @@ function App() {
               <Select options={['Chocolate', 'Vanilla', 'Strawberry']} />
             </SelectorContainer>
           </div>
+          <SizeContainer>
+            <span>Size</span>
+
+            <div>
+              <div>
+                <label htmlFor='y-position'>X</label>
+                <input type='text' defaultValue={200} id='y-position' />
+              </div>
+              <div>
+                <label htmlFor='x-position'>Y</label>
+                <input type='text' defaultValue={100} id='x-position' />
+              </div>
+              <div>
+                <label htmlFor='width'>W</label>
+                <input type='text' defaultValue={100} id='width' />
+              </div>
+              <div>
+                <label htmlFor='height'>H</label>
+                <input type='text' defaultValue={100} id='height' />
+              </div>
+            </div>
+          </SizeContainer>
         </PanelContainer>
       </EditorPage>
     </>

@@ -88,6 +88,8 @@ const EditorActions = styled.div`
 `;
 
 const DesignInfo = styled.div`
+  user-select: text;
+
   span {
     font-size: 1.8rem;
   }

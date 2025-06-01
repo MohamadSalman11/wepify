@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import Header from './features/editor/Header';
-import Pages from './features/editor/Pages';
+import Layers from './features/editor/Layers';
 import SettingsPanel from './features/editor/SettingsPanel';
 import Sidebar from './features/editor/Sidebar';
 import GlobalStyles from './styles/GlobalStyles';
@@ -12,6 +12,7 @@ const EditorPage = styled.div`
   grid-template-columns: 10rem 34rem 3.5fr 34rem;
   grid-template-rows: 8rem 1fr;
   overflow: hidden;
+  user-select: none;
 
   &::-webkit-scrollbar {
     display: none;
@@ -29,7 +30,8 @@ function App() {
       <EditorPage>
         <Sidebar />
         <Header />
-        <Pages />
+        <Layers />
+        {/* <Pages /> */}
         {/* <Uploads /> */}
         {/* <ElementsPanel /> */}
         <div></div>

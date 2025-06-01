@@ -142,12 +142,24 @@ function App() {
                   <Select options={['10', '12', '13']} />
                 </div>
               </GridContainer>
-              <div>
-                <label>Color</label>
-                <ColorPicker />
-              </div>
+              <GridContainer>
+                <div>
+                  <label>Color</label>
+                  <ColorPicker />
+                </div>
+                <div>
+                  <label>Fill</label>
+                  <ColorPicker />
+                </div>
+              </GridContainer>
             </div>
           </TypographyContainer>
+          <div>
+            <span>Stroke</span>
+            <div>
+              <label></label>
+            </div>
+          </div>
         </PanelContainer>
       </EditorPage>
     </>

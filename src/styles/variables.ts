@@ -61,6 +61,7 @@ const variables = css`
     --border-radius-sm: 4px;
     --border-radius-md: 6px;
     --border-radius-lg: 8px;
+    --border-radius-xl: 12px;
     --border-radius-full: 999px;
     --border-base: 1px solid var(--color-gray-dark-2);
 

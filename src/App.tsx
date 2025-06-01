@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import Header from './features/editor/Header';
+import Panel from './features/editor/Panel';
 import Sidebar from './features/editor/Sidebar';
 import GlobalStyles from './styles/GlobalStyles';
 
@@ -7,13 +8,8 @@ const EditorPage = styled.div`
   width: 100%;
   height: 100vh;
   display: grid;
-  grid-template-columns: 11rem 1fr 3fr 1fr;
+  grid-template-columns: 10rem 1fr 3.5fr 1fr;
   grid-template-rows: 8rem 1fr;
-
-  div:nth-child(3) {
-    border-right: var(--border-base);
-    background-color: var(--color-black-light-2);
-  }
 
   div:nth-child(4) {
     background-color: transparent;
@@ -32,7 +28,7 @@ function App() {
       <EditorPage>
         <Sidebar />
         <Header />
-        <div></div>
+        <Panel />
         <div></div>
         <div></div>
       </EditorPage>

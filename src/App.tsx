@@ -19,8 +19,22 @@ const EditorPage = styled.div`
   }
 
   div:nth-child(4) {
+    display: flex;
+    justify-content: center;
     background-color: transparent;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
+`;
+
+const Canvas = styled.div`
+  width: 80%;
+  height: 50vh;
+  background-color: var(--color-white);
+  color: var(--color-black);
 `;
 
 function App() {
@@ -34,7 +48,9 @@ function App() {
         {/* <Pages /> */}
         {/* <Uploads /> */}
         {/* <ElementsPanel /> */}
-        <div></div>
+        <div>
+          <Canvas>Hi</Canvas>
+        </div>
         <SettingsPanel />
       </EditorPage>
     </>

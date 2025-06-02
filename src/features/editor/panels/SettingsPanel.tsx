@@ -1,29 +1,8 @@
 import { LuMonitor, LuPanelBottom, LuPanelLeft, LuPanelRight, LuPanelTop, LuSquare } from 'react-icons/lu';
 import styled from 'styled-components';
-import Select from '../../components/Select';
-import ColorPicker from './ColorPicker';
-
-const PanelContainer = styled.div`
-  border-left: 1px solid var(--color-gray-dark-2);
-  background-color: var(--color-black-light-2);
-  overflow-y: auto;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  & > div {
-    display: flex;
-    flex-direction: column;
-    border-bottom: var(--border-base);
-    padding: 3.2rem 2.4rem;
-    width: 100%;
-
-    & > span {
-      margin-bottom: 2.4rem;
-    }
-  }
-`;
+import Input from '../../../components/form/Input';
+import Select from '../../../components/form/Select';
+import ColorPicker from '../ColorPicker';
 
 const SelectorContainer = styled.div`
   display: flex;
@@ -48,14 +27,6 @@ const SizeContainer = styled.div`
   }
 `;
 
-const Input = styled.input`
-  border-radius: var(--border-radius-md);
-  background-color: var(--color-gray-dark-2);
-  padding: 0.8rem 0.8rem 0.8rem 1.2rem;
-  width: 9rem;
-  color: var(--color-white);
-`;
-
 const GridContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -75,7 +46,7 @@ const StrokeContainer = styled.div`
 
 const StrokeWidthContainer = styled.div`
   position: relative;
-  input {
+  Input {
     padding-right: 9.6rem;
     width: 100%;
   }
@@ -117,18 +88,22 @@ const TypographyContainer = styled.div`
   }
 `;
 
+const Title = styled.span`
+  margin-bottom: 2.4rem;
+`;
+
 function SettingsPanel() {
   return (
-    <PanelContainer>
+    <>
       <div>
-        <span>Selector</span>
+        <Title>Selector</Title>
         <SelectorContainer>
           <LuMonitor />
           <Select options={['Chocolate', 'Vanilla', 'Strawberry']} />
         </SelectorContainer>
       </div>
       <SizeContainer>
-        <span>Size</span>
+        <Title>Size</Title>
         <GridContainer>
           <div>
             <label htmlFor='y-position'>X</label>
@@ -149,7 +124,7 @@ function SettingsPanel() {
         </GridContainer>
       </SizeContainer>
       <TypographyContainer>
-        <span>Typography</span>
+        <Title>Typography</Title>
         <div>
           <div>
             <label>Font Family</label>
@@ -178,7 +153,7 @@ function SettingsPanel() {
         </div>
       </TypographyContainer>
       <StrokeContainer>
-        <span>Stroke</span>
+        <Title>Stroke</Title>
         <div>
           <GridContainer>
             <div>
@@ -213,7 +188,7 @@ function SettingsPanel() {
           </GridContainer>
         </div>
       </StrokeContainer>
-    </PanelContainer>
+    </>
   );
 }
 

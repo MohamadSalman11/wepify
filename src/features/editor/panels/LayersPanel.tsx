@@ -11,13 +11,6 @@ import {
 } from 'react-icons/lu';
 import styled from 'styled-components';
 
-const LayersContainer = styled.div`
-  border-right: var(--border-base);
-  background-color: var(--color-black-light-2);
-  overflow-y: auto;
-  padding: 3.2rem 2.4rem;
-`;
-
 const Title = styled.span`
   font-size: 1.6rem;
   color: var(--color-white);
@@ -86,11 +79,11 @@ const ChevronIcon = styled(LuChevronRight)<{ expanded: boolean }>`
   transform: rotate(${({ expanded }) => (expanded ? '90deg' : '0deg')});
 `;
 
-function Layers() {
+function LayersPanel() {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <LayersContainer>
+    <>
       <Title>Layers</Title>
 
       <LayerList>
@@ -156,8 +149,8 @@ function Layers() {
           </LayerBox>
         </LayerItem>
       </LayerList>
-    </LayersContainer>
+    </>
   );
 }
 
-export default Layers;
+export default LayersPanel;

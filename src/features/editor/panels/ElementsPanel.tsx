@@ -1,22 +1,6 @@
 import { LuFileVideo, LuImage, LuSearch, LuYoutube } from 'react-icons/lu';
 import styled from 'styled-components';
 
-const PanelContainer = styled.div`
-  border-right: var(--border-base);
-  background-color: var(--color-black-light-2);
-  overflow-y: auto;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  & > div {
-    border-bottom: var(--border-base);
-    padding: 3.2rem 2.4rem;
-    width: 100%;
-  }
-`;
-
 const PanelList = styled.ul`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -188,7 +172,7 @@ const SectionTitle = styled.span`
 
 function ElementsPanel() {
   return (
-    <PanelContainer>
+    <>
       <div>
         <SectionTitle>Add Elements</SectionTitle>
         <SearchBar>
@@ -305,7 +289,7 @@ function ElementsPanel() {
           </MediaItem>
         </PanelList>
       </div>
-    </PanelContainer>
+    </>
   );
 }
 

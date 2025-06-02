@@ -47,8 +47,8 @@ const variables = css`
 
     /* Components */
     /* Define common padding and border radius sizes and more  */
-    --padding-y: 0.8rem;
-    --padding-x: 1.6rem;
+    --padding-y: 1.2rem;
+    --padding-x: 2.4rem;
     --font-size: 1.4rem;
     --white-space: nowrap;
 
@@ -68,6 +68,23 @@ const variables = css`
 
     --zindex-base: 999;
     --transition-base: all 0.2s linear;
+
+    /* Buttons */
+    --btn-padding-y: var(--padding-y);
+    --btn-padding-x: var(--padding-x);
+    --btn-font-size: var(--font-size);
+    --btn-white-space: var(--white-space);
+
+    --btn-border-radius: var(--border-radius-md);
+
+    --btn-font-weight: var(--font-weight-semibold);
+    --btn-transition: var(--transition-base);
+
+    /* Forms */
+    --input-padding-y: 0.8rem;
+    --input-padding-x: var(--padding-x);
+    --input-font-size: var(--font-size);
+    --form-input-border-radius: var(--border-radius-md);
 
     /* Typography */
     --font-family-sans-serif:

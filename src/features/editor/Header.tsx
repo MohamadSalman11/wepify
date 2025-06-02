@@ -1,6 +1,13 @@
-import { LuDownload, LuEye, LuLaptop, LuMonitor, LuRedo2, LuSmartphone, LuTablet, LuUndo2 } from 'react-icons/lu';
+import { LuEye, LuLaptop, LuMonitor, LuRedo2, LuSmartphone, LuTablet, LuUndo2 } from 'react-icons/lu';
 import styled from 'styled-components';
+import Button from '../../components/Button';
 import Divider from '../../components/divider';
+import Input from '../../components/form/Input';
+
+const CanvasSizeInput = styled(Input)`
+  width: 7rem;
+  padding: 0.8rem 0.8rem 0.8rem 2.4rem;
+`;
 
 const StyledHeader = styled.header`
   display: flex;
@@ -37,14 +44,6 @@ const CanvasSizeControls = styled.div`
       color: var(--color-gray);
       font-size: 1.2rem;
     }
-
-    input {
-      border-radius: var(--border-radius-md);
-      background-color: var(--color-gray-dark-2);
-      padding: 0.8rem 0.8rem 0.8rem 2.4rem;
-      width: 7rem;
-      color: var(--color-white);
-    }
   }
 `;
 
@@ -61,29 +60,6 @@ const EditorActions = styled.div`
 
   & > svg {
     font-size: 2rem;
-  }
-
-  button {
-    transition: var(--transition-base);
-    border-radius: 8px;
-    background-color: var(--color-primary);
-    width: 12rem;
-    height: 4.5rem;
-    color: var(--color-white);
-    font-size: 1.4rem;
-
-    &:hover {
-      background-color: var(--color-primary-light);
-    }
-  }
-
-  & button:first-of-type {
-    background-color: transparent;
-    background-color: var(--color-gray-dark-2);
-
-    &:hover {
-      background-color: var(--color-gray-dark);
-    }
   }
 `;
 
@@ -116,11 +92,11 @@ function Header() {
         <CanvasSizeControls>
           <div>
             <span>W</span>
-            <input type='text' defaultValue={1440} placeholder='px' />
+            <CanvasSizeInput type='text' defaultValue={1440} placeholder='px' />
           </div>
           <div>
             <span>H</span>
-            <input type='text' defaultValue={880} placeholder='px' />
+            <CanvasSizeInput type='text' defaultValue={880} placeholder='px' />
           </div>
         </CanvasSizeControls>
       </DevicePreviewControls>
@@ -130,10 +106,8 @@ function Header() {
         <Divider rotate={90} width={30} />
         <LuEye />
         <Divider rotate={90} width={30} />
-        <button>
-          <LuDownload /> Download
-        </button>
-        <button>Publish</button>
+        <Button variation='secondary'>Download</Button>
+        <Button>Publish</Button>
       </EditorActions>
     </StyledHeader>
   );

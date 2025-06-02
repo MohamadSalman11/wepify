@@ -1,31 +1,32 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { LuChevronDown } from 'react-icons/lu';
 import styled from 'styled-components';
+import useOutsideClick from '../../hooks/useOutsideClick';
 
 const Wrapper = styled.div`
   position: relative;
   width: 100%;
 `;
 
-const Trigger = styled.button`
+const SelectButton = styled.button`
+  width: 100%;
   padding: 0.4rem 1.2rem;
   background-color: var(--color-black-light-2);
   border: var(--border-base);
   border-radius: var(--border-radius-sm);
   color: var(--color-white);
   cursor: pointer;
-  width: 100%;
-  text-align: left;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  text-align: left;
 
   svg {
     font-size: 2rem;
   }
 `;
 
-const List = styled.ul<{ open: boolean }>`
+const DropdownList = styled.ul<{ open: boolean }>`
   display: ${({ open }) => (open ? 'block' : 'none')};
   position: absolute;
   width: 100%;
@@ -37,7 +38,7 @@ const List = styled.ul<{ open: boolean }>`
   z-index: var(--zindex-base);
 `;
 
-const Item = styled.li`
+const DropdownItem = styled.li`
   padding: 0.8rem 1.2rem;
   cursor: pointer;
 
@@ -48,35 +49,28 @@ const Item = styled.li`
 
 const Select = ({ options }: { options: string[] }) => {
   const [selected, setSelected] = useState<string>();
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const wrapperRef = useOutsideClick<HTMLDivElement>(() => setIsOpen(false));
 
-  const onSelect = (opt: string) => {
-    setSelected(opt);
-    setOpen(false);
+  const handleSelect = (option: string) => {
+    setSelected(option);
+    setIsOpen(false);
   };
 
-  useEffect(() => {
-    const onClickOutside = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', onClickOutside);
-    return () => document.removeEventListener('mousedown', onClickOutside);
-  }, []);
-
   return (
-    <Wrapper ref={ref}>
-      <Trigger onClick={() => setOpen(!open)}>
+    <Wrapper ref={wrapperRef}>
+      <SelectButton onClick={() => setIsOpen((prev) => !prev)}>
         {selected || 'Select...'}
         <LuChevronDown />
-      </Trigger>
-      <List open={open}>
-        {options.map((opt) => (
-          <Item key={opt} onClick={() => onSelect(opt)} tabIndex={0}>
-            {opt}
-          </Item>
+      </SelectButton>
+
+      <DropdownList open={isOpen}>
+        {options.map((option) => (
+          <DropdownItem key={option} onClick={() => handleSelect(option)} tabIndex={0}>
+            {option}
+          </DropdownItem>
         ))}
-      </List>
+      </DropdownList>
     </Wrapper>
   );
 };

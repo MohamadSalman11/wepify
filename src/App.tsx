@@ -1,9 +1,9 @@
-import styled from 'styled-components';
+import styled, { ThemeProvider } from 'styled-components';
 import Header from './features/editor/Header';
-import Layers from './features/editor/Layers';
-import SettingsPanel from './features/editor/SettingsPanel';
+import Panel from './features/editor/panels';
 import Sidebar from './features/editor/Sidebar';
 import GlobalStyles from './styles/GlobalStyles';
+import theme from './styles/theme';
 
 const EditorPage = styled.div`
   width: 100%;
@@ -40,19 +40,18 @@ const Canvas = styled.div`
 function App() {
   return (
     <>
-      <GlobalStyles />
-      <EditorPage>
-        <Sidebar />
-        <Header />
-        <Layers />
-        {/* <Pages /> */}
-        {/* <Uploads /> */}
-        {/* <ElementsPanel /> */}
-        <div>
-          <Canvas>Hi</Canvas>
-        </div>
-        <SettingsPanel />
-      </EditorPage>
+      <ThemeProvider theme={theme}>
+        <GlobalStyles />
+        <EditorPage>
+          <Sidebar />
+          <Header />
+          <Panel panel='uploads' />
+          <div>
+            <Canvas>Hi</Canvas>
+          </div>
+          <Panel panel='settings' sectioned={true} borderDir='left' />
+        </EditorPage>
+      </ThemeProvider>
     </>
   );
 }

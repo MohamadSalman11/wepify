@@ -1,27 +1,21 @@
 import { LuTrash } from 'react-icons/lu';
 import styled from 'styled-components';
+import Button from '../../../components/Button';
 
-const UploadsContainer = styled.div`
-  border-right: var(--border-base);
-  background-color: var(--color-black-light-2);
-  overflow-y: auto;
-  padding: 3.2rem 2.4rem;
-
-  button {
-    transition: var(--transition-base);
-    border-radius: 8px;
-    background-color: var(--color-primary);
-    width: 100%;
-    height: 4.5rem;
-    color: var(--color-white);
-    font-size: 1.4rem;
-
-    &:hover {
-      background-color: var(--color-primary-light);
-    }
+const images = [
+  {
+    title: 'css.png'
+  },
+  {
+    title: 'css.png'
+  },
+  {
+    title: 'css.png'
   }
+];
 
-  nav ul {
+const Nav = styled.nav`
+  ul {
     display: flex;
     align-items: center;
     margin-top: 3.2rem;
@@ -48,18 +42,6 @@ const UploadsContainer = styled.div`
     }
   }
 `;
-
-const images = [
-  {
-    title: 'css.png'
-  },
-  {
-    title: 'css.png'
-  },
-  {
-    title: 'css.png'
-  }
-];
 
 const Media = styled.ul`
   display: grid;
@@ -93,11 +75,11 @@ const Media = styled.ul`
   }
 `;
 
-function Uploads() {
+function UploadsPanel() {
   return (
-    <UploadsContainer>
-      <button>Upload File</button>
-      <nav>
+    <>
+      <Button size='full'>Upload File</Button>
+      <Nav>
         <ul>
           <li>
             <a href='#'>images</a>
@@ -106,16 +88,16 @@ function Uploads() {
             <a href='#'>videos</a>
           </li>
         </ul>
-      </nav>
+      </Nav>
 
       <Media>
-        {images.map((img) => (
-          <li>
+        {images.map((img, i) => (
+          <li key={i}>
             <LuTrash />
           </li>
         ))}
       </Media>
-    </UploadsContainer>
+    </>
   );
 }
-export default Uploads;
+export default UploadsPanel;

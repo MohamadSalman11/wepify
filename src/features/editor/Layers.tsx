@@ -1,5 +1,14 @@
 import { useState } from 'react';
-import { LuChevronRight, LuFileVideo, LuHeading, LuImage, LuLink, LuTextCursorInput, LuType } from 'react-icons/lu';
+import {
+  LuChevronRight,
+  LuFileVideo,
+  LuGroup,
+  LuHeading,
+  LuImage,
+  LuLink,
+  LuSquare,
+  LuTextCursorInput
+} from 'react-icons/lu';
 import styled from 'styled-components';
 
 const LayersContainer = styled.div`
@@ -45,7 +54,7 @@ const LayerBox = styled.div<{ nested?: boolean }>`
   }
 
   svg {
-    color: var(--color-white);
+    color: var(--color-gray);
     font-size: 1.6rem;
   }
 
@@ -60,6 +69,7 @@ const NestedList = styled.ul`
   display: flex;
   flex-direction: column;
   list-style: none;
+  row-gap: 0.8rem;
 `;
 
 const LayerHeader = styled.div`
@@ -88,13 +98,19 @@ function Layers() {
           <LayerHeader>
             <ChevronIcon expanded={expanded} onClick={() => setExpanded((prev) => !prev)} />
             <LayerBox>
-              <LuType />
-              <span>Text</span>
+              <LuGroup />
+              <span>Group 1</span>
             </LayerBox>
           </LayerHeader>
 
           {expanded && (
             <NestedList>
+              <li>
+                <LayerBox nested>
+                  <LuSquare />
+                  <span>Container</span>
+                </LayerBox>
+              </li>
               <li>
                 <LayerBox nested>
                   <LuTextCursorInput />

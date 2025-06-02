@@ -1,6 +1,8 @@
 import Sketch from '@uiw/react-color-sketch';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
+import Input from '../../components/form/Input';
+import useOutsideClick from '../../hooks/useOutsideClick';
 
 const StyledSketch = styled(Sketch)`
   position: absolute;
@@ -44,35 +46,29 @@ const PreviewBox = styled.div`
   cursor: pointer;
 `;
 
-const Input = styled.input`
-  background-color: var(--color-black-light-2);
-  padding: 0.8rem 0.8rem 0.8rem 4.8rem;
+const PreviewInput = styled(Input)`
+  padding-left: 4.8rem;
+  background-color: transparent;
   border: var(--border-base);
-  border-radius: var(--border-radius-sm);
-  color: var(--color-white);
-  width: 100%;
 `;
 
 function ColorPicker() {
   const [isOpen, setIsOpen] = useState(false);
   const [hex, setHex] = useState('#fff');
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  const divRef = useOutsideClick(() => setIsOpen(false));
 
   return (
-    <div ref={ref}>
+    <div ref={divRef}>
       <Preview onClick={() => setIsOpen(!isOpen)}>
         <PreviewBox style={{ backgroundColor: hex }} />
-        <Input type='text' value={hex} readOnly />
+        <PreviewInput
+          type='text'
+          value={hex}
+          onChange={(e) => {
+            const value = e.target.value.trim();
+            setHex(value.startsWith('#') ? value : `#${value}`);
+          }}
+        />
       </Preview>
 
       {isOpen && (

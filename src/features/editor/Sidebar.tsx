@@ -1,8 +1,8 @@
-import type { IconType } from 'react-icons';
 import { LuCloudUpload, LuCodeXml, LuFile, LuLayers3, LuLogOut, LuPlus } from 'react-icons/lu';
 import styled from 'styled-components';
-import Logo from '../../components/Logo';
 import Divider from '../../components/divider';
+import Icon from '../../components/Icon';
+import Logo from '../../components/Logo';
 
 const StyledSidebar = styled.aside`
   display: flex;
@@ -11,7 +11,6 @@ const StyledSidebar = styled.aside`
   background-color: var(--color-black-light-2);
   border-right: var(--border-base);
   grid-row: 1 / 3;
-  font-size: 2rem;
   padding: 1.6rem 1.2rem 4.8rem 1.2rem;
 
   ul {
@@ -58,6 +57,7 @@ const StyledSidebar = styled.aside`
   }
 
   & svg:not(nav svg) {
+    cursor: pointer;
     margin-top: auto;
     color: var(--color-red);
   }
@@ -70,23 +70,25 @@ function Sidebar() {
       <Divider />
       <nav>
         <ul>
-          <NavItem icon={LuPlus} />
-          <NavItem icon={LuFile} />
-          <NavItem icon={LuLayers3} />
-          <NavItem icon={LuCloudUpload} />
-          <NavItem icon={LuCodeXml} />
+          <li>
+            <Icon icon={LuPlus} />
+          </li>
+          <li>
+            <Icon icon={LuFile} />
+          </li>
+          <li>
+            <Icon icon={LuLayers3} />
+          </li>
+          <li>
+            <Icon icon={LuCloudUpload} />
+          </li>
+          <li>
+            <Icon icon={LuCodeXml} />
+          </li>
         </ul>
       </nav>
-      <LuLogOut />
+      <Icon icon={LuLogOut} />
     </StyledSidebar>
-  );
-}
-
-function NavItem({ icon: Icon }: { icon: IconType }) {
-  return (
-    <li>
-      <Icon />
-    </li>
   );
 }
 

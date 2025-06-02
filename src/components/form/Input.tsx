@@ -12,7 +12,6 @@ const StyledInput = styled.input`
     --${prefix}-input-font-size: var(--input-font-size);
     --${prefix}-input-border-radius: var(--input-border-radius);
 
-
       width: 100%;
       color: var(--color-white);
       border-radius: var(--${prefix}-input-border-radius);

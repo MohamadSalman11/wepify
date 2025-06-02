@@ -2,6 +2,7 @@ import { LuMonitor, LuPanelBottom, LuPanelLeft, LuPanelRight, LuPanelTop, LuSqua
 import styled from 'styled-components';
 import Input from '../../../components/form/Input';
 import Select from '../../../components/form/Select';
+import Icon from '../../../components/Icon';
 import ColorPicker from '../ColorPicker';
 
 const SelectorContainer = styled.div`
@@ -9,11 +10,6 @@ const SelectorContainer = styled.div`
   align-items: center;
   column-gap: 1.2rem;
   font-size: 1.2rem;
-
-  svg {
-    color: var(--color-white);
-    font-size: 2.4rem;
-  }
 `;
 
 const SizeContainer = styled.div`
@@ -98,7 +94,7 @@ function SettingsPanel() {
       <div>
         <Title>Selector</Title>
         <SelectorContainer>
-          <LuMonitor />
+          <Icon icon={LuMonitor} />
           <Select options={['Chocolate', 'Vanilla', 'Strawberry']} />
         </SelectorContainer>
       </div>
@@ -166,23 +162,23 @@ function SettingsPanel() {
             <StrokePosition>
               <div>
                 <span>All</span>
-                <LuSquare />
+                <Icon icon={LuSquare} size='sm' />
               </div>
               <div>
                 <span>Top</span>
-                <LuPanelTop />
+                <Icon icon={LuPanelTop} size='sm' />
               </div>
               <div>
                 <span>Right</span>
-                <LuPanelRight />
+                <Icon icon={LuPanelRight} size='sm' />
               </div>
               <div>
                 <span>Bottom</span>
-                <LuPanelBottom />
+                <Icon icon={LuPanelBottom} size='sm' />
               </div>
               <div>
                 <span>Left</span>
-                <LuPanelLeft />
+                <Icon icon={LuPanelLeft} size='sm' />
               </div>
             </StrokePosition>
           </GridContainer>

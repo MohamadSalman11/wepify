@@ -18,7 +18,7 @@ const EditorPage = styled.div`
     display: none;
   }
 
-  div:nth-child(4) {
+  & > div:nth-child(4) {
     display: flex;
     justify-content: center;
     background-color: transparent;

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Button from '../../components/Button';
 import Divider from '../../components/divider';
 import Input from '../../components/form/Input';
+import Icon from '../../components/Icon';
 
 const CanvasSizeInput = styled(Input)`
   width: 7rem;
@@ -21,10 +22,6 @@ const StyledHeader = styled.header`
   & > div {
     flex-grow: 1;
     justify-content: end;
-  }
-
-  svg {
-    font-size: 2.4rem;
   }
 `;
 
@@ -57,10 +54,6 @@ const EditorActions = styled.div`
   display: flex;
   column-gap: 2.4rem;
   align-items: center;
-
-  & > svg {
-    font-size: 2rem;
-  }
 `;
 
 const DesignInfo = styled.div`
@@ -85,10 +78,10 @@ function Header() {
         <p>Landing page site</p>
       </DesignInfo>
       <DevicePreviewControls>
-        <LuMonitor />
-        <LuLaptop />
-        <LuTablet />
-        <LuSmartphone />
+        <Icon icon={LuMonitor} />
+        <Icon icon={LuLaptop} />
+        <Icon icon={LuTablet} />
+        <Icon icon={LuSmartphone} />
         <CanvasSizeControls>
           <div>
             <span>W</span>
@@ -101,10 +94,11 @@ function Header() {
         </CanvasSizeControls>
       </DevicePreviewControls>
       <EditorActions>
-        <LuUndo2 />
-        <LuRedo2 />
+        <Icon icon={LuUndo2} />
+        <Icon icon={LuRedo2} />
         <Divider rotate={90} width={30} />
-        <LuEye />
+        <Icon icon={LuEye} />
+
         <Divider rotate={90} width={30} />
         <Button variation='secondary'>Download</Button>
         <Button>Publish</Button>

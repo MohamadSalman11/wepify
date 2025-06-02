@@ -84,7 +84,7 @@ const variables = css`
     --input-padding-y: 0.8rem;
     --input-padding-x: var(--padding-x);
     --input-font-size: var(--font-size);
-    --form-input-border-radius: var(--border-radius-md);
+    --input-border-radius: var(--border-radius-md);
 
     /* Typography */
     --font-family-sans-serif:

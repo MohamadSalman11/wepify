@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { LuChevronDown } from 'react-icons/lu';
 import styled from 'styled-components';
 import useOutsideClick from '../../hooks/useOutsideClick';
+import Icon from '../Icon';
 
 const Wrapper = styled.div`
   position: relative;
@@ -20,10 +21,6 @@ const SelectButton = styled.button`
   justify-content: space-between;
   align-items: center;
   text-align: left;
-
-  svg {
-    font-size: 2rem;
-  }
 `;
 
 const DropdownList = styled.ul<{ open: boolean }>`
@@ -61,7 +58,7 @@ const Select = ({ options }: { options: string[] }) => {
     <Wrapper ref={wrapperRef}>
       <SelectButton onClick={() => setIsOpen((prev) => !prev)}>
         {selected || 'Select...'}
-        <LuChevronDown />
+        <Icon icon={LuChevronDown} />
       </SelectButton>
 
       <DropdownList open={isOpen}>

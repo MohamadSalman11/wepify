@@ -10,6 +10,7 @@ const StyledCanvas = styled.div`
   align-items: center;
   background-color: transparent;
   overflow-y: auto;
+  overflow-x: hidden;
 
   iframe {
     border: none;
@@ -18,7 +19,7 @@ const StyledCanvas = styled.div`
 `;
 
 function Canvas() {
-  const { width, height, elements } = useSelector((state) => state.page);
+  const { width, height, scale, elements } = useSelector((state) => state.page);
   const dispatch = useDispatch();
   const canvasRef = useRef();
   const iframeRef = useRef();
@@ -85,7 +86,8 @@ function Canvas() {
         onLoad={setPageSize}
         style={{
           width: width !== undefined ? `${width}px` : '100%',
-          height: height !== undefined ? `${height}px` : '100vh'
+          height: height !== undefined ? `${height}px` : '100vh',
+          transform: `scale(${scale / 100})`
         }}
       />
     </StyledCanvas>

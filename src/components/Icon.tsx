@@ -8,8 +8,16 @@ const sizeMap: Record<IconSize, string> = {
   lg: '2rem'
 };
 
-const Icon = ({ icon: IconComponent, size = 'lg' }: { icon: IconType; size?: IconSize }) => {
-  return <IconComponent size={sizeMap[size]} />;
+const Icon = ({
+  icon: IconComponent,
+  size = 'lg',
+  onClick
+}: {
+  icon: IconType;
+  size?: IconSize;
+  onClick?: () => void;
+}) => {
+  return <IconComponent size={sizeMap[size]} onClick={onClick} />;
 };
 
 export default Icon;

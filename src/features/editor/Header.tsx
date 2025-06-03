@@ -5,7 +5,7 @@ import Button from '../../components/Button';
 import Divider from '../../components/divider';
 import Input from '../../components/form/Input';
 import Icon from '../../components/Icon';
-import { setHeight, setWidth } from './slices/pageSlice';
+import { setHeight, setScale, setWidth } from './slices/pageSlice';
 
 const CanvasSizeInput = styled(Input)`
   width: 7rem;
@@ -86,6 +86,17 @@ function Header() {
     dispatch(setWidth(newWidth));
   };
 
+  const handleScaleChange = (e) => {
+    const newScale = Number(e.target.value);
+    dispatch(setScale(newScale));
+  };
+
+  const setCanvasSize = (width, height, scale?) => {
+    dispatch(setWidth(width));
+    dispatch(setHeight(height));
+    dispatch(setScale(scale || 100));
+  };
+
   return (
     <StyledHeader>
       <DesignInfo>
@@ -93,27 +104,32 @@ function Header() {
         <p>Landing page site</p>
       </DesignInfo>
       <DevicePreviewControls>
-        <Icon icon={LuMonitor} />
-        <Icon icon={LuLaptop} />
-        <Icon icon={LuTablet} />
-        <Icon icon={LuSmartphone} />
+        <Icon icon={LuMonitor} onClick={() => setCanvasSize(1440, 900, 75)} />
+        <Icon icon={LuLaptop} onClick={() => setCanvasSize(1280, 800, 85)} />
+        <Icon icon={LuTablet} onClick={() => setCanvasSize(768, 1024)} />
+        <Icon icon={LuSmartphone} onClick={() => setCanvasSize(375, 667)} />
+
         <CanvasSizeControls>
           <div>
             <span>W</span>
-            <CanvasSizeInput type='text' defaultValue={page.width} placeholder='px' onChange={handleWidthChange} />
+            <CanvasSizeInput type='text' value={page.width} placeholder='px' onChange={handleWidthChange} />
           </div>
           <div>
             <span>H</span>
-            <CanvasSizeInput type='text' defaultValue={page.height} placeholder='px' onChange={handleHeightChange} />
+            <CanvasSizeInput type='text' value={page.height} placeholder='px' onChange={handleHeightChange} />
+          </div>
+          <div>
+            <span>%</span>
+            <CanvasSizeInput type='text' value={page.scale} placeholder='%' onChange={handleScaleChange} />
           </div>
         </CanvasSizeControls>
       </DevicePreviewControls>
+
       <EditorActions>
         <Icon icon={LuUndo2} />
         <Icon icon={LuRedo2} />
         <Divider rotate={90} width={30} />
         <Icon icon={LuEye} />
-
         <Divider rotate={90} width={30} />
         <Button variation='secondary'>Download</Button>
         <Button>Publish</Button>

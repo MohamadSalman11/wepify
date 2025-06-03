@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   width: undefined,
   height: undefined,
+  scale: 100,
   elements: [
     {
       id: 'section-1',
@@ -44,6 +45,9 @@ const pageSlice = createSlice({
     setHeight(state, action) {
       state.height = action.payload;
     },
+    setScale(state, action) {
+      state.scale = action.payload;
+    },
     addElement(state, action) {
       state.elements.push(action.payload);
     },
@@ -57,6 +61,6 @@ const pageSlice = createSlice({
   }
 });
 
-export const { setWidth, setHeight, addElement, updateElement } = pageSlice.actions;
+export const { setWidth, setHeight, setScale, addElement, updateElement } = pageSlice.actions;
 
 export default pageSlice.reducer;

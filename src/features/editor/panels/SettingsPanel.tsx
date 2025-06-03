@@ -8,6 +8,23 @@ import ColorPicker from '../ColorPicker';
 import { updateElement } from '../slices/pageSlice';
 import { selectElement } from '../slices/selectionSlice';
 
+const webSafeFonts = [
+  'Arial',
+  'Verdana',
+  'Helvetica',
+  'Tahoma',
+  'Trebuchet MS',
+  'Times New Roman',
+  'Georgia',
+  'Courier New',
+  'Segoe UI',
+  'Impact',
+  'System-ui',
+  'Sans-serif',
+  'Serif',
+  'Monospace'
+];
+
 const SelectorContainer = styled.div`
   display: flex;
   align-items: center;
@@ -149,7 +166,7 @@ function SettingsPanel() {
         <div>
           <div>
             <label>Font Family</label>
-            <Select options={['Arial', 'Sans-Serif', 'Roboto', 'Arial', 'Canva']} />
+            <Select options={webSafeFonts} />
           </div>
           <GridContainer>
             <div>

@@ -101,6 +101,7 @@ function generateTailwindClasses(el) {
   const backgroundColor = el.backgroundColor ? `bg-[${el.backgroundColor}]` : '';
   const color = el.color ? `text-[${el.color}]` : '';
   const fontFamily = el.fontFamily ? `font-[${el.fontFamily}]` : '';
+  const fontWeight = el.fontWeight ? `font-[${el.fontWeight}]` : '';
 
   let borderClass = '';
   if (el.borderWidth && el.borderColor) {
@@ -128,7 +129,7 @@ function generateTailwindClasses(el) {
     }
   }
 
-  return [widthClass, heightClass, x, y, position, color, backgroundColor, borderClass, fontFamily]
+  return [widthClass, heightClass, x, y, position, color, backgroundColor, borderClass, fontFamily, fontWeight]
     .filter(Boolean)
     .join(' ');
 }

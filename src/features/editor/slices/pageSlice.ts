@@ -27,7 +27,8 @@ const initialState = {
       borderWidth: 5,
       borderPosition: 'all',
       content: 'My name is blue',
-      fontFamily: 'Courier-New'
+      fontFamily: 'Courier-New',
+      fontWeight: 500
     }
   ]
 };

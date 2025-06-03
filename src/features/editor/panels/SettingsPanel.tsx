@@ -139,6 +139,21 @@ function SettingsPanel() {
     if (selectedEl) dispatch(selectElement(selectedEl));
   };
 
+  const handleFontWeightSelect = (weight) => {
+    const weights = {
+      Thin: 100,
+      ExtraLight: 200,
+      Light: 300,
+      Regular: 400,
+      Medium: 500,
+      SemiBold: 600,
+      Bold: 700,
+      ExtraBold: 800,
+      Black: 900
+    };
+    dispatch(updateElement({ id: selection.id, updates: { fontWeight: weights[weight] } }));
+  };
+
   const handleFontFamily = (font) => {
     dispatch(updateElement({ id: selection.id, updates: { fontFamily: font.split(' ').join('-') } }));
   };
@@ -194,6 +209,7 @@ function SettingsPanel() {
               <label>Weight</label>
               <Select
                 options={['Thin', 'ExtraLight', 'Light', 'Regular', 'Medium', 'SemiBold', 'Bold', 'ExtraBold', 'Black']}
+                onChange={handleFontWeightSelect}
               />
             </div>
             <div>

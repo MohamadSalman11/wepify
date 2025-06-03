@@ -11,6 +11,7 @@ const initialState = {
       height: 100,
       x: 0,
       y: 0,
+      color: '#fff',
       backgroundColor: '#1352F1'
     },
     {
@@ -20,7 +21,12 @@ const initialState = {
       height: 100,
       x: 0,
       y: 300,
-      backgroundColor: '#1352F1'
+      color: '#fff',
+      backgroundColor: '#1352F1',
+      borderColor: '#000',
+      borderWidth: 5,
+      borderPosition: 'all',
+      content: 'My name is blue'
     }
   ]
 };

@@ -122,6 +122,10 @@ function SettingsPanel() {
     dispatch(updateElement({ id: selection.id, updates: { [name]: value } }));
   };
 
+  const changeBorderPosition = (pos) => {
+    dispatch(updateElement({ id: selection.id, updates: { borderPosition: pos } }));
+  };
+
   const handleElementSelect = (selectedId) => {
     const selectedEl = page.elements.find((el) => el.id === selectedId);
     if (selectedEl) dispatch(selectElement(selectedEl));
@@ -221,30 +225,30 @@ function SettingsPanel() {
         <div>
           <GridContainer>
             <div>
-              <ColorPicker />
+              <ColorPicker propName='borderColor' onChangeHandler={handleColorChange} />
             </div>
             <StrokeWidthContainer>
               <label htmlFor='stroke-width'>Stroke Width</label>
-              <Input type='text' defaultValue={1} id='stroke-width' />
+              <Input name='borderWidth' type='number' defaultValue={1} id='stroke-width' onChange={handleChange} />
             </StrokeWidthContainer>
             <StrokePosition>
-              <div>
+              <div onClick={() => changeBorderPosition('all')}>
                 <span>All</span>
                 <Icon icon={LuSquare} size='sm' />
               </div>
-              <div>
+              <div onClick={() => changeBorderPosition('top')}>
                 <span>Top</span>
                 <Icon icon={LuPanelTop} size='sm' />
               </div>
-              <div>
+              <div onClick={() => changeBorderPosition('right')}>
                 <span>Right</span>
                 <Icon icon={LuPanelRight} size='sm' />
               </div>
-              <div>
+              <div onClick={() => changeBorderPosition('bottom')}>
                 <span>Bottom</span>
                 <Icon icon={LuPanelBottom} size='sm' />
               </div>
-              <div>
+              <div onClick={() => changeBorderPosition('left')}>
                 <span>Left</span>
                 <Icon icon={LuPanelLeft} size='sm' />
               </div>

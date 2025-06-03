@@ -30,7 +30,7 @@ function Canvas() {
     const elementsHtml = elements
       .map((el) => {
         const classList = generateTailwindClasses(el);
-        return `<${el.tag} id="${el.id}" class="${classList}"></${el.tag}>`;
+        return `<${el.tag} id="${el.id}" class="${classList}">${el.content || ''}</${el.tag}>`;
       })
       .join('\n');
 
@@ -39,6 +39,7 @@ function Canvas() {
         <head>
           <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
           <style>
+            *{box-sizing: border-box; margin: 0; padding: 0};
             html::-webkit-scrollbar { display: none; };
             html { scrollbar-width: none; margin: 0; padding: 0; overflow-y: auto; };
           </style>
@@ -98,7 +99,35 @@ function generateTailwindClasses(el) {
   const y = el.y ? `top-[${el.y}px]` : '';
   const position = x || y ? 'absolute' : '';
   const backgroundColor = el.backgroundColor ? `bg-[${el.backgroundColor}]` : '';
-  return [widthClass, heightClass, x, y, backgroundColor, position].filter(Boolean).join(' ');
+  const color = el.color ? `text-[${el.color}]` : '';
+
+  let borderClass = '';
+  if (el.borderWidth && el.borderColor) {
+    const color = el.borderColor;
+    const width = el.borderWidth;
+    const style = el.borderStyle || 'solid';
+
+    switch (el.borderPosition) {
+      case 'top':
+        borderClass = `border-t-[${width}px] border-t-[${color}] border-t-${style}`;
+        break;
+      case 'bottom':
+        borderClass = `border-b-[${width}px] border-b-[${color}] border-b-${style}`;
+        break;
+      case 'left':
+        borderClass = `border-l-[${width}px] border-l-[${color}] border-l-${style}`;
+        break;
+      case 'right':
+        borderClass = `border-r-[${width}px] border-r-[${color}] border-r-${style}`;
+        break;
+      case 'all':
+      default:
+        borderClass = `border-[${width}px] border-[${color}] border-${style}`;
+        break;
+    }
+  }
+
+  return [widthClass, heightClass, x, y, position, color, backgroundColor, borderClass].filter(Boolean).join(' ');
 }
 
 export default Canvas;

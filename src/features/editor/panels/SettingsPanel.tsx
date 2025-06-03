@@ -171,7 +171,7 @@ function SettingsPanel() {
           <GridContainer>
             <div>
               <label>Weight</label>
-              <Select options={['500', '600', '700']} />
+              <Select options={['100', '200', '300', '400', '500', '600', '700', '800', '900']} />
             </div>
             <div>
               <label>Font Size</label>

@@ -177,7 +177,26 @@ function SettingsPanel() {
             </div>
             <div>
               <label>Font Size</label>
-              <Select options={['10', '12', '13']} />
+              <Select
+                options={[
+                  '10',
+                  '11',
+                  '12',
+                  '13',
+                  '14',
+                  '15',
+                  '16',
+                  '20',
+                  '24',
+                  '32',
+                  '36',
+                  '40',
+                  '48',
+                  '64',
+                  '96',
+                  '128'
+                ]}
+              />
             </div>
           </GridContainer>
           <GridContainer>

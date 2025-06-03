@@ -178,6 +178,8 @@ function SettingsPanel() {
             <div>
               <label>Font Size</label>
               <Select
+                defaultSelect='12'
+                contentEditable={true}
                 options={[
                   '10',
                   '11',

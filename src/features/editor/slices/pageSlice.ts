@@ -12,52 +12,6 @@ const initialState = {
       x: 0,
       y: 0,
       classes: 'bg-blue-500'
-    },
-    {
-      id: 'Image',
-      tag: 'section',
-      width: 500,
-      height: 500,
-      x: 0,
-      y: 0,
-      classes: 'bg-blue-500'
-    },
-    {
-      id: 'container',
-      tag: 'section',
-      width: 500,
-      height: 500,
-      x: 0,
-      y: 0,
-      classes: 'bg-blue-500'
-    },
-    {
-      id: 'about me',
-      tag: 'section',
-      width: 500,
-      height: 500,
-      x: 0,
-      y: 0,
-      classes: 'bg-blue-500'
-    },
-    {
-      id: 'about me',
-      tag: 'section',
-      width: 500,
-      height: 500,
-      x: 0,
-      y: 0,
-      classes: 'bg-blue-500'
-    },
-
-    {
-      id: 'about me',
-      tag: 'section',
-      width: 500,
-      height: 500,
-      x: 0,
-      y: 0,
-      classes: 'bg-blue-500'
     }
   ]
 };

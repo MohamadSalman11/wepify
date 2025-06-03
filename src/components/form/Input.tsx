@@ -21,7 +21,7 @@ const StyledInput = styled.input`
 `;
 
 function Input(props: InputHTMLAttributes<HTMLInputElement>) {
-  return <StyledInput {...props} />;
+  return <StyledInput autoComplete='off' {...props} />;
 }
 
 export default Input;

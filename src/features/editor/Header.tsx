@@ -1,9 +1,11 @@
 import { LuEye, LuLaptop, LuMonitor, LuRedo2, LuSmartphone, LuTablet, LuUndo2 } from 'react-icons/lu';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Button from '../../components/Button';
 import Divider from '../../components/divider';
 import Input from '../../components/form/Input';
 import Icon from '../../components/Icon';
+import { setHeight, setWidth } from './slices/pageSlice';
 
 const CanvasSizeInput = styled(Input)`
   width: 7rem;
@@ -71,6 +73,19 @@ const DesignInfo = styled.div`
 `;
 
 function Header() {
+  const dispatch = useDispatch();
+  const page = useSelector((state) => state.page);
+
+  const handleHeightChange = (e) => {
+    const newHeight = Number(e.target.value);
+    dispatch(setHeight(newHeight));
+  };
+
+  const handleWidthChange = (e) => {
+    const newWidth = Number(e.target.value);
+    dispatch(setWidth(newWidth));
+  };
+
   return (
     <StyledHeader>
       <DesignInfo>
@@ -85,11 +100,11 @@ function Header() {
         <CanvasSizeControls>
           <div>
             <span>W</span>
-            <CanvasSizeInput type='text' defaultValue={1440} placeholder='px' />
+            <CanvasSizeInput type='text' defaultValue={page.width} placeholder='px' onChange={handleWidthChange} />
           </div>
           <div>
             <span>H</span>
-            <CanvasSizeInput type='text' defaultValue={880} placeholder='px' />
+            <CanvasSizeInput type='text' defaultValue={page.height} placeholder='px' onChange={handleHeightChange} />
           </div>
         </CanvasSizeControls>
       </DevicePreviewControls>

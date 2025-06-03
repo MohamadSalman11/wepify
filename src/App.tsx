@@ -1,4 +1,5 @@
 import styled, { ThemeProvider } from 'styled-components';
+import Canvas from './features/editor/Canvas';
 import Header from './features/editor/Header';
 import Panel from './features/editor/panels';
 import Sidebar from './features/editor/Sidebar';
@@ -13,28 +14,6 @@ const EditorPage = styled.div`
   grid-template-rows: 8rem 1fr;
   overflow: hidden;
   user-select: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  & > div:nth-child(4) {
-    display: flex;
-    justify-content: center;
-    background-color: transparent;
-    overflow-y: auto;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-`;
-
-const Canvas = styled.div`
-  width: 80%;
-  height: 50vh;
-  background-color: var(--color-white);
-  color: var(--color-black);
 `;
 
 function App() {
@@ -45,10 +24,8 @@ function App() {
         <EditorPage>
           <Sidebar />
           <Header />
-          <Panel panel='uploads' />
-          <div>
-            <Canvas>Hi</Canvas>
-          </div>
+          <Panel panel='elements' sectioned={true} />
+          <Canvas />
           <Panel panel='settings' sectioned={true} borderDir='left' />
         </EditorPage>
       </ThemeProvider>

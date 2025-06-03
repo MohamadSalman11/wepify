@@ -47,7 +47,7 @@ const DropdownItem = styled.li`
   }
 `;
 
-const Select = ({ options }: { options: string[] }) => {
+const Select = ({ options, onChange }: { options: string[]; onChange?: (value: string) => void }) => {
   const [selected, setSelected] = useState<string>();
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useOutsideClick<HTMLDivElement>(() => setIsOpen(false));
@@ -55,8 +55,8 @@ const Select = ({ options }: { options: string[] }) => {
   const handleSelect = (option: string) => {
     setSelected(option);
     setIsOpen(false);
+    if (onChange) onChange(option);
   };
-
   return (
     <Wrapper ref={wrapperRef}>
       <SelectButton onClick={() => setIsOpen((prev) => !prev)}>

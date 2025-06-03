@@ -6,6 +6,7 @@ import Select from '../../../components/form/Select';
 import Icon from '../../../components/Icon';
 import ColorPicker from '../ColorPicker';
 import { updateElement } from '../slices/pageSlice';
+import { selectElement } from '../slices/selectionSlice';
 
 const SelectorContainer = styled.div`
   display: flex;
@@ -95,12 +96,15 @@ function SettingsPanel() {
   const selection = useSelector((state) => state.selection.selectedElement);
   const page = useSelector((state) => state.page);
 
-  console.log(page.width);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     dispatch(updateElement({ id: selection.id, updates: { [name]: Number(value) } }));
+  };
+
+  const handleElementSelect = (selectedId) => {
+    const selectedEl = page.elements.find((el) => el.id === selectedId);
+    if (selectedEl) dispatch(selectElement(selectedEl));
   };
 
   return (
@@ -109,7 +113,7 @@ function SettingsPanel() {
         <Title>Selector</Title>
         <SelectorContainer>
           <Icon icon={LuMonitor} />
-          <Select options={page.elements.map((el) => el.id)} />
+          <Select options={page.elements.map((el) => el.id)} onChange={handleElementSelect} />
         </SelectorContainer>
       </div>
       <SizeContainer>

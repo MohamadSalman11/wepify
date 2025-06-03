@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { setHeight, setWidth } from './slices/pageSlice';
-import { selectElement } from './slices/selectionSlice';
 
 const StyledCanvas = styled.div`
   display: flex;
@@ -24,14 +23,6 @@ function Canvas() {
   const canvasRef = useRef();
   const iframeRef = useRef();
   const hasInitialized = useRef(false);
-
-  useEffect(() => {
-    const targetId = 'section-1';
-    const target = elements.find((el) => el.id === targetId);
-    if (target) {
-      dispatch(selectElement(target));
-    }
-  }, [dispatch, elements]);
 
   useEffect(() => {
     if (hasInitialized.current) return;

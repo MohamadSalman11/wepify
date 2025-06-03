@@ -7,10 +7,19 @@ const initialState = {
     {
       id: 'section-1',
       tag: 'section',
-      width: 500,
-      height: 500,
+      width: 100,
+      height: 100,
       x: 0,
       y: 0,
+      classes: 'bg-blue-500'
+    },
+    {
+      id: 'section-2',
+      tag: 'section',
+      width: 100,
+      height: 100,
+      x: 0,
+      y: 300,
       classes: 'bg-blue-500'
     }
   ]

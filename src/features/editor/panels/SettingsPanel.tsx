@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { LuMonitor, LuPanelBottom, LuPanelLeft, LuPanelRight, LuPanelTop, LuSquare } from 'react-icons/lu';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
@@ -112,9 +113,16 @@ function SettingsPanel() {
   const dispatch = useDispatch();
   const selection = useSelector((state) => state.selection.selectedElement);
   const page = useSelector((state) => state.page);
+  const [inputValues, setInputValues] = useState({
+    x: selection.x,
+    y: selection.y,
+    width: selection.width,
+    height: selection.height
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    setInputValues((prev) => ({ ...prev, [name]: value }));
     dispatch(updateElement({ id: selection.id, updates: { [name]: Number(value) } }));
   };
 
@@ -131,6 +139,15 @@ function SettingsPanel() {
     if (selectedEl) dispatch(selectElement(selectedEl));
   };
 
+  useEffect(() => {
+    setInputValues({
+      x: selection.x,
+      y: selection.y,
+      width: selection.width,
+      height: selection.height
+    });
+  }, [selection]);
+
   return (
     <>
       <div>
@@ -145,26 +162,19 @@ function SettingsPanel() {
         <GridContainer>
           <div>
             <label htmlFor='x-position'>X</label>
-            <Input type='number' defaultValue={selection.x} id='x-position' name='x' onChange={handleChange} />
+            <Input type='number' name='x' value={inputValues.x} onChange={handleChange} />
           </div>
           <div>
             <label htmlFor='y-position'>Y</label>
-            <Input type='number' defaultValue={selection.y} id='y-position' name='y' onChange={handleChange} />
+            <Input type='number' name='y' value={inputValues.y} onChange={handleChange} />
           </div>
           <div>
             <label htmlFor='width'>W</label>
-            <Input type='number' defaultValue={selection.width} id='width' name='width' onChange={handleChange} />
+            <Input type='number' name='width' value={inputValues.width} onChange={handleChange} />
           </div>
           <div>
             <label htmlFor='height'>H</label>
-            <Input
-              type='number'
-              height={page.height}
-              defaultValue={selection.height}
-              id='height'
-              name='height'
-              onChange={handleChange}
-            />
+            <Input type='number' name='height' value={inputValues.height} onChange={handleChange} />
           </div>
         </GridContainer>
       </SizeContainer>

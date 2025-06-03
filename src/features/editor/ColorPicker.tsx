@@ -52,7 +52,13 @@ const PreviewInput = styled(Input)`
   border: var(--border-base);
 `;
 
-function ColorPicker() {
+function ColorPicker({
+  propName,
+  onChangeHandler
+}: {
+  propName: string;
+  onChangeHandler: (name: string, value: string) => void;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [hex, setHex] = useState('#fff');
   const divRef = useOutsideClick(() => setIsOpen(false));
@@ -62,11 +68,14 @@ function ColorPicker() {
       <Preview onClick={() => setIsOpen(!isOpen)}>
         <PreviewBox style={{ backgroundColor: hex }} />
         <PreviewInput
+          name={propName}
           type='text'
           value={hex}
           onChange={(e) => {
             const value = e.target.value.trim();
-            setHex(value.startsWith('#') ? value : `#${value}`);
+            const hex = value.startsWith('#') ? value : `#${value}`;
+            setHex(hex);
+            onChangeHandler(propName, hex);
           }}
         />
       </Preview>
@@ -76,6 +85,7 @@ function ColorPicker() {
           color={hex}
           onChange={(color) => {
             setHex(color.hex);
+            onChangeHandler(propName, color.hex);
           }}
         />
       )}

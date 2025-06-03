@@ -115,8 +115,11 @@ function SettingsPanel() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     dispatch(updateElement({ id: selection.id, updates: { [name]: Number(value) } }));
+  };
+
+  const handleColorChange = (name, value) => {
+    dispatch(updateElement({ id: selection.id, updates: { [name]: value } }));
   };
 
   const handleElementSelect = (selectedId) => {
@@ -204,11 +207,11 @@ function SettingsPanel() {
           <GridContainer>
             <div>
               <label>Color</label>
-              <ColorPicker />
+              <ColorPicker propName='color' onChangeHandler={handleColorChange} />
             </div>
             <div>
               <label>Fill</label>
-              <ColorPicker />
+              <ColorPicker propName='backgroundColor' onChangeHandler={handleColorChange} />
             </div>
           </GridContainer>
         </div>

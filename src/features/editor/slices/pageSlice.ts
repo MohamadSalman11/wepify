@@ -11,7 +11,7 @@ const initialState = {
       height: 100,
       x: 0,
       y: 0,
-      classes: 'bg-blue-500'
+      backgroundColor: '#1352F1'
     },
     {
       id: 'section-2',
@@ -20,7 +20,7 @@ const initialState = {
       height: 100,
       x: 0,
       y: 300,
-      classes: 'bg-blue-500'
+      backgroundColor: '#1352F1'
     }
   ]
 };

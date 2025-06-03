@@ -97,8 +97,8 @@ function generateTailwindClasses(el) {
   const x = el.x ? `left-[${el.x}px]` : '';
   const y = el.y ? `top-[${el.y}px]` : '';
   const position = x || y ? 'absolute' : '';
-  const extra = el.classes || '';
-  return [widthClass, heightClass, x, y, position, extra].filter(Boolean).join(' ');
+  const backgroundColor = el.backgroundColor ? `bg-[${el.backgroundColor}]` : '';
+  return [widthClass, heightClass, x, y, backgroundColor, position].filter(Boolean).join(' ');
 }
 
 export default Canvas;

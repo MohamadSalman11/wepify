@@ -158,6 +158,10 @@ function SettingsPanel() {
     dispatch(updateElement({ id: selection.id, updates: { fontFamily: font.split(' ').join('-') } }));
   };
 
+  const handleFontSizeSelect = (size) => {
+    dispatch(updateElement({ id: selection.id, updates: { fontSize: Number(size) } }));
+  };
+
   useEffect(() => {
     setInputValues({
       x: selection.x,
@@ -217,6 +221,7 @@ function SettingsPanel() {
               <Select
                 defaultSelect='12'
                 contentEditable={true}
+                onChange={handleFontSizeSelect}
                 options={[
                   '10',
                   '11',

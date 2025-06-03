@@ -27,6 +27,15 @@ const LabelEditable = styled.span`
   outline: none;
 `;
 
+const LabelInput = styled.input`
+  width: 100%;
+  outline: none;
+  background: transparent;
+  border: none;
+  color: var(--color-white);
+  font: inherit;
+`;
+
 const Chevron = styled.span<{ clickable: boolean }>`
   ${({ clickable }) => clickable && `cursor: pointer;`}
 `;
@@ -80,19 +89,19 @@ const Select = ({
   return (
     <Wrapper ref={wrapperRef}>
       <SelectButton clickable={!contentEditable} onClick={!contentEditable ? toggleDropdown : undefined}>
-        <LabelEditable
-          contentEditable={contentEditable}
-          suppressContentEditableWarning
-          onBlur={(e) => {
-            if (contentEditable) {
-              const text = e.currentTarget.textContent || '';
+        {contentEditable ? (
+          <LabelInput
+            type='number'
+            value={selected}
+            onChange={(e) => {
+              const text = e.target.value;
               setSelected(text);
               if (onChange) onChange(text);
-            }
-          }}
-        >
-          {selected || 'Select...'}
-        </LabelEditable>
+            }}
+          />
+        ) : (
+          <LabelEditable>{selected || 'Select...'}</LabelEditable>
+        )}
         <Chevron clickable={true} onClick={contentEditable ? toggleDropdown : undefined}>
           <Icon icon={LuChevronDown} />
         </Chevron>

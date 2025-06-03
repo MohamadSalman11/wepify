@@ -73,6 +73,20 @@ const baseStyles = css`
     appearance: textfield;
     -moz-appearance: textfield;
   }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: var(--border-radius-sm);
+    background: var(--color-gray-dark);
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
 `;
 
 export default baseStyles;

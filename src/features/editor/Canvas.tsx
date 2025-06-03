@@ -25,7 +25,6 @@ function Canvas() {
   const iframeRef = useRef();
   const hasInitialized = useRef(false);
 
-  // Set selection initially
   useEffect(() => {
     const targetId = 'section-1';
     const target = elements.find((el) => el.id === targetId);
@@ -34,7 +33,6 @@ function Canvas() {
     }
   }, [dispatch, elements]);
 
-  // First-time iframe HTML render
   useEffect(() => {
     if (hasInitialized.current) return;
 
@@ -72,7 +70,6 @@ function Canvas() {
     });
   }, [elements]);
 
-  // Measure size of the actual <StyledCanvas>
   const setPageSize = () => {
     const el = canvasRef.current;
     if (!el) return;

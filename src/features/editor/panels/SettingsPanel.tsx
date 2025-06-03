@@ -109,7 +109,7 @@ function SettingsPanel() {
         <Title>Selector</Title>
         <SelectorContainer>
           <Icon icon={LuMonitor} />
-          <Select options={['Chocolate', 'Vanilla', 'Strawberry']} />
+          <Select options={page.elements.map((el) => el.id)} />
         </SelectorContainer>
       </div>
       <SizeContainer>
@@ -145,7 +145,7 @@ function SettingsPanel() {
         <div>
           <div>
             <label>Font Family</label>
-            <Select options={['Arial', 'Sans-Serif', 'Roboto']} />
+            <Select options={['Arial', 'Sans-Serif', 'Roboto', 'Arial', 'Canva']} />
           </div>
           <GridContainer>
             <div>

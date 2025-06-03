@@ -27,12 +27,14 @@ const DropdownList = styled.ul<{ open: boolean }>`
   display: ${({ open }) => (open ? 'block' : 'none')};
   position: absolute;
   width: 100%;
+  height: 12.2rem;
   margin-top: 0.4rem;
   background: var(--color-black-light-2);
   border: var(--border-base);
   border-radius: var(--border-radius-sm);
   list-style: none;
   z-index: var(--zindex-base);
+  overflow-y: auto;
 `;
 
 const DropdownItem = styled.li`

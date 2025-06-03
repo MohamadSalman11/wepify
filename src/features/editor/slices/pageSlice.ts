@@ -26,7 +26,8 @@ const initialState = {
       borderColor: '#000',
       borderWidth: 5,
       borderPosition: 'all',
-      content: 'My name is blue'
+      content: 'My name is blue',
+      fontFamily: 'Courier-New'
     }
   ]
 };

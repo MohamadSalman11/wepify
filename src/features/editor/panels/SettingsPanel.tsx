@@ -139,6 +139,10 @@ function SettingsPanel() {
     if (selectedEl) dispatch(selectElement(selectedEl));
   };
 
+  const handleFontFamily = (font) => {
+    dispatch(updateElement({ id: selection.id, updates: { fontFamily: font.split(' ').join('-') } }));
+  };
+
   useEffect(() => {
     setInputValues({
       x: selection.x,
@@ -183,7 +187,7 @@ function SettingsPanel() {
         <div>
           <div>
             <label>Font Family</label>
-            <Select options={webSafeFonts} />
+            <Select options={webSafeFonts} onChange={handleFontFamily} />
           </div>
           <GridContainer>
             <div>

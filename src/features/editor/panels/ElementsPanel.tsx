@@ -1,7 +1,155 @@
 import { LuFileVideo, LuImage, LuSearch, LuYoutube } from 'react-icons/lu';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
+import { addElement } from '../slices/pageSlice';
 import { selectElement } from '../slices/selectionSlice';
+
+const tagMap = {
+  section: 'section',
+  container: 'div',
+  grid: 'div',
+  columns: 'div',
+  rows: 'div',
+  lists: 'ul',
+  heading: 'h1'
+};
+
+const elements = {
+  section: {
+    tag: 'section',
+    width: 800,
+    height: 400,
+    color: '#fff',
+    backgroundColor: '#1352F1',
+    content: 'My name is blue',
+    fontFamily: 'Courier-New',
+    fontWeight: 400,
+    fontSize: 20
+  },
+  container: {
+    tag: 'div',
+    x: 0,
+    y: 0,
+    width: 200,
+    height: 200,
+    color: '#fff',
+    backgroundColor: '#f45a65',
+    content: 'My name is red',
+    fontFamily: 'Courier-New',
+    fontWeight: 400,
+    fontSize: 20
+  },
+
+  rows: {
+    tag: 'div',
+    width: 400,
+    height: 200,
+    color: '#fff',
+    backgroundColor: 'aqua',
+    fontFamily: 'Courier-New',
+    fontWeight: 400,
+    fontSize: 20,
+    display: 'flex',
+    gap: 12,
+    flexDir: 'col',
+    children: [
+      {
+        tag: 'div',
+        width: 50,
+        height: 50,
+        backgroundColor: 'orange'
+      },
+      {
+        tag: 'div',
+        width: 50,
+        height: 50,
+        backgroundColor: 'orange'
+      }
+    ]
+  },
+
+  columns: {
+    tag: 'div',
+    width: 400,
+    height: 200,
+    color: '#fff',
+    backgroundColor: 'lime',
+    fontFamily: 'Courier-New',
+    fontWeight: 400,
+    fontSize: 20,
+    display: 'flex',
+    gap: 12,
+    children: [
+      {
+        tag: 'div',
+        width: 50,
+        height: 50,
+        backgroundColor: 'white'
+      },
+      {
+        tag: 'div',
+        width: 50,
+        height: 50,
+        backgroundColor: 'white'
+      }
+    ]
+  },
+  grid: {
+    tag: 'div',
+    width: 400,
+    height: 200,
+    color: '#fff',
+    backgroundColor: 'orange',
+    fontFamily: 'Courier-New',
+    fontWeight: 400,
+    fontSize: 20,
+    display: 'grid',
+    gap: 12,
+    columns: 2,
+    children: [
+      {
+        tag: 'div',
+        backgroundColor: 'blue'
+      },
+      {
+        tag: 'div',
+        backgroundColor: 'red'
+      },
+      {
+        tag: 'div',
+        backgroundColor: 'red'
+      },
+      {
+        tag: 'div',
+        backgroundColor: 'blue'
+      }
+    ]
+  },
+  lists: {
+    tag: 'ul',
+    color: '#000',
+    fontFamily: 'Courier-New',
+    fontWeight: 400,
+    fontSize: 20,
+    children: [
+      {
+        tag: 'li',
+        content: 'li 1'
+      },
+      {
+        tag: 'li',
+        content: 'li 2'
+      }
+    ]
+  },
+  heading: {
+    tag: 'h1',
+    color: '#000',
+    fontSize: 24,
+    fontWeight: 700,
+    content: 'First heading'
+  }
+};
 
 const PanelList = styled.ul`
   display: grid;
@@ -174,7 +322,6 @@ const SectionTitle = styled.span`
 
 function ElementsPanel() {
   const page = useSelector((state) => state.page);
-  const selection = useSelector((state) => state.selection);
   const dispatch = useDispatch();
 
   function handleSearchElement(e) {
@@ -184,6 +331,13 @@ function ElementsPanel() {
     if (element) {
       dispatch(selectElement(element));
     }
+  }
+
+  function addElementToPage(element) {
+    const sectionCount = page.elements.filter((el) => el.tag === tagMap[element]).length;
+    const elementToAdd = elements[element];
+
+    dispatch(addElement({ id: `${element}-${sectionCount + 1}`, ...elementToAdd }));
   }
 
   return (
@@ -199,20 +353,20 @@ function ElementsPanel() {
         <SectionTitle>Layout</SectionTitle>
         <PanelList>
           <LayoutItem>
-            <PanelBox>
+            <PanelBox onClick={() => addElementToPage('section')}>
               <span>&nbsp;</span>
               <span>&nbsp;</span>
             </PanelBox>
             <span>Section</span>
           </LayoutItem>
           <LayoutItem>
-            <PanelBox>
+            <PanelBox onClick={() => addElementToPage('container')}>
               <span>&nbsp;</span>
             </PanelBox>
             <span>Container</span>
           </LayoutItem>
           <LayoutItem>
-            <PanelBox>
+            <PanelBox onClick={() => addElementToPage('grid')}>
               <span>&nbsp;</span>
               <span>&nbsp;</span>
               <span>&nbsp;</span>
@@ -221,21 +375,21 @@ function ElementsPanel() {
             <span>Grid</span>
           </LayoutItem>
           <LayoutItem>
-            <PanelBox>
+            <PanelBox onClick={() => addElementToPage('columns')}>
               <span>&nbsp;</span>
               <span>&nbsp;</span>
             </PanelBox>
             <span>Columns</span>
           </LayoutItem>
           <LayoutItem>
-            <PanelBox>
+            <PanelBox onClick={() => addElementToPage('rows')}>
               <span>&nbsp;</span>
               <span>&nbsp;</span>
             </PanelBox>
             <span>Rows</span>
           </LayoutItem>
           <LayoutItem>
-            <PanelBox>
+            <PanelBox onClick={() => addElementToPage('lists')}>
               <span>&nbsp;</span>
               <span>&nbsp;</span>
               <span>&nbsp;</span>
@@ -248,7 +402,7 @@ function ElementsPanel() {
       <div>
         <SectionTitle>Text</SectionTitle>
         <PanelList>
-          <TextItem>
+          <TextItem onClick={() => addElementToPage('heading')}>
             <PanelBox>H</PanelBox>
             <span>Heading</span>
           </TextItem>

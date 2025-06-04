@@ -112,6 +112,7 @@ const Title = styled.span`
 function SettingsPanel() {
   const dispatch = useDispatch();
   const selection = useSelector((state) => state.selection.selectedElement);
+  console.log(selection);
   const page = useSelector((state) => state.page);
   const [inputValues, setInputValues] = useState({
     x: selection.x,

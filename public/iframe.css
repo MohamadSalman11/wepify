@@ -20,7 +20,6 @@ body {
   margin: 0;
   background: #f0f0f0;
   height: 100vh;
-  overflow: hidden;
   touch-action: none;
   user-select: none;
 }

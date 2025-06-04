@@ -57,31 +57,15 @@ function initializeMoveable() {
   window.addEventListener('message', function (event) {
     const data = event.data;
 
-    if (data && data.type === 'SELECTION_UPDATED') {
-      const element = data.element;
-      const target = document.getElementById(element.id);
+    if (data && data.type === 'SELECTION_CHANGED') {
+      const id = data.id;
+      const target = document.getElementById(id);
 
       target.click();
-
-      if (target) {
-        target.style.left = element.x + 'px';
-        target.style.top = element.y + 'px';
-
-        const moveableBox = document.querySelector('.moveable-control-box');
-        if (moveableBox) {
-          moveableBox.style.transform = 'translate3d(' + element.x + 'px, ' + element.y + 'px, 0px)';
-        }
-      }
     }
   });
 
   moveable
-    .on('dragStart', function () {
-      window.parent.postMessage({ type: 'DRAG_START' }, '*');
-    })
-    .on('dragEnd', function () {
-      window.parent.postMessage({ type: 'DRAG_END' }, '*');
-    })
     .on('drag', function ({ target, left, top }) {
       target.style.left = left + 'px';
       target.style.top = top + 'px';

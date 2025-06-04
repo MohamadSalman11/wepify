@@ -7,7 +7,7 @@ import Select from '../../../components/form/Select';
 import Icon from '../../../components/Icon';
 import ColorPicker from '../ColorPicker';
 import { updateElement } from '../slices/pageSlice';
-import { selectElement } from '../slices/selectionSlice';
+import { selectElement, updateSelectElement } from '../slices/selectionSlice';
 
 const webSafeFonts = [
   'Arial',
@@ -124,6 +124,8 @@ function SettingsPanel() {
     const { name, value } = e.target;
     setInputValues((prev) => ({ ...prev, [name]: value }));
     dispatch(updateElement({ id: selection.id, updates: { [name]: Number(value) } }));
+
+    dispatch(updateSelectElement({ updates: { [name]: Number(value) } }));
   };
 
   const handleColorChange = (name, value) => {
@@ -136,7 +138,10 @@ function SettingsPanel() {
 
   const handleElementSelect = (selectedId) => {
     const selectedEl = page.elements.find((el) => el.id === selectedId);
-    if (selectedEl) dispatch(selectElement(selectedEl));
+
+    if (selectedEl) {
+      dispatch(selectElement(selectedEl));
+    }
   };
 
   const handleFontWeightSelect = (weight) => {
@@ -177,7 +182,11 @@ function SettingsPanel() {
         <Title>Selector</Title>
         <SelectorContainer>
           <Icon icon={LuMonitor} />
-          <Select options={page.elements.map((el) => el.id)} onChange={handleElementSelect} />
+          <Select
+            options={page.elements.map((el) => el.id)}
+            onChange={handleElementSelect}
+            defaultSelect={selection.id || ''}
+          />
         </SelectorContainer>
       </div>
       <SizeContainer>

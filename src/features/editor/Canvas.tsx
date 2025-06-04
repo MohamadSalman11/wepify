@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { setHeight, setWidth } from './slices/pageSlice';
+import { setHeight, setWidth, updateElement } from './slices/pageSlice';
+import { selectElement } from './slices/selectionSlice';
 
 const StyledCanvas = styled.div`
   display: flex;
@@ -20,48 +21,73 @@ const StyledCanvas = styled.div`
 
 function Canvas() {
   const { width, height, scale, elements } = useSelector((state) => state.page);
+  const selection = useSelector((state) => state.selection.selectedElement);
   const dispatch = useDispatch();
   const canvasRef = useRef();
   const iframeRef = useRef();
-  const hasInitialized = useRef(false);
+  const isDragging = useRef(false);
 
   useEffect(() => {
-    if (hasInitialized.current) return;
+    if (!iframeRef.current || !selection || !selection.id || isDragging.current) return;
 
-    const elementsHtml = elements
-      .map((el) => {
-        const classList = generateTailwindClasses(el);
-        return `<${el.tag} id="${el.id}" class="${classList}">${el.content || ''}</${el.tag}>`;
-      })
-      .join('\n');
+    iframeRef.current.contentWindow?.postMessage(
+      {
+        type: 'SELECTION_UPDATED',
+        element: selection
+      },
+      '*'
+    );
+  }, [selection]);
 
-    iframeRef.current.srcdoc = `
-      <html>
-        <head>
-          <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-          <style>
-            *{box-sizing: border-box; margin: 0; padding: 0};
-            html::-webkit-scrollbar { display: none; };
-            html { scrollbar-width: none; margin: 0; padding: 0; overflow-y: auto; };
-          </style>
-        </head>
-        <body>${elementsHtml}</body>
-      </html>
-    `;
-
-    hasInitialized.current = true;
-  }, [elements]);
-
-  // Update element classes
   useEffect(() => {
-    const doc = iframeRef.current?.contentDocument;
-    if (!doc) return;
+    const handleMessage = (event) => {
+      const data = event.data;
 
+      if (data?.type === 'DRAG_START') {
+        isDragging.current = true;
+      }
+
+      if (data?.type === 'DRAG_END') {
+        isDragging.current = false;
+      }
+
+      if (data?.type === 'UPDATE_POSITION') {
+        const { id, left, top } = data;
+
+        dispatch(updateElement({ id: selection.id, updates: { x: left, y: top } }));
+        const updatedElement = elements.find((el) => el.id === id);
+        dispatch(selectElement(updatedElement));
+      }
+
+      if (data?.type === 'SELECT_ELEMENT') {
+        const element = elements.find((el) => el.id === data.id);
+        dispatch(selectElement(element));
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [dispatch, selection, elements]);
+
+  const handleIframeLoad = () => {
+    const iframeDoc = iframeRef.current?.contentDocument;
+    if (!iframeDoc) return;
+
+    const root = iframeDoc.getElementById('root');
+    if (!root) return;
+
+    root.innerHTML = '';
     elements.forEach((el) => {
-      const elNode = doc.getElementById(el.id);
-      if (elNode) elNode.className = generateTailwindClasses(el);
+      const elNode = iframeDoc.createElement(el.tag);
+      elNode.id = el.id;
+      elNode.className = 'target ' + generateTailwindClasses(el);
+      elNode.innerHTML = el.content || '';
+      root.appendChild(elNode);
     });
-  }, [elements]);
+
+    iframeRef.current.contentWindow?.postMessage({ type: 'ELEMENTS_READY' }, '*');
+    setPageSize();
+  };
 
   const setPageSize = () => {
     const el = canvasRef.current;
@@ -82,8 +108,9 @@ function Canvas() {
     <StyledCanvas ref={canvasRef}>
       <iframe
         ref={iframeRef}
+        src='/iframe.html'
         title='Site Preview'
-        onLoad={setPageSize}
+        onLoad={handleIframeLoad}
         style={{
           width: width !== undefined ? `${width}px` : '100%',
           height: height !== undefined ? `${height}px` : '100vh',
@@ -97,9 +124,9 @@ function Canvas() {
 function generateTailwindClasses(el) {
   const widthClass = el.width ? `w-[${el.width}px]` : '';
   const heightClass = el.height ? `h-[${el.height}px]` : '';
-  const x = el.x ? `left-[${el.x}px]` : '';
-  const y = el.y ? `top-[${el.y}px]` : '';
-  const position = x || y ? 'absolute' : '';
+  const x = el.x !== undefined ? `left-[${el.x}px]` : '';
+  const y = el.y !== undefined ? `top-[${el.y}px]` : '';
+  const position = el.x !== undefined || el.y !== undefined ? 'absolute' : '';
   const backgroundColor = el.backgroundColor ? `bg-[${el.backgroundColor}]` : '';
   const color = el.color ? `text-[${el.color}]` : '';
   const fontFamily = el.fontFamily ? `font-[${el.fontFamily}]` : '';

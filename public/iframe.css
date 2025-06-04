@@ -1,0 +1,26 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+body {
+  position: relative;
+  margin: 0;
+  background: #f0f0f0;
+  height: 100vh;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+}

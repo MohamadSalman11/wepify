@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LuChevronDown } from 'react-icons/lu';
 import styled from 'styled-components';
 import useOutsideClick from '../../hooks/useOutsideClick';
@@ -83,6 +83,13 @@ const Select = ({
     setIsOpen(false);
     if (onChange) onChange(option);
   };
+
+  useEffect(() => {
+    if (defaultSelect && onChange) {
+      setSelected(defaultSelect);
+      onChange(defaultSelect);
+    }
+  }, [defaultSelect, onChange]);
 
   const toggleDropdown = () => setIsOpen((prev) => !prev);
 

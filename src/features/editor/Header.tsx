@@ -97,6 +97,13 @@ function Header() {
     dispatch(setScale(scale || 100));
   };
 
+  function calculateScaleToFit(containerWidth, containerHeight, targetWidth, targetHeight) {
+    const scaleX = containerWidth / targetWidth;
+    const scaleY = containerHeight / targetHeight;
+    const scale = Math.floor(Math.min(scaleX, scaleY) * 100);
+    return Math.max(Math.min(scale, 100), 10);
+  }
+
   return (
     <StyledHeader>
       <DesignInfo>
@@ -104,10 +111,37 @@ function Header() {
         <p>Landing page site</p>
       </DesignInfo>
       <DevicePreviewControls>
-        <Icon icon={LuMonitor} onClick={() => setCanvasSize(1440, 900, 75)} />
-        <Icon icon={LuLaptop} onClick={() => setCanvasSize(1280, 800, 85)} />
-        <Icon icon={LuTablet} onClick={() => setCanvasSize(768, 1024)} />
-        <Icon icon={LuSmartphone} onClick={() => setCanvasSize(375, 667)} />
+        <Icon
+          icon={LuMonitor}
+          onClick={() => {
+            const scale = calculateScaleToFit(page.originWidth, page.originHeight, 1440, 900);
+            setCanvasSize(1440, 900, scale);
+          }}
+        />
+        <Icon
+          icon={LuLaptop}
+          onClick={() => {
+            const scale = calculateScaleToFit(page.originWidth, page.originHeight, 1280, 800);
+            console.log(scale);
+            setCanvasSize(1280, 800, scale);
+          }}
+        />
+        <Icon
+          icon={LuTablet}
+          onClick={() => {
+            const scale = calculateScaleToFit(page.originWidth, page.originHeight, 768, 1024);
+            console.log(scale);
+            setCanvasSize(768, 1024, scale);
+          }}
+        />
+        <Icon
+          icon={LuSmartphone}
+          onClick={() => {
+            const scale = calculateScaleToFit(page.originWidth, page.originHeight, 375, 667);
+            console.log(scale);
+            setCanvasSize(375, 667, scale);
+          }}
+        />
 
         <CanvasSizeControls>
           <div>

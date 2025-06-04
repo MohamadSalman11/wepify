@@ -1,5 +1,7 @@
 import { LuFileVideo, LuImage, LuSearch, LuYoutube } from 'react-icons/lu';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
+import { selectElement } from '../slices/selectionSlice';
 
 const PanelList = styled.ul`
   display: grid;
@@ -171,13 +173,26 @@ const SectionTitle = styled.span`
 `;
 
 function ElementsPanel() {
+  const page = useSelector((state) => state.page);
+  const selection = useSelector((state) => state.selection);
+  const dispatch = useDispatch();
+
+  function handleSearchElement(e) {
+    const id = e.target.value;
+    const element = page.elements.find((el) => el.id === id);
+
+    if (element) {
+      dispatch(selectElement(element));
+    }
+  }
+
   return (
     <>
       <div>
         <SectionTitle>Add Elements</SectionTitle>
         <SearchBar>
           <LuSearch />
-          <input type='text' placeholder='Search Elements' />
+          <input type='text' placeholder='Search Elements' onChange={handleSearchElement} />
         </SearchBar>
       </div>
       <div>

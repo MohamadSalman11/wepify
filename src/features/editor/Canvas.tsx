@@ -1,9 +1,14 @@
-import { useEffect, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useRef } from 'react';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { useIframeMessaging } from './hooks/use-iframe-messaging';
+import { useAppSelector } from '../../store';
+import { useCanvasSync } from './hooks/useCanvasSync';
 import { setHeight, setWidth } from './slices/pageSlice';
-import { renderElementsToIframe } from './utils/iframe-renderer';
+import { selectElement } from './slices/selectionSlice';
+
+/**
+ * Styles
+ */
 
 const StyledCanvas = styled.div`
   display: flex;
@@ -16,36 +21,37 @@ const StyledCanvas = styled.div`
 
   iframe {
     border: none;
-    background-color: var(--color-white);
   }
 `;
 
+/**
+ * Component definition
+ */
+
 function Canvas() {
-  const { width, height, scale, elements } = useSelector((state: any) => state.page);
+  const { width, height, scale, elements } = useAppSelector((state) => state.page);
+
   const dispatch = useDispatch();
   const canvasRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  useIframeMessaging(iframeRef);
+  useCanvasSync(iframeRef);
 
   const handleIframeLoad = () => {
-    renderElementsToIframe(elements, iframeRef);
+    const firstSection = elements[0];
 
-    console.log(canvasRef.current);
-
-    dispatch(setWidth(Math.round(canvasRef.current?.clientWidth)));
-    dispatch(setHeight(Math.round(canvasRef.current?.clientHeight)));
+    if (canvasRef.current) {
+      dispatch(selectElement(firstSection));
+      dispatch(setWidth(canvasRef.current.clientWidth));
+      dispatch(setHeight(canvasRef.current.clientHeight));
+    }
   };
-
-  useEffect(() => {
-    renderElementsToIframe(elements, iframeRef);
-  }, [elements.length]);
 
   return (
     <StyledCanvas ref={canvasRef}>
       <iframe
         ref={iframeRef}
-        src='/iframe.html'
+        src='/iframe/iframe.html'
         title='Site Preview'
         onLoad={handleIframeLoad}
         style={{

@@ -1,11 +1,30 @@
+import { useState } from 'react';
+import type { IconType } from 'react-icons';
 import { LuEye, LuLaptop, LuMonitor, LuRedo2, LuSmartphone, LuTablet, LuUndo2 } from 'react-icons/lu';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import Button from '../../components/Button';
 import Divider from '../../components/divider';
 import Input from '../../components/form/Input';
 import Icon from '../../components/Icon';
+import { useAppSelector } from '../../store';
+import type { InputChangeEvent } from '../../types';
 import { setHeight, setScale, setWidth } from './slices/pageSlice';
+
+/**
+ * Constants
+ */
+
+const SCREEN_SIZES = {
+  monitor: { width: 1440, height: 900 },
+  laptop: { width: 1280, height: 800 },
+  tablet: { width: 768, height: 1024 },
+  smartphone: { width: 375, height: 667 }
+} as const;
+
+/**
+ * Styles
+ */
 
 const CanvasSizeInput = styled(Input)`
   width: 7rem;
@@ -72,37 +91,50 @@ const DesignInfo = styled.div`
   }
 `;
 
+const StyledDevicePreviewButton = styled.button<{ active?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius-md);
+  padding: 0.8rem;
+  transition: var(--transition-base);
+  background-color: ${({ active }) => (active ? 'var(--color-gray-dark)' : 'transparent')};
+
+  &:hover {
+    background-color: var(--color-gray-dark);
+  }
+`;
+
+/**
+ * Types
+ */
+
+type Size = { width: number; height: number };
+type DeviceType = keyof typeof SCREEN_SIZES | 'auto';
+
+/**
+ * Component definition
+ */
+
 function Header() {
   const dispatch = useDispatch();
-  const page = useSelector((state) => state.page);
+  const [activeDevice, setActiveDevice] = useState<DeviceType>('auto');
+  const { width, height, scale } = useAppSelector((state) => state.page);
 
-  const handleHeightChange = (e) => {
-    const newHeight = Number(e.target.value);
+  const handleHeightChange = (event: InputChangeEvent) => {
+    const newHeight = Number(event.target.value);
     dispatch(setHeight(newHeight));
   };
 
-  const handleWidthChange = (e) => {
-    const newWidth = Number(e.target.value);
+  const handleWidthChange = (event: InputChangeEvent) => {
+    const newWidth = Number(event.target.value);
     dispatch(setWidth(newWidth));
   };
 
-  const handleScaleChange = (e) => {
-    const newScale = Number(e.target.value);
+  const handleScaleChange = (event: InputChangeEvent) => {
+    const newScale = Number(event.target.value);
     dispatch(setScale(newScale));
   };
-
-  const setCanvasSize = (width, height, scale?) => {
-    dispatch(setWidth(width));
-    dispatch(setHeight(height));
-    dispatch(setScale(scale || 100));
-  };
-
-  function calculateScaleToFit(containerWidth, containerHeight, targetWidth, targetHeight) {
-    const scaleX = containerWidth / targetWidth;
-    const scaleY = containerHeight / targetHeight;
-    const scale = Math.floor(Math.min(scaleX, scaleY) * 100);
-    return Math.max(Math.min(scale, 100), 10);
-  }
 
   return (
     <StyledHeader>
@@ -111,54 +143,49 @@ function Header() {
         <p>Landing page site</p>
       </DesignInfo>
       <DevicePreviewControls>
-        <Icon
+        <DevicePreviewButton
           icon={LuMonitor}
-          onClick={() => {
-            const scale = calculateScaleToFit(page.originWidth, page.originHeight, 1440, 900);
-            setCanvasSize(1440, 900, scale);
-          }}
+          deviceType='monitor'
+          isActive={activeDevice === 'monitor'}
+          setActiveDevice={setActiveDevice}
+          screenSize={SCREEN_SIZES.monitor}
         />
-        <Icon
+        <DevicePreviewButton
           icon={LuLaptop}
-          onClick={() => {
-            const scale = calculateScaleToFit(page.originWidth, page.originHeight, 1280, 800);
-            console.log(scale);
-            setCanvasSize(1280, 800, scale);
-          }}
+          deviceType='laptop'
+          isActive={activeDevice === 'laptop'}
+          setActiveDevice={setActiveDevice}
+          screenSize={SCREEN_SIZES.laptop}
         />
-        <Icon
+        <DevicePreviewButton
           icon={LuTablet}
-          onClick={() => {
-            const scale = calculateScaleToFit(page.originWidth, page.originHeight, 768, 1024);
-            console.log(scale);
-            setCanvasSize(768, 1024, scale);
-          }}
+          deviceType='tablet'
+          isActive={activeDevice === 'tablet'}
+          setActiveDevice={setActiveDevice}
+          screenSize={SCREEN_SIZES.tablet}
         />
-        <Icon
+        <DevicePreviewButton
           icon={LuSmartphone}
-          onClick={() => {
-            const scale = calculateScaleToFit(page.originWidth, page.originHeight, 375, 667);
-            console.log(scale);
-            setCanvasSize(375, 667, scale);
-          }}
+          deviceType='smartphone'
+          isActive={activeDevice === 'smartphone'}
+          setActiveDevice={setActiveDevice}
+          screenSize={SCREEN_SIZES.smartphone}
         />
-
         <CanvasSizeControls>
           <div>
             <span>W</span>
-            <CanvasSizeInput type='text' value={page.width} placeholder='px' onChange={handleWidthChange} />
+            <CanvasSizeInput type='text' value={width} placeholder='px' onChange={handleWidthChange} />
           </div>
           <div>
             <span>H</span>
-            <CanvasSizeInput type='text' value={page.height} placeholder='px' onChange={handleHeightChange} />
+            <CanvasSizeInput type='text' value={height} placeholder='px' onChange={handleHeightChange} />
           </div>
           <div>
             <span>%</span>
-            <CanvasSizeInput type='text' value={page.scale} placeholder='%' onChange={handleScaleChange} />
+            <CanvasSizeInput type='text' value={scale} placeholder='%' onChange={handleScaleChange} />
           </div>
         </CanvasSizeControls>
       </DevicePreviewControls>
-
       <EditorActions>
         <Icon icon={LuUndo2} />
         <Icon icon={LuRedo2} />
@@ -169,6 +196,53 @@ function Header() {
         <Button>Publish</Button>
       </EditorActions>
     </StyledHeader>
+  );
+}
+
+function DevicePreviewButton({
+  icon,
+  screenSize,
+  deviceType,
+  isActive,
+  setActiveDevice
+}: {
+  icon: IconType;
+  screenSize: Size;
+  deviceType: DeviceType;
+  isActive: boolean;
+  setActiveDevice: (device: DeviceType) => void;
+}) {
+  const dispatch = useDispatch();
+  const { originWidth, originHeight } = useAppSelector((state) => state.page);
+
+  const setCanvasSize = (size: Size, newScale?: number) => {
+    dispatch(setWidth(size.width));
+    dispatch(setHeight(size.height));
+    dispatch(setScale(newScale ?? 100));
+  };
+
+  function calculateScaleToFit(containerSize: Size, targetSize: Size) {
+    const scaleX = containerSize.width / targetSize.width;
+    const scaleY = containerSize.height / targetSize.height;
+    const scaleVal = Math.floor(Math.min(scaleX, scaleY) * 100);
+    return Math.max(Math.min(scaleVal, 100), 10);
+  }
+
+  const handleClick = () => {
+    if (isActive) {
+      setActiveDevice('auto');
+      setCanvasSize({ width: originWidth, height: originHeight }, 100);
+    } else {
+      const scaleVal = calculateScaleToFit({ width: originWidth, height: originHeight }, screenSize);
+      setCanvasSize(screenSize, scaleVal);
+      setActiveDevice(deviceType);
+    }
+  };
+
+  return (
+    <StyledDevicePreviewButton active={isActive} onClick={handleClick}>
+      <Icon icon={icon} />
+    </StyledDevicePreviewButton>
   );
 }
 

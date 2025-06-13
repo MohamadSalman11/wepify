@@ -1,157 +1,18 @@
-import { LuFileVideo, LuImage, LuSearch, LuYoutube } from 'react-icons/lu';
-import { useDispatch, useSelector } from 'react-redux';
+import { useRef } from 'react';
+import { LuFileVideo, LuImage, LuSearch } from 'react-icons/lu';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { addElement } from '../slices/pageSlice';
+import { useAppSelector } from '../../../store';
+import type { InputChangeEvent } from '../../../types';
+import { flattenElements } from '../../../utils/flatten-elements';
+import { useAddElementToPage } from '../hooks/useAddElementToPage';
 import { selectElement } from '../slices/selectionSlice';
 
-const tagMap = {
-  section: 'section',
-  container: 'div',
-  grid: 'div',
-  columns: 'div',
-  rows: 'div',
-  lists: 'ul',
-  heading: 'h1'
-};
+/**
+ * Styles
+ */
 
-const elements = {
-  section: {
-    tag: 'section',
-    width: 800,
-    height: 400,
-    color: '#fff',
-    backgroundColor: '#1352F1',
-    content: 'My name is blue',
-    fontFamily: 'Courier-New',
-    fontWeight: 400,
-    fontSize: 20
-  },
-  container: {
-    tag: 'div',
-    x: 0,
-    y: 0,
-    width: 200,
-    height: 200,
-    color: '#fff',
-    backgroundColor: '#f45a65',
-    content: 'My name is red',
-    fontFamily: 'Courier-New',
-    fontWeight: 400,
-    fontSize: 20
-  },
-
-  rows: {
-    tag: 'div',
-    width: 400,
-    height: 200,
-    color: '#fff',
-    backgroundColor: 'aqua',
-    fontFamily: 'Courier-New',
-    fontWeight: 400,
-    fontSize: 20,
-    display: 'flex',
-    gap: 12,
-    flexDir: 'col',
-    children: [
-      {
-        tag: 'div',
-        width: 50,
-        height: 50,
-        backgroundColor: 'orange'
-      },
-      {
-        tag: 'div',
-        width: 50,
-        height: 50,
-        backgroundColor: 'orange'
-      }
-    ]
-  },
-
-  columns: {
-    tag: 'div',
-    width: 400,
-    height: 200,
-    color: '#fff',
-    backgroundColor: 'lime',
-    fontFamily: 'Courier-New',
-    fontWeight: 400,
-    fontSize: 20,
-    display: 'flex',
-    gap: 12,
-    children: [
-      {
-        tag: 'div',
-        width: 50,
-        height: 50,
-        backgroundColor: 'white'
-      },
-      {
-        tag: 'div',
-        width: 50,
-        height: 50,
-        backgroundColor: 'white'
-      }
-    ]
-  },
-  grid: {
-    tag: 'div',
-    width: 400,
-    height: 200,
-    color: '#fff',
-    backgroundColor: 'orange',
-    fontFamily: 'Courier-New',
-    fontWeight: 400,
-    fontSize: 20,
-    display: 'grid',
-    gap: 12,
-    columns: 2,
-    children: [
-      {
-        tag: 'div',
-        backgroundColor: 'blue'
-      },
-      {
-        tag: 'div',
-        backgroundColor: 'red'
-      },
-      {
-        tag: 'div',
-        backgroundColor: 'red'
-      },
-      {
-        tag: 'div',
-        backgroundColor: 'blue'
-      }
-    ]
-  },
-  lists: {
-    tag: 'ul',
-    color: '#000',
-    fontFamily: 'Courier-New',
-    fontWeight: 400,
-    fontSize: 20,
-    children: [
-      {
-        tag: 'li',
-        content: 'li 1'
-      },
-      {
-        tag: 'li',
-        content: 'li 2'
-      }
-    ]
-  },
-  heading: {
-    tag: 'h1',
-    color: '#000',
-    fontSize: 24,
-    fontWeight: 700,
-    content: 'First heading'
-  }
-};
-
-const PanelList = styled.ul`
+const PanelList = styled.ul<{ disabled?: boolean }>`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 2.4rem;
@@ -162,12 +23,20 @@ const PanelList = styled.ul`
     text-align: center;
   }
 
+  li:not([data-grid-active], [data-list-active]) {
+    opacity: ${({ disabled }) => (disabled ? 0.4 : 1)};
+    pointer-events: ${(props) => (props.disabled ? 'none' : 'auto')};
+  }
+
   span {
     font-size: 1.2rem;
   }
 `;
 
-const LayoutItem = styled.li`
+const LayoutItem = styled.li<{ disabled?: boolean }>`
+  opacity: ${({ disabled }) => (disabled ? 0.3 : 1)};
+  pointer-events: ${(props) => (props.disabled ? 'none' : 'auto')};
+
   div {
     display: grid;
     grid-template-rows: repeat(4, 1fr);
@@ -175,7 +44,7 @@ const LayoutItem = styled.li`
     gap: 0.4rem;
   }
 
-  &:nth-child(1) span {
+  &:nth-child(1) div span {
     &:nth-child(1) {
       grid-row: 1 / span 3;
       grid-column: 1 / -1;
@@ -187,22 +56,27 @@ const LayoutItem = styled.li`
     }
   }
 
-  &:nth-child(2) span {
+  &:nth-child(2) div span {
     grid-row: 1 / -1;
     grid-column: 1 / -1;
   }
 
-  &:nth-child(4) span {
-    grid-row: 1 / -1;
-  }
-
-  &:nth-child(5) span {
-    grid-column: 1 / -1;
-  }
-
-  &:nth-child(6) span {
+  &:nth-child(4) div span,
+  &:nth-child(6) div span {
     grid-column: 1 / -1;
     height: 10px;
+  }
+
+  &:nth-child(5) div span {
+    &:nth-child(4) {
+      background-color: var(--color-gray);
+    }
+  }
+
+  &:nth-child(6) div span {
+    &:nth-child(3) {
+      background-color: var(--color-gray);
+    }
   }
 `;
 
@@ -222,24 +96,18 @@ const TextItem = styled.li`
     font-size: 3rem;
   }
 
-  &:nth-child(3) div span {
-    border-radius: var(--border-radius-xl);
-    padding: 0.4rem 1.2rem;
-    font-size: 1.4rem;
-  }
-
-  &:nth-child(4) div {
+  &:nth-child(3) div {
     text-decoration: underline;
     text-underline-offset: 8px;
   }
 
-  &:nth-child(5) div span {
+  &:nth-child(4) div span {
     border-radius: var(--border-radius-md);
     padding: 0.4rem 0.8rem;
     font-size: 1.4rem;
   }
 
-  &:nth-child(6) div span {
+  &:nth-child(5) div span {
     display: inline-block;
     position: relative;
     width: 6rem;
@@ -320,28 +188,41 @@ const SectionTitle = styled.span`
   font-size: 2rem;
 `;
 
+/**
+ * Component definition
+ */
+
 function ElementsPanel() {
-  const page = useSelector((state) => state.page);
+  const page = useAppSelector((state) => state.page);
+  const selection = useAppSelector((state) => state.selection.selectedElement);
   const dispatch = useDispatch();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { addElementToPage } = useAddElementToPage();
 
-  function handleSearchElement(e) {
-    const id = e.target.value;
-    const element = page.elements.find((el) => el.id === id);
+  const handleSearchElement = (event: InputChangeEvent) => {
+    const id = event.target.value;
+    const element = flattenElements(page.elements).find((el) => el.id === id);
+    if (element) dispatch(selectElement(element));
+  };
 
-    if (element) {
-      dispatch(selectElement(element));
-    }
-  }
+  const handleImageUpload = (event: InputChangeEvent) => {
+    const file = event.target.files?.[0];
+    const reader = new FileReader();
 
-  function addElementToPage(element) {
-    const sectionCount = page.elements.filter((el) => el.tag === tagMap[element]).length;
-    const elementToAdd = elements[element];
+    if (!file) return;
 
-    dispatch(addElement({ id: `${element}-${sectionCount + 1}`, ...elementToAdd }));
-  }
+    const onLoad = () => {
+      addElementToPage('image', { src: reader.result });
+      reader.removeEventListener('load', onLoad);
+    };
+
+    reader.addEventListener('load', onLoad);
+    reader.readAsDataURL(file);
+  };
 
   return (
     <>
+      <input type='file' accept='image/*' style={{ display: 'none' }} ref={fileInputRef} onChange={handleImageUpload} />
       <div>
         <SectionTitle>Add Elements</SectionTitle>
         <SearchBar>
@@ -351,8 +232,8 @@ function ElementsPanel() {
       </div>
       <div>
         <SectionTitle>Layout</SectionTitle>
-        <PanelList>
-          <LayoutItem>
+        <PanelList disabled={selection.name === 'grid' || selection.name === 'list'}>
+          <LayoutItem data-grid-active>
             <PanelBox onClick={() => addElementToPage('section')}>
               <span>&nbsp;</span>
               <span>&nbsp;</span>
@@ -375,58 +256,55 @@ function ElementsPanel() {
             <span>Grid</span>
           </LayoutItem>
           <LayoutItem>
-            <PanelBox onClick={() => addElementToPage('columns')}>
+            <PanelBox onClick={() => addElementToPage('list')}>
+              <span>&nbsp;</span>
               <span>&nbsp;</span>
               <span>&nbsp;</span>
             </PanelBox>
-            <span>Columns</span>
+            <span>List</span>
           </LayoutItem>
-          <LayoutItem>
-            <PanelBox onClick={() => addElementToPage('rows')}>
+          <LayoutItem disabled={selection.name !== 'grid'} data-grid-active>
+            <PanelBox onClick={() => addElementToPage('gridItem')}>
+              <span>&nbsp;</span>
+              <span>&nbsp;</span>
               <span>&nbsp;</span>
               <span>&nbsp;</span>
             </PanelBox>
-            <span>Rows</span>
+            <span>Grid Item</span>
           </LayoutItem>
-          <LayoutItem>
-            <PanelBox onClick={() => addElementToPage('lists')}>
+          <LayoutItem disabled={selection.name !== 'list'} data-list-active>
+            <PanelBox onClick={() => addElementToPage('listItem')}>
               <span>&nbsp;</span>
               <span>&nbsp;</span>
               <span>&nbsp;</span>
             </PanelBox>
-            <span>Lists</span>
+            <span>List Item</span>
           </LayoutItem>
         </PanelList>
       </div>
 
       <div>
         <SectionTitle>Text</SectionTitle>
-        <PanelList>
+        <PanelList disabled={selection.name === 'grid' || selection.name === 'list'}>
           <TextItem onClick={() => addElementToPage('heading')}>
             <PanelBox>H</PanelBox>
             <span>Heading</span>
           </TextItem>
-          <TextItem>
+          <TextItem onClick={() => addElementToPage('text')}>
             <PanelBox>Text</PanelBox>
             <span>Text Block</span>
           </TextItem>
-          <TextItem>
-            <PanelBox>
-              <span>Label</span>
-            </PanelBox>
-            <span>Label</span>
-          </TextItem>
-          <TextItem>
+          <TextItem onClick={() => addElementToPage('link')}>
             <PanelBox>Link</PanelBox>
             <span>Text Link</span>
           </TextItem>
-          <TextItem>
+          <TextItem onClick={() => addElementToPage('button')}>
             <PanelBox>
               <span>Button</span>
             </PanelBox>
             <span>Button</span>
           </TextItem>
-          <TextItem>
+          <TextItem onClick={() => addElementToPage('input')}>
             <PanelBox>
               <span>&nbsp;</span>
             </PanelBox>
@@ -437,9 +315,9 @@ function ElementsPanel() {
 
       <div>
         <SectionTitle>Media</SectionTitle>
-        <PanelList>
+        <PanelList disabled={selection.name === 'grid'}>
           <MediaItem>
-            <PanelBox>
+            <PanelBox onClick={() => fileInputRef.current?.click()}>
               <LuImage />
             </PanelBox>
             <span>Image</span>
@@ -449,12 +327,6 @@ function ElementsPanel() {
               <LuFileVideo />
             </PanelBox>
             <span>Video</span>
-          </MediaItem>
-          <MediaItem>
-            <PanelBox>
-              <LuYoutube />
-            </PanelBox>
-            <span>YouTube</span>
           </MediaItem>
         </PanelList>
       </div>

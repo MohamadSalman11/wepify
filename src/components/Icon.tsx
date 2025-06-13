@@ -1,6 +1,8 @@
 import type { IconType } from 'react-icons';
 
-type IconSize = 'sm' | 'md' | 'lg';
+/**
+ * Constants
+ */
 
 const sizeMap: Record<IconSize, string> = {
   sm: '1rem',
@@ -8,15 +10,25 @@ const sizeMap: Record<IconSize, string> = {
   lg: '2rem'
 };
 
-const Icon = ({
-  icon: IconComponent,
-  size = 'lg',
-  onClick
-}: {
+const DEFAULT_ICON_SIZE = 'lg';
+
+/**
+ * Types
+ */
+
+type IconSize = 'sm' | 'md' | 'lg';
+
+interface IconProps {
   icon: IconType;
   size?: IconSize;
   onClick?: () => void;
-}) => {
+}
+
+/**
+ * Component definition
+ */
+
+const Icon = ({ icon: IconComponent, size = DEFAULT_ICON_SIZE, onClick }: IconProps) => {
   return <IconComponent size={sizeMap[size]} onClick={onClick} />;
 };
 

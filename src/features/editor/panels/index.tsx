@@ -3,16 +3,23 @@ import styled, { css } from 'styled-components';
 import ElementsPanel from './ElementsPanel';
 import LayersPanel from './LayersPanel';
 import PagesPanel from './PagesPanel';
-import SettingsPanel from './SettingsPanel';
+import SettingsPanel from './settingsPanel/index';
 import UploadsPanel from './UploadsPanel';
 
-type PanelKey = 'elements' | 'settings' | 'pages' | 'layers' | 'uploads';
-type BorderDirection = 'right' | 'left';
+/**
+ * Constants
+ */
+
+const DEFAULT_BORDER_DIRECTION = 'right';
+
+/**
+ * Styles
+ */
 
 const PanelContainer = styled.div<{ sectioned: boolean; borderDir: BorderDirection }>`
   background-color: var(--color-black-light-2);
   overflow-y: auto;
-  padding: ${({ sectioned }) => (sectioned ? '0' : '3.2rem 2.4rem')};
+  padding: ${({ sectioned }) => (sectioned ? '1.2rem' : '3.2rem 2.4rem')};
   ${({ borderDir }) => css`border-${borderDir}: var(--border-base);`}
 
   &::-webkit-scrollbar {
@@ -40,15 +47,24 @@ const panelComponents: Record<PanelKey, React.ComponentType> = {
   uploads: UploadsPanel
 };
 
-function Panel({
-  panel,
-  sectioned = false,
-  borderDir = 'right'
-}: {
+/**
+ * Types
+ */
+
+type PanelKey = 'elements' | 'settings' | 'pages' | 'layers' | 'uploads';
+type BorderDirection = 'right' | 'left';
+
+interface PanelProps {
   panel: PanelKey;
   sectioned?: boolean;
   borderDir?: BorderDirection;
-}) {
+}
+
+/**
+ * Component definition
+ */
+
+function Panel({ panel, sectioned = false, borderDir = DEFAULT_BORDER_DIRECTION }: PanelProps) {
   const PanelComponent = panelComponents[panel];
 
   return (

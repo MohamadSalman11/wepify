@@ -11,6 +11,10 @@ import {
 } from 'react-icons/lu';
 import styled from 'styled-components';
 
+/**
+ * Styles
+ */
+
 const Title = styled.span`
   font-size: 1.6rem;
   color: var(--color-white);
@@ -79,13 +83,16 @@ const ChevronIcon = styled(LuChevronRight)<{ expanded: boolean }>`
   transform: rotate(${({ expanded }) => (expanded ? '90deg' : '0deg')});
 `;
 
+/**
+ * Component definition
+ */
+
 function LayersPanel() {
   const [expanded, setExpanded] = useState(false);
 
   return (
     <>
       <Title>Layers</Title>
-
       <LayerList>
         <LayerItem>
           <LayerHeader>
@@ -95,7 +102,6 @@ function LayersPanel() {
               <span>Group 1</span>
             </LayerBox>
           </LayerHeader>
-
           {expanded && (
             <NestedList>
               <li>
@@ -113,35 +119,30 @@ function LayersPanel() {
             </NestedList>
           )}
         </LayerItem>
-
         <LayerItem>
           <LayerBox>
             <LuTextCursorInput />
             <span>Input</span>
           </LayerBox>
         </LayerItem>
-
         <LayerItem>
           <LayerBox>
             <LuHeading />
             <span>Heading</span>
           </LayerBox>
         </LayerItem>
-
         <LayerItem>
           <LayerBox>
             <LuImage />
             <span>Image</span>
           </LayerBox>
         </LayerItem>
-
         <LayerItem>
           <LayerBox>
             <LuFileVideo />
             <span>Video</span>
           </LayerBox>
         </LayerItem>
-
         <LayerItem>
           <LayerBox>
             <LuLink />

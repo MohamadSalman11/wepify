@@ -10,9 +10,15 @@ export function useOutsideClick<T extends HTMLElement = HTMLElement>(handler: ()
       }
     }
 
+    const iframe = document.querySelector('iframe');
+    const iframeDoc = iframe?.contentDocument || iframe?.contentWindow?.document;
+
     document.addEventListener('click', handleClick);
+    iframeDoc?.addEventListener('click', handleClick);
+
     return () => {
       document.removeEventListener('click', handleClick);
+      iframeDoc?.removeEventListener('click', handleClick);
     };
   }, [handler]);
 

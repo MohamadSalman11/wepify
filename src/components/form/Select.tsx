@@ -4,6 +4,10 @@ import styled from 'styled-components';
 import useOutsideClick from '../../hooks/useOutsideClick';
 import Icon from '../Icon';
 
+/**
+ * Styles
+ */
+
 const Wrapper = styled.div`
   position: relative;
   width: 100%;
@@ -32,7 +36,7 @@ const LabelInput = styled.input`
   outline: none;
   background: transparent;
   border: none;
-  color: var(--color-white);
+  color: var(--color-white-2);
   font: inherit;
 `;
 
@@ -63,60 +67,68 @@ const DropdownItem = styled.li`
   }
 `;
 
-const Select = ({
-  options,
-  onChange,
-  defaultSelect,
-  contentEditable
-}: {
-  options: string[];
-  onChange?: (value: string) => void;
-  defaultSelect?: string;
-  contentEditable?: boolean;
-}) => {
-  const [selected, setSelected] = useState<string>(defaultSelect || '');
+/**
+ * Types
+ */
+
+interface SelectProps {
+  options: (string | number)[];
+  onChange: (option: string | number, propName?: string) => void;
+  defaultSelect?: string | number;
+  editable?: boolean;
+  editInputType?: 'number' | 'text';
+}
+
+/**
+ * Component definition
+ */
+
+const Select = ({ options, onChange, defaultSelect = '', editable, editInputType = 'number' }: SelectProps) => {
+  const [selected, setSelected] = useState<string | number>(defaultSelect);
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useOutsideClick<HTMLDivElement>(() => setIsOpen(false));
 
-  const handleSelect = (option: string) => {
+  const handleSelect = (option: string | number) => {
     setSelected(option);
     setIsOpen(false);
-    if (onChange) onChange(option);
+    onChange(option);
   };
 
   useEffect(() => {
-    if (defaultSelect && onChange) {
-      setSelected(defaultSelect);
-      onChange(defaultSelect);
-    }
-  }, [defaultSelect, onChange]);
+    setSelected(defaultSelect ?? '');
+  }, [defaultSelect]);
 
   const toggleDropdown = () => setIsOpen((prev) => !prev);
 
   return (
     <Wrapper ref={wrapperRef}>
-      <SelectButton clickable={!contentEditable} onClick={!contentEditable ? toggleDropdown : undefined}>
-        {contentEditable ? (
+      <SelectButton
+        aria-haspopup='listbox'
+        aria-expanded={isOpen}
+        role='button'
+        clickable={!editable}
+        onClick={editable ? undefined : toggleDropdown}
+      >
+        {editable ? (
           <LabelInput
-            type='number'
+            type={editInputType}
             value={selected}
             onChange={(e) => {
               const text = e.target.value;
               setSelected(text);
-              if (onChange) onChange(text);
+              onChange(text);
             }}
           />
         ) : (
           <LabelEditable>{selected || 'Select...'}</LabelEditable>
         )}
-        <Chevron clickable={true} onClick={contentEditable ? toggleDropdown : undefined}>
+        <Chevron clickable={true} onClick={editable ? toggleDropdown : undefined}>
           <Icon icon={LuChevronDown} />
         </Chevron>
       </SelectButton>
-
-      <DropdownList open={isOpen}>
+      <DropdownList role='listbox' open={isOpen}>
         {options.map((option) => (
-          <DropdownItem key={option} onClick={() => handleSelect(option)} tabIndex={0}>
+          <DropdownItem key={option} role='option' onClick={() => handleSelect(option)}>
             {option}
           </DropdownItem>
         ))}

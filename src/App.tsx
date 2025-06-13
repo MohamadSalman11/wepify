@@ -24,7 +24,7 @@ function App() {
         <EditorPage>
           <Sidebar />
           <Header />
-          <Panel panel='elements' sectioned={true} />
+          <Panel panel='layers' sectioned={true} />
           <Canvas />
           <Panel panel='settings' sectioned={true} borderDir='left' />
         </EditorPage>

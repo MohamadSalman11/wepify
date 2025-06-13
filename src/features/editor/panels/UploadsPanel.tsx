@@ -1,18 +1,12 @@
+import { useRef } from 'react';
 import { LuTrash } from 'react-icons/lu';
+import Masonry from 'react-masonry-css';
 import styled from 'styled-components';
 import Button from '../../../components/Button';
-
-const images = [
-  {
-    title: 'css.png'
-  },
-  {
-    title: 'css.png'
-  },
-  {
-    title: 'css.png'
-  }
-];
+import { useAppSelector } from '../../../store';
+import type { InputChangeEvent } from '../../../types';
+import { flattenElements } from '../../../utils/flatten-elements';
+import { useAddElementToPage } from '../hooks/useAddElementToPage';
 
 const Nav = styled.nav`
   ul {
@@ -43,42 +37,63 @@ const Nav = styled.nav`
   }
 `;
 
-const Media = styled.ul`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.2rem;
-  list-style: none;
-  margin-top: 1.6rem;
+const MediaItem = styled.div`
+  position: relative;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  cursor: pointer;
 
-  li {
-    position: relative;
-    cursor: pointer;
+  img {
+    display: block;
     border-radius: var(--border-radius-md);
-    background-color: var(--color-primary-light);
     width: 100%;
-    height: 7rem;
-    overflow: hidden;
+    height: auto;
+    object-fit: contain;
+  }
 
-    &:hover svg {
-      transform: translateY(0);
-    }
+  svg {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    transform: translateY(-4rem);
+    z-index: 10;
+    transition: transform 0.2s ease-in-out;
+    cursor: pointer;
+    color: white;
+  }
 
-    svg {
-      position: absolute;
-      top: 8%;
-      right: 5%;
-      transform: translateY(-4rem);
-      transition: var(--transition-base);
-      cursor: pointer;
-      color: var(--color-white);
-    }
+  &:hover svg {
+    transform: translateY(0);
   }
 `;
 
 function UploadsPanel() {
+  const page = useAppSelector((state) => state.page);
+  const images = flattenElements(page.elements).filter((el) => el.name === 'img');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { addElementToPage } = useAddElementToPage();
+
+  const handleImageUpload = (event: InputChangeEvent) => {
+    const file = event.target.files?.[0];
+    const reader = new FileReader();
+
+    if (!file) return;
+
+    const onLoad = () => {
+      addElementToPage('image', { src: reader.result });
+      reader.removeEventListener('load', onLoad);
+    };
+
+    reader.addEventListener('load', onLoad);
+    reader.readAsDataURL(file);
+  };
+
   return (
     <>
-      <Button size='full'>Upload File</Button>
+      <input type='file' accept='image/*' style={{ display: 'none' }} ref={fileInputRef} onChange={handleImageUpload} />
+      <Button size='full' onClick={() => fileInputRef.current?.click()}>
+        Upload File
+      </Button>
       <Nav>
         <ul>
           <li>
@@ -90,14 +105,16 @@ function UploadsPanel() {
         </ul>
       </Nav>
 
-      <Media>
+      <Masonry breakpointCols={2} className='my-masonry-grid' columnClassName='my-masonry-grid_column'>
         {images.map((img, i) => (
-          <li key={i}>
+          <MediaItem key={i}>
+            <img src={img.src} alt={img.alt || `uploaded image ${i + 1}`} loading='lazy' />
             <LuTrash />
-          </li>
+          </MediaItem>
         ))}
-      </Media>
+      </Masonry>
     </>
   );
 }
+
 export default UploadsPanel;

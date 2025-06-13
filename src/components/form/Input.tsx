@@ -2,7 +2,7 @@ import type { InputHTMLAttributes } from 'react';
 import styled, { css } from 'styled-components';
 
 /**
- * Component definition
+ * Styles
  */
 
 const StyledInput = styled.input`
@@ -17,8 +17,16 @@ const StyledInput = styled.input`
       border-radius: var(--${prefix}-input-border-radius);
       background-color: var(--color-gray-dark-2);
       padding: var(--${prefix}-input-padding-y) var(--${prefix}-input-padding-x);
+
+      &:disabled{
+        background-color: var(--color-gray-dark-3);
+      }
   `}
 `;
+
+/**
+ * Component definition
+ */
 
 function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   return <StyledInput autoComplete='off' {...props} />;

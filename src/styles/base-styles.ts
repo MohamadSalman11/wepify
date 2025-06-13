@@ -51,7 +51,6 @@ const baseStyles = css`
 
   button,
   input {
-    outline: none;
     border: none;
   }
 
@@ -86,6 +85,21 @@ const baseStyles = css`
 
   ::-webkit-scrollbar-track {
     background: transparent;
+  }
+
+  .my-masonry-grid {
+    display: flex;
+    flex-direction: row !important;
+    gap: 1.2rem;
+    width: 100%;
+  }
+
+  .my-masonry-grid_column {
+    flex: 1;
+  }
+
+  .my-masonry-grid_column > div {
+    margin-bottom: 12px;
   }
 `;
 

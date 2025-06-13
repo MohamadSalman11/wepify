@@ -14,9 +14,11 @@ const COLOR_BLACK_LIGHT_2 = '#161c23';
 const COLOR_GRAY = '#878d94';
 const COLOR_GRAY_DARK = '#343C44';
 const COLOR_GRAY_DARK_2 = '#292e35';
+const COLOR_GRAY_DARK_3 = '#21252a';
 
 const COLOR_RED = '#f45a65';
 const COLOR_WHITE = '#FBFEFF';
+const COLOR_WHITE_2 = '#EEF2F4';
 
 /**
  * CSS variables definition
@@ -35,9 +37,11 @@ const variables = css`
     --color-gray: ${COLOR_GRAY};
     --color-gray-dark: ${COLOR_GRAY_DARK};
     --color-gray-dark-2: ${COLOR_GRAY_DARK_2};
+    --color-gray-dark-3: ${COLOR_GRAY_DARK_3};
 
     --color-red: ${COLOR_RED};
     --color-white: ${COLOR_WHITE};
+    --color-white-2: ${COLOR_WHITE_2};
 
     /* Body */
     --body-font-size: var(--font-size);

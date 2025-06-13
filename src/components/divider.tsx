@@ -1,5 +1,16 @@
 import styled from 'styled-components';
 
+/**
+ * Constants
+ */
+
+const DEFAULT_ROTATE = 0;
+const DEFAULT_DIVIDER_WIDTH = 60;
+
+/**
+ * Styles
+ */
+
 const StyledDivider = styled.span<{ rotate: number; width: number }>`
   width: ${(props) => props.width}px;
   height: 1px;
@@ -8,7 +19,11 @@ const StyledDivider = styled.span<{ rotate: number; width: number }>`
   transform: rotate(${(props) => props.rotate}deg);
 `;
 
-function Divider({ rotate = 0, width = 60 }: { rotate?: number; width?: number }) {
+/**
+ * Component definition
+ */
+
+function Divider({ rotate = DEFAULT_ROTATE, width = DEFAULT_DIVIDER_WIDTH }: { rotate?: number; width?: number }) {
   return <StyledDivider rotate={rotate} width={width} />;
 }
 

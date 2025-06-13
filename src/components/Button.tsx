@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import styled, { css } from 'styled-components';
 
 /**
@@ -11,20 +11,7 @@ const DEFAULT_VARIATION = 'primary';
 const DEFAULT_SIZE = 'fit';
 
 /**
- * Types
- */
-
-type Variation = 'primary' | 'secondary';
-type Size = 'full' | 'fit';
-
-interface ButtonProps {
-  children: ReactNode;
-  variation?: Variation;
-  size?: Size;
-}
-
-/**
- * Component definition
+ * Styles
  */
 
 const variations = {
@@ -73,9 +60,26 @@ const StyledButton = styled.button.withConfig({
   ${({ variation }) => variations[variation]}
 `;
 
-function Button({ children, variation = DEFAULT_VARIATION, size = DEFAULT_SIZE }: ButtonProps) {
+/**
+ * Types
+ */
+
+type Variation = 'primary' | 'secondary';
+type Size = 'full' | 'fit';
+
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  children: ReactNode;
+  variation?: Variation;
+  size?: Size;
+}
+
+/**
+ * Component definition
+ */
+
+function Button({ children, variation = DEFAULT_VARIATION, size = DEFAULT_SIZE, ...props }: ButtonProps) {
   return (
-    <StyledButton variation={variation} size={size}>
+    <StyledButton variation={variation} size={size} {...props}>
       {children}
     </StyledButton>
   );

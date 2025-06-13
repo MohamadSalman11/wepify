@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { IconType } from 'react-icons';
 import {
   LuChevronRight,
   LuFileVideo,
@@ -9,11 +10,12 @@ import {
   LuSquare,
   LuTextCursorInput
 } from 'react-icons/lu';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-
-/**
- * Styles
- */
+import { useAppSelector } from '../../../store';
+import type { PageElement } from '../../../types';
+import { flattenElements } from '../../../utils/flatten-elements';
+import { selectElement } from '../slices/selectionSlice';
 
 const Title = styled.span`
   font-size: 1.6rem;
@@ -83,74 +85,63 @@ const ChevronIcon = styled(LuChevronRight)<{ expanded: boolean }>`
   transform: rotate(${({ expanded }) => (expanded ? '90deg' : '0deg')});
 `;
 
-/**
- * Component definition
- */
+const ICON_MAP: Record<string, IconType> = {
+  group: LuGroup,
+  container: LuSquare,
+  input: LuTextCursorInput,
+  heading: LuHeading,
+  img: LuImage,
+  video: LuFileVideo,
+  link: LuLink
+};
 
 function LayersPanel() {
-  const [expanded, setExpanded] = useState(false);
+  const page = useAppSelector((state) => state.page);
 
   return (
     <>
       <Title>Layers</Title>
       <LayerList>
-        <LayerItem>
-          <LayerHeader>
-            <ChevronIcon expanded={expanded} onClick={() => setExpanded((prev) => !prev)} />
-            <LayerBox>
-              <LuGroup />
-              <span>Group 1</span>
-            </LayerBox>
-          </LayerHeader>
-          {expanded && (
-            <NestedList>
-              <li>
-                <LayerBox nested>
-                  <LuSquare />
-                  <span>Container</span>
-                </LayerBox>
-              </li>
-              <li>
-                <LayerBox nested>
-                  <LuTextCursorInput />
-                  <span>Input</span>
-                </LayerBox>
-              </li>
-            </NestedList>
-          )}
-        </LayerItem>
-        <LayerItem>
-          <LayerBox>
-            <LuTextCursorInput />
-            <span>Input</span>
-          </LayerBox>
-        </LayerItem>
-        <LayerItem>
-          <LayerBox>
-            <LuHeading />
-            <span>Heading</span>
-          </LayerBox>
-        </LayerItem>
-        <LayerItem>
-          <LayerBox>
-            <LuImage />
-            <span>Image</span>
-          </LayerBox>
-        </LayerItem>
-        <LayerItem>
-          <LayerBox>
-            <LuFileVideo />
-            <span>Video</span>
-          </LayerBox>
-        </LayerItem>
-        <LayerItem>
-          <LayerBox>
-            <LuLink />
-            <span>Link</span>
-          </LayerBox>
-        </LayerItem>
+        {page.elements.map((element) => (
+          <LayerNode key={element.id} element={element} />
+        ))}
       </LayerList>
     </>
+  );
+}
+
+function LayerNode({ element, nested = false }: { element: PageElement; nested?: boolean }) {
+  const [expanded, setExpanded] = useState(false);
+  const hasChildren = element.children?.length > 0;
+  const Icon = ICON_MAP[element.name] || LuSquare;
+  const dispatch = useDispatch();
+  const page = useAppSelector((state) => state.page);
+
+  const handleClick = () => {
+    const flatElements = flattenElements(page.elements);
+    const found = flatElements.find((el) => el.id === element.id);
+    if (found) {
+      dispatch(selectElement(found));
+    }
+  };
+
+  return (
+    <LayerItem>
+      <LayerHeader>
+        {hasChildren && <ChevronIcon expanded={expanded} onClick={() => setExpanded((prev) => !prev)} />}
+        <LayerBox nested={nested} onClick={handleClick}>
+          <Icon />
+          <span>{element.id}</span>
+        </LayerBox>
+      </LayerHeader>
+      {hasChildren && expanded && (
+        <NestedList>
+          {element.children.map((child: PageElement) => (
+            <LayerNode key={child.id} element={child} nested />
+          ))}
+        </NestedList>
+      )}
+    </LayerItem>
   );
 }
 

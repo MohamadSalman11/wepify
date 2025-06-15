@@ -25,7 +25,7 @@ import useOutsideClick from '../hooks/useOutsideClick';
 const StyledDashboard = styled.div`
   padding: 1.2rem 2.4rem;
 
-  & > div {
+  & > div:nth-of-type(1) {
     margin-top: 1.2rem;
   }
 `;
@@ -278,6 +278,66 @@ const Sites = styled.div`
   }
 `;
 
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+
+const EditBox = styled.div`
+  background-color: var(--color-white);
+  border-radius: var(--border-radius-lg);
+  padding: 2.4rem;
+  width: 30rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  font-size: 1.4rem;
+
+  h3 {
+    margin-bottom: 1.2rem;
+    font-size: 1.6rem;
+  }
+
+  input {
+    margin-bottom: 1.2rem;
+    border: 1px solid var(--color-gray-light-2);
+    border-radius: var(--border-radius-md);
+    padding: 0.8rem;
+    width: 100%;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1.2rem;
+    margin-top: 0.4rem;
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: var(--border-radius-full);
+      padding: 0.6rem 1.2rem;
+      font-size: 1.2rem;
+
+      &:first-child {
+        background-color: var(--color-primary);
+        color: var(--color-white);
+      }
+
+      &:last-child {
+        background-color: var(--color-gray-light-2);
+      }
+    }
+  }
+`;
+
 function Dashboard() {
   const [dropdownTop, setDropdownTop] = useState(0);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -288,6 +348,9 @@ function Dashboard() {
   const sizeDropdownRef = useOutsideClick<HTMLUListElement>(() => setIsSizeDropdownOpen(false));
   const [isDateDropdownOpen, setIsDateDropdownOpen] = useState(false);
   const dateDropdownRef = useOutsideClick<HTMLUListElement>(() => setIsDateDropdownOpen(false));
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [renameName, setRenameName] = useState('');
+  const [renameDesc, setRenameDesc] = useState('');
 
   function showDropdown(event) {
     event.stopPropagation();
@@ -428,7 +491,7 @@ function Dashboard() {
                     <div>
                       <LuEye />
                       <LuDownload />
-                      <LuPencilLine />
+                      <LuPencilLine onClick={() => setIsEditOpen(true)} />
                       <LuStar />
                       <LuEllipsis onClick={showDropdown} />
                     </div>
@@ -446,8 +509,13 @@ function Dashboard() {
               <li>
                 <LuDownload /> Download
               </li>
-              <li>
-                <LuPencilLine /> Rename
+              <li
+                onClick={() => {
+                  setIsEditOpen(true);
+                  setIsDropdownOpen(false);
+                }}
+              >
+                <LuPencilLine /> Edit
               </li>
               <li>
                 <LuCopy /> Duplicate
@@ -459,6 +527,31 @@ function Dashboard() {
           )}
         </Box>
       </Container>
+
+      {isEditOpen && (
+        <ModalOverlay onClick={() => setIsEditOpen(false)}>
+          <EditBox onClick={(e) => e.stopPropagation()}>
+            <h3>Edit</h3>
+            <input type='text' placeholder='Name' value={renameName} onChange={(e) => setRenameName(e.target.value)} />
+            <input
+              type='text'
+              placeholder='Description'
+              value={renameDesc}
+              onChange={(e) => setRenameDesc(e.target.value)}
+            />
+            <div className='actions'>
+              <button
+                onClick={() => {
+                  setIsEditOpen(false);
+                }}
+              >
+                OK
+              </button>
+              <button onClick={() => setIsEditOpen(false)}>Cancel</button>
+            </div>
+          </EditBox>
+        </ModalOverlay>
+      )}
     </StyledDashboard>
   );
 }

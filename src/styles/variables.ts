@@ -6,6 +6,7 @@ import { css } from 'styled-components';
 
 const COLOR_PRIMARY = '#3e7df5';
 const COLOR_PRIMARY_LIGHT = '#6597f7';
+const COLOR_PRIMARY_LIGHT_2 = '#a3c1fa';
 
 const COLOR_BLACK_LIGHT = '#313334';
 
@@ -28,6 +29,7 @@ const variables = css`
     /* Colors */
     --color-primary: ${COLOR_PRIMARY};
     --color-primary-light: ${COLOR_PRIMARY_LIGHT};
+    --color-primary-light-2: ${COLOR_PRIMARY_LIGHT_2};
 
     --color-black-light: ${COLOR_BLACK_LIGHT};
 
@@ -44,7 +46,7 @@ const variables = css`
     /* Body */
     --body-font-size: var(--font-size);
     --body-color: var(--color-black-light);
-    --body-bg: var(--color-gray-light-2);
+    --body-bg: var(--color-white-2);
     --body-letter-spacing: var(--letter-spacing);
 
     /* Components */

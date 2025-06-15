@@ -1,5 +1,404 @@
+import { useState } from 'react';
+import {
+  LuCalendar,
+  LuChevronDown,
+  LuClock4,
+  LuCopy,
+  LuDownload,
+  LuEllipsis,
+  LuEye,
+  LuFilePlus,
+  LuFileStack,
+  LuHardDrive,
+  LuHouse,
+  LuLayoutTemplate,
+  LuPencilLine,
+  LuSearch,
+  LuStar,
+  LuTrash2
+} from 'react-icons/lu';
+import styled from 'styled-components';
+import Button from '../components/Button';
+import Logo from '../components/Logo';
+import useOutsideClick from '../hooks/useOutsideClick';
+
+const StyledDashboard = styled.div`
+  padding: 1.2rem 2.4rem;
+
+  & > div {
+    margin-top: 1.2rem;
+  }
+`;
+
+const Header = styled.header`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const LogoBox = styled.div`
+  display: flex;
+  align-items: center;
+  column-gap: 1.2rem;
+  font-size: 2rem;
+
+  img {
+    margin-bottom: 0.4rem;
+  }
+`;
+
+const Sidebar = styled.aside`
+  width: 20rem;
+  padding-top: 0.4rem;
+
+  button {
+    display: flex;
+    column-gap: 1.2rem;
+    justify-content: center;
+    align-items: center;
+
+    svg {
+      color: var(--color-white);
+    }
+  }
+
+  svg {
+    color: var(--color-black-light);
+    font-size: 2rem;
+  }
+
+  ul {
+    margin-top: 2.4rem;
+
+    li {
+      display: flex;
+      column-gap: 1.2rem;
+      align-items: center;
+      transition: var(--transition-base);
+      cursor: pointer;
+      margin-top: 1.2rem;
+      border-radius: var(--border-radius-full);
+      padding: 0.8rem 3.2rem;
+      width: 100%;
+
+      &:hover {
+        background-color: var(--color-gray-light-2);
+      }
+
+      &:nth-child(1) {
+        background-color: var(--color-primary-light-2);
+      }
+    }
+  }
+`;
+
+const Container = styled.div`
+  display: flex;
+`;
+
+const Box = styled.div`
+  padding: 2.4rem;
+  flex-grow: 1;
+  height: 88vh;
+  margin-left: 3.2rem;
+  border-radius: var(--border-radius-xl);
+  background-color: var(--color-white);
+  position: relative;
+  overflow-y: hidden;
+`;
+
+const SearchBox = styled.div`
+  margin: 1.2rem auto;
+  width: fit-content;
+  text-align: center;
+
+  h1 {
+    font-weight: 400;
+    font-size: 2.2rem;
+  }
+
+  nav ul {
+    display: flex;
+    column-gap: 2.4rem;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1.6rem;
+
+    li {
+      display: flex;
+      column-gap: 0.8rem;
+      justify-content: center;
+      align-items: center;
+      transition: var(--transition-base);
+      cursor: pointer;
+      border-radius: var(--border-radius-full);
+      background-color: var(--color-gray-light-3);
+      padding: 0.8rem 1.2rem;
+      font-size: 1.2rem;
+
+      &:hover {
+        background-color: var(--color-gray-light-2);
+      }
+
+      svg:nth-child(1) {
+        font-size: 1.8rem;
+      }
+    }
+  }
+`;
+
+const Searchbar = styled.div`
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin-top: 2.4rem;
+
+  input {
+    border-radius: var(--border-radius-full);
+    background-color: var(--color-white-2);
+    padding: 1.6rem 1.6rem 1.6rem 6.4rem;
+    width: 80rem;
+    font-size: 1.6rem;
+  }
+
+  svg {
+    position: absolute;
+    left: 3%;
+    font-size: 2rem;
+  }
+`;
+
+const SitesTable = styled.table`
+  width: 100%;
+  margin-top: 2.4rem;
+  border-collapse: collapse;
+  font-size: 1.4rem;
+  margin-bottom: 20rem;
+
+  th,
+  td {
+    cursor: default;
+    padding: 1.2rem;
+    width: 1%;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  th {
+    color: var(--color-gray);
+  }
+
+  tbody tr {
+    &:nth-child(1) {
+      border-top: 1px solid var(--color-gray-light-3);
+    }
+
+    & td:nth-child(1) svg {
+      margin-right: 0.8rem;
+    }
+
+    & td:nth-child(7) {
+      text-align: right;
+
+      svg:not(svg:nth-child(5)) {
+        opacity: 0;
+      }
+
+      svg {
+        cursor: pointer;
+        margin-left: 1.6rem;
+        font-size: 1.6rem;
+
+        &:hover {
+          color: var(--color-gray-light-2);
+        }
+      }
+    }
+
+    &:hover {
+      background-color: var(--color-gray-light-3);
+
+      svg {
+        opacity: 1 !important;
+      }
+    }
+  }
+`;
+
+const Dropdown = styled.ul<{ top: number }>`
+  position: absolute;
+  right: 2%;
+  top: ${({ top }) => top}px;
+  width: 20rem;
+  font-size: 1.4rem;
+  border-radius: var(--border-radius-sm);
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  overflow: hidden;
+  z-index: 999;
+  background-color: white;
+
+  li {
+    display: flex;
+    column-gap: 1.2rem;
+    align-items: center;
+    cursor: pointer;
+    padding: 1.2rem;
+    width: 100%;
+
+    &:hover {
+      background-color: var(--color-gray-light-3);
+    }
+
+    svg {
+      font-size: 1.7rem;
+    }
+  }
+`;
+
+const Sites = styled.div`
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  margin-top: 5.2rem;
+
+  h2 {
+    position: sticky;
+    top: 0;
+    background-color: var(--color-white);
+    padding: 1.2rem;
+    width: 100%;
+  }
+`;
+
 function Dashboard() {
-  return <div></div>;
+  const [dropdownTop, setDropdownTop] = useState(0);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useOutsideClick<HTMLUListElement>(() => setIsDropdownOpen(false));
+
+  function showDropdown(event) {
+    event.stopPropagation();
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    const scrollY = window.scrollY || window.pageYOffset;
+    const offsetTop = rect.bottom + scrollY - 100;
+    setDropdownTop(offsetTop);
+    setIsDropdownOpen(true);
+  }
+
+  return (
+    <StyledDashboard>
+      <Header>
+        <LogoBox>
+          <Logo />
+          <span>Wepify</span>
+        </LogoBox>
+      </Header>
+      <Container>
+        <Sidebar>
+          <Button size='full'>
+            <LuFilePlus />
+            Create New Site
+          </Button>
+          <ul>
+            <li>
+              <LuHouse /> Home
+            </li>
+            <li>
+              <LuClock4 /> Recent
+            </li>
+            <li>
+              <LuStar /> Stared
+            </li>
+          </ul>
+        </Sidebar>
+        <Box>
+          <SearchBox>
+            <h1>Welcome to Wepify</h1>
+            <Searchbar>
+              <LuSearch />
+              <input type='text' placeholder='Search in Wepify' />
+            </Searchbar>
+            <nav>
+              <ul>
+                <li>
+                  <LuHardDrive />
+                  Size
+                  <LuChevronDown />
+                </li>
+                <li>
+                  <LuFileStack />
+                  Pages
+                  <LuChevronDown />
+                </li>
+                <li>
+                  <LuCalendar />
+                  Modified
+                  <LuChevronDown />
+                </li>
+              </ul>
+            </nav>
+          </SearchBox>
+
+          <Sites>
+            <h2 style={{ fontSize: '1.8rem', marginBottom: '1.2rem' }}>Sites</h2>
+            <SitesTable>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Size</th>
+                  <th>Pages</th>
+                  <th>Created</th>
+                  <th>Last Modified</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <LuLayoutTemplate /> Portfolio Site
+                  </td>
+                  <td>Very simple landing page</td>
+                  <td>12.5 MB</td>
+                  <td>8</td>
+                  <td>Feb 03, 2023</td>
+                  <td>Feb 05, 2023</td>
+                  <td>
+                    <div>
+                      <LuEye />
+                      <LuDownload />
+                      <LuPencilLine />
+                      <LuStar />
+                      <LuEllipsis onClick={showDropdown} />
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </SitesTable>
+          </Sites>
+
+          {isDropdownOpen && (
+            <Dropdown ref={dropdownRef} top={dropdownTop}>
+              <li>
+                <LuEye /> Preview
+              </li>
+              <li>
+                <LuDownload /> Download
+              </li>
+              <li>
+                <LuPencilLine /> Rename
+              </li>
+              <li>
+                <LuCopy /> Duplicate
+              </li>
+              <li>
+                <LuTrash2 /> Delete
+              </li>
+            </Dropdown>
+          )}
+        </Box>
+      </Container>
+    </StyledDashboard>
+  );
 }
 
 export default Dashboard;

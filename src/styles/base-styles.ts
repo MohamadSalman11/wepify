@@ -31,6 +31,7 @@ const baseStyles = css`
     font-size: var(--body-font-size);
     font-family: var(--font-family-base);
     letter-spacing: var(--body-letter-spacing);
+    user-select: none;
   }
 
   input,
@@ -60,6 +61,10 @@ const baseStyles = css`
 
   a {
     color: var(--color-black-light);
+  }
+
+  ul {
+    list-style: none;
   }
 
   input[type='number']::-webkit-outer-spin-button,

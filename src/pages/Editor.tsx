@@ -11,7 +11,6 @@ const StyledEditor = styled.div`
   grid-template-columns: 10rem 34rem 3.5fr 34rem;
   grid-template-rows: 8rem 1fr;
   overflow: hidden;
-  user-select: none;
 `;
 
 function Editor() {

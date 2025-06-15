@@ -117,31 +117,39 @@ const SearchBox = styled.div`
     font-size: 2.2rem;
   }
 
-  nav ul {
+  nav > ul {
     display: flex;
     column-gap: 2.4rem;
     justify-content: center;
     align-items: center;
     margin-top: 1.6rem;
 
-    li {
-      display: flex;
-      column-gap: 0.8rem;
-      justify-content: center;
-      align-items: center;
-      transition: var(--transition-base);
-      cursor: pointer;
-      border-radius: var(--border-radius-full);
-      background-color: var(--color-gray-light-3);
-      padding: 0.8rem 1.2rem;
-      font-size: 1.2rem;
+    & > li {
+      position: relative;
 
-      &:hover {
-        background-color: var(--color-gray-light-2);
+      & > span {
+        display: flex;
+        column-gap: 0.8rem;
+        justify-content: center;
+        align-items: center;
+        transition: var(--transition-base);
+        cursor: pointer;
+        border-radius: var(--border-radius-full);
+        background-color: var(--color-gray-light-3);
+        padding: 0.8rem 1.2rem;
+        font-size: 1.2rem;
+
+        &:hover {
+          background-color: var(--color-gray-light-2);
+        }
+
+        svg:nth-child(1) {
+          font-size: 1.8rem;
+        }
       }
 
-      svg:nth-child(1) {
-        font-size: 1.8rem;
+      ul {
+        transform: translateX(50%);
       }
     }
   }
@@ -273,7 +281,13 @@ const Sites = styled.div`
 function Dashboard() {
   const [dropdownTop, setDropdownTop] = useState(0);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isSizeDropdownOpen, setIsSizeDropdownOpen] = useState(false);
+  const [isPagesDropdownOpen, setIsPagesDropdownOpen] = useState(false);
+  const pagesDropdownRef = useOutsideClick<HTMLUListElement>(() => setIsPagesDropdownOpen(false));
   const dropdownRef = useOutsideClick<HTMLUListElement>(() => setIsDropdownOpen(false));
+  const sizeDropdownRef = useOutsideClick<HTMLUListElement>(() => setIsSizeDropdownOpen(false));
+  const [isDateDropdownOpen, setIsDateDropdownOpen] = useState(false);
+  const dateDropdownRef = useOutsideClick<HTMLUListElement>(() => setIsDateDropdownOpen(false));
 
   function showDropdown(event) {
     event.stopPropagation();
@@ -321,19 +335,67 @@ function Dashboard() {
             <nav>
               <ul>
                 <li>
-                  <LuHardDrive />
-                  Size
-                  <LuChevronDown />
+                  <span
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsSizeDropdownOpen(true);
+                    }}
+                  >
+                    <LuHardDrive />
+                    Size
+                    <LuChevronDown />
+                  </span>
+                  {isSizeDropdownOpen && (
+                    <Dropdown ref={sizeDropdownRef}>
+                      <li>{'<'} 500 KB</li>
+                      <li>500 KB - 1 MB</li>
+                      <li>1 MB - 5 MB</li>
+                      <li>5 MB - 10 MB</li>
+                      <li>{'>'} 10 MB</li>
+                    </Dropdown>
+                  )}
                 </li>
                 <li>
-                  <LuFileStack />
-                  Pages
-                  <LuChevronDown />
+                  <span
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsPagesDropdownOpen(true);
+                    }}
+                  >
+                    <LuFileStack />
+                    Pages
+                    <LuChevronDown />
+                  </span>
+                  {isPagesDropdownOpen && (
+                    <Dropdown ref={pagesDropdownRef}>
+                      <li>1 - 3 pages</li>
+                      <li>4 - 10 pages</li>
+                      <li>11 - 25 pages</li>
+                      <li>26 - 50 pages</li>
+                      <li>{'>'} 50 pages</li>
+                    </Dropdown>
+                  )}
                 </li>
                 <li>
-                  <LuCalendar />
-                  Modified
-                  <LuChevronDown />
+                  <span
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsDateDropdownOpen(true);
+                    }}
+                  >
+                    <LuCalendar />
+                    Modified
+                    <LuChevronDown />
+                  </span>
+                  {isDateDropdownOpen && (
+                    <Dropdown ref={dateDropdownRef}>
+                      <li>Today</li>
+                      <li>Last 7 days</li>
+                      <li>Last 30 days</li>
+                      <li>Last 60 days</li>
+                      <li>Last 90 days</li>
+                    </Dropdown>
+                  )}
                 </li>
               </ul>
             </nav>

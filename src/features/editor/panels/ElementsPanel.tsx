@@ -88,7 +88,7 @@ const TextItem = styled.li`
     font-size: 2rem;
 
     span {
-      background-color: var(--color-gray-dark);
+      background-color: var(--color-gray-light);
     }
   }
 
@@ -148,10 +148,10 @@ const SearchBar = styled.div`
 
   input {
     border-radius: var(--border-radius-md);
-    background-color: var(--color-gray-dark-2);
+    background-color: var(--color-white-3);
     padding: 1rem 1rem 1rem 3.6rem;
     width: 100%;
-    color: var(--color-white);
+    color: var(--color-black-light);
     font-size: 1.4rem;
   }
 `;
@@ -160,7 +160,7 @@ const PanelBox = styled.div`
   cursor: pointer;
   margin-bottom: 0.8rem;
   border-radius: var(--border-radius-md);
-  background-color: var(--color-gray-dark-2);
+  background-color: var(--color-white-3);
   padding: 1.2rem;
   width: 8rem;
   height: 6rem;
@@ -168,10 +168,10 @@ const PanelBox = styled.div`
   position: relative;
 
   span {
-    border: 1px dashed var(--color-gray-dark-2);
+    border: 1px dashed var(--color-white-3);
 
     border-radius: var(--border-radius-sm);
-    background-color: var(--color-gray-dark);
+    background-color: var(--color-gray-light-2);
   }
 
   p {

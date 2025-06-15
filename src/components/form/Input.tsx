@@ -13,13 +13,13 @@ const StyledInput = styled.input`
     --${prefix}-input-border-radius: var(--input-border-radius);
 
       width: 100%;
-      color: var(--color-white);
+      color: var(--color-black-light);
       border-radius: var(--${prefix}-input-border-radius);
-      background-color: var(--color-gray-dark-2);
+      background-color: var(--color-white-2);
       padding: var(--${prefix}-input-padding-y) var(--${prefix}-input-padding-x);
 
       &:disabled{
-        background-color: var(--color-gray-dark-3);
+        background-color: var(--color-white-3);
       }
   `}
 `;

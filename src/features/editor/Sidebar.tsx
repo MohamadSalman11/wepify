@@ -8,7 +8,7 @@ const StyledSidebar = styled.aside`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: var(--color-black-light-2);
+  background-color: var(--color-white);
   border-right: var(--border-base);
   grid-row: 1 / 3;
   padding: 1.6rem 1.2rem 4.8rem 1.2rem;
@@ -46,11 +46,11 @@ const StyledSidebar = styled.aside`
       }
 
       &:hover {
-        background-color: var(--color-gray-dark-2);
+        background-color: var(--color-white-3);
       }
 
       &:nth-child(1) {
-        background-color: var(--color-gray-dark-2);
+        background-color: var(--color-white-3);
         color: var(--color-white);
       }
     }

@@ -30,7 +30,7 @@ export const Title = styled.span`
 export const SubTitle = styled.label`
   display: inline-block;
   margin-bottom: 1.2rem;
-  color: var(--color-white-2);
+  color: var(--color-gray-light-2);
   font-size: 1.2rem;
 `;
 

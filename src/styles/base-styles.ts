@@ -59,7 +59,7 @@ const baseStyles = css`
   }
 
   a {
-    color: var(--color-white);
+    color: var(--color-black-light);
   }
 
   input[type='number']::-webkit-outer-spin-button,

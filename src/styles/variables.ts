@@ -4,21 +4,20 @@ import { css } from 'styled-components';
  * Constants
  */
 
-const COLOR_PRIMARY = '#1352F1';
-const COLOR_PRIMARY_LIGHT = '#2b63f2';
+const COLOR_PRIMARY = '#3e7df5';
+const COLOR_PRIMARY_LIGHT = '#6597f7';
 
-const COLOR_BLACK = '#0d1116';
-const COLOR_BLACK_LIGHT = '#13191d';
-const COLOR_BLACK_LIGHT_2 = '#161c23';
+const COLOR_BLACK_LIGHT = '#313334';
 
-const COLOR_GRAY = '#878d94';
-const COLOR_GRAY_DARK = '#343C44';
-const COLOR_GRAY_DARK_2 = '#292e35';
-const COLOR_GRAY_DARK_3 = '#21252a';
+const COLOR_GRAY = '#94a3b7';
+const COLOR_GRAY_LIGHT = '#aebbcb';
+const COLOR_GRAY_LIGHT_2 = '#bec9d5';
+const COLOR_GRAY_LIGHT_3 = '#f2f4f7';
 
 const COLOR_RED = '#f45a65';
-const COLOR_WHITE = '#FBFEFF';
+const COLOR_WHITE = '#ffffff';
 const COLOR_WHITE_2 = '#EEF2F4';
+const COLOR_WHITE_3 = '#f4f8f8';
 
 /**
  * CSS variables definition
@@ -30,23 +29,22 @@ const variables = css`
     --color-primary: ${COLOR_PRIMARY};
     --color-primary-light: ${COLOR_PRIMARY_LIGHT};
 
-    --color-black: ${COLOR_BLACK};
     --color-black-light: ${COLOR_BLACK_LIGHT};
-    --color-black-light-2: ${COLOR_BLACK_LIGHT_2};
 
     --color-gray: ${COLOR_GRAY};
-    --color-gray-dark: ${COLOR_GRAY_DARK};
-    --color-gray-dark-2: ${COLOR_GRAY_DARK_2};
-    --color-gray-dark-3: ${COLOR_GRAY_DARK_3};
+    --color-gray-light: ${COLOR_GRAY_LIGHT};
+    --color-gray-light-2: ${COLOR_GRAY_LIGHT_2};
+    --color-gray-light-3: ${COLOR_GRAY_LIGHT_3};
 
     --color-red: ${COLOR_RED};
     --color-white: ${COLOR_WHITE};
     --color-white-2: ${COLOR_WHITE_2};
+    --color-white-3: ${COLOR_WHITE_3};
 
     /* Body */
     --body-font-size: var(--font-size);
-    --body-color: var(--color-white);
-    --body-bg: var(--color-black);
+    --body-color: var(--color-black-light);
+    --body-bg: var(--color-gray-light-2);
     --body-letter-spacing: var(--letter-spacing);
 
     /* Components */
@@ -68,7 +66,7 @@ const variables = css`
     --border-radius-lg: 8px;
     --border-radius-xl: 12px;
     --border-radius-full: 999px;
-    --border-base: 1px solid var(--color-gray-dark-2);
+    --border-base: 1px solid var(--color-white-3);
 
     --zindex-base: 999;
     --transition-base: all 0.2s linear;

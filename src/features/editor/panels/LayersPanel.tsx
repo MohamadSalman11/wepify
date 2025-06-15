@@ -41,7 +41,7 @@ const LayerBox = styled.div<{ nested?: boolean }>`
   align-items: center;
   gap: 1.2rem;
   padding: 1.2rem;
-  background-color: var(--color-gray-dark-2);
+  background-color: var(--color-white-3);
   border-radius: var(--border-radius-md);
   cursor: pointer;
   transition: var(--transition-base);

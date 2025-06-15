@@ -24,11 +24,11 @@ const variations = {
     }
   `,
   secondary: css`
-    background-color: var(--color-gray-dark-2);
+    background-color: var(--color-gray-light);
     color: var(--color-white);
 
     &:hover {
-      background-color: var(--color-gray-dark);
+      background-color: var(--color-gray-light-2);
     }
   `
 };

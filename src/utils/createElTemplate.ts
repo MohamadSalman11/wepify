@@ -9,7 +9,7 @@ const baseProps = {
   fontFamily: 'Arial',
   fontWeight: 'Regular',
   color: '#000000',
-  backgroundColor: '#ffffff',
+  backgroundColor: '#f4f8f8',
   children: []
 };
 

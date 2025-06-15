@@ -10,7 +10,8 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     left: 0,
     top: 0,
     width: 'fill',
-    height: 'screen'
+    height: 'screen',
+    backgroundColor: '#ecf2fe'
   }),
   container: createElTemplate({
     tag: 'div',

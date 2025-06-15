@@ -1,5 +1,5 @@
 import { ThemeProvider } from 'styled-components';
-import Dashboard from './pages/Dashboard';
+import Editor from './pages/Editor';
 import GlobalStyles from './styles/GlobalStyles';
 import theme from './styles/theme';
 
@@ -8,7 +8,7 @@ function App() {
     <>
       <ThemeProvider theme={theme}>
         <GlobalStyles />
-        <Dashboard />
+        <Editor />
       </ThemeProvider>
     </>
   );

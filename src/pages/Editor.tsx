@@ -19,7 +19,7 @@ function Editor() {
     <StyledEditor>
       <Sidebar />
       <Header />
-      <Panel panel='pages' sectioned={true} />
+      <Panel panel='elements' sectioned={true} />
       <Canvas />
       <Panel panel='settings' sectioned={true} borderDir='left' />
     </StyledEditor>

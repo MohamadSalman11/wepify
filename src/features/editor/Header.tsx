@@ -38,7 +38,7 @@ const StyledHeader = styled.header`
   grid-column: 2 / 5;
   padding: 0.8rem 3.2rem;
   border-bottom: var(--border-base);
-  background-color: var(--color-black-light-2);
+  background-color: var(--color-white);
 
   & > div {
     flex-grow: 1;
@@ -98,10 +98,10 @@ const StyledDevicePreviewButton = styled.button<{ active?: boolean }>`
   border-radius: var(--border-radius-md);
   padding: 0.8rem;
   transition: var(--transition-base);
-  background-color: ${({ active }) => (active ? 'var(--color-gray-dark)' : 'transparent')};
+  background-color: ${({ active }) => (active ? 'var(--color-white-3)' : 'transparent')};
 
   &:hover {
-    background-color: var(--color-gray-dark);
+    background-color: var(--color-white-3);
   }
 `;
 

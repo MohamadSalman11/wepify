@@ -37,7 +37,7 @@ const PagesList = styled.ul`
 
       span {
         border-radius: var(--border-radius-sm);
-        background-color: var(--color-gray-dark-2);
+        background-color: var(--color-white-3);
         padding: 0.4rem 0.4rem 0.2rem 0.4rem;
       }
     }

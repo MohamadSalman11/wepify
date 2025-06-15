@@ -14,7 +14,7 @@ const DEFAULT_DIVIDER_WIDTH = 60;
 const StyledDivider = styled.span<{ rotate: number; width: number }>`
   width: ${(props) => props.width}px;
   height: 1px;
-  background-color: var(--color-gray-dark-2);
+  background-color: var(--color-white-3);
   display: inline-block;
   transform: rotate(${(props) => props.rotate}deg);
 `;

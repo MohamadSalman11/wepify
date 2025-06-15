@@ -16,10 +16,10 @@ const Wrapper = styled.div`
 const SelectButton = styled.div<{ clickable: boolean }>`
   width: 100%;
   padding: 0.4rem 1.2rem;
-  background-color: var(--color-black-light-2);
+  background-color: var(--color-white-3);
   border: var(--border-base);
   border-radius: var(--border-radius-sm);
-  color: var(--color-white);
+  color: var(--color-black-light);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -36,7 +36,7 @@ const LabelInput = styled.input`
   outline: none;
   background: transparent;
   border: none;
-  color: var(--color-white-2);
+  color: var(--color-black-light);
   font: inherit;
 `;
 
@@ -50,7 +50,7 @@ const DropdownList = styled.ul<{ open: boolean }>`
   width: 100%;
   max-height: 12.2rem;
   margin-top: 0.4rem;
-  background: var(--color-black-light-2);
+  background: var(--color-white);
   border: var(--border-base);
   border-radius: var(--border-radius-sm);
   list-style: none;
@@ -63,7 +63,7 @@ const DropdownItem = styled.li`
   cursor: pointer;
 
   &:hover {
-    background: var(--color-gray-dark-2);
+    background: var(--color-white-3);
   }
 `;
 

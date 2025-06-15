@@ -3,6 +3,7 @@ import { ELEMENTS_TEMPLATE } from '../../../constant';
 import { flattenElements } from '../../../utils/flatten-elements';
 
 const initialState = {
+  id: 'site-1-page-1',
   width: window.innerWidth,
   height: window.innerHeight,
   originWidth: window.innerWidth,
@@ -10,7 +11,6 @@ const initialState = {
   iframe: undefined,
   lastAddedElement: undefined,
   scale: 100,
-  elementsCount: 0,
   elements: [{ ...ELEMENTS_TEMPLATE['section'], id: 'section-1' }]
 };
 
@@ -47,11 +47,17 @@ const pageSlice = createSlice({
       if (element) {
         Object.assign(element, updates);
       }
+    },
+
+    setPage(state, action) {
+      state.id = action.payload.id;
+      state.elements = action.payload.elements;
+      state.lastAddedElement = undefined;
     }
   }
 });
 
-export const { setWidth, setHeight, setScale, setNewElement, addElement, updateElement, setElements } =
+export const { setWidth, setHeight, setScale, setNewElement, addElement, updateElement, setElements, setPage } =
   pageSlice.actions;
 
 export default pageSlice.reducer;

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 import {
   LuCalendar,
   LuChevronDown,
@@ -25,7 +26,7 @@ import useOutsideClick from '../hooks/useOutsideClick';
 const StyledDashboard = styled.div`
   padding: 1.2rem 2.4rem;
 
-  & > div:nth-of-type(1) {
+  & > div:nth-of-type(2) {
     margin-top: 1.2rem;
   }
 `;
@@ -351,6 +352,31 @@ function Dashboard() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [renameName, setRenameName] = useState('');
   const [renameDesc, setRenameDesc] = useState('');
+  const [isStarred, setIsStarred] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+
+  const toggleStar = () => {
+    setIsStarred((prev) => !prev);
+    if (!isStarred) {
+      toast.success('1 site added to starred', {
+        duration: 5000
+      });
+    }
+  };
+
+  const handleDeleteClick = () => {
+    setIsDropdownOpen(false);
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const confirmDelete = () => {
+    setIsDeleteConfirmOpen(false);
+    toast.success('Site deleted permanently.');
+  };
+
+  const cancelDelete = () => {
+    setIsDeleteConfirmOpen(false);
+  };
 
   function showDropdown(event) {
     event.stopPropagation();
@@ -364,6 +390,7 @@ function Dashboard() {
 
   return (
     <StyledDashboard>
+      <Toaster position='top-center' reverseOrder={false} />
       <Header>
         <LogoBox>
           <Logo />
@@ -492,7 +519,13 @@ function Dashboard() {
                       <LuEye />
                       <LuDownload />
                       <LuPencilLine onClick={() => setIsEditOpen(true)} />
-                      <LuStar />
+                      <LuStar
+                        onClick={toggleStar}
+                        style={{
+                          stroke: isStarred ? '#1c2735' : '#94a3b7',
+                          fill: isStarred ? '#94a3b7' : 'none'
+                        }}
+                      />
                       <LuEllipsis onClick={showDropdown} />
                     </div>
                   </td>
@@ -500,6 +533,24 @@ function Dashboard() {
               </tbody>
             </SitesTable>
           </Sites>
+
+          {isDeleteConfirmOpen && (
+            <ModalOverlay onClick={cancelDelete}>
+              <EditBox onClick={(e) => e.stopPropagation()}>
+                <h3>Delete Confirmation</h3>
+                <p>Are you sure you want to delete this site? This action cannot be undone.</p>
+                <div className='actions'>
+                  <button
+                    onClick={confirmDelete}
+                    style={{ backgroundColor: 'var(--color-red)', color: 'var(--color-white)' }}
+                  >
+                    Delete Forever
+                  </button>
+                  <button onClick={cancelDelete}>Cancel</button>
+                </div>
+              </EditBox>
+            </ModalOverlay>
+          )}
 
           {isDropdownOpen && (
             <Dropdown ref={dropdownRef} top={dropdownTop}>
@@ -520,7 +571,7 @@ function Dashboard() {
               <li>
                 <LuCopy /> Duplicate
               </li>
-              <li>
+              <li onClick={handleDeleteClick}>
                 <LuTrash2 /> Delete
               </li>
             </Dropdown>

@@ -25,6 +25,9 @@ const dashboardSlice = createSlice({
     addSite(state, action) {
       state.sites.push(action.payload);
     },
+    deleteSite(state, action) {
+      state.sites = state.sites.filter((site) => site.id !== action.payload);
+    },
     setSites(state, action) {
       state.sites = action.payload;
     },
@@ -42,6 +45,6 @@ const dashboardSlice = createSlice({
   }
 });
 
-export const { setSites, updateSite, addSite } = dashboardSlice.actions;
+export const { setSites, updateSite, addSite, deleteSite } = dashboardSlice.actions;
 
 export default dashboardSlice.reducer;

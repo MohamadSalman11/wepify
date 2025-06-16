@@ -25,7 +25,7 @@ import styled from 'styled-components';
 import Button from '../components/Button';
 import Logo from '../components/Logo';
 import { ELEMENTS_TEMPLATE } from '../constant';
-import { addSite, setSites } from '../features/dashboard/dashboardSlice';
+import { addSite, deleteSite, setSites } from '../features/dashboard/dashboardSlice';
 import { setPage } from '../features/editor/slices/pageSlice';
 import useOutsideClick from '../hooks/useOutsideClick';
 import { useAppSelector } from '../store';
@@ -365,6 +365,7 @@ function Dashboard() {
   const [newSiteName, setNewSiteName] = useState('Untitled');
   const [newSiteDesc, setNewSiteDesc] = useState('');
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [selectedSiteId, setSelectedSiteId] = useState('');
   const { sites } = useAppSelector((state) => state.dashboard);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -395,12 +396,17 @@ function Dashboard() {
 
   const confirmDelete = () => {
     setIsDeleteConfirmOpen(false);
+    dispatch(deleteSite(selectedSiteId));
     toast.success('Site deleted permanently.');
   };
 
   const cancelDelete = () => {
     setIsDeleteConfirmOpen(false);
   };
+
+  useEffect(() => {
+    localforage.setItem('sites', sites);
+  }, [sites]);
 
   function showDropdown(event) {
     event.stopPropagation();
@@ -563,7 +569,12 @@ function Dashboard() {
                             fill: isStarred ? '#94a3b7' : 'none'
                           }}
                         />
-                        <LuEllipsis onClick={showDropdown} />
+                        <LuEllipsis
+                          onClick={(event) => {
+                            showDropdown(event);
+                            setSelectedSiteId(site.id);
+                          }}
+                        />
                       </div>
                     </td>
                   </tr>

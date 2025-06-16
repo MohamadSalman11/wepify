@@ -31,6 +31,14 @@ const dashboardSlice = createSlice({
     setSites(state, action) {
       state.sites = action.payload;
     },
+    updateSiteInfo(state, action) {
+      const site = state.sites.find((site) => site.id === action.payload.id);
+
+      if (site) {
+        site.title = action.payload.title;
+        site.description = action.payload.description;
+      }
+    },
     updateSite(state, action) {
       const { siteId, pageId, elements } = action.payload;
 
@@ -45,6 +53,6 @@ const dashboardSlice = createSlice({
   }
 });
 
-export const { setSites, updateSite, addSite, deleteSite } = dashboardSlice.actions;
+export const { setSites, updateSite, addSite, deleteSite, updateSiteInfo } = dashboardSlice.actions;
 
 export default dashboardSlice.reducer;

@@ -25,7 +25,7 @@ import styled from 'styled-components';
 import Button from '../components/Button';
 import Logo from '../components/Logo';
 import { ELEMENTS_TEMPLATE } from '../constant';
-import { addSite, deleteSite, setSites } from '../features/dashboard/dashboardSlice';
+import { addSite, deleteSite, setSites, updateSiteInfo } from '../features/dashboard/dashboardSlice';
 import { setPage } from '../features/editor/slices/pageSlice';
 import useOutsideClick from '../hooks/useOutsideClick';
 import { useAppSelector } from '../store';
@@ -365,7 +365,7 @@ function Dashboard() {
   const [newSiteName, setNewSiteName] = useState('Untitled');
   const [newSiteDesc, setNewSiteDesc] = useState('');
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-  const [selectedSiteId, setSelectedSiteId] = useState('');
+  const [selectedSite, setSelectedSite] = useState({});
   const { sites } = useAppSelector((state) => state.dashboard);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -396,7 +396,7 @@ function Dashboard() {
 
   const confirmDelete = () => {
     setIsDeleteConfirmOpen(false);
-    dispatch(deleteSite(selectedSiteId));
+    dispatch(deleteSite(selectedSite.id));
     toast.success('Site deleted permanently.');
   };
 
@@ -572,7 +572,7 @@ function Dashboard() {
                         <LuEllipsis
                           onClick={(event) => {
                             showDropdown(event);
-                            setSelectedSiteId(site.id);
+                            setSelectedSite(site);
                           }}
                         />
                       </div>
@@ -613,6 +613,8 @@ function Dashboard() {
                 onClick={() => {
                   setIsEditOpen(true);
                   setIsDropdownOpen(false);
+                  setRenameName(selectedSite.title || '');
+                  setRenameDesc(selectedSite.description || '');
                 }}
               >
                 <LuPencilLine /> Edit
@@ -643,6 +645,7 @@ function Dashboard() {
               <button
                 onClick={() => {
                   setIsEditOpen(false);
+                  dispatch(updateSiteInfo({ id: selectedSite.id, title: renameName, description: renameDesc }));
                 }}
               >
                 OK

@@ -1,9 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { ELEMENTS_TEMPLATE } from '../../../constant';
 import { flattenElements } from '../../../utils/flatten-elements';
 
 const initialState = {
-  id: 'site-1-page-1',
+  id: '',
+  siteId: '',
+  title: '',
+  siteTitle: '',
+  siteDescription: '',
   width: window.innerWidth,
   height: window.innerHeight,
   originWidth: window.innerWidth,
@@ -11,7 +14,7 @@ const initialState = {
   iframe: undefined,
   lastAddedElement: undefined,
   scale: 100,
-  elements: [{ ...ELEMENTS_TEMPLATE['section'], id: 'section-1' }]
+  elements: []
 };
 
 const pageSlice = createSlice({
@@ -50,7 +53,10 @@ const pageSlice = createSlice({
     },
 
     setPage(state, action) {
+      state.siteTitle = action.payload.siteTitle;
+      state.siteDescription = action.payload.siteDescription;
       state.id = action.payload.id;
+      state.siteId = action.payload.siteId;
       state.elements = action.payload.elements;
       state.lastAddedElement = undefined;
     }

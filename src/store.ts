@@ -1,12 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { useSelector, type TypedUseSelectorHook } from 'react-redux';
+import dashboardSlice from './features/dashboard/dashboardSlice';
 import pageReducer from './features/editor/slices/pageSlice';
 import selectionReducer from './features/editor/slices/selectionSlice';
 
 const store = configureStore({
   reducer: {
     selection: selectionReducer,
-    page: pageReducer
+    page: pageReducer,
+    dashboard: dashboardSlice
   }
 });
 

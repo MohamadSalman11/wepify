@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import localforage from 'localforage';
+import { useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import {
   LuCalendar,
@@ -18,10 +19,17 @@ import {
   LuStar,
   LuTrash2
 } from 'react-icons/lu';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from '../components/Button';
 import Logo from '../components/Logo';
+import { ELEMENTS_TEMPLATE } from '../constant';
+import { addSite, setSites } from '../features/dashboard/dashboardSlice';
+import { setPage } from '../features/editor/slices/pageSlice';
 import useOutsideClick from '../hooks/useOutsideClick';
+import { useAppSelector } from '../store';
+import { calculateSiteSize } from '../utils/calculateSiteSize';
 
 const StyledDashboard = styled.div`
   padding: 1.2rem 2.4rem;
@@ -353,7 +361,13 @@ function Dashboard() {
   const [renameName, setRenameName] = useState('');
   const [renameDesc, setRenameDesc] = useState('');
   const [isStarred, setIsStarred] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [newSiteName, setNewSiteName] = useState('Untitled');
+  const [newSiteDesc, setNewSiteDesc] = useState('');
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const { sites } = useAppSelector((state) => state.dashboard);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const toggleStar = () => {
     setIsStarred((prev) => !prev);
@@ -363,6 +377,16 @@ function Dashboard() {
       });
     }
   };
+
+  useEffect(() => {
+    async function loadSites() {
+      const sites = await localforage.getItem('sites');
+      console.log(sites);
+      if (sites) dispatch(setSites(sites));
+    }
+
+    loadSites();
+  }, [dispatch]);
 
   const handleDeleteClick = () => {
     setIsDropdownOpen(false);
@@ -399,7 +423,7 @@ function Dashboard() {
       </Header>
       <Container>
         <Sidebar>
-          <Button size='full'>
+          <Button size='full' onClick={() => setIsCreateOpen(true)}>
             <LuFilePlus />
             Create New Site
           </Button>
@@ -505,31 +529,45 @@ function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>
-                    <LuLayoutTemplate /> Portfolio Site
-                  </td>
-                  <td>Very simple landing page</td>
-                  <td>12.5 MB</td>
-                  <td>8</td>
-                  <td>Feb 03, 2023</td>
-                  <td>Feb 05, 2023</td>
-                  <td>
-                    <div>
-                      <LuEye />
-                      <LuDownload />
-                      <LuPencilLine onClick={() => setIsEditOpen(true)} />
-                      <LuStar
-                        onClick={toggleStar}
-                        style={{
-                          stroke: isStarred ? '#1c2735' : '#94a3b7',
-                          fill: isStarred ? '#94a3b7' : 'none'
-                        }}
-                      />
-                      <LuEllipsis onClick={showDropdown} />
-                    </div>
-                  </td>
-                </tr>
+                {sites.map((site) => (
+                  <tr onClick={() => navigate(`/editor/sites/${site.id}/pages/${site.pages[0].id}`)}>
+                    <td>
+                      <LuLayoutTemplate /> {site.title}
+                    </td>
+                    <td>{site.description}</td>
+                    <td>{calculateSiteSize(site)}</td>
+                    <td>{site.pagesCount}</td>
+                    <td>
+                      {new Date(site.createdAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: '2-digit',
+                        year: 'numeric'
+                      })}
+                    </td>
+                    <td>
+                      {new Date(site.lastModified).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: '2-digit',
+                        year: 'numeric'
+                      })}
+                    </td>
+                    <td>
+                      <div>
+                        <LuEye />
+                        <LuDownload />
+                        <LuPencilLine onClick={() => setIsEditOpen(true)} />
+                        <LuStar
+                          onClick={toggleStar}
+                          style={{
+                            stroke: isStarred ? '#1c2735' : '#94a3b7',
+                            fill: isStarred ? '#94a3b7' : 'none'
+                          }}
+                        />
+                        <LuEllipsis onClick={showDropdown} />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </SitesTable>
           </Sites>
@@ -599,6 +637,61 @@ function Dashboard() {
                 OK
               </button>
               <button onClick={() => setIsEditOpen(false)}>Cancel</button>
+            </div>
+          </EditBox>
+        </ModalOverlay>
+      )}
+
+      {isCreateOpen && (
+        <ModalOverlay onClick={() => setIsCreateOpen(false)}>
+          <EditBox onClick={(e) => e.stopPropagation()}>
+            <h3>Create New Site</h3>
+            <input
+              type='text'
+              placeholder='Name'
+              value={newSiteName}
+              onChange={(e) => setNewSiteName(e.target.value)}
+            />
+            <input
+              type='text'
+              placeholder='Short Description'
+              value={newSiteDesc}
+              onChange={(e) => setNewSiteDesc(e.target.value)}
+            />
+            <div className='actions'>
+              <button
+                onClick={() => {
+                  const siteId = Date.now() + 1;
+                  const page = {
+                    id: Date.now() + 10,
+                    siteId,
+                    title: 'Untitled',
+                    siteTitle: newSiteName,
+                    siteDescription: newSiteDesc,
+                    elements: [{ ...ELEMENTS_TEMPLATE['section'], id: 'section-1' }]
+                  };
+
+                  setIsCreateOpen(false);
+                  dispatch(
+                    addSite({
+                      id: siteId,
+                      title: newSiteName,
+                      description: newSiteDesc,
+                      size: 10,
+                      pagesCount: 1,
+                      createdAt: Date.now(),
+                      lastModified: Date.now(),
+                      pages: [page]
+                    })
+                  );
+
+                  dispatch(setPage(page));
+                  navigate(`/editor/sites/${siteId}/pages/${page.id}`);
+                }}
+              >
+                Create
+              </button>
+              <button onClick={() => setIsCreateOpen(false)}>Cancel</button>
             </div>
           </EditBox>
         </ModalOverlay>

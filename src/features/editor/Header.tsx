@@ -119,7 +119,7 @@ type DeviceType = keyof typeof SCREEN_SIZES | 'auto';
 function Header() {
   const dispatch = useDispatch();
   const [activeDevice, setActiveDevice] = useState<DeviceType>('auto');
-  const { width, height, scale } = useAppSelector((state) => state.page);
+  const { siteTitle, siteDescription, width, height, scale } = useAppSelector((state) => state.page);
 
   const handleHeightChange = (event: InputChangeEvent) => {
     const newHeight = Number(event.target.value);
@@ -139,8 +139,8 @@ function Header() {
   return (
     <StyledHeader>
       <DesignInfo>
-        <span>Pulse</span>
-        <p>Landing page site</p>
+        <span>{siteTitle}</span>
+        <p>{siteDescription}</p>
       </DesignInfo>
       <DevicePreviewControls>
         <DevicePreviewButton

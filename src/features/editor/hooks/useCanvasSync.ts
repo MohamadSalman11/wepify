@@ -1,15 +1,19 @@
 import localforage from 'localforage';
 import { useEffect, type RefObject } from 'react';
 import { useDispatch } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import { useAppSelector } from '../../../store';
+import { setSites, updateSite } from '../../dashboard/dashboardSlice';
 import { setPage } from '../slices/pageSlice';
 import { useIframeConnection } from './useIframeConnection';
 
 export const useCanvasSync = (iframeRef: RefObject<HTMLIFrameElement | null>) => {
   const dispatch = useDispatch();
+  const { site: siteParam, page: pageParam } = useParams();
 
-  const { elements, lastAddedElement, id } = useAppSelector((s) => s.page);
+  const { elements, lastAddedElement, id, siteId } = useAppSelector((s) => s.page);
   const { selectedElement, lastUpdates } = useAppSelector((s) => s.selection);
+  const { sites } = useAppSelector((s) => s.dashboard);
 
   const { iframeReady, sendElementsToIframe, updateElementInIFrame, insertElementInIFrame, handleSelectionChange } =
     useIframeConnection(iframeRef, elements);
@@ -24,13 +28,22 @@ export const useCanvasSync = (iframeRef: RefObject<HTMLIFrameElement | null>) =>
   }, [lastUpdates, updateElementInIFrame]);
 
   useEffect(() => {
-    localforage.setItem(id, { id, elements });
-  }, [id, elements]);
+    if (!sites.length) return;
+    localforage.setItem('sites', sites);
+  }, [sites]);
+
+  useEffect(() => {
+    dispatch(updateSite({ siteId, pageId: id, elements }));
+  }, [dispatch, siteId, id, elements]);
 
   useEffect(() => {
     const loadPage = async () => {
-      const page = await localforage.getItem(id);
+      const sites = await localforage.getItem('sites');
+      const site = sites.find((s) => String(s.id) === siteParam + '');
+      const page = site.pages.find((p) => String(p.id) === pageParam);
+      console.log(page);
       if (page) dispatch(setPage(page));
+      if (sites) dispatch(setSites(sites));
     };
 
     loadPage();

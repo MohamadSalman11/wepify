@@ -25,7 +25,7 @@ import styled from 'styled-components';
 import Button from '../components/Button';
 import Logo from '../components/Logo';
 import { ELEMENTS_TEMPLATE } from '../constant';
-import { addSite, deleteSite, setSites, updateSiteInfo } from '../features/dashboard/dashboardSlice';
+import { addSite, deleteSite, duplicateSite, setSites, updateSiteInfo } from '../features/dashboard/dashboardSlice';
 import { setPage } from '../features/editor/slices/pageSlice';
 import useOutsideClick from '../hooks/useOutsideClick';
 import { useAppSelector } from '../store';
@@ -619,7 +619,12 @@ function Dashboard() {
               >
                 <LuPencilLine /> Edit
               </li>
-              <li>
+              <li
+                onClick={() => {
+                  dispatch(duplicateSite({ id: selectedSite.id, newId: Date.now() + 10 }));
+                  setIsDropdownOpen(false);
+                }}
+              >
                 <LuCopy /> Duplicate
               </li>
               <li onClick={handleDeleteClick}>

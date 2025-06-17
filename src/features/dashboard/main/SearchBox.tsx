@@ -1,9 +1,15 @@
-import type { ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import type { IconType } from 'react-icons';
-import { LuCalendar, LuChevronDown, LuFileStack, LuHardDrive, LuSearch } from 'react-icons/lu';
-import styled from 'styled-components';
+import { LuCalendar, LuChevronDown, LuFileStack, LuHardDrive, LuLayoutTemplate, LuSearch, LuX } from 'react-icons/lu';
+import { useNavigate } from 'react-router-dom';
+import styled, { css } from 'styled-components';
 import Dropdown from '../../../components/Dropdown';
 import Icon from '../../../components/Icon';
+import { Path } from '../../../constant';
+import { useAppSelector } from '../../../store';
+import type { InputChangeEvent, Site } from '../../../types';
+import { buildPath } from '../../../utils/buildPath';
+import { formatDate } from '../../../utils/formatDate';
 
 /**
  * Styles
@@ -13,6 +19,7 @@ const StyledSearchBox = styled.div`
   margin: 1.2rem auto;
   width: fit-content;
   text-align: center;
+  position: relative;
 
   h1 {
     font-weight: 400;
@@ -53,14 +60,24 @@ const StyledSearchBox = styled.div`
   }
 `;
 
-const Searchbar = styled.div`
+const Searchbar = styled.div<{ isSearchResult: boolean }>`
   display: flex;
   align-items: center;
   position: relative;
   margin-top: 2.4rem;
 
   input {
-    border-radius: var(--border-radius-full);
+    border-radius: ${({ isSearchResult }) =>
+      isSearchResult ? 'var(--border-radius-xxl)' : 'var(--border-radius-full)'};
+
+    ${({ isSearchResult }) =>
+      isSearchResult &&
+      css`
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+      `};
+
+    outline: none;
     background-color: var(--color-white-2);
     padding: 1.6rem 1.6rem 1.6rem 6.4rem;
     width: 80rem;
@@ -69,8 +86,73 @@ const Searchbar = styled.div`
 
   svg {
     position: absolute;
-    left: 3%;
     font-size: 2rem;
+  }
+
+  svg.search-icon {
+    left: 3%;
+  }
+
+  svg.clear-icon {
+    right: 2%;
+    cursor: pointer;
+  }
+`;
+
+const StyledSearchContainer = styled.ul`
+  position: absolute;
+  top: 8.5rem;
+  left: 0;
+  width: 100%;
+  max-height: 40rem;
+  background-color: var(--color-white-2);
+  z-index: 999;
+  padding: 1.2rem;
+  border-radius: var(--border-radius-xxl);
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
+  border-top: 1px solid var(--color-gray-light-2);
+
+  & > p {
+    margin: 1.6rem;
+  }
+
+  ul {
+    display: flex;
+    row-gap: 1.2rem;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: var(--transition-base);
+    cursor: pointer;
+    border-radius: var(--border-radius-xl);
+
+    padding: 1.2rem;
+
+    &:hover {
+      background-color: var(--color-gray-light);
+    }
+
+    & > div {
+      display: flex;
+      column-gap: 1.2rem;
+      align-items: center;
+
+      & div {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+
+        span {
+          width: fit-content;
+        }
+      }
+    }
   }
 `;
 
@@ -79,15 +161,72 @@ const Searchbar = styled.div`
  */
 
 export default function SearchBox() {
+  const { sites } = useAppSelector((state) => state.dashboard);
+  const [matchedSites, setMatchedSites] = useState<Site[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function handleSearch(event: InputChangeEvent) {
+    const search = event.target.value.toLowerCase();
+    const matchSites = search
+      ? sites.filter(
+          (site) => site.name.toLowerCase().includes(search) || site.description.toLowerCase().includes(search)
+        )
+      : [];
+
+    setMatchedSites(matchSites);
+    setIsSearching(!!search);
+  }
+
+  function clearSearch() {
+    if (inputRef.current) inputRef.current.value = '';
+    setMatchedSites([]);
+    setIsSearching(false);
+  }
+
+  const isSearchResultVisible = isSearching;
+
   return (
     <StyledSearchBox>
       <h1>Welcome to Wepify</h1>
-      <Searchbar>
-        <LuSearch />
-        <input type='text' placeholder='Search in Wepify' />
+      <Searchbar isSearchResult={isSearchResultVisible}>
+        <LuSearch className='search-icon' />
+        <input ref={inputRef} type='text' placeholder='Search in Wepify' onChange={handleSearch} />
+        {isSearching && <LuX className='clear-icon' onClick={clearSearch} />}
       </Searchbar>
+      {isSearchResultVisible && <SearchResults matchedSites={matchedSites} />}
       <FilterList />
     </StyledSearchBox>
+  );
+}
+
+function SearchResults({ matchedSites }: { matchedSites: Site[] }) {
+  const navigate = useNavigate();
+
+  return (
+    <StyledSearchContainer>
+      {matchedSites.length === 0 ? (
+        <p>No items match your search</p>
+      ) : (
+        <ul>
+          {matchedSites.map((site) => (
+            <li
+              key={site.id}
+              onClick={() => navigate(buildPath(Path.Editor, { site: site.id, page: site.pages[0].id }))}
+            >
+              <div>
+                <Icon icon={LuLayoutTemplate} />
+                <div>
+                  <span>{site.name}</span>
+                  <p>{site.description}</p>
+                </div>
+              </div>
+              <span>{formatDate(site.createdAt)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </StyledSearchContainer>
   );
 }
 

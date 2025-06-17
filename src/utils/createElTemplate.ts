@@ -1,6 +1,7 @@
+import { TAGS_WITHOUT_CHILDREN } from '../constant';
 import type { PageElement } from '../types';
 
-const baseProps = {
+const BASE_PROPS = {
   fontSize: 20,
   left: 5,
   top: 5,
@@ -14,8 +15,14 @@ const baseProps = {
 };
 
 export const createElTemplate = (overrides: Partial<PageElement> & { tag: string; name: string }) => {
-  return {
-    ...baseProps,
+  const element = {
+    ...BASE_PROPS,
     ...overrides
   } as PageElement;
+
+  if (TAGS_WITHOUT_CHILDREN.has(overrides.tag)) {
+    delete element.children;
+  }
+
+  return element;
 };

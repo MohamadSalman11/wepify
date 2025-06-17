@@ -79,6 +79,10 @@ const variables = css`
     --btn-font-size: var(--font-size);
     --btn-white-space: var(--white-space);
 
+    --btn-padding-y-sm: 0.8rem;
+    --btn-padding-x-sm: 1.2rem;
+    --btn-font-size-sm: 1.2rem;
+
     --btn-border-radius: var(--border-radius-md);
 
     --btn-font-weight: var(--font-weight-semibold);

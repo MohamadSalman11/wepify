@@ -4,8 +4,9 @@ import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { useAppSelector } from '../../../store';
 import type { InputChangeEvent } from '../../../types';
-import { flattenElements } from '../../../utils/flatten-elements';
+import { flattenElements } from '../../../utils/flattenElements';
 import { useAddElementToPage } from '../hooks/useAddElementToPage';
+import { useImageUpload } from '../hooks/useImageUpload';
 import { selectElement } from '../slices/selectionSlice';
 
 /**
@@ -198,26 +199,12 @@ function ElementsPanel() {
   const dispatch = useDispatch();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { addElementToPage } = useAddElementToPage();
+  const { handleImageUpload } = useImageUpload();
 
   const handleSearchElement = (event: InputChangeEvent) => {
     const id = event.target.value;
     const element = flattenElements(page.elements).find((el) => el.id === id);
     if (element) dispatch(selectElement(element));
-  };
-
-  const handleImageUpload = (event: InputChangeEvent) => {
-    const file = event.target.files?.[0];
-    const reader = new FileReader();
-
-    if (!file) return;
-
-    const onLoad = () => {
-      addElementToPage('image', { src: reader.result });
-      reader.removeEventListener('load', onLoad);
-    };
-
-    reader.addEventListener('load', onLoad);
-    reader.readAsDataURL(file);
   };
 
   return (

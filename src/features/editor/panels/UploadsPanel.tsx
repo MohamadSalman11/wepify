@@ -4,9 +4,12 @@ import Masonry from 'react-masonry-css';
 import styled from 'styled-components';
 import Button from '../../../components/Button';
 import { useAppSelector } from '../../../store';
-import type { InputChangeEvent } from '../../../types';
-import { flattenElements } from '../../../utils/flatten-elements';
-import { useAddElementToPage } from '../hooks/useAddElementToPage';
+import { flattenElements } from '../../../utils/flattenElements';
+import { useImageUpload } from '../hooks/useImageUpload';
+
+/**
+ * Styles
+ */
 
 const Nav = styled.nav`
   ul {
@@ -67,31 +70,20 @@ const MediaItem = styled.div`
   }
 `;
 
+/**
+ * Component definition
+ */
+
 function UploadsPanel() {
   const page = useAppSelector((state) => state.page);
   const images = flattenElements(page.elements).filter((el) => el.name === 'img');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { addElementToPage } = useAddElementToPage();
-
-  const handleImageUpload = (event: InputChangeEvent) => {
-    const file = event.target.files?.[0];
-    const reader = new FileReader();
-
-    if (!file) return;
-
-    const onLoad = () => {
-      addElementToPage('image', { src: reader.result });
-      reader.removeEventListener('load', onLoad);
-    };
-
-    reader.addEventListener('load', onLoad);
-    reader.readAsDataURL(file);
-  };
+  const { handleImageUpload } = useImageUpload();
 
   return (
     <>
       <input type='file' accept='image/*' style={{ display: 'none' }} ref={fileInputRef} onChange={handleImageUpload} />
-      <Button size='full' onClick={() => fileInputRef.current?.click()}>
+      <Button fullWidth={true} onClick={() => fileInputRef.current?.click()}>
         Upload File
       </Button>
       <Nav>

@@ -1,0 +1,71 @@
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import type { PageElement, Site } from '../../../types';
+
+interface DashboardState {
+  sites: Site[];
+}
+
+const initialState: DashboardState = {
+  sites: []
+};
+
+const dashboardSlice = createSlice({
+  name: 'dashboard',
+  initialState,
+  reducers: {
+    setSites(state, action: PayloadAction<Site[]>) {
+      state.sites = action.payload;
+    },
+    addSite(state, action: PayloadAction<Site>) {
+      state.sites.push(action.payload);
+    },
+    deleteSite(state, action: PayloadAction<string>) {
+      state.sites = state.sites.filter((site) => site.id !== action.payload);
+    },
+    duplicateSite(state, action: PayloadAction<{ id: string; newId: string }>) {
+      const site = state.sites.find((site) => site.id === action.payload.id);
+
+      if (site) {
+        state.sites.push({ ...site, id: action.payload.newId });
+      }
+    },
+    updateSiteDetails(state, action: PayloadAction<{ id: string; name: string; description: string }>) {
+      const site = state.sites.find((site) => site.id === action.payload.id);
+
+      if (site) {
+        site.name = action.payload.name;
+        site.description = action.payload.description;
+      }
+    },
+    updatePageElements(state, action: PayloadAction<{ siteId: string; pageId: string; elements: PageElement[] }>) {
+      const { siteId, pageId, elements } = action.payload;
+
+      const site = state.sites.find((site) => site.id === siteId);
+      if (!site) return;
+
+      const page = site.pages.find((page) => page.id === pageId);
+      if (!page) return;
+
+      page.elements = elements;
+    },
+    toggleSiteStarred(state, action: PayloadAction<string>) {
+      const site = state.sites.find((site) => site.id === action.payload);
+
+      if (site) {
+        site.isStarred = !site.isStarred;
+      }
+    }
+  }
+});
+
+export const {
+  setSites,
+  addSite,
+  deleteSite,
+  duplicateSite,
+  updateSiteDetails,
+  updatePageElements,
+  toggleSiteStarred
+} = dashboardSlice.actions;
+
+export default dashboardSlice.reducer;

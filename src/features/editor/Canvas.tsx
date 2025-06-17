@@ -1,4 +1,5 @@
-import { useRef } from 'react';
+import localforage from 'localforage';
+import { useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { useAppSelector } from '../../store';
@@ -30,12 +31,17 @@ const StyledCanvas = styled.div`
 
 function Canvas() {
   const { width, height, scale, elements } = useAppSelector((state) => state.page);
+  const { sites } = useAppSelector((state) => state.dashboard);
 
   const dispatch = useDispatch();
   const canvasRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  useCanvasSync(iframeRef);
+  useCanvasSync(iframeRef, sites);
+
+  useEffect(() => {
+    localforage.setItem('sites', sites);
+  }, [sites]);
 
   const handleIframeLoad = () => {
     const firstSection = elements[0];

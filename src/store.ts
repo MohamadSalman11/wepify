@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { useSelector, type TypedUseSelectorHook } from 'react-redux';
-import dashboardSlice from './features/dashboard/dashboardSlice';
+import dashboardSlice from './features/dashboard/slices/dashboardSlice';
 import pageReducer from './features/editor/slices/pageSlice';
 import selectionReducer from './features/editor/slices/selectionSlice';
 

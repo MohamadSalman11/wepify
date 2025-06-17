@@ -1,6 +1,11 @@
 import { LuPencil, LuSquareMenu, LuTrash } from 'react-icons/lu';
 import styled from 'styled-components';
 import Button from '../../../components/Button';
+import Icon from '../../../components/Icon';
+
+/**
+ * Styles
+ */
 
 const PagesList = styled.ul`
   display: grid;
@@ -54,22 +59,25 @@ const pages = [
   }
 ];
 
+/**
+ * Component definition
+ */
+
 function PagesPanel() {
   return (
     <>
-      <Button size='full'>Add New Site</Button>
-
+      <Button fullWidth={true}>Add New Site</Button>
       <PagesList>
         {pages.map((page) => (
           <li>
-            <LuSquareMenu />
+            <Icon icon={LuSquareMenu} />
             <span>{page.title.length > 10 ? `${page.title.slice(0, 10)}...` : page.title}</span>
             <div>
               <span>
-                <LuPencil />
+                <Icon icon={LuPencil} />
               </span>
               <span>
-                <LuTrash />
+                <Icon icon={LuTrash} />
               </span>
             </div>
           </li>

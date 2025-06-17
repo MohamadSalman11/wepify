@@ -5,7 +5,7 @@ import { Title } from '.';
 import Select from '../../../../components/form/Select';
 import Icon from '../../../../components/Icon';
 import { useAppSelector } from '../../../../store';
-import { flattenElements } from '../../../../utils/flatten-elements';
+import { flattenElements } from '../../../../utils/flattenElements';
 import { selectElement } from '../../slices/selectionSlice';
 
 /**

@@ -4,6 +4,10 @@ import Divider from '../../components/divider';
 import Icon from '../../components/Icon';
 import Logo from '../../components/Logo';
 
+/**
+ * Styles
+ */
+
 const StyledSidebar = styled.aside`
   display: flex;
   flex-direction: column;
@@ -62,6 +66,10 @@ const StyledSidebar = styled.aside`
     color: var(--color-red);
   }
 `;
+
+/**
+ * Component definition
+ */
 
 function Sidebar() {
   return (

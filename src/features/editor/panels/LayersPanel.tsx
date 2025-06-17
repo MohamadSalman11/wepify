@@ -14,8 +14,26 @@ import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { useAppSelector } from '../../../store';
 import type { PageElement } from '../../../types';
-import { flattenElements } from '../../../utils/flatten-elements';
+import { flattenElements } from '../../../utils/flattenElements';
 import { selectElement } from '../slices/selectionSlice';
+
+/**
+ * Constants
+ */
+
+const ICON_MAP: Record<string, IconType> = {
+  group: LuGroup,
+  container: LuSquare,
+  input: LuTextCursorInput,
+  heading: LuHeading,
+  img: LuImage,
+  video: LuFileVideo,
+  link: LuLink
+};
+
+/**
+ * Styles
+ */
 
 const Title = styled.span`
   font-size: 1.6rem;
@@ -85,15 +103,9 @@ const ChevronIcon = styled(LuChevronRight)<{ expanded: boolean }>`
   transform: rotate(${({ expanded }) => (expanded ? '90deg' : '0deg')});
 `;
 
-const ICON_MAP: Record<string, IconType> = {
-  group: LuGroup,
-  container: LuSquare,
-  input: LuTextCursorInput,
-  heading: LuHeading,
-  img: LuImage,
-  video: LuFileVideo,
-  link: LuLink
-};
+/**
+ * Component definition
+ */
 
 function LayersPanel() {
   const page = useAppSelector((state) => state.page);
@@ -112,7 +124,7 @@ function LayersPanel() {
 
 function LayerNode({ element, nested = false }: { element: PageElement; nested?: boolean }) {
   const [expanded, setExpanded] = useState(false);
-  const hasChildren = element.children?.length > 0;
+  const hasChildren = (element.children?.length ?? 0) > 0;
   const Icon = ICON_MAP[element.name] || LuSquare;
   const dispatch = useDispatch();
   const page = useAppSelector((state) => state.page);
@@ -136,9 +148,7 @@ function LayerNode({ element, nested = false }: { element: PageElement; nested?:
       </LayerHeader>
       {hasChildren && expanded && (
         <NestedList>
-          {element.children.map((child: PageElement) => (
-            <LayerNode key={child.id} element={child} nested />
-          ))}
+          {element.children?.map((child: PageElement) => <LayerNode key={child.id} element={child} nested />)}
         </NestedList>
       )}
     </LayerItem>

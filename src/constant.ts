@@ -2,6 +2,8 @@ import type { PageElement } from './types';
 import { createElTemplate } from './utils/createElTemplate';
 
 export const TARGET_ORIGIN = '*';
+export const TOAST_DURATION = 5000;
+export const TAGS_WITHOUT_CHILDREN = new Set(['input', 'img', 'hr', 'br']);
 
 export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
   section: createElTemplate({
@@ -102,3 +104,13 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     name: 'img'
   })
 };
+
+export enum Path {
+  Dashboard = '/dashboard',
+  Editor = '/editor/sites/:site/pages/:page'
+}
+
+export enum ElementNames {
+  Grid = 'grid',
+  Section = 'Section'
+}

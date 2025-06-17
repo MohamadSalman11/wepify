@@ -3,7 +3,7 @@ import type { ChangeEvent, InputHTMLAttributes } from 'react';
 export type InputChangeEvent = ChangeEvent<HTMLInputElement>;
 
 export interface BaseElement {
-  id?: string;
+  id: string;
   tag: string;
   name: string;
   width?: number | 'screen' | 'fill';
@@ -24,7 +24,7 @@ export interface BaseElement {
   borderRight?: string;
   borderBottom?: string;
   borderLeft?: string;
-  children: BaseElement[];
+  children?: BaseElement[];
 }
 
 export interface GridElement extends BaseElement {
@@ -51,3 +51,22 @@ export type PageElement =
   | (BaseElement & Partial<Omit<GridElement, keyof BaseElement>>)
   | (BaseElement & Partial<Omit<LinkElement, keyof BaseElement>>)
   | (BaseElement & Partial<Omit<InputElement, keyof BaseElement>>);
+
+export interface SitePage {
+  id: string;
+  name: string;
+  elements: PageElement[];
+}
+
+export interface Site {
+  id: string;
+  name: string;
+  description: string;
+  size: number;
+  pagesCount: number;
+  createdAt: Date;
+  lastModified: Date;
+  isStarred: boolean;
+  pages: SitePage[];
+}
+

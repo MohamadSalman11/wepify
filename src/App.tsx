@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
+import { Path } from './constant';
 import Dashboard from './pages/Dashboard';
 import Editor from './pages/Editor';
 import GlobalStyles from './styles/GlobalStyles';
@@ -11,8 +12,8 @@ function App() {
       <ThemeProvider theme={theme}>
         <GlobalStyles />
         <Routes>
-          <Route path='/sites' element={<Dashboard />} />
-          <Route path='/editor/sites/:site/pages/:page' element={<Editor />} />
+          <Route path={Path.Dashboard} element={<Dashboard />} />
+          <Route path={Path.Editor} element={<Editor />} />
         </Routes>
       </ThemeProvider>
     </BrowserRouter>

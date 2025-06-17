@@ -4,6 +4,10 @@ import Header from '../features/editor/Header';
 import Panel from '../features/editor/panels';
 import Sidebar from '../features/editor/Sidebar';
 
+/**
+ * Styles
+ */
+
 const StyledEditor = styled.div`
   width: 100%;
   height: 100vh;
@@ -12,6 +16,10 @@ const StyledEditor = styled.div`
   grid-template-rows: 8rem 1fr;
   overflow: hidden;
 `;
+
+/**
+ * Component definition
+ */
 
 function Editor() {
   return (

@@ -1,6 +1,6 @@
 import { ELEMENTS_TEMPLATE } from '../../../constant';
 import type { PageElement } from '../../../types';
-import { flattenElements } from '../../../utils/flatten-elements';
+import { flattenElements } from '../../../utils/flattenElements';
 
 export const createNewElement = (
   elementName: keyof typeof ELEMENTS_TEMPLATE,

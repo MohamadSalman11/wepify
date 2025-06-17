@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { GridContainer, Title, type HandleStyleChanges } from '.';
 import Input from '../../../../components/form/Input';
 import { useAppSelector } from '../../../../store';
-import { formatValue } from '../../../../utils/formatValue';
+import { formatNumber } from '../../../../utils/formatNumber';
 
 /**
  * Styles
@@ -36,7 +36,7 @@ function SizeSettings({ handleStyleChanges }: { handleStyleChanges: HandleStyleC
             disabled={selection.name === 'section' || selection.name === 'item'}
             type='number'
             name='x'
-            defaultValue={selection.name === 'section' ? '' : formatValue(selection.left)}
+            defaultValue={selection.name === 'section' ? '' : formatNumber(selection.left)}
             onChange={(e) => handleStyleChanges(e.target.value, 'left')}
           />
         </div>
@@ -46,7 +46,7 @@ function SizeSettings({ handleStyleChanges }: { handleStyleChanges: HandleStyleC
             disabled={selection.name === 'section' || selection.name === 'item'}
             type='number'
             name='y'
-            defaultValue={selection.name === 'section' ? '' : formatValue(selection.top)}
+            defaultValue={selection.name === 'section' ? '' : formatNumber(selection.top)}
             onChange={(e) => handleStyleChanges(e.target.value, 'top')}
           />
         </div>

@@ -112,6 +112,7 @@ const StyledSearchContainer = styled.ul`
   border-top-right-radius: 0;
   border-top-left-radius: 0;
   border-top: 1px solid var(--color-gray-light-2);
+  overflow-y: auto;
 
   & > p {
     margin: 1.6rem;
@@ -202,27 +203,30 @@ export default function SearchBox() {
 
 function SearchResults({ matchedSites }: { matchedSites: Site[] }) {
   const navigate = useNavigate();
+  const isNoResult = matchedSites.length === 0;
 
   return (
     <StyledSearchContainer>
-      {matchedSites.length === 0 ? (
+      {isNoResult ? (
         <p>No items match your search</p>
       ) : (
         <ul>
           {matchedSites.map((site) => (
-            <li
-              key={site.id}
-              onClick={() => navigate(buildPath(Path.Editor, { site: site.id, page: site.pages[0].id }))}
-            >
-              <div>
-                <Icon icon={LuLayoutTemplate} />
+            <>
+              <li
+                key={site.id}
+                onClick={() => navigate(buildPath(Path.Editor, { site: site.id, page: site.pages[0].id }))}
+              >
                 <div>
-                  <span>{site.name}</span>
-                  <p>{site.description}</p>
+                  <Icon icon={LuLayoutTemplate} />
+                  <div>
+                    <span>{site.name}</span>
+                    <p>{site.description}</p>
+                  </div>
                 </div>
-              </div>
-              <span>{formatDate(site.createdAt)}</span>
-            </li>
+                <span>{formatDate(site.createdAt)}</span>
+              </li>
+            </>
           ))}
         </ul>
       )}

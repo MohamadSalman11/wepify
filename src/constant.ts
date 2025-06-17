@@ -114,3 +114,12 @@ export enum ElementNames {
   Grid = 'grid',
   Section = 'Section'
 }
+
+export const ToastMessages = {
+  site: {
+    addedStar: 'Site added to starred',
+    removedStar: 'Site removed from starred',
+    updated: 'Site updated successfully',
+    deleted: 'Site deleted successfully'
+  }
+} as const;

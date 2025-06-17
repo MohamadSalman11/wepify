@@ -18,7 +18,7 @@ import Dropdown from '../../../components/Dropdown';
 import Input from '../../../components/form/Input';
 import Icon from '../../../components/Icon';
 import Modal, { type OnCloseModal } from '../../../components/Modal';
-import { Path, TOAST_DURATION } from '../../../constant';
+import { Path, TOAST_DURATION, ToastMessages } from '../../../constant';
 import { useAppSelector } from '../../../store';
 import type { Site } from '../../../types';
 import { buildPath } from '../../../utils/buildPath';
@@ -176,7 +176,7 @@ function TableRow({ site }: { site: Site }) {
 
     dispatch(toggleSiteStarred(id));
 
-    const message = isStarred ? 'Site removed from starred' : 'Site added to starred';
+    const message = isStarred ? ToastMessages.site.addedStar : ToastMessages.site.removedStar;
     toast.success(message, { duration: TOAST_DURATION });
   };
 
@@ -269,7 +269,7 @@ function EditDialog({ site, onCloseModal }: { site: Site; onCloseModal?: OnClose
   function handleSiteUpdate() {
     dispatch(updateSiteDetails({ id: site.id, name, description }));
     onCloseModal?.();
-    toast.success('Site updated successfully', { duration: TOAST_DURATION });
+    toast.success(ToastMessages.site.updated, { duration: TOAST_DURATION });
   }
 
   return (
@@ -299,7 +299,7 @@ function DeleteDialog({ site, onCloseModal }: { site: Site; onCloseModal?: OnClo
   function handleDelete() {
     dispatch(deleteSite(site.id));
     onCloseModal?.();
-    toast.success('Site deleted successfully');
+    toast.success(ToastMessages.site.deleted);
   }
 
   return (

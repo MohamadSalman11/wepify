@@ -58,22 +58,6 @@ const FilterHeader = styled.div`
   display: flex;
   flex-direction: column;
   row-gap: 2.4rem;
-
-  span {
-    display: inline-block;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: var(--transition-base);
-    cursor: pointer;
-    border-radius: var(--border-radius-full);
-    width: 3.5rem;
-    height: 3.5rem;
-
-    &:hover {
-      background-color: var(--color-white-2);
-    }
-  }
 `;
 
 const NoResultsWrapper = styled.div`
@@ -192,7 +176,7 @@ export default function SitesView() {
         {isFiltering ? (
           <FilterHeader>
             <span onClick={handleClearFilter}>
-              <Icon icon={LuArrowLeft} />
+              <Icon icon={LuArrowLeft} hover={true} />
             </span>
             {filterLabel}
           </FilterHeader>

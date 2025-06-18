@@ -54,9 +54,8 @@ const DialogHeader = styled.div`
     font-size: 1.6rem;
   }
 
-  svg {
-    transform: translateY(-4px);
-    cursor: pointer;
+  span {
+    transform: translateY(-2px);
   }
 `;
 
@@ -136,7 +135,7 @@ function Dialog({ children, title }: { children: ClickableElement; title: string
     <StyledDialog>
       <DialogHeader>
         <h3>{title}</h3>
-        <Icon onClick={() => setIsOpen(false)} icon={LuX} />
+        <Icon onClick={() => setIsOpen(false)} icon={LuX} hover={true} />
       </DialogHeader>
       {cloneElement(children, {
         onCloseModal: () => setIsOpen(false)

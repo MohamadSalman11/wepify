@@ -1,8 +1,8 @@
+import { nanoid } from '@reduxjs/toolkit';
 import { LuClock4, LuFilePlus, LuHouse, LuStar } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { v4 as uuidv4 } from 'uuid';
 import Button from '../../components/Button';
 import Icon from '../../components/Icon';
 import { ELEMENTS_TEMPLATE, Path } from '../../constant';
@@ -76,10 +76,10 @@ function Sidebar() {
   const navigate = useNavigate();
 
   function handleDesignNewSite() {
-    const siteId = uuidv4();
+    const siteId = nanoid();
 
     const page: SitePage = {
-      id: uuidv4(),
+      id: nanoid(),
       siteId,
       name: DEFAULT_NAME,
       siteName: DEFAULT_NAME,

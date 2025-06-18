@@ -1,14 +1,12 @@
 import localforage from 'localforage';
 import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import Header from '../features/dashboard/Header';
 import Main from '../features/dashboard/main/Main';
 import Sidebar from '../features/dashboard/Sidebar';
-import { setSites } from '../features/dashboard/slices/dashboardSlice';
+import { useLoadSitesFromStorage } from '../hooks/useLoadSitesFromStorage';
 import { useAppSelector } from '../store';
-import type { Site } from '../types';
 
 /**
  * Styles
@@ -32,16 +30,8 @@ const DashboardLayout = styled.div`
 
 function Dashboard() {
   const { sites } = useAppSelector((state) => state.dashboard);
-  const dispatch = useDispatch();
 
-  useEffect(() => {
-    async function loadSites() {
-      const sites = (await localforage.getItem('sites')) as Site[];
-      if (sites) dispatch(setSites(sites));
-    }
-
-    loadSites();
-  }, [dispatch]);
+  useLoadSitesFromStorage();
 
   useEffect(() => {
     localforage.setItem('sites', sites);

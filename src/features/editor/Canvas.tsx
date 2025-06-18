@@ -2,10 +2,10 @@ import localforage from 'localforage';
 import { useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
+import { useLoadSitesFromStorage } from '../../hooks/useLoadSitesFromStorage';
 import { useAppSelector } from '../../store';
 import { useCanvasSync } from './hooks/useCanvasSync';
 import { setHeight, setWidth } from './slices/pageSlice';
-import { selectElement } from './slices/selectionSlice';
 
 /**
  * Styles
@@ -19,6 +19,7 @@ const StyledCanvas = styled.div`
   background-color: transparent;
   overflow-y: auto;
   overflow-x: hidden;
+  background-color: var(--color-black-light);
 
   iframe {
     border: none;
@@ -30,7 +31,7 @@ const StyledCanvas = styled.div`
  */
 
 function Canvas() {
-  const { width, height, scale, elements } = useAppSelector((state) => state.page);
+  const { width, height, scale } = useAppSelector((state) => state.page);
   const { sites } = useAppSelector((state) => state.dashboard);
 
   const dispatch = useDispatch();
@@ -39,15 +40,16 @@ function Canvas() {
 
   useCanvasSync(iframeRef, sites);
 
+  useLoadSitesFromStorage();
+
   useEffect(() => {
-    localforage.setItem('sites', sites);
+    if (sites.length > 0) {
+      localforage.setItem('sites', sites);
+    }
   }, [sites]);
 
   const handleIframeLoad = () => {
-    const firstSection = elements[0];
-
     if (canvasRef.current) {
-      dispatch(selectElement(firstSection));
       dispatch(setWidth(canvasRef.current.clientWidth));
       dispatch(setHeight(canvasRef.current.clientHeight));
     }

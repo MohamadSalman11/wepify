@@ -207,6 +207,8 @@ function ElementsPanel() {
     if (element) dispatch(selectElement(element));
   };
 
+  console.log(selection);
+
   return (
     <>
       <input type='file' accept='image/*' style={{ display: 'none' }} ref={fileInputRef} onChange={handleImageUpload} />

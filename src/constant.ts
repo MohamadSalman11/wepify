@@ -39,8 +39,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     name: 'container',
     width: 150,
     height: 100,
-    content: 'Hi',
-    backgroundColor: '#343C44'
+    backgroundColor: '#313334'
   }),
   grid: createElTemplate({
     tag: 'div',

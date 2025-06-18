@@ -8,7 +8,7 @@ const COLOR_PRIMARY = '#3e7df5';
 const COLOR_PRIMARY_LIGHT = '#6597f7';
 const COLOR_PRIMARY_LIGHT_2 = '#a3c1fa';
 
-const COLOR_BLACK_LIGHT = '#313334';
+const COLOR_BLACK_LIGHT = '#343c44';
 
 const COLOR_GRAY = '#94a3b7';
 const COLOR_GRAY_LIGHT = '#aebbcb';
@@ -97,7 +97,7 @@ const variables = css`
 
     /* Typography */
     --font-family-sans-serif:
-      'Roboto', 'Inter', -apple-system, system-ui, 'Segoe UI', 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans',
+      'Inter', -apple-system, system-ui, 'Segoe UI', 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans',
       sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol';
     --font-family-base: var(--font-family-sans-serif);
 

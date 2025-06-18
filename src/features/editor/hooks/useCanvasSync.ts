@@ -5,6 +5,7 @@ import { useAppSelector } from '../../../store';
 import type { Site } from '../../../types';
 import { updatePageElements } from '../../dashboard/slices/dashboardSlice';
 import { setPage } from '../slices/pageSlice';
+import { selectElement } from '../slices/selectionSlice';
 import { useIframeConnection } from './useIframeConnection';
 
 export const useCanvasSync = (iframeRef: RefObject<HTMLIFrameElement | null>, sites: Site[]) => {
@@ -20,9 +21,9 @@ export const useCanvasSync = (iframeRef: RefObject<HTMLIFrameElement | null>, si
       const site = sites.find((site) => site.id === siteParam);
       const page = site?.pages.find((page) => page.id === pageParam);
 
-      sendElementsToIframe(elements);
-
       if (site && page) {
+        sendElementsToIframe(page.elements);
+        dispatch(selectElement(page.elements[0]));
         dispatch(setPage({ ...page, siteId: site.id, siteName: site.name, siteDescription: site.description }));
       }
     }

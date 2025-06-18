@@ -72,7 +72,7 @@ const controlIframeMessage = (event) => {
     }
     case 'SELECTION_CHANGED': {
       document.querySelector(`#${payload}`)?.click();
-      positionDragButton(state.currentTarget.clientHeight);
+      positionDragButton(state.currentTarget?.clientHeight);
       break;
     }
   }

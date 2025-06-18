@@ -28,8 +28,8 @@ interface IconProps {
  * Component definition
  */
 
-const Icon = ({ icon: IconComponent, size = DEFAULT_ICON_SIZE, onClick }: IconProps) => {
-  return <IconComponent size={sizeMap[size]} onClick={onClick} />;
+const Icon = ({ icon: IconComponent, size = DEFAULT_ICON_SIZE, onClick, ...props }: IconProps) => {
+  return <IconComponent size={sizeMap[size]} onClick={onClick} {...props} />;
 };
 
 export default Icon;

@@ -2,19 +2,23 @@ import {
   cloneElement,
   createContext,
   useContext,
+  useRef,
   useState,
   type MouseEventHandler,
   type ReactElement,
-  type ReactNode
+  type ReactNode,
+  type RefObject
 } from 'react';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
+import { setModalIsOpen } from '../features/dashboard/slices/dashboardSlice';
 import useOutsideClick from '../hooks/useOutsideClick';
 
 /**
  * Styles
  */
 
-const StyledDropdown = styled.ul<{ top?: number }>`
+const StyledDropdown = styled.ul<{ top?: number; shouldHide: boolean }>`
   position: absolute;
   ${(props) => (props.top === undefined ? 'left: 0;' : 'right: 0;')}
   ${(props) => props.top !== undefined && `top: ${props.top}px;`}
@@ -25,6 +29,14 @@ const StyledDropdown = styled.ul<{ top?: number }>`
   overflow: hidden;
   z-index: 999;
   background-color: var(--color-white);
+
+  ${(props) =>
+    props.shouldHide &&
+    `
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+    `}
 
   li {
     display: flex;
@@ -51,9 +63,10 @@ const StyledDropdown = styled.ul<{ top?: number }>`
 interface DropdownContextType {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
+  toggleRef: RefObject<HTMLElement | null>;
 }
 
-type ClickableElement = ReactElement<{ onClick?: MouseEventHandler }>;
+type ClickableElement = ReactElement<{ onClick?: MouseEventHandler; ref: RefObject<HTMLElement | null> }>;
 
 /**
  * Context
@@ -73,29 +86,32 @@ const useDropdownContext = () => {
 
 function Dropdown({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
+  const toggleRef = useRef<HTMLElement>(null);
 
-  return <DropdownContext.Provider value={{ setIsOpen, isOpen }}>{children}</DropdownContext.Provider>;
+  return <DropdownContext.Provider value={{ setIsOpen, isOpen, toggleRef }}>{children}</DropdownContext.Provider>;
 }
 
 function Open({ children }: { children: ClickableElement }) {
-  const { setIsOpen } = useDropdownContext();
+  const { setIsOpen, toggleRef } = useDropdownContext();
+  const dispatch = useDispatch();
 
   return cloneElement(children, {
-    onClick: (event) => {
-      event.stopPropagation();
+    ref: toggleRef,
+    onClick: () => {
+      dispatch(setModalIsOpen(false));
       setIsOpen(true);
     }
   });
 }
 
-function Drop({ children, top }: { children: ReactNode; top?: number }) {
-  const { isOpen, setIsOpen } = useDropdownContext();
-  const dropdownRef = useOutsideClick<HTMLUListElement>(() => setIsOpen(false));
+function Drop({ children, top, shouldHide }: { children: ReactNode; top?: number; shouldHide: boolean }) {
+  const { isOpen, setIsOpen, toggleRef } = useDropdownContext();
+  const dropdownRef = useOutsideClick<HTMLUListElement>(() => setIsOpen(false), undefined, toggleRef);
 
   if (!isOpen) return null;
 
   return (
-    <StyledDropdown ref={dropdownRef} top={top}>
+    <StyledDropdown ref={dropdownRef} top={top} shouldHide={shouldHide}>
       {children}
     </StyledDropdown>
   );

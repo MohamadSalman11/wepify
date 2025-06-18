@@ -1,6 +1,11 @@
 import type { Site } from '../types';
 
-export const calculateSiteSize = (site: Site) => {
+type Unit = 'bytes' | 'kb' | 'mb' | 'gb' | 'tb';
+
+function calculateSiteSize(site: Site): string;
+function calculateSiteSize(site: Site, unit: Unit): number;
+
+function calculateSiteSize(site: Site, unit?: Unit): number | string {
   let totalSizeBytes = 0;
 
   for (const page of site.pages) {
@@ -14,6 +19,24 @@ export const calculateSiteSize = (site: Site) => {
   const sizeGB = sizeMB / 1024;
   const sizeTB = sizeGB / 1024;
 
+  switch (unit) {
+    case 'bytes': {
+      return totalSizeBytes;
+    }
+    case 'kb': {
+      return sizeKB;
+    }
+    case 'mb': {
+      return sizeMB;
+    }
+    case 'gb': {
+      return sizeGB;
+    }
+    case 'tb': {
+      return sizeTB;
+    }
+  }
+
   if (sizeTB >= 1) {
     return `${sizeTB.toFixed(2)} TB`;
   } else if (sizeGB >= 1) {
@@ -23,4 +46,6 @@ export const calculateSiteSize = (site: Site) => {
   } else {
     return `${sizeKB.toFixed(2)} KB`;
   }
-};
+}
+
+export { calculateSiteSize };

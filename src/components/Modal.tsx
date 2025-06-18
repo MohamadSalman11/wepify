@@ -10,7 +10,9 @@ import {
   type RefObject
 } from 'react';
 import { createPortal } from 'react-dom';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
+import { setModalIsOpen } from '../features/dashboard/slices/dashboardSlice';
 import useOutsideClick from '../hooks/useOutsideClick';
 
 /**
@@ -56,9 +58,14 @@ interface ModalContextType {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   overlayRef: RefObject<HTMLDivElement | null>;
+  toggleRef: RefObject<HTMLElement | null>;
 }
 
-type ClickableElement = ReactElement<{ onClick?: MouseEventHandler; onCloseModal?: () => void }>;
+type ClickableElement = ReactElement<{
+  onClick?: MouseEventHandler;
+  onCloseModal?: () => void;
+  ref: RefObject<HTMLElement | null>;
+}>;
 
 export type OnCloseModal = () => void;
 
@@ -81,17 +88,20 @@ const useModalContext = () => {
 function Modal({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLElement>(null);
 
-  return <ModalContext.Provider value={{ isOpen, setIsOpen, overlayRef }}>{children}</ModalContext.Provider>;
+  return <ModalContext.Provider value={{ isOpen, setIsOpen, overlayRef, toggleRef }}>{children}</ModalContext.Provider>;
 }
 
 function Open({ children }: { children: ClickableElement }) {
-  const { setIsOpen } = useModalContext();
+  const { setIsOpen, toggleRef } = useModalContext();
+  const dispatch = useDispatch();
 
   return cloneElement(children, {
-    onClick: (event) => {
-      event.stopPropagation();
+    ref: toggleRef,
+    onClick: () => {
       setIsOpen(true);
+      dispatch(setModalIsOpen(true));
     }
   });
 }
@@ -100,10 +110,7 @@ function Close({ children }: { children: ClickableElement }) {
   const { setIsOpen } = useModalContext();
 
   return cloneElement(children, {
-    onClick: (event) => {
-      event.stopPropagation();
-      setIsOpen(false);
-    }
+    onClick: () => setIsOpen(false)
   });
 }
 
@@ -121,13 +128,15 @@ function Window({ children }: { children: ReactNode }) {
 }
 
 function Dialog({ children, title }: { children: ClickableElement; title: string }) {
-  const { setIsOpen, overlayRef } = useModalContext();
-  const dialogRef = useOutsideClick<HTMLDivElement>(() => setIsOpen(false), overlayRef);
+  const { setIsOpen, overlayRef, toggleRef } = useModalContext();
+  const dialogRef = useOutsideClick<HTMLDivElement>(() => setIsOpen(false), overlayRef, toggleRef);
 
   return (
     <StyledDialog ref={dialogRef}>
       <h3>{title}</h3>
-      {cloneElement(children, { onCloseModal: () => setIsOpen(false) })}
+      {cloneElement(children, {
+        onCloseModal: () => setIsOpen(false)
+      })}
     </StyledDialog>
   );
 }

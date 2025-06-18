@@ -1,12 +1,30 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { PageElement, Site } from '../../../types';
 
+export interface FilterCriteria {
+  sizeRange?: {
+    min: number;
+    max: number;
+  };
+  pageRange?: {
+    min: number;
+    max: number;
+  };
+  modifiedWithinDays?: number;
+}
+
 interface DashboardState {
   sites: Site[];
+  filters: FilterCriteria;
+  filterLabel: string;
+  isModalOpen: boolean;
 }
 
 const initialState: DashboardState = {
-  sites: []
+  sites: [],
+  filters: {},
+  filterLabel: '',
+  isModalOpen: true
 };
 
 const dashboardSlice = createSlice({
@@ -48,12 +66,21 @@ const dashboardSlice = createSlice({
 
       page.elements = elements;
     },
+    setFilters(state, action: PayloadAction<FilterCriteria>) {
+      state.filters = action.payload;
+    },
+    setFilterLabel(state, action: PayloadAction<string>) {
+      state.filterLabel = action.payload;
+    },
     toggleSiteStarred(state, action: PayloadAction<string>) {
       const site = state.sites.find((site) => site.id === action.payload);
 
       if (site) {
         site.isStarred = !site.isStarred;
       }
+    },
+    setModalIsOpen(state, action) {
+      state.isModalOpen = action.payload;
     }
   }
 });
@@ -65,7 +92,10 @@ export const {
   duplicateSite,
   updateSiteDetails,
   updatePageElements,
-  toggleSiteStarred
+  setFilters,
+  setFilterLabel,
+  toggleSiteStarred,
+  setModalIsOpen
 } = dashboardSlice.actions;
 
 export default dashboardSlice.reducer;

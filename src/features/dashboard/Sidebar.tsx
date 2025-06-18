@@ -90,7 +90,6 @@ function Sidebar() {
       id: siteId,
       name: DEFAULT_NAME,
       description: DEFAULT_DESCRIPTION,
-      size: 0,
       pagesCount: 1,
       createdAt: Date.now(),
       lastModified: Date.now(),

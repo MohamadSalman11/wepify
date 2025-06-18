@@ -62,11 +62,9 @@ export interface Site {
   id: string;
   name: string;
   description: string;
-  size: number;
   pagesCount: number;
   createdAt: Date;
   lastModified: Date;
   isStarred: boolean;
   pages: SitePage[];
 }
-

@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, type MouseEvent } from 'react';
 import toast from 'react-hot-toast';
 import {
+  LuArrowLeft,
   LuCopy,
   LuDownload,
   LuEllipsis,
@@ -24,17 +25,24 @@ import type { Site } from '../../../types';
 import { buildPath } from '../../../utils/buildPath';
 import { calculateSiteSize } from '../../../utils/calculateSiteSize';
 import { formatDate } from '../../../utils/formatDate';
-import { deleteSite, toggleSiteStarred, updateSiteDetails } from '../slices/dashboardSlice';
+import {
+  deleteSite,
+  setFilterLabel,
+  setFilters,
+  toggleSiteStarred,
+  updateSiteDetails,
+  type FilterCriteria
+} from '../slices/dashboardSlice';
 
 /**
  * Styles
  */
 
-const StyledSiteView = styled.div`
+const StyledSiteView = styled.div<{ isFiltering: boolean }>`
   width: 100%;
   height: 100%;
   overflow-y: auto;
-  margin-top: 5.2rem;
+  margin-top: ${({ isFiltering }) => (isFiltering ? '0' : '5.2rem')};
 
   h2 {
     position: sticky;
@@ -44,6 +52,44 @@ const StyledSiteView = styled.div`
     width: 100%;
     font-size: 2rem;
   }
+`;
+
+const FilterHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  row-gap: 2.4rem;
+
+  span {
+    display: inline-block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: var(--transition-base);
+    cursor: pointer;
+    border-radius: var(--border-radius-full);
+    width: 3.5rem;
+    height: 3.5rem;
+
+    &:hover {
+      background-color: var(--color-white-2);
+    }
+  }
+`;
+
+const NoResultsWrapper = styled.div`
+  text-align: center;
+  flex-direction: column;
+  margin-top: 3.2rem;
+`;
+
+const NoResultsMessage = styled.span`
+  margin-bottom: 0.8rem;
+  font-size: 1.8rem;
+`;
+
+const NoResultsInfo = styled.p`
+  color: var(--color-gray);
+  font-size: 1.2rem;
 `;
 
 const Table = styled.table`
@@ -99,6 +145,10 @@ const Table = styled.table`
       }
     }
 
+    & td[colspan='7'] {
+      pointer-events: none;
+    }
+
     &:hover {
       background-color: var(--color-gray-light-3);
 
@@ -127,12 +177,32 @@ const StarIcon = styled(LuStar)<{ isStarred: boolean }>`
  */
 
 export default function SitesView() {
+  const { sites, filters, filterLabel, isModalOpen } = useAppSelector((state) => state.dashboard);
+  const dispatch = useDispatch();
+  const isFiltering = Boolean(filters.modifiedWithinDays || filters.pageRange || filters.sizeRange);
+
+  function handleClearFilter() {
+    dispatch(setFilterLabel(''));
+    dispatch(setFilters({}));
+  }
+
   return (
-    <StyledSiteView>
-      <h2>Sites</h2>
+    <StyledSiteView isFiltering={isFiltering}>
+      <h2>
+        {isFiltering ? (
+          <FilterHeader>
+            <span onClick={handleClearFilter}>
+              <Icon icon={LuArrowLeft} />
+            </span>
+            {filterLabel}
+          </FilterHeader>
+        ) : (
+          'Sites'
+        )}
+      </h2>
       <Table>
         <TableHead />
-        <TableBody />
+        <TableBody sites={sites} filters={filters} isModalOpen={isModalOpen} />
       </Table>
     </StyledSiteView>
   );
@@ -153,35 +223,68 @@ function TableHead() {
   );
 }
 
-function TableBody() {
-  const { sites } = useAppSelector((state) => state.dashboard);
+function TableBody({ sites, filters, isModalOpen }: { sites: Site[]; filters: FilterCriteria; isModalOpen: boolean }) {
+  const now = Date.now();
+
+  const filteredSites = sites.filter((site) => {
+    const sizeKB = calculateSiteSize(site, 'kb');
+    const pageCount = site.pages.length;
+    const modifiedTime = new Date(site.lastModified).getTime();
+
+    const sizeMatch = !filters.sizeRange || (sizeKB >= filters.sizeRange.min && sizeKB <= filters.sizeRange.max);
+    const pageMatch = !filters.pageRange || (pageCount >= filters.pageRange.min && pageCount <= filters.pageRange.max);
+    const modifiedMatch =
+      !filters.modifiedWithinDays || now - modifiedTime <= filters.modifiedWithinDays * 24 * 60 * 60 * 1000;
+
+    return sizeMatch && pageMatch && modifiedMatch;
+  });
+
+  if (filteredSites.length === 0) {
+    return (
+      <tbody>
+        <tr>
+          <td colSpan={7}>
+            <NoResultsWrapper>
+              <NoResultsMessage>No matching result</NoResultsMessage>
+              <NoResultsInfo>Try adjusting your filters or clear them to see all sites.</NoResultsInfo>
+            </NoResultsWrapper>
+          </td>
+        </tr>
+      </tbody>
+    );
+  }
 
   return (
     <tbody>
-      {sites.map((site) => (
-        <TableRow site={site} key={site.id} />
+      {filteredSites.map((site) => (
+        <TableRow site={site} key={site.id} isModalOpen={isModalOpen} />
       ))}
     </tbody>
   );
 }
 
-function TableRow({ site }: { site: Site }) {
+function TableRow({ site, isModalOpen }: { site: Site; isModalOpen: boolean }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { id, name, description, pagesCount, pages, createdAt, lastModified, isStarred } = site;
 
-  const toggleStar = (event: any) => {
-    event.stopPropagation();
-
+  const toggleStar = () => {
     dispatch(toggleSiteStarred(id));
 
     const message = isStarred ? ToastMessages.site.addedStar : ToastMessages.site.removedStar;
     toast.success(message, { duration: TOAST_DURATION });
   };
 
+  function handleRowClick(event: MouseEvent<HTMLTableRowElement>) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('svg') && !target.closest('li')) {
+      navigate(buildPath(Path.Editor, { site: id, page: pages[0].id }));
+    }
+  }
+
   return (
-    <tr onClick={() => navigate(buildPath(Path.Editor, { site: id, page: pages[0].id }))}>
+    <tr onClick={handleRowClick}>
       <td>
         <div>
           <Icon icon={LuLayoutTemplate} /> {name}
@@ -211,7 +314,7 @@ function TableRow({ site }: { site: Site }) {
             <Dropdown.open>
               <Icon icon={LuEllipsis} size='md' />
             </Dropdown.open>
-            <Dropdown.drop top={0}>
+            <Dropdown.drop top={0} shouldHide={isModalOpen}>
               <DropdownOptions site={site} />
             </Dropdown.drop>
           </Dropdown>

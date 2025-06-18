@@ -1,6 +1,7 @@
 import { useRef, useState, type ReactNode } from 'react';
 import type { IconType } from 'react-icons';
 import { LuCalendar, LuChevronDown, LuFileStack, LuHardDrive, LuLayoutTemplate, LuSearch, LuX } from 'react-icons/lu';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 import Dropdown from '../../../components/Dropdown';
@@ -10,6 +11,35 @@ import { useAppSelector } from '../../../store';
 import type { InputChangeEvent, Site } from '../../../types';
 import { buildPath } from '../../../utils/buildPath';
 import { formatDate } from '../../../utils/formatDate';
+import { setFilterLabel, setFilters, type FilterCriteria } from '../slices/dashboardSlice';
+
+/**
+ * Constants
+ */
+
+const OPTIONS_SIZE = [
+  { label: '< 500 KB', min: 0, max: 500 },
+  { label: '500 KB - 1 MB', min: 500, max: 1024 },
+  { label: '1 MB - 5 MB', min: 1024, max: 5120 },
+  { label: '5 MB - 10 MB', min: 5120, max: 10_240 },
+  { label: '> 10 MB', min: 10_240, max: Infinity }
+];
+
+const OPTIONS_PAGE = [
+  { label: '1 - 3 pages', min: 1, max: 3 },
+  { label: '4 - 10 pages', min: 4, max: 10 },
+  { label: '11 - 25 pages', min: 11, max: 25 },
+  { label: '26 - 50 pages', min: 26, max: 50 },
+  { label: '> 50 pages', min: 51, max: Infinity }
+];
+
+const OPTIONS_MODIFIED = [
+  { label: 'Today', days: 1 },
+  { label: 'Last 7 days', days: 7 },
+  { label: 'Last 30 days', days: 30 },
+  { label: 'Last 60 days', days: 60 },
+  { label: 'Last 90 days', days: 90 }
+];
 
 /**
  * Styles
@@ -162,7 +192,7 @@ const StyledSearchContainer = styled.ul`
  */
 
 export default function SearchBox() {
-  const { sites } = useAppSelector((state) => state.dashboard);
+  const { sites, filters } = useAppSelector((state) => state.dashboard);
   const [matchedSites, setMatchedSites] = useState<Site[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -186,6 +216,10 @@ export default function SearchBox() {
   }
 
   const isSearchResultVisible = isSearching;
+
+  if (filters.modifiedWithinDays || filters.pageRange || filters.sizeRange) {
+    return null;
+  }
 
   return (
     <StyledSearchBox>
@@ -235,28 +269,35 @@ function SearchResults({ matchedSites }: { matchedSites: Site[] }) {
 }
 
 function FilterList() {
+  const dispatch = useDispatch();
+
+  const handleFilter = (filter: Partial<FilterCriteria>, label: string) => {
+    dispatch(setFilters(filter));
+    dispatch(setFilterLabel(label));
+  };
+
   return (
     <ul>
       <FilterItem title='Size' icon={LuHardDrive}>
-        <li>{'<'} 500 KB</li>
-        <li>500 KB - 1 MB</li>
-        <li>1 MB - 5 MB</li>
-        <li>5 MB - 10 MB</li>
-        <li>{'>'} 10 MB</li>
+        {OPTIONS_SIZE.map(({ label, min, max }) => (
+          <li key={label} onClick={() => handleFilter({ sizeRange: { min, max } }, label)}>
+            {label}
+          </li>
+        ))}
       </FilterItem>
       <FilterItem title='Pages' icon={LuFileStack}>
-        <li>1 - 3 pages</li>
-        <li>4 - 10 pages</li>
-        <li>11 - 25 pages</li>
-        <li>26 - 50 pages</li>
-        <li>{'>'} 50 pages</li>
+        {OPTIONS_PAGE.map(({ label, min, max }) => (
+          <li key={label} onClick={() => handleFilter({ pageRange: { min, max } }, label)}>
+            {label}
+          </li>
+        ))}
       </FilterItem>
       <FilterItem title='Modified' icon={LuCalendar}>
-        <li>Today</li>
-        <li>Last 7 days</li>
-        <li>Last 30 days</li>
-        <li>Last 60 days</li>
-        <li>Last 90 days</li>
+        {OPTIONS_MODIFIED.map(({ label, days }) => (
+          <li key={label} onClick={() => handleFilter({ modifiedWithinDays: days }, label)}>
+            {label}
+          </li>
+        ))}
       </FilterItem>
     </ul>
   );

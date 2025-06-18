@@ -26,7 +26,7 @@ export const useOutsideClick = <T extends HTMLElement = HTMLElement>(
     iframeDoc?.addEventListener('click', handleClick);
 
     return () => {
-      document.removeEventListener('click', handleClick);
+      listenTarget.removeEventListener('click', handleClick);
       iframeDoc?.removeEventListener('click', handleClick);
     };
   }, [handler, containerRef, extraRef]);

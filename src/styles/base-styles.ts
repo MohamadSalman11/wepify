@@ -3,25 +3,25 @@ import { css } from 'styled-components';
 const baseStyles = css`
   @font-face {
     font-weight: var(--font-weight-regular);
-    src: url('src/assets/fonts/inter-regular.woff2') format('woff2');
+    src: url('/fonts/inter-bold.woff2') format('woff2');
     font-family: 'Inter';
   }
 
   @font-face {
     font-weight: var(--font-weight-medium);
-    src: url('src/assets/fonts/inter-medium.woff2') format('woff2');
+    src: url('/fonts/inter-medium.woff2') format('woff2');
     font-family: 'Inter';
   }
 
   @font-face {
     font-weight: var(--font-weight-semibold);
-    src: url('src/assets/fonts/inter-semibold.woff2') format('woff2');
+    src: url('/fonts/inter-semibold.woff2') format('woff2');
     font-family: 'Inter';
   }
 
   @font-face {
     font-weight: var(--font-weight-bold);
-    src: url('src/assets/fonts/inter-bold.woff2') format('woff2');
+    src: url('/fonts/inter-bold.woff2') format('woff2');
     font-family: 'Inter';
   }
 

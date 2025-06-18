@@ -225,19 +225,23 @@ function TableHead() {
 
 function TableBody({ sites, filters, isModalOpen }: { sites: Site[]; filters: FilterCriteria; isModalOpen: boolean }) {
   const now = Date.now();
+  const isFiltering = Boolean(filters.modifiedWithinDays || filters.pageRange || filters.sizeRange);
 
-  const filteredSites = sites.filter((site) => {
-    const sizeKB = calculateSiteSize(site, 'kb');
-    const pageCount = site.pages.length;
-    const modifiedTime = new Date(site.lastModified).getTime();
+  const filteredSites = isFiltering
+    ? sites.filter((site) => {
+        const sizeKB = calculateSiteSize(site, 'kb');
+        const pageCount = site.pages.length;
+        const modifiedTime = new Date(site.lastModified).getTime();
 
-    const sizeMatch = !filters.sizeRange || (sizeKB >= filters.sizeRange.min && sizeKB <= filters.sizeRange.max);
-    const pageMatch = !filters.pageRange || (pageCount >= filters.pageRange.min && pageCount <= filters.pageRange.max);
-    const modifiedMatch =
-      !filters.modifiedWithinDays || now - modifiedTime <= filters.modifiedWithinDays * 24 * 60 * 60 * 1000;
+        const sizeMatch = !filters.sizeRange || (sizeKB >= filters.sizeRange.min && sizeKB <= filters.sizeRange.max);
+        const pageMatch =
+          !filters.pageRange || (pageCount >= filters.pageRange.min && pageCount <= filters.pageRange.max);
+        const modifiedMatch =
+          !filters.modifiedWithinDays || now - modifiedTime <= filters.modifiedWithinDays * 24 * 60 * 60 * 1000;
 
-    return sizeMatch && pageMatch && modifiedMatch;
-  });
+        return sizeMatch && pageMatch && modifiedMatch;
+      })
+    : sites;
 
   if (filteredSites.length === 0) {
     return (
@@ -245,8 +249,12 @@ function TableBody({ sites, filters, isModalOpen }: { sites: Site[]; filters: Fi
         <tr>
           <td colSpan={7}>
             <NoResultsWrapper>
-              <NoResultsMessage>No matching result</NoResultsMessage>
-              <NoResultsInfo>Try adjusting your filters or clear them to see all sites.</NoResultsInfo>
+              <NoResultsMessage>{isFiltering ? 'No matching result' : 'No sites available'}</NoResultsMessage>
+              <NoResultsInfo>
+                {isFiltering
+                  ? 'Try adjusting or clearing your filters to find sites.'
+                  : 'Ready to build your website? Add a new site to get started.'}
+              </NoResultsInfo>
             </NoResultsWrapper>
           </td>
         </tr>

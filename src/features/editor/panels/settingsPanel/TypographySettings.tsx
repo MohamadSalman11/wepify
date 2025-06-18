@@ -9,20 +9,26 @@ import ColorPicker from '../../ColorPicker';
  */
 
 const webSafeFonts = [
-  'Arial',
-  'Verdana',
-  'Helvetica',
-  'Tahoma',
-  'Trebuchet MS',
-  'Times New Roman',
-  'Georgia',
-  'Courier New',
-  'Segoe UI',
-  'Impact',
-  'System-ui',
-  'Sans-serif',
-  'Serif',
-  'Monospace'
+  'Inter',
+  'JetBrains Mono',
+  'Fira Code',
+  'Lato',
+  'Lora',
+  'Merriweather',
+  'Montserrat',
+  'Nunito',
+  'Open Sans',
+  'Oswald',
+  'Pacifico',
+  'Playfair Display',
+  'Poppins',
+  'Raleway',
+  'Roboto Slab',
+  'Roboto',
+  'Rubik',
+  'Savate',
+  'Source Code Pro',
+  'Ubuntu'
 ];
 
 const OPTIONS_FONT_WEIGHT = [

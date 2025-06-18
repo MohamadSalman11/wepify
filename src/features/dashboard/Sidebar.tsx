@@ -2,10 +2,11 @@ import { LuClock4, LuFilePlus, LuHouse, LuStar } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
 import Button from '../../components/Button';
 import Icon from '../../components/Icon';
 import { ELEMENTS_TEMPLATE, Path } from '../../constant';
-import type { PageElement, Site } from '../../types';
+import type { Site, SitePage } from '../../types';
 import { buildPath } from '../../utils/buildPath';
 import { setPage } from '../editor/slices/pageSlice';
 import { addSite } from './slices/dashboardSlice';
@@ -75,10 +76,10 @@ function Sidebar() {
   const navigate = useNavigate();
 
   function handleDesignNewSite() {
-    const siteId = Date.now() + 1;
+    const siteId = uuidv4();
 
-    const page: PageElement = {
-      id: Date.now() + 10,
+    const page: SitePage = {
+      id: uuidv4(),
       siteId,
       name: DEFAULT_NAME,
       siteName: DEFAULT_NAME,

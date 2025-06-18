@@ -3,9 +3,6 @@ import type { PageElement, SitePage } from '../../../types';
 import { flattenElements } from '../../../utils/flattenElements';
 
 interface PageState extends SitePage {
-  siteId: string;
-  siteName: string;
-  siteDescription: string;
   width: number;
   height: number;
   originWidth: number;

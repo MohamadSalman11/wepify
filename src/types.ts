@@ -54,6 +54,9 @@ export type PageElement =
 
 export interface SitePage {
   id: string;
+  siteId: string;
+  siteName: string;
+  siteDescription: string;
   name: string;
   elements: PageElement[];
 }
@@ -63,8 +66,8 @@ export interface Site {
   name: string;
   description: string;
   pagesCount: number;
-  createdAt: Date;
-  lastModified: Date;
+  createdAt: number;
+  lastModified: number;
   isStarred: boolean;
   pages: SitePage[];
 }

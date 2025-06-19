@@ -1,6 +1,7 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
-import { Path } from './constant';
+import { EditorPath, Path } from './constant';
+import Panel from './features/editor/panels';
 import Dashboard from './pages/Dashboard';
 import Editor from './pages/Editor';
 import GlobalStyles from './styles/GlobalStyles';
@@ -13,7 +14,13 @@ function App() {
         <GlobalStyles />
         <Routes>
           <Route path={Path.Dashboard} element={<Dashboard />} />
-          <Route path={Path.Editor} element={<Editor />} />
+          <Route path={Path.Editor} element={<Editor />}>
+            <Route index element={<Navigate replace to={EditorPath.Elements} />} />
+            <Route path={EditorPath.Elements} element={<Panel panel={EditorPath.Elements} sectioned={true} />} />
+            <Route path={EditorPath.Pages} element={<Panel panel={EditorPath.Pages} />} />
+            <Route path={EditorPath.Layers} element={<Panel panel={EditorPath.Layers} />} />
+            <Route path={EditorPath.Uploads} element={<Panel panel={EditorPath.Uploads} />} />
+          </Route>
         </Routes>
       </ThemeProvider>
     </BrowserRouter>

@@ -10,6 +10,13 @@ export enum Path {
   Editor = '/editor/sites/:site/pages/:page'
 }
 
+export enum EditorPath {
+  Elements = 'elements',
+  Pages = 'pages',
+  Layers = 'layers',
+  Uploads = 'uploads'
+}
+
 export enum ElementNames {
   Grid = 'grid',
   Section = 'Section'

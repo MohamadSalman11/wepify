@@ -1,3 +1,4 @@
+import { Outlet } from 'react-router-dom';
 import styled from 'styled-components';
 import Canvas from '../features/editor/Canvas';
 import Header from '../features/editor/Header';
@@ -26,7 +27,7 @@ function Editor() {
     <StyledEditor>
       <Sidebar />
       <Header />
-      <Panel panel='elements' sectioned={true} />
+      <Outlet />
       <Canvas />
       <Panel panel='settings' sectioned={true} borderDir='left' />
     </StyledEditor>

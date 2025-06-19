@@ -1,4 +1,5 @@
 import { LuCloudUpload, LuCodeXml, LuFile, LuLayers3, LuLogOut, LuPlus } from 'react-icons/lu';
+import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 import Divider from '../../components/divider';
 import Icon from '../../components/Icon';
@@ -25,7 +26,7 @@ const StyledSidebar = styled.aside`
     margin-top: 2.4rem;
     list-style: none;
 
-    li {
+    li a {
       display: flex;
       position: relative;
       justify-content: center;
@@ -52,11 +53,10 @@ const StyledSidebar = styled.aside`
       &:hover {
         background-color: var(--color-white-3);
       }
+    }
 
-      &:nth-child(1) {
-        background-color: var(--color-white-3);
-        color: var(--color-white);
-      }
+    .active {
+      background-color: var(--color-white-3);
     }
   }
 
@@ -79,16 +79,24 @@ function Sidebar() {
       <nav>
         <ul>
           <li>
-            <Icon icon={LuPlus} />
+            <NavLink to='elements'>
+              <Icon icon={LuPlus} />
+            </NavLink>
           </li>
           <li>
-            <Icon icon={LuFile} />
+            <NavLink to='pages'>
+              <Icon icon={LuFile} />
+            </NavLink>
           </li>
           <li>
-            <Icon icon={LuLayers3} />
+            <NavLink to='layers'>
+              <Icon icon={LuLayers3} />
+            </NavLink>
           </li>
           <li>
-            <Icon icon={LuCloudUpload} />
+            <NavLink to='uploads'>
+              <Icon icon={LuCloudUpload} />
+            </NavLink>
           </li>
           <li>
             <Icon icon={LuCodeXml} />

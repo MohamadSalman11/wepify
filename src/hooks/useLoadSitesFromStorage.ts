@@ -1,18 +1,33 @@
 import localforage from 'localforage';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { setSites } from '../features/dashboard/slices/dashboardSlice';
+import { setIsLoading, setSites } from '../features/dashboard/slices/dashboardSlice';
 import type { Site } from '../types';
 
-export const useLoadSitesFromStorage = () => {
+export const useLoadSitesFromStorage = (loadingDuration: number) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+
     async function loadSites() {
       const sites = (await localforage.getItem('sites')) as Site[];
-      if (sites) dispatch(setSites(sites));
+      if (sites) {
+        dispatch(setSites(sites));
+        timeoutId = setTimeout(() => {
+          dispatch(setIsLoading(false));
+        }, loadingDuration);
+      } else {
+        dispatch(setIsLoading(false));
+      }
     }
 
     loadSites();
-  }, [dispatch]);
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [dispatch, loadingDuration]);
 };

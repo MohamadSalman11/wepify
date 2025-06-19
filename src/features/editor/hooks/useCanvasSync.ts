@@ -6,6 +6,7 @@ import type { PageElement, Site } from '../../../types';
 import { flattenElements } from '../../../utils/flattenElements';
 import { isTyping } from '../../../utils/isTyping';
 import { updatePageElements } from '../../dashboard/slices/dashboardSlice';
+import { setIsLoading } from '../slices/editorSlice';
 import { deleteElement, setPage } from '../slices/pageSlice';
 import { selectElement } from '../slices/selectionSlice';
 import { useIframeConnection } from './useIframeConnection';
@@ -13,7 +14,12 @@ import { useIframeConnection } from './useIframeConnection';
 const DEFAULT_SECTION_ID = 'section-1';
 const DELETE_KEY = 'Backspace';
 
-export const useCanvasSync = (iframeRef: RefObject<HTMLIFrameElement | null>, sites: Site[], isPreview: boolean) => {
+export const useCanvasSync = (
+  iframeRef: RefObject<HTMLIFrameElement | null>,
+  sites: Site[],
+  isPreview: boolean,
+  loadingDuration: number
+) => {
   const dispatch = useDispatch();
   const { site: siteParam, page: pageParam } = useParams();
   const { elements, lastAddedElement, id, siteId } = useAppSelector((s) => s.page);
@@ -28,6 +34,8 @@ export const useCanvasSync = (iframeRef: RefObject<HTMLIFrameElement | null>, si
   } = useIframeConnection(iframeRef, elements, isPreview);
 
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+
     if (iframeReady) {
       const site = sites.find((site) => site.id === siteParam);
       const page = site?.pages.find((page) => page.id === pageParam);
@@ -36,8 +44,13 @@ export const useCanvasSync = (iframeRef: RefObject<HTMLIFrameElement | null>, si
         sendElementsToIframe(page.elements);
         dispatch(selectElement(page.elements[0]));
         dispatch(setPage({ ...page, siteId: site.id, siteName: site.name, siteDescription: site.description }));
+        timeoutId = setTimeout(() => {
+          dispatch(setIsLoading(false));
+        }, loadingDuration);
       }
     }
+
+    return () => clearTimeout(timeoutId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [iframeReady, sendElementsToIframe]);
 

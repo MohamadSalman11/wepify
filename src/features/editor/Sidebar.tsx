@@ -35,10 +35,6 @@ const StyledSidebar = styled.aside`
         width: 4rem;
         height: 4rem;
       }
-
-      &:hover {
-        background-color: var(--color-white-3);
-      }
     }
 
     .active {
@@ -99,7 +95,7 @@ function Sidebar() {
             </NavLink>
           </li>
           <li>
-            <Icon icon={LuCodeXml} hover={true} borderRadius='md' />
+            <Icon icon={LuCodeXml} />
           </li>
         </ul>
       </nav>

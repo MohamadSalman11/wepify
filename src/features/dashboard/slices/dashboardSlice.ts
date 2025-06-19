@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { PageElement, Site } from '../../../types';
+import { getRandomDuration } from '../../../utils/getRandomDuration';
 
 export interface FilterCriteria {
   sizeRange?: {
@@ -18,13 +19,17 @@ interface DashboardState {
   filters: FilterCriteria;
   filterLabel: string;
   isModalOpen: boolean;
+  isLoading: boolean;
+  loadingDuration: number;
 }
 
 const initialState: DashboardState = {
   sites: [],
   filters: {},
   filterLabel: '',
-  isModalOpen: true
+  isModalOpen: true,
+  isLoading: true,
+  loadingDuration: getRandomDuration(1.5, 3.5)
 };
 
 const dashboardSlice = createSlice({
@@ -81,6 +86,9 @@ const dashboardSlice = createSlice({
     },
     setModalIsOpen(state, action) {
       state.isModalOpen = action.payload;
+    },
+    setIsLoading(state, action) {
+      state.isLoading = action.payload;
     }
   }
 });
@@ -95,7 +103,8 @@ export const {
   setFilters,
   setFilterLabel,
   toggleSiteStarred,
-  setModalIsOpen
+  setModalIsOpen,
+  setIsLoading
 } = dashboardSlice.actions;
 
 export default dashboardSlice.reducer;

@@ -14,6 +14,7 @@ function App() {
       <ThemeProvider theme={theme}>
         <GlobalStyles />
         <Routes>
+          <Route index element={<Navigate replace to={Path.Dashboard} />} />
           <Route path={Path.Dashboard} element={<Dashboard />} />
           <Route path={Path.Editor} element={<Editor />}>
             <Route index element={<Navigate replace to={EditorPath.Elements} />} />

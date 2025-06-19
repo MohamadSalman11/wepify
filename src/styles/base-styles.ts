@@ -2,6 +2,12 @@ import { css } from 'styled-components';
 
 const baseStyles = css`
   @font-face {
+    font-weight: 300;
+    src: url('/fonts/inter-light.woff2') format('woff2');
+    font-family: 'Inter';
+  }
+
+  @font-face {
     font-weight: var(--font-weight-regular);
     src: url('/fonts/inter-bold.woff2') format('woff2');
     font-family: 'Inter';

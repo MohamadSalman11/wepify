@@ -11,6 +11,7 @@ import Icon from '../../components/Icon';
 import { EditorPath } from '../../constant';
 import { useAppSelector } from '../../store';
 import type { InputChangeEvent } from '../../types';
+import { setIsLoading } from './slices/editorSlice';
 import { setHeight, setScale, setWidth } from './slices/pageSlice';
 
 /**
@@ -193,7 +194,14 @@ function Header() {
         <Icon icon={LuUndo2} />
         <Icon icon={LuRedo2} />
         <Divider rotate={90} width={30} />
-        <Icon onClick={() => navigate(EditorPath.Preview, { replace: true })} icon={LuEye} hover={true} />
+        <Icon
+          onClick={() => {
+            navigate(EditorPath.Preview, { replace: true });
+            dispatch(setIsLoading(true));
+          }}
+          icon={LuEye}
+          hover={true}
+        />
         <Divider rotate={90} width={30} />
         <Button variation='secondary'>Download</Button>
         <Button>Publish</Button>

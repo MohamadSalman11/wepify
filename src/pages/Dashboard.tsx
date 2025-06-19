@@ -2,6 +2,7 @@ import localforage from 'localforage';
 import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import styled from 'styled-components';
+import LoadingScreen from '../components/LoadingScreen';
 import Header from '../features/dashboard/Header';
 import Main from '../features/dashboard/main/Main';
 import Sidebar from '../features/dashboard/Sidebar';
@@ -29,13 +30,17 @@ const DashboardLayout = styled.div`
  */
 
 function Dashboard() {
-  const { sites } = useAppSelector((state) => state.dashboard);
+  const { sites, isLoading, loadingDuration } = useAppSelector((state) => state.dashboard);
 
-  useLoadSitesFromStorage();
+  useLoadSitesFromStorage(loadingDuration);
 
   useEffect(() => {
     localforage.setItem('sites', sites);
   }, [sites]);
+
+  if (isLoading) {
+    return <LoadingScreen duration={loadingDuration} />;
+  }
 
   return (
     <StyledDashboard>

@@ -2,6 +2,7 @@ import localforage from 'localforage';
 import { useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
+import LoadingScreen from '../../components/LoadingScreen';
 import { useLoadSitesFromStorage } from '../../hooks/useLoadSitesFromStorage';
 import { useAppSelector } from '../../store';
 import { useCanvasSync } from './hooks/useCanvasSync';
@@ -33,14 +34,15 @@ const StyledCanvas = styled.div`
 function Canvas({ isPreview }: { isPreview: boolean }) {
   const { width, height, scale } = useAppSelector((state) => state.page);
   const { sites } = useAppSelector((state) => state.dashboard);
+  const { isLoading, loadingDuration } = useAppSelector((state) => state.editor);
 
   const dispatch = useDispatch();
   const canvasRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  useCanvasSync(iframeRef, sites, isPreview);
+  useCanvasSync(iframeRef, sites, isPreview, loadingDuration);
 
-  useLoadSitesFromStorage();
+  useLoadSitesFromStorage(loadingDuration);
 
   useEffect(() => {
     if (sites.length > 0) {
@@ -68,6 +70,7 @@ function Canvas({ isPreview }: { isPreview: boolean }) {
           transform: `scale(${scale / 100})`
         }}
       />
+      {isLoading && <LoadingScreen loadingText={`Setting up your ${isPreview ? 'site preview' : 'site editor'}..`} />}
     </StyledCanvas>
   );
 }

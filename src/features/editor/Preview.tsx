@@ -1,8 +1,10 @@
+import { useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from '../../components/Button';
 import { EditorPath } from '../../constant';
 import Canvas from './Canvas';
+import { setIsLoading } from './slices/editorSlice';
 
 /**
  * Styles
@@ -22,10 +24,12 @@ const ClosePreviewButton = styled(Button).attrs({ size: 'sm', pill: true })`
 function Preview() {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
 
   const handleClose = () => {
     const newPath = location.pathname.replace(new RegExp(`${EditorPath.Preview}$`), EditorPath.Elements);
     navigate(newPath, { replace: true });
+    dispatch(setIsLoading(true));
   };
 
   return (

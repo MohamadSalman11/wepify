@@ -19,7 +19,7 @@ const DEFAULT_BORDER_DIRECTION = 'right';
 const PanelContainer = styled.div<{ sectioned: boolean; borderDir: BorderDirection }>`
   background-color: var(--color-white);
   overflow-y: auto;
-  padding: ${({ sectioned }) => (sectioned ? '1.2rem' : '3.2rem 2.4rem')};
+  padding: ${({ sectioned }) => (sectioned ? '0' : '3.2rem 2.4rem')};
   ${({ borderDir }) => css`border-${borderDir}: var(--border-base);`}
 
   &::-webkit-scrollbar {

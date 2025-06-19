@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { LuPanelBottom, LuPanelLeft, LuPanelRight, LuPanelTop } from 'react-icons/lu';
 import styled from 'styled-components';
 import { GridContainer, Title, type HandleStyleChanges } from '.';
@@ -59,11 +58,7 @@ const BorderButton = styled.div<{ active?: boolean }>`
   align-items: center;
   cursor: pointer;
   font-size: 1.2rem;
-  color: ${({ active }) => (active ? 'var(--color-gray-dark)' : 'var(--color-gray)')};
-
-  &:hover {
-    color: var(--color-gray-dark);
-  }
+  color: ${({ active }) => (active ? 'var(--color-black-light)' : 'var(--color-gray)')};
 `;
 
 /**
@@ -81,24 +76,15 @@ function StrokeSettings({ handleStyleChanges }: { handleStyleChanges: HandleStyl
     (state) => state.selection.selectedElement
   );
 
-  const [border, setBorder] = useState<Record<BorderSide, boolean>>({
-    top: !!borderTop && borderTop !== 'none',
-    right: !!borderRight && borderRight !== 'none',
-    bottom: !!borderBottom && borderBottom !== 'none',
-    left: !!borderLeft && borderLeft !== 'none'
-  });
+  const borders = { top: borderTop, right: borderRight, bottom: borderBottom, left: borderLeft };
 
   const toggleBorder = (side: BorderSide) => {
-    setBorder((prev) => {
-      const isActive = !prev[side];
-      const prop = `border${side[0].toUpperCase()}${side.slice(1)}`;
-      const value = isActive
+    const current = borders[side];
+    const newValue =
+      !current || current === 'none'
         ? `${borderWidth || DEFAULT_BORDER_WIDTH}px solid ${borderColor || DEFAULT_BORDER_COLOR}`
         : 'none';
-
-      handleStyleChanges(value, prop);
-      return { ...prev, [side]: isActive };
-    });
+    handleStyleChanges(newValue, `border${side.charAt(0).toUpperCase() + side.slice(1)}`);
   };
 
   return (
@@ -122,7 +108,11 @@ function StrokeSettings({ handleStyleChanges }: { handleStyleChanges: HandleStyl
         </StrokeWidthContainer>
         <StrokePosition>
           {BORDER_SIDES.map(({ side, label, icon }) => (
-            <BorderButton key={side} active={border[side]} onClick={() => toggleBorder(side)}>
+            <BorderButton
+              key={side}
+              onClick={() => toggleBorder(side)}
+              active={!!borders[side] && borders[side] !== 'none'}
+            >
               <span>{label}</span>
               <Icon icon={icon} size='sm' />
             </BorderButton>

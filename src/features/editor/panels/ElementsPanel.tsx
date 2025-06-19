@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { LuFileVideo, LuImage, LuSearch } from 'react-icons/lu';
+import { LuImage, LuSearch } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { useAppSelector } from '../../../store';
@@ -207,8 +207,6 @@ function ElementsPanel() {
     if (element) dispatch(selectElement(element));
   };
 
-  console.log(selection);
-
   return (
     <>
       <input type='file' accept='image/*' style={{ display: 'none' }} ref={fileInputRef} onChange={handleImageUpload} />
@@ -310,12 +308,6 @@ function ElementsPanel() {
               <LuImage />
             </PanelBox>
             <span>Image</span>
-          </MediaItem>
-          <MediaItem>
-            <PanelBox>
-              <LuFileVideo />
-            </PanelBox>
-            <span>Video</span>
           </MediaItem>
         </PanelList>
       </div>

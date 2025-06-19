@@ -1,3 +1,4 @@
+import { Toaster } from 'react-hot-toast';
 import { Outlet } from 'react-router-dom';
 import styled from 'styled-components';
 import Canvas from '../features/editor/Canvas';
@@ -25,6 +26,7 @@ const StyledEditor = styled.div`
 function Editor() {
   return (
     <StyledEditor>
+      <Toaster position='top-center' reverseOrder={false} />
       <Sidebar />
       <Header />
       <Outlet />

@@ -16,6 +16,8 @@ const COLOR_GRAY_LIGHT_2 = '#bec9d5';
 const COLOR_GRAY_LIGHT_3 = '#f2f4f7';
 
 const COLOR_RED = '#f45a65';
+const COLOR_RED_LIGHT = 'rgba(244, 90, 100, 0.1)';
+
 const COLOR_WHITE = '#ffffff';
 const COLOR_WHITE_2 = '#EEF2F4';
 const COLOR_WHITE_3 = '#f4f8f8';
@@ -39,6 +41,8 @@ const variables = css`
     --color-gray-light-3: ${COLOR_GRAY_LIGHT_3};
 
     --color-red: ${COLOR_RED};
+    --color-red-light: ${COLOR_RED_LIGHT};
+
     --color-white: ${COLOR_WHITE};
     --color-white-2: ${COLOR_WHITE_2};
     --color-white-3: ${COLOR_WHITE_3};

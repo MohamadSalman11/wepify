@@ -12,18 +12,19 @@ const sizeMap: Record<IconSize, string> = {
 };
 
 const DEFAULT_ICON_SIZE = 'lg';
+const DEFAULT_BORDER_RADIUS = 'full';
 
 /**
  * Styles
  */
 
-const IconWrapper = styled.span`
-  display: inline-flex;
+const IconWrapper = styled.span<{ $borderRadius: BorderRadius }>`
+  display: flex;
   justify-content: center;
   align-items: center;
   transition: var(--transition-base);
   cursor: pointer;
-  border-radius: var(--border-radius-full);
+  border-radius: ${({ $borderRadius }) => `var(--border-radius-${$borderRadius})`};
   padding: 0.6rem;
 
   &:hover {
@@ -36,24 +37,37 @@ const IconWrapper = styled.span`
  */
 
 type IconSize = 'sm' | 'md' | 'lg';
+type BorderRadius = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'full';
 
 interface IconProps {
   icon: IconType;
   size?: IconSize;
   onClick?: () => void;
   hover?: boolean;
+  borderRadius?: BorderRadius;
 }
 
 /**
  * Component definition
  */
 
-const Icon = ({ icon: IconComponent, size = DEFAULT_ICON_SIZE, onClick, hover, ...props }: IconProps) => {
+const Icon = ({
+  icon: IconComponent,
+  size = DEFAULT_ICON_SIZE,
+  onClick,
+  hover,
+  borderRadius = DEFAULT_BORDER_RADIUS,
+  ...props
+}: IconProps) => {
   const iconElement = <IconComponent size={sizeMap[size]} onClick={onClick} {...props} />;
 
   if (!hover) return iconElement;
 
-  return <IconWrapper onClick={onClick}>{iconElement}</IconWrapper>;
+  return (
+    <IconWrapper $borderRadius={borderRadius} onClick={onClick}>
+      {iconElement}
+    </IconWrapper>
+  );
 };
 
 export default Icon;

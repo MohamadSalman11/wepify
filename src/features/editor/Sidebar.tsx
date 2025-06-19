@@ -1,9 +1,10 @@
 import { LuCloudUpload, LuCodeXml, LuFile, LuLayers3, LuLogOut, LuPlus } from 'react-icons/lu';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Divider from '../../components/divider';
 import Icon from '../../components/Icon';
 import Logo from '../../components/Logo';
+import { Path } from '../../constant';
 
 /**
  * Styles
@@ -27,27 +28,12 @@ const StyledSidebar = styled.aside`
     list-style: none;
 
     li a {
-      display: flex;
-      position: relative;
-      justify-content: center;
-      align-items: center;
-      transition: var(--transition-base);
-      cursor: pointer;
+      display: inline-block;
       border-radius: var(--border-radius-md);
-      width: 4rem;
-      height: 4rem;
 
-      &::after {
-        position: absolute;
-        top: 50%;
-        transform: translate(5.45rem, -50%);
-        opacity: 0;
-        transition: var(--transition-base);
-        border-radius: var(--border-radius-md);
-        background-color: var(--color-primary);
-        width: 3px;
-        height: 40px;
-        content: '';
+      span {
+        width: 4rem;
+        height: 4rem;
       }
 
       &:hover {
@@ -59,10 +45,22 @@ const StyledSidebar = styled.aside`
       background-color: var(--color-white-3);
     }
   }
+`;
 
-  & svg:not(nav svg) {
-    cursor: pointer;
-    margin-top: auto;
+const LeaveButton = styled.button`
+  margin-top: auto;
+  background-color: transparent;
+
+  span {
+    width: 4rem;
+    height: 4rem;
+
+    &:hover {
+      background-color: var(--color-red-light);
+    }
+  }
+
+  svg {
     color: var(--color-red);
   }
 `;
@@ -72,6 +70,8 @@ const StyledSidebar = styled.aside`
  */
 
 function Sidebar() {
+  const navigate = useNavigate();
+
   return (
     <StyledSidebar>
       <Logo />
@@ -80,30 +80,34 @@ function Sidebar() {
         <ul>
           <li>
             <NavLink to='elements'>
-              <Icon icon={LuPlus} />
+              <Icon icon={LuPlus} hover={true} borderRadius='md' />
             </NavLink>
           </li>
           <li>
             <NavLink to='pages'>
-              <Icon icon={LuFile} />
+              <Icon icon={LuFile} hover={true} borderRadius='md' />
             </NavLink>
           </li>
           <li>
             <NavLink to='layers'>
-              <Icon icon={LuLayers3} />
+              <Icon icon={LuLayers3} hover={true} borderRadius='md' />
             </NavLink>
           </li>
           <li>
             <NavLink to='uploads'>
-              <Icon icon={LuCloudUpload} />
+              <Icon icon={LuCloudUpload} hover={true} borderRadius='md' />
             </NavLink>
           </li>
           <li>
-            <Icon icon={LuCodeXml} />
+            <Icon icon={LuCodeXml} hover={true} borderRadius='md' />
           </li>
         </ul>
       </nav>
-      <Icon icon={LuLogOut} />
+      <LeaveButton>
+        <Link to={Path.Dashboard}>
+          <Icon onClick={() => navigate(Path.Dashboard)} icon={LuLogOut} hover={true} />
+        </Link>
+      </LeaveButton>
     </StyledSidebar>
   );
 }

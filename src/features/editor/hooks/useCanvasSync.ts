@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useAppSelector } from '../../../store';
 import type { PageElement, Site } from '../../../types';
 import { flattenElements } from '../../../utils/flattenElements';
+import { isTyping } from '../../../utils/isTyping';
 import { updatePageElements } from '../../dashboard/slices/dashboardSlice';
 import { deleteElement, setPage } from '../slices/pageSlice';
 import { selectElement } from '../slices/selectionSlice';
@@ -42,7 +43,7 @@ export const useCanvasSync = (iframeRef: RefObject<HTMLIFrameElement | null>, si
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === DELETE_KEY && selectedElement.id !== DEFAULT_SECTION_ID) {
+      if (event.key === DELETE_KEY && selectedElement.id !== DEFAULT_SECTION_ID && !isTyping(iframeRef)) {
         const section = flattenElements(elements).find((el) => el.id === lastSelectedSection) as PageElement;
 
         deleteElementInIframe(selectedElement.id);
@@ -53,6 +54,9 @@ export const useCanvasSync = (iframeRef: RefObject<HTMLIFrameElement | null>, si
 
     document.addEventListener('keydown', handleKeyDown);
     const iframeDoc = iframeRef.current?.contentWindow;
+
+    console.log(iframeDoc?.document.activeElement);
+
     iframeDoc?.addEventListener('keydown', handleKeyDown);
 
     return () => {

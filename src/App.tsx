@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import { EditorPath, Path } from './constant';
 import Panel from './features/editor/panels';
+import Preview from './features/editor/Preview';
 import Dashboard from './pages/Dashboard';
 import Editor from './pages/Editor';
 import GlobalStyles from './styles/GlobalStyles';
@@ -20,6 +21,7 @@ function App() {
             <Route path={EditorPath.Pages} element={<Panel panel={EditorPath.Pages} />} />
             <Route path={EditorPath.Layers} element={<Panel panel={EditorPath.Layers} />} />
             <Route path={EditorPath.Uploads} element={<Panel panel={EditorPath.Uploads} />} />
+            <Route path={EditorPath.Preview} element={<Preview />} />
           </Route>
         </Routes>
       </ThemeProvider>

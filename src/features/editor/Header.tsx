@@ -2,11 +2,13 @@ import { useState } from 'react';
 import type { IconType } from 'react-icons';
 import { LuEye, LuLaptop, LuMonitor, LuRedo2, LuSmartphone, LuTablet, LuUndo2 } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from '../../components/Button';
 import Divider from '../../components/divider';
 import Input from '../../components/form/Input';
 import Icon from '../../components/Icon';
+import { EditorPath } from '../../constant';
 import { useAppSelector } from '../../store';
 import type { InputChangeEvent } from '../../types';
 import { setHeight, setScale, setWidth } from './slices/pageSlice';
@@ -118,6 +120,7 @@ type DeviceType = keyof typeof SCREEN_SIZES | 'auto';
 
 function Header() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [activeDevice, setActiveDevice] = useState<DeviceType>('auto');
   const { siteName, siteDescription, width, height, scale } = useAppSelector((state) => state.page);
 
@@ -190,7 +193,7 @@ function Header() {
         <Icon icon={LuUndo2} />
         <Icon icon={LuRedo2} />
         <Divider rotate={90} width={30} />
-        <Icon icon={LuEye} />
+        <Icon onClick={() => navigate(EditorPath.Preview)} icon={LuEye} hover={true} />
         <Divider rotate={90} width={30} />
         <Button variation='secondary'>Download</Button>
         <Button>Publish</Button>

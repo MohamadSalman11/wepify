@@ -13,7 +13,7 @@ import { useIframeConnection } from './useIframeConnection';
 const DEFAULT_SECTION_ID = 'section-1';
 const DELETE_KEY = 'Backspace';
 
-export const useCanvasSync = (iframeRef: RefObject<HTMLIFrameElement | null>, sites: Site[]) => {
+export const useCanvasSync = (iframeRef: RefObject<HTMLIFrameElement | null>, sites: Site[], isPreview: boolean) => {
   const dispatch = useDispatch();
   const { site: siteParam, page: pageParam } = useParams();
   const { elements, lastAddedElement, id, siteId } = useAppSelector((s) => s.page);
@@ -25,7 +25,7 @@ export const useCanvasSync = (iframeRef: RefObject<HTMLIFrameElement | null>, si
     insertElementInIFrame,
     deleteElementInIframe,
     handleSelectionChange
-  } = useIframeConnection(iframeRef, elements);
+  } = useIframeConnection(iframeRef, elements, isPreview);
 
   useEffect(() => {
     if (iframeReady) {

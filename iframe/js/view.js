@@ -31,7 +31,7 @@ export const insertDragButton = () => {
   const img = document.createElement('img');
   img.id = 'dragTargetButton';
   img.src = '/move.png';
-  document.querySelector('.moveable-control').append(img);
+  document.querySelector('.moveable-control')?.append(img);
 };
 
 export const updateTargetStyle = (styles) => {

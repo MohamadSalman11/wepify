@@ -16,8 +16,18 @@ const controlUpdateElement = (updates) => {
 
 const controlReceivedElements = (elements) => {
   renderElementsToIframe(elements);
+
+  const isPreview = document.querySelector('body').dataset.isPreview;
+  state.isSitePreviewMode = !isPreview || isPreview === 'false' ? false : true;
+
+  if (state.isSitePreviewMode) {
+    return;
+  }
+
   initializeMoveable();
+  insertDragButton();
   state.currentTarget = document.querySelector('section');
+  state.moveable.dragTarget = document.querySelector('#dragTargetButton');
 };
 
 const controlInsertElement = (newElement) => {
@@ -39,7 +49,7 @@ const controlInsertElement = (newElement) => {
 const controlDocumentClick = (event) => {
   const target = event.target.closest('.target');
 
-  if (!target) return;
+  if (!target || state.isSitePreviewMode) return;
 
   event.stopPropagation();
   changeTarget(target);
@@ -150,11 +160,6 @@ function initializeMoveable() {
 
 const controlDOMContentLoaded = () => {
   postMessageToParent('IFRAME_READY');
-
-  setTimeout(() => {
-    insertDragButton();
-    state.moveable.dragTarget = document.querySelector('#dragTargetButton');
-  }, 100);
 };
 
 document.addEventListener('click', controlDocumentClick);

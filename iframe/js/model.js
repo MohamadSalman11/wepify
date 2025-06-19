@@ -1,7 +1,8 @@
 export const state = {
   moveable: null,
   currentTarget: null,
-  initRender: false
+  initRender: false,
+  isSitePreviewMode: false
 };
 
 export const updateElement = (updates, styles) => {

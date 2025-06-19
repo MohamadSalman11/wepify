@@ -14,7 +14,8 @@ export enum EditorPath {
   Elements = 'elements',
   Pages = 'pages',
   Layers = 'layers',
-  Uploads = 'uploads'
+  Uploads = 'uploads',
+  Preview = 'preview'
 }
 
 export enum ElementNames {

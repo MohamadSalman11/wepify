@@ -30,7 +30,7 @@ const StyledCanvas = styled.div`
  * Component definition
  */
 
-function Canvas() {
+function Canvas({ isPreview }: { isPreview: boolean }) {
   const { width, height, scale } = useAppSelector((state) => state.page);
   const { sites } = useAppSelector((state) => state.dashboard);
 
@@ -38,7 +38,7 @@ function Canvas() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  useCanvasSync(iframeRef, sites);
+  useCanvasSync(iframeRef, sites, isPreview);
 
   useLoadSitesFromStorage();
 
@@ -49,7 +49,7 @@ function Canvas() {
   }, [sites]);
 
   const handleIframeLoad = () => {
-    if (canvasRef.current) {
+    if (canvasRef.current && !isPreview) {
       dispatch(setWidth(canvasRef.current.clientWidth));
       dispatch(setHeight(canvasRef.current.clientHeight));
     }
@@ -63,8 +63,8 @@ function Canvas() {
         title='Site Preview'
         onLoad={handleIframeLoad}
         style={{
-          width: width === undefined ? '100%' : `${width}px`,
-          height: height === undefined ? '100vh' : `${height}px`,
+          width: width === undefined || isPreview ? '100%' : `${width}px`,
+          height: height === undefined || isPreview ? '100vh' : `${height}px`,
           transform: `scale(${scale / 100})`
         }}
       />

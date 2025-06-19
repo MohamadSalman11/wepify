@@ -28,7 +28,11 @@ enum MessageType {
   SelectionChanged = 'SELECTION_CHANGED'
 }
 
-export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | null>, elements: PageElement[]) => {
+export const useIframeConnection = (
+  iframeRef: RefObject<HTMLIFrameElement | null>,
+  elements: PageElement[],
+  isPreview: boolean
+) => {
   const dispatch = useDispatch();
   const [iframeReady, setIframeReady] = useState(false);
 
@@ -44,6 +48,10 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
 
   useEffect(() => {
     const flatElements = flattenElements(elements);
+
+    if (isPreview && iframeRef.current?.contentDocument?.body) {
+      iframeRef.current.contentDocument.body.dataset.isPreview = 'true';
+    }
 
     const handleMessage = (event: MessageEvent) => {
       const data: Message = event.data;
@@ -92,7 +100,7 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [dispatch, elements]);
+  }, [dispatch, elements, isPreview, iframeRef]);
 
   const sendElementsToIframe = useCallback(
     (elements: PageElement[]) => {

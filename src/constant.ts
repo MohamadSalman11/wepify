@@ -6,6 +6,7 @@ export const TOAST_DURATION = 5000;
 export const TAGS_WITHOUT_CHILDREN = new Set(['input', 'img', 'hr', 'br']);
 
 export enum Path {
+  Home = '/',
   Dashboard = '/dashboard',
   Editor = '/editor/sites/:site/pages/:page'
 }

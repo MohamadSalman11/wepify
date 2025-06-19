@@ -37,7 +37,6 @@ const baseStyles = css`
     font-size: var(--body-font-size);
     font-family: var(--font-family-base);
     letter-spacing: var(--body-letter-spacing);
-    user-select: none;
   }
 
   input,

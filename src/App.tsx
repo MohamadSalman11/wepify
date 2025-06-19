@@ -5,6 +5,7 @@ import Panel from './features/editor/panels';
 import Preview from './features/editor/Preview';
 import Dashboard from './pages/Dashboard';
 import Editor from './pages/Editor';
+import Home from './pages/Home';
 import GlobalStyles from './styles/GlobalStyles';
 import theme from './styles/theme';
 
@@ -14,7 +15,7 @@ function App() {
       <ThemeProvider theme={theme}>
         <GlobalStyles />
         <Routes>
-          <Route index element={<Navigate replace to={Path.Dashboard} />} />
+          <Route path={Path.Home} element={<Home />} />
           <Route path={Path.Dashboard} element={<Dashboard />} />
           <Route path={Path.Editor} element={<Editor />}>
             <Route index element={<Navigate replace to={EditorPath.Elements} />} />

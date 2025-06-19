@@ -29,6 +29,15 @@ const variations = {
       background-color: var(--color-gray-light-2);
     }
   `,
+  outline: css`
+    border: 2px solid var(--color-primary);
+    background-color: transparent;
+    color: var(--color-black-light);
+
+    &:hover {
+      scale: 1.05;
+    }
+  `,
   danger: css`
     background-color: var(--color-red);
   `

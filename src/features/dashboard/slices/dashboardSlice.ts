@@ -29,7 +29,7 @@ const initialState: DashboardState = {
   filterLabel: '',
   isModalOpen: true,
   isLoading: true,
-  loadingDuration: getRandomDuration(1.5, 3.5)
+  loadingDuration: getRandomDuration(3.5, 5)
 };
 
 const dashboardSlice = createSlice({

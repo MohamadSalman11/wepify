@@ -15,6 +15,7 @@ import { useAppSelector } from '../store';
 
 const StyledDashboard = styled.div`
   padding: 1.2rem 2.4rem;
+  user-select: none;
 
   & > div:nth-of-type(2) {
     margin-top: 1.2rem;

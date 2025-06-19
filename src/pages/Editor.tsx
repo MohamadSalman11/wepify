@@ -20,6 +20,7 @@ const StyledEditor = styled.div<{ isPreview?: boolean }>`
   width: 100%;
   height: 100vh;
   overflow: hidden;
+  user-select: none;
   ${({ isPreview }) => !isPreview && editorLayout}
 `;
 

@@ -70,6 +70,10 @@ const controlIframeMessage = (event) => {
       controlInsertElement(payload.newElement);
       break;
     }
+    case 'DELETE_ELEMENT': {
+      document.querySelector(`#${payload.id}`).remove();
+      break;
+    }
     case 'SELECTION_CHANGED': {
       document.querySelector(`#${payload}`)?.click();
       positionDragButton(state.currentTarget?.clientHeight);

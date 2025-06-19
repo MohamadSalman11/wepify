@@ -2,19 +2,29 @@ import { useEffect, type RefObject } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { useAppSelector } from '../../../store';
-import type { Site } from '../../../types';
+import type { PageElement, Site } from '../../../types';
+import { flattenElements } from '../../../utils/flattenElements';
 import { updatePageElements } from '../../dashboard/slices/dashboardSlice';
-import { setPage } from '../slices/pageSlice';
+import { deleteElement, setPage } from '../slices/pageSlice';
 import { selectElement } from '../slices/selectionSlice';
 import { useIframeConnection } from './useIframeConnection';
+
+const DEFAULT_SECTION_ID = 'section-1';
+const DELETE_KEY = 'Backspace';
 
 export const useCanvasSync = (iframeRef: RefObject<HTMLIFrameElement | null>, sites: Site[]) => {
   const dispatch = useDispatch();
   const { site: siteParam, page: pageParam } = useParams();
   const { elements, lastAddedElement, id, siteId } = useAppSelector((s) => s.page);
-  const { selectedElement, lastUpdates } = useAppSelector((s) => s.selection);
-  const { iframeReady, sendElementsToIframe, updateElementInIFrame, insertElementInIFrame, handleSelectionChange } =
-    useIframeConnection(iframeRef, elements);
+  const { selectedElement, lastUpdates, lastSelectedSection } = useAppSelector((s) => s.selection);
+  const {
+    iframeReady,
+    sendElementsToIframe,
+    updateElementInIFrame,
+    insertElementInIFrame,
+    deleteElementInIframe,
+    handleSelectionChange
+  } = useIframeConnection(iframeRef, elements);
 
   useEffect(() => {
     if (iframeReady) {
@@ -29,6 +39,27 @@ export const useCanvasSync = (iframeRef: RefObject<HTMLIFrameElement | null>, si
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [iframeReady, sendElementsToIframe]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === DELETE_KEY && selectedElement.id !== DEFAULT_SECTION_ID) {
+        const section = flattenElements(elements).find((el) => el.id === lastSelectedSection) as PageElement;
+
+        deleteElementInIframe(selectedElement.id);
+        dispatch(deleteElement(selectedElement.id));
+        dispatch(selectElement(section));
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    const iframeDoc = iframeRef.current?.contentWindow;
+    iframeDoc?.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      iframeDoc?.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [iframeRef, dispatch, selectedElement, lastSelectedSection, elements, deleteElementInIframe]);
 
   useEffect(() => {
     updateElementInIFrame(lastUpdates);

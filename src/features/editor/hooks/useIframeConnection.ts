@@ -24,6 +24,7 @@ enum MessageType {
   ReceiveElements = 'RECEIVE_ELEMENTS',
   UpdateElement = 'UPDATE_ELEMENT',
   InsertElement = 'INSERT_ELEMENT',
+  DeleteElement = 'DELETE_ELEMENT',
   SelectionChanged = 'SELECTION_CHANGED'
 }
 
@@ -114,6 +115,13 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
     [postMessageToIframe]
   );
 
+  const deleteElementInIframe = useCallback(
+    (id: string) => {
+      postMessageToIframe({ type: MessageType.DeleteElement, payload: { id } });
+    },
+    [postMessageToIframe]
+  );
+
   const handleSelectionChange = useCallback(
     (id: string) => {
       postMessageToIframe({ type: MessageType.SelectionChanged, payload: id });
@@ -121,5 +129,12 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
     [postMessageToIframe]
   );
 
-  return { iframeReady, sendElementsToIframe, updateElementInIFrame, insertElementInIFrame, handleSelectionChange };
+  return {
+    iframeReady,
+    sendElementsToIframe,
+    updateElementInIFrame,
+    insertElementInIFrame,
+    handleSelectionChange,
+    deleteElementInIframe
+  };
 };

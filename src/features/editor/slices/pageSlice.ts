@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { PageElement, SitePage } from '../../../types';
+import { deepDeleteById } from '../../../utils/deepDeleteById';
 import { flattenElements } from '../../../utils/flattenElements';
 
 interface PageState extends SitePage {
@@ -83,13 +84,25 @@ const pageSlice = createSlice({
         Object.assign(element, updates);
       }
     },
+    deleteElement(state, action: PayloadAction<string>) {
+      state.elements = deepDeleteById(state.elements, action.payload);
+    },
     setNewElement(state, action: PayloadAction<PageElement>) {
       state.lastAddedElement = action.payload;
     }
   }
 });
 
-export const { setWidth, setHeight, setScale, setNewElement, addElement, updateElement, setElements, setPage } =
-  pageSlice.actions;
+export const {
+  setPage,
+  setWidth,
+  setHeight,
+  setScale,
+  setElements,
+  addElement,
+  updateElement,
+  deleteElement,
+  setNewElement
+} = pageSlice.actions;
 
 export default pageSlice.reducer;

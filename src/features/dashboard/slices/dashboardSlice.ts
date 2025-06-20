@@ -21,14 +21,12 @@ interface DashboardState {
   isModalOpen: boolean;
   isLoading: boolean;
   loadingDuration: number;
-  lastPageId: string;
 }
 
 const initialState: DashboardState = {
   sites: [],
   filters: {},
   filterLabel: '',
-  lastPageId: '',
   isModalOpen: true,
   isLoading: true,
   loadingDuration: getRandomDuration(3.5, 5)
@@ -79,13 +77,21 @@ const dashboardSlice = createSlice({
     updatePageElements(state, action: PayloadAction<{ siteId: string; pageId: string; elements: PageElement[] }>) {
       const { siteId, pageId, elements } = action.payload;
 
-      const site = state.sites.find((site) => site.id === siteId);
-      if (!site) return;
+      state.sites = state.sites.map((site) => {
+        if (site.id !== siteId) return site;
 
-      const page = site.pages.find((page) => page.id === pageId);
-      if (!page) return;
+        return {
+          ...site,
+          pages: site.pages.map((page) => {
+            if (page.id !== pageId) return page;
 
-      page.elements = elements;
+            return {
+              ...page,
+              elements
+            };
+          })
+        };
+      });
     },
     updatePageName(state, action) {
       const site = state.sites.find((site) => site.id === action.payload.siteId);

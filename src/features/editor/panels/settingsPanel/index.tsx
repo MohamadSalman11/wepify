@@ -46,7 +46,7 @@ export type HandleStyleChanges = (value: string | number, name: string) => void;
 
 function SettingsPanel() {
   const dispatch = useDispatch();
-  const selection = useAppSelector((state) => state.selection.selectedElement);
+  const selection = useAppSelector((state) => state.selection.present.selectedElement);
 
   const handleStyleChanges = (value: string | number, name: string) => {
     const updates = { [name]: value };

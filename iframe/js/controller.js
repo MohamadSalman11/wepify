@@ -46,6 +46,15 @@ const controlInsertElement = (newElement) => {
   state.moveable.elementGuidelines = [...state.moveable.elementGuidelines, element];
 };
 
+const controlSelectionChanged = (id) => {
+  const el = document.querySelector(`#${id}`);
+  if (el) {
+    el.scrollIntoView({ block: 'center' });
+    el.click();
+    positionDragButton(state.currentTarget?.clientHeight);
+  }
+};
+
 const controlDocumentClick = (event) => {
   const target = event.target.closest('.target');
 
@@ -85,12 +94,7 @@ const controlIframeMessage = (event) => {
       break;
     }
     case 'SELECTION_CHANGED': {
-      const el = document.querySelector(`#${payload}`);
-      if (el) {
-        el.scrollIntoView({ block: 'center' });
-        el.click();
-        positionDragButton(state.currentTarget?.clientHeight);
-      }
+      controlSelectionChanged(payload);
       break;
     }
   }

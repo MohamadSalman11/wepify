@@ -102,7 +102,7 @@ const ChevronIcon = styled(LuChevronRight)<{ expanded: boolean }>`
 
 function LayersPanel() {
   const page = useAppSelector((state) => state.page);
-  const selectedElementId = useAppSelector((state) => state.selection.selectedElement.id);
+  const selectedElementId = useAppSelector((state) => state.selection.present.selectedElement.id);
 
   return (
     <>

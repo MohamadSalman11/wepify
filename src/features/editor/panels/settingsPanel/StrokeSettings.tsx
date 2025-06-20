@@ -73,7 +73,7 @@ type BorderSide = 'top' | 'right' | 'bottom' | 'left';
 
 function StrokeSettings({ handleStyleChanges }: { handleStyleChanges: HandleStyleChanges }) {
   const { borderTop, borderRight, borderBottom, borderLeft, borderColor, borderWidth } = useAppSelector(
-    (state) => state.selection.selectedElement
+    (state) => state.selection.present.selectedElement
   );
 
   const borders = { top: borderTop, right: borderRight, bottom: borderBottom, left: borderLeft };

@@ -195,12 +195,12 @@ const SectionTitle = styled.span`
 
 function ElementsPanel() {
   const page = useAppSelector((state) => state.page);
-  const selection = useAppSelector((state) => state.selection.selectedElement);
+  const selection = useAppSelector((state) => state.selection.present.selectedElement);
   const dispatch = useDispatch();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { addElementToPage } = useAddElementToPage();
   const { handleImageUpload } = useImageUpload();
-
+  console.log(selection);
   const handleSearchElement = (event: InputChangeEvent) => {
     const id = event.target.value;
     const element = flattenElements(page.elements).find((el) => el.id === id);

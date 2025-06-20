@@ -31,7 +31,8 @@ const DashboardLayout = styled.div`
  */
 
 function Dashboard() {
-  const { sites, isLoading, loadingDuration } = useAppSelector((state) => state.dashboard);
+  const { sites, isLoading, loadingDuration } = useAppSelector((state) => state.dashboard.present);
+  console.log(sites);
 
   useLoadSitesFromStorage(loadingDuration);
 

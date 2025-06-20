@@ -32,7 +32,7 @@ const StyledCanvas = styled.div`
 
 function Canvas({ isPreview }: { isPreview: boolean }) {
   const { width, height, scale } = useAppSelector((state) => state.page);
-  const { sites } = useAppSelector((state) => state.dashboard);
+  const { sites } = useAppSelector((state) => state.dashboard.present);
   const { isLoading, loadingDuration } = useAppSelector((state) => state.editor);
 
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -41,7 +41,7 @@ function Canvas({ isPreview }: { isPreview: boolean }) {
   useCanvasSync(iframeRef, canvasRef, sites, isPreview, loadingDuration);
 
   useLoadSitesFromStorage(loadingDuration);
-  console.log(sites);
+
   useEffect(() => {
     if (sites.length > 0) {
       localforage.setItem('sites', sites);

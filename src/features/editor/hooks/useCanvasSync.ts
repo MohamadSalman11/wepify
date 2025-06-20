@@ -24,7 +24,7 @@ export const useCanvasSync = (
   const dispatch = useDispatch();
   const { site: siteParam, page: pageParam } = useParams();
   const { elements, lastAddedElement, id, siteId } = useAppSelector((s) => s.page);
-  const { selectedElement, lastUpdates, lastSelectedSection } = useAppSelector((s) => s.selection);
+  const { selectedElement, lastUpdates, lastSelectedSection } = useAppSelector((s) => s.selection.present);
   const {
     iframeReady,
     sendElementsToIframe,
@@ -34,13 +34,15 @@ export const useCanvasSync = (
     handleSelectionChange
   } = useIframeConnection(iframeRef, elements, isPreview);
 
+  console.log(elements);
+
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
 
     if (iframeReady) {
       const site = sites.find((site) => site.id === siteParam);
       const page = site?.pages.find((page) => page.id === pageParam);
-
+      console.log(page);
       if (site && page) {
         sendElementsToIframe(page.elements);
         dispatch(selectElement(page.elements[0]));

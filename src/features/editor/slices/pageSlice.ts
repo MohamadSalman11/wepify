@@ -12,6 +12,7 @@ interface PageState extends SitePage {
   hasSetOriginSize: boolean;
   iframe: HTMLIFrameElement | undefined;
   lastAddedElement: PageElement | undefined;
+  elements: PageElement[];
 }
 
 const initialState: PageState = {
@@ -67,7 +68,7 @@ const pageSlice = createSlice({
         state.hasSetOriginSize = true;
       }
     },
-    setScale(state, action) {
+    setScale(state, action: PayloadAction<number>) {
       state.scale = action.payload;
     },
     setElements(state, action: PayloadAction<PageElement[]>) {

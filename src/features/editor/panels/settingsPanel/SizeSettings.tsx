@@ -24,7 +24,7 @@ const SizeContainer = styled.div`
  */
 
 function SizeSettings({ handleStyleChanges }: { handleStyleChanges: HandleStyleChanges }) {
-  const selection = useAppSelector((state) => state.selection.selectedElement);
+  const selection = useAppSelector((state) => state.selection.present.selectedElement);
 
   return (
     <SizeContainer>

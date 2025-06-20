@@ -62,7 +62,7 @@ const TypographyContainer = styled.div`
  */
 
 function TypographySettings({ handleStyleChanges }: { handleStyleChanges: HandleStyleChanges }) {
-  const selection = useAppSelector((state) => state.selection.selectedElement);
+  const selection = useAppSelector((state) => state.selection.present.selectedElement);
 
   return (
     <TypographyContainer>

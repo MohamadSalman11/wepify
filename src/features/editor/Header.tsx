@@ -3,6 +3,7 @@ import type { IconType } from 'react-icons';
 import { LuEye, LuLaptop, LuMonitor, LuRedo2, LuSmartphone, LuTablet, LuUndo2 } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { ActionCreators } from 'redux-undo';
 import styled from 'styled-components';
 import Button from '../../components/Button';
 import Divider from '../../components/divider';
@@ -191,8 +192,18 @@ function Header() {
         </CanvasSizeControls>
       </DevicePreviewControls>
       <EditorActions>
-        <Icon icon={LuUndo2} />
-        <Icon icon={LuRedo2} />
+        <Icon
+          onClick={() => {
+            dispatch(ActionCreators.undo());
+          }}
+          icon={LuUndo2}
+        />
+        <Icon
+          onClick={() => {
+            dispatch(ActionCreators.redo());
+          }}
+          icon={LuRedo2}
+        />
         <Divider rotate={90} width={30} />
         <Icon
           onClick={() => {

@@ -24,6 +24,7 @@
     "react-masonry-css": "^1.0.16",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.6.2",
+    "redux-undo": "^1.1.0",
     "styled-components": "^6.1.18"
   },
   "devDependencies": {

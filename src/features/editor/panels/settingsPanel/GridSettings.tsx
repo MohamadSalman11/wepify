@@ -20,7 +20,7 @@ const OPTIONS_ROW = OPTIONS_COLUMN;
 
 function GridSettings({ handleStyleChanges }: { handleStyleChanges: HandleStyleChanges }) {
   const { columns, rows, columnWidth, rowHeight, columnGap, rowGap } = useAppSelector(
-    (state) => state.selection.selectedElement
+    (state) => state.selection.present.selectedElement
   ) as GridElement;
 
   return (

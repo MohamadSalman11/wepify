@@ -192,7 +192,7 @@ const StyledSearchContainer = styled.ul`
  */
 
 export default function SearchBox() {
-  const { sites, filters } = useAppSelector((state) => state.dashboard);
+  const { sites, filters } = useAppSelector((state) => state.dashboard.present);
   const [matchedSites, setMatchedSites] = useState<Site[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);

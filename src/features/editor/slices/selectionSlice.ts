@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import undoable from 'redux-undo';
 import { ELEMENTS_TEMPLATE } from '../../../constant';
 import type { PageElement } from '../../../types';
 
@@ -38,4 +39,5 @@ const selectionSlice = createSlice({
 
 export const { selectElement, updateSelectElement, setSelectLastUpdates, setLastSelectedSection, clearSelection } =
   selectionSlice.actions;
-export default selectionSlice.reducer;
+
+export default undoable(selectionSlice.reducer);

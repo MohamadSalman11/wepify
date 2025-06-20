@@ -38,7 +38,7 @@ const OPTIONS_INPUT_TYPE = [
  */
 
 function InputSettings({ handleStyleChanges }: { handleStyleChanges: HandleStyleChanges }) {
-  const { type, placeholder } = useAppSelector((state) => state.selection.selectedElement) as InputElement;
+  const { type, placeholder } = useAppSelector((state) => state.selection.present.selectedElement) as InputElement;
 
   return (
     <div>

@@ -8,7 +8,7 @@ import type { LinkElement } from '../../../../types';
  */
 
 function LinkSettings({ handleStyleChanges }: { handleStyleChanges: HandleStyleChanges }) {
-  const selection = useAppSelector((state) => state.selection.selectedElement) as LinkElement;
+  const selection = useAppSelector((state) => state.selection.present.selectedElement) as LinkElement;
 
   return (
     <div>

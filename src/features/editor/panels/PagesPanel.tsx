@@ -82,7 +82,7 @@ const DialogActions = styled.div`
  */
 
 function PagesPanel() {
-  const { sites } = useAppSelector((state) => state.dashboard);
+  const { sites } = useAppSelector((state) => state.dashboard.present);
   const { elements } = useAppSelector((state) => state.page);
   const { site: siteId, page: pageId } = useParams();
   const dispatch = useDispatch();

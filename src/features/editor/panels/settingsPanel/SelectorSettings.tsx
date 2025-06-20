@@ -26,7 +26,7 @@ const SelectorContainer = styled.div`
 function SelectorSettings() {
   const dispatch = useDispatch();
   const page = useAppSelector((state) => state.page);
-  const selection = useAppSelector((state) => state.selection.selectedElement);
+  const selection = useAppSelector((state) => state.selection.present.selectedElement);
 
   const handleSelection = (id: string) => {
     const selected = flattenElements(page.elements).find((el) => el.id === id);

@@ -10,7 +10,7 @@ import { selectElement, setSelectLastUpdates, updateSelectElement } from '../sli
 export const useAddElementToPage = () => {
   const dispatch = useDispatch();
   const page = useAppSelector((state) => state.page);
-  const { selectedElement, lastSelectedSection } = useAppSelector((state) => state.selection);
+  const { selectedElement, lastSelectedSection } = useAppSelector((state) => state.selection.present);
 
   function addElementToPage(elementName: keyof typeof ELEMENTS_TEMPLATE, additionalProps?: Record<string, any>) {
     const selection = TAGS_WITHOUT_CHILDREN.has(selectedElement.tag)

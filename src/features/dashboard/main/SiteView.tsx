@@ -161,7 +161,7 @@ const StarIcon = styled(LuStar)<{ isStarred: boolean }>`
  */
 
 export default function SitesView() {
-  const { sites, filters, filterLabel, isModalOpen } = useAppSelector((state) => state.dashboard);
+  const { sites, filters, filterLabel, isModalOpen } = useAppSelector((state) => state.dashboard.present);
   const dispatch = useDispatch();
   const isFiltering = Boolean(filters.modifiedWithinDays || filters.pageRange || filters.sizeRange);
 

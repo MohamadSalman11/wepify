@@ -21,12 +21,14 @@ interface DashboardState {
   isModalOpen: boolean;
   isLoading: boolean;
   loadingDuration: number;
+  lastPageId: string;
 }
 
 const initialState: DashboardState = {
   sites: [],
   filters: {},
   filterLabel: '',
+  lastPageId: '',
   isModalOpen: true,
   isLoading: true,
   loadingDuration: getRandomDuration(3.5, 5)
@@ -42,8 +44,22 @@ const dashboardSlice = createSlice({
     addSite(state, action: PayloadAction<Site>) {
       state.sites.push(action.payload);
     },
+    addPage(state, action) {
+      const { siteId, page } = action.payload;
+      const site = state.sites.find((site) => site.id === siteId);
+      if (site) {
+        site.pages.push(page);
+      }
+    },
     deleteSite(state, action: PayloadAction<string>) {
       state.sites = state.sites.filter((site) => site.id !== action.payload);
+    },
+    deletePage(state, action) {
+      const site = state.sites.find((site) => site.id === action.payload.siteId);
+
+      if (site) {
+        site.pages = site.pages.filter((page) => page.id !== action.payload.pageId);
+      }
     },
     duplicateSite(state, action: PayloadAction<{ id: string; newId: string }>) {
       const site = state.sites.find((site) => site.id === action.payload.id);
@@ -71,6 +87,15 @@ const dashboardSlice = createSlice({
 
       page.elements = elements;
     },
+    updatePageName(state, action) {
+      const site = state.sites.find((site) => site.id === action.payload.siteId);
+      const page = site?.pages.find((page) => page.id === action.payload.pageId);
+
+      if (page) {
+        page.name = action.payload.name;
+      }
+    },
+
     setFilters(state, action: PayloadAction<FilterCriteria>) {
       state.filters = action.payload;
     },
@@ -96,10 +121,13 @@ const dashboardSlice = createSlice({
 export const {
   setSites,
   addSite,
+  addPage,
   deleteSite,
+  deletePage,
   duplicateSite,
   updateSiteDetails,
   updatePageElements,
+  updatePageName,
   setFilters,
   setFilterLabel,
   toggleSiteStarred,

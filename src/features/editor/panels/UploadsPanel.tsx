@@ -62,7 +62,7 @@ const MediaItem = styled.div`
     z-index: 10;
     transition: transform 0.2s ease-in-out;
     cursor: pointer;
-    color: white;
+    color: var(--color-white);
   }
 
   &:hover svg {

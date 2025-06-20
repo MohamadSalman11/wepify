@@ -1,12 +1,11 @@
 import localforage from 'localforage';
 import { useEffect, useRef } from 'react';
-import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import LoadingScreen from '../../components/LoadingScreen';
+import { LoadingMessages } from '../../constant';
 import { useLoadSitesFromStorage } from '../../hooks/useLoadSitesFromStorage';
 import { useAppSelector } from '../../store';
 import { useCanvasSync } from './hooks/useCanvasSync';
-import { setHeight, setWidth } from './slices/pageSlice';
 
 /**
  * Styles
@@ -36,26 +35,18 @@ function Canvas({ isPreview }: { isPreview: boolean }) {
   const { sites } = useAppSelector((state) => state.dashboard);
   const { isLoading, loadingDuration } = useAppSelector((state) => state.editor);
 
-  const dispatch = useDispatch();
   const canvasRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  useCanvasSync(iframeRef, sites, isPreview, loadingDuration);
+  useCanvasSync(iframeRef, canvasRef, sites, isPreview, loadingDuration);
 
   useLoadSitesFromStorage(loadingDuration);
-
+  console.log(sites);
   useEffect(() => {
     if (sites.length > 0) {
       localforage.setItem('sites', sites);
     }
   }, [sites]);
-
-  const handleIframeLoad = () => {
-    if (canvasRef.current && !isPreview) {
-      dispatch(setWidth(canvasRef.current.clientWidth));
-      dispatch(setHeight(canvasRef.current.clientHeight));
-    }
-  };
 
   return (
     <StyledCanvas ref={canvasRef}>
@@ -63,14 +54,13 @@ function Canvas({ isPreview }: { isPreview: boolean }) {
         ref={iframeRef}
         src='/iframe/iframe.html'
         title='Site Preview'
-        onLoad={handleIframeLoad}
         style={{
           width: width === undefined || isPreview ? '100%' : `${width}px`,
           height: height === undefined || isPreview ? '100vh' : `${height}px`,
           transform: `scale(${scale / 100})`
         }}
       />
-      {isLoading && <LoadingScreen loadingText={`Setting up your ${isPreview ? 'site preview' : 'site editor'}..`} />}
+      {isLoading && <LoadingScreen loadingText={isPreview ? LoadingMessages.SitePreview : LoadingMessages.Editor} />}
     </StyledCanvas>
   );
 }

@@ -1,8 +1,8 @@
 import { createPortal } from 'react-dom';
 import styled, { keyframes } from 'styled-components';
+import { LoadingMessages } from '../constant';
 import Logo from './Logo';
 
-const DEFAULT_LOADING_TEXT = 'Setting up your management dashboard...';
 const DEFAULT_DURATION = 2000;
 const MS_TO_SECONDS = 1000;
 
@@ -67,7 +67,13 @@ const LoadingText = styled.p`
  * Styles
  */
 
-function LoadingScreen({ loadingText = DEFAULT_LOADING_TEXT, duration }: { loadingText?: string; duration?: number }) {
+function LoadingScreen({
+  loadingText = LoadingMessages.Dashboard,
+  duration
+}: {
+  loadingText?: string;
+  duration?: number;
+}) {
   const randomDuration = `${(duration ?? DEFAULT_DURATION) / MS_TO_SECONDS}s`;
 
   return createPortal(
@@ -79,7 +85,7 @@ function LoadingScreen({ loadingText = DEFAULT_LOADING_TEXT, duration }: { loadi
       <LoadingBarWrapper>
         <LoadingBar duration={randomDuration} />
       </LoadingBarWrapper>
-      <LoadingText>{loadingText}</LoadingText>
+      <LoadingText>{loadingText}...</LoadingText>
     </StyledLoadingScreen>,
     document.body
   );

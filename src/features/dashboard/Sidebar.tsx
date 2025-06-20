@@ -5,10 +5,10 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from '../../components/Button';
 import Icon from '../../components/Icon';
-import { ELEMENTS_TEMPLATE, Path } from '../../constant';
-import type { Site, SitePage } from '../../types';
+import { Path } from '../../constant';
+import { createNewPage } from '../../helpers/createNewPage';
+import type { Site } from '../../types';
 import { buildPath } from '../../utils/buildPath';
-import { setPage } from '../editor/slices/pageSlice';
 import { addSite } from './slices/dashboardSlice';
 
 /**
@@ -77,15 +77,7 @@ function Sidebar() {
 
   function handleDesignNewSite() {
     const siteId = nanoid();
-
-    const page: SitePage = {
-      id: nanoid(),
-      siteId,
-      name: DEFAULT_NAME,
-      siteName: DEFAULT_NAME,
-      siteDescription: DEFAULT_DESCRIPTION,
-      elements: [{ ...ELEMENTS_TEMPLATE['section'], id: 'section-1' }]
-    };
+    const page = createNewPage(siteId);
 
     const site: Site = {
       id: siteId,
@@ -95,11 +87,10 @@ function Sidebar() {
       createdAt: Date.now(),
       lastModified: Date.now(),
       isStarred: false,
-      pages: [page]
+      pages: [page, { ...page, id: nanoid() }]
     };
 
     dispatch(addSite(site));
-    dispatch(setPage(page));
     navigate(buildPath(Path.Editor, { site: siteId, page: page.id }));
   }
 

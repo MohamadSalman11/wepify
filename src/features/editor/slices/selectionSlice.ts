@@ -29,10 +29,13 @@ const selectionSlice = createSlice({
     },
     updateSelectElement(state, action: PayloadAction<Partial<PageElement>>) {
       Object.assign(state.selectedElement, action.payload);
+    },
+    clearSelection(state) {
+      Object.assign(state, initialState);
     }
   }
 });
 
-export const { selectElement, updateSelectElement, setSelectLastUpdates, setLastSelectedSection } =
+export const { selectElement, updateSelectElement, setSelectLastUpdates, setLastSelectedSection, clearSelection } =
   selectionSlice.actions;
 export default selectionSlice.reducer;

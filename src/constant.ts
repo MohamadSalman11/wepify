@@ -24,12 +24,22 @@ export enum ElementNames {
   Section = 'Section'
 }
 
+export enum LoadingMessages {
+  Dashboard = 'Setting up your management dashboard',
+  SitePreview = 'Setting up your site preview',
+  Editor = 'Setting up your site editor'
+}
+
 export const ToastMessages = {
   site: {
     addedStar: 'Site added to starred',
     removedStar: 'Site removed from starred',
     updated: 'Site updated successfully',
     deleted: 'Site deleted successfully'
+  },
+  page: {
+    deleted: 'Site deleted successfully',
+    renamed: 'Site name changed successfully'
   }
 } as const;
 

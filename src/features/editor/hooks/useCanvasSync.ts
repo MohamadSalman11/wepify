@@ -7,7 +7,7 @@ import { flattenElements } from '../../../utils/flattenElements';
 import { isTyping } from '../../../utils/isTyping';
 import { updatePageElements } from '../../dashboard/slices/dashboardSlice';
 import { setIsLoading } from '../slices/editorSlice';
-import { deleteElement, setPage } from '../slices/pageSlice';
+import { deleteElement, setHeight, setPage, setWidth } from '../slices/pageSlice';
 import { selectElement } from '../slices/selectionSlice';
 import { useIframeConnection } from './useIframeConnection';
 
@@ -16,6 +16,7 @@ const DELETE_KEY = 'Backspace';
 
 export const useCanvasSync = (
   iframeRef: RefObject<HTMLIFrameElement | null>,
+  canvasRef: RefObject<HTMLDivElement | null>,
   sites: Site[],
   isPreview: boolean,
   loadingDuration: number
@@ -44,15 +45,19 @@ export const useCanvasSync = (
         sendElementsToIframe(page.elements);
         dispatch(selectElement(page.elements[0]));
         dispatch(setPage({ ...page, siteId: site.id, siteName: site.name, siteDescription: site.description }));
+
         timeoutId = setTimeout(() => {
           dispatch(setIsLoading(false));
+
+          dispatch(setWidth(canvasRef.current?.clientWidth));
+          dispatch(setHeight(canvasRef.current?.clientHeight));
         }, loadingDuration);
       }
     }
 
     return () => clearTimeout(timeoutId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [iframeReady, sendElementsToIframe]);
+  }, [iframeReady, siteParam, pageParam, sendElementsToIframe]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

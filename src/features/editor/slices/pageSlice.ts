@@ -89,6 +89,9 @@ const pageSlice = createSlice({
     },
     setNewElement(state, action: PayloadAction<PageElement>) {
       state.lastAddedElement = action.payload;
+    },
+    clearPage(state) {
+      Object.assign(state, initialState);
     }
   }
 });
@@ -98,11 +101,13 @@ export const {
   setWidth,
   setHeight,
   setScale,
+  setName,
   setElements,
   addElement,
   updateElement,
   deleteElement,
-  setNewElement
+  setNewElement,
+  clearPage
 } = pageSlice.actions;
 
 export default pageSlice.reducer;

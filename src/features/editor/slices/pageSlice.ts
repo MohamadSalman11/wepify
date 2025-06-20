@@ -101,7 +101,6 @@ export const {
   setWidth,
   setHeight,
   setScale,
-  setName,
   setElements,
   addElement,
   updateElement,

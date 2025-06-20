@@ -21,7 +21,7 @@ export enum EditorPath {
 
 export enum ElementNames {
   Grid = 'grid',
-  Section = 'Section'
+  Section = 'section'
 }
 
 export enum LoadingMessages {

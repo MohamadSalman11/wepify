@@ -37,7 +37,6 @@ const ICON_MAP: Record<string, IconType> = {
 
 const Title = styled.span`
   font-size: 1.6rem;
-  color: var(--color-white);
   font-weight: 500;
 `;
 
@@ -54,24 +53,19 @@ const LayerItem = styled.li`
   flex-direction: column;
 `;
 
-const LayerBox = styled.div<{ nested?: boolean }>`
+const LayerBox = styled.div<{ nested?: boolean; selected?: boolean }>`
   display: flex;
   align-items: center;
   gap: 1.2rem;
   padding: 1.2rem;
-  background-color: var(--color-white-3);
+  background-color: ${({ selected }) => (selected ? 'var(--color-primary-light)' : 'var(--color-gray-light-2)')};
   border-radius: var(--border-radius-md);
   cursor: pointer;
-  transition: var(--transition-base);
   margin-left: ${({ nested }) => (nested ? 'auto' : '0')};
   width: ${({ nested }) => (nested ? '90%' : '100%')};
 
-  &:hover {
-    background-color: var(--color-gray-dark);
-  }
-
   svg {
-    color: var(--color-gray);
+    color: var(--color-white);
     font-size: 1.6rem;
   }
 
@@ -96,11 +90,10 @@ const LayerHeader = styled.div`
 `;
 
 const ChevronIcon = styled(LuChevronRight)<{ expanded: boolean }>`
-  position: absolute;
-  left: -1.6rem;
   cursor: pointer;
   font-size: 1.6rem;
-  transform: rotate(${({ expanded }) => (expanded ? '90deg' : '0deg')});
+  color: var(--color-gray) !important;
+  transform: translateX(-3.1rem) rotate(${({ expanded }) => (expanded ? '90deg' : '0deg')});
 `;
 
 /**
@@ -109,20 +102,29 @@ const ChevronIcon = styled(LuChevronRight)<{ expanded: boolean }>`
 
 function LayersPanel() {
   const page = useAppSelector((state) => state.page);
+  const selectedElementId = useAppSelector((state) => state.selection.selectedElement.id);
 
   return (
     <>
       <Title>Layers</Title>
       <LayerList>
         {page.elements.map((element) => (
-          <LayerNode key={element.id} element={element} />
+          <LayerNode key={element.id} element={element} selectedElementId={selectedElementId} />
         ))}
       </LayerList>
     </>
   );
 }
 
-function LayerNode({ element, nested = false }: { element: PageElement; nested?: boolean }) {
+function LayerNode({
+  element,
+  nested = false,
+  selectedElementId
+}: {
+  element: PageElement;
+  nested?: boolean;
+  selectedElementId: string | null;
+}) {
   const [expanded, setExpanded] = useState(false);
   const hasChildren = (element.children?.length ?? 0) > 0;
   const Icon = ICON_MAP[element.name] || LuSquare;
@@ -130,6 +132,10 @@ function LayerNode({ element, nested = false }: { element: PageElement; nested?:
   const page = useAppSelector((state) => state.page);
 
   const handleClick = () => {
+    if (hasChildren) {
+      setExpanded((prev) => !prev);
+    }
+
     const flatElements = flattenElements(page.elements);
     const found = flatElements.find((el) => el.id === element.id);
     if (found) {
@@ -139,20 +145,23 @@ function LayerNode({ element, nested = false }: { element: PageElement; nested?:
 
   return (
     <LayerItem>
-      <LayerHeader>
-        {hasChildren && <ChevronIcon expanded={expanded} onClick={() => setExpanded((prev) => !prev)} />}
-        <LayerBox nested={nested} onClick={handleClick}>
+      <LayerHeader onClick={handleClick}>
+        <LayerBox nested={nested} selected={selectedElementId === element.id}>
+          {hasChildren && <ChevronIcon expanded={expanded} />}
+
           <Icon />
           <span>{element.id}</span>
         </LayerBox>
       </LayerHeader>
+
       {hasChildren && expanded && (
         <NestedList>
-          {element.children?.map((child: PageElement) => <LayerNode key={child.id} element={child} nested />)}
+          {element.children?.map((child) => (
+            <LayerNode key={child.id} element={child} nested selectedElementId={selectedElementId} />
+          ))}
         </NestedList>
       )}
     </LayerItem>
   );
 }
-
 export default LayersPanel;

@@ -85,8 +85,12 @@ const controlIframeMessage = (event) => {
       break;
     }
     case 'SELECTION_CHANGED': {
-      document.querySelector(`#${payload}`)?.click();
-      positionDragButton(state.currentTarget?.clientHeight);
+      const el = document.querySelector(`#${payload}`);
+      if (el) {
+        el.scrollIntoView({ block: 'center' });
+        el.click();
+        positionDragButton(state.currentTarget?.clientHeight);
+      }
       break;
     }
   }

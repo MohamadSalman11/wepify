@@ -185,7 +185,13 @@ function PagesPanel() {
                       </Modal.open>
                       <Modal.window>
                         <Modal.dialog title='Edit Page'>
-                          <EditDialog siteId={siteId} pageId={page.id} title={page.title} name={page.name} />
+                          <EditDialog
+                            pages={pages}
+                            siteId={siteId}
+                            pageId={page.id}
+                            title={page.title}
+                            name={page.name}
+                          />
                         </Modal.dialog>
                       </Modal.window>
                     </Modal>
@@ -232,17 +238,39 @@ function EditDialog({
   title,
   siteId,
   pageId,
+  pages,
   onCloseModal
 }: {
   name: string;
   title: string;
   siteId: string;
   pageId: string;
+  pages: SitePage[];
   onCloseModal: OnCloseModal;
 }) {
   const dispatch = useDispatch();
   const [newName, setNewName] = useState('');
   const [newTitle, setNewTitle] = useState('');
+
+  function handleSave() {
+    const trimmedName = newName.trim();
+    if (!trimmedName) {
+      toast.error('Page name cannot be empty');
+      return;
+    }
+
+    const nameExists = pages.some(
+      (page) => page.name.toLowerCase() === trimmedName.toLowerCase() && page.id !== pageId
+    );
+
+    if (nameExists) {
+      toast.error('A page with this name already exists. Please choose a different name.');
+      return;
+    }
+    dispatch(updatePageInfo({ siteId, pageId, name: newName, title: newTitle }));
+    onCloseModal();
+    toast.success(ToastMessages.page.renamed);
+  }
 
   return (
     <>
@@ -259,15 +287,7 @@ function EditDialog({
         onChange={(event) => setNewTitle(event.target.value)}
       />
       <DialogActions>
-        <Button
-          onClick={() => {
-            dispatch(updatePageInfo({ siteId, pageId, name: newName, title: newTitle }));
-            onCloseModal();
-            toast.success(ToastMessages.page.renamed);
-          }}
-          size='sm'
-          pill={true}
-        >
+        <Button onClick={handleSave} size='sm' pill={true}>
           OK
         </Button>
         <Button onClick={onCloseModal} variation='secondary' size='sm' pill={true}>

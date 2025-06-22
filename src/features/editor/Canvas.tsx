@@ -32,13 +32,13 @@ const StyledCanvas = styled.div`
 
 function Canvas({ isPreview }: { isPreview: boolean }) {
   const { width, height, scale } = useAppSelector((state) => state.page);
-  const { sites } = useAppSelector((state) => state.dashboard.present);
-  const { isLoading, loadingDuration } = useAppSelector((state) => state.editor);
+  const { sites } = useAppSelector((state) => state.dashboard);
+  const { isLoading, loadingDuration, targetDownloadSite } = useAppSelector((state) => state.editor);
 
   const canvasRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  useCanvasSync(iframeRef, canvasRef, sites, isPreview, loadingDuration);
+  useCanvasSync(iframeRef, canvasRef, sites, isPreview, loadingDuration, targetDownloadSite);
 
   useLoadSitesFromStorage(loadingDuration);
 

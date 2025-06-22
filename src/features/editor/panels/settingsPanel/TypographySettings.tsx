@@ -8,7 +8,7 @@ import ColorPicker from '../../ColorPicker';
  * Constants
  */
 
-const webSafeFonts = [
+export const OPTIONS_FONT = [
   'Inter',
   'JetBrains Mono',
   'Fira Code',
@@ -72,7 +72,7 @@ function TypographySettings({ handleStyleChanges }: { handleStyleChanges: Handle
           <SubTitle>Font Family</SubTitle>
           <Select
             defaultSelect={selection.fontFamily}
-            options={webSafeFonts}
+            options={OPTIONS_FONT}
             onChange={(option) => handleStyleChanges(option, 'fontFamily')}
           />
         </div>

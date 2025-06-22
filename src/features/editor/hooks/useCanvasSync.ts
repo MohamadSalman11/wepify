@@ -6,7 +6,7 @@ import type { PageElement, Site } from '../../../types';
 import { flattenElements } from '../../../utils/flattenElements';
 import { isTyping } from '../../../utils/isTyping';
 import { updatePageElements } from '../../dashboard/slices/dashboardSlice';
-import { setIsLoading } from '../slices/editorSlice';
+import { setIsLoading, setTargetDownloadSite } from '../slices/editorSlice';
 import { deleteElement, setHeight, setPage, setWidth } from '../slices/pageSlice';
 import { selectElement } from '../slices/selectionSlice';
 import { useIframeConnection } from './useIframeConnection';
@@ -19,7 +19,8 @@ export const useCanvasSync = (
   canvasRef: RefObject<HTMLDivElement | null>,
   sites: Site[],
   isPreview: boolean,
-  loadingDuration: number
+  loadingDuration: number,
+  targetDownloadSite: { id: string; shouldMinify: boolean }
 ) => {
   const dispatch = useDispatch();
   const { site: siteParam, page: pageParam } = useParams();
@@ -31,10 +32,9 @@ export const useCanvasSync = (
     updateElementInIFrame,
     insertElementInIFrame,
     deleteElementInIframe,
-    handleSelectionChange
+    handleSelectionChange,
+    downloadSite
   } = useIframeConnection(iframeRef, elements, isPreview);
-
-  console.log(elements);
 
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
@@ -42,7 +42,7 @@ export const useCanvasSync = (
     if (iframeReady) {
       const site = sites.find((site) => site.id === siteParam);
       const page = site?.pages.find((page) => page.id === pageParam);
-      console.log(page);
+
       if (site && page) {
         sendElementsToIframe(page.elements);
         dispatch(selectElement(page.elements[0]));
@@ -104,4 +104,15 @@ export const useCanvasSync = (
       handleSelectionChange(selectedElement.id);
     }
   }, [selectedElement.id, handleSelectionChange]);
+
+  useEffect(() => {
+    if (targetDownloadSite) {
+      downloadSite(
+        sites.find((site) => site.id === targetDownloadSite.id),
+        targetDownloadSite.shouldMinify
+      );
+    }
+
+    dispatch(setTargetDownloadSite(''));
+  }, [sites, dispatch, downloadSite, targetDownloadSite]);
 };

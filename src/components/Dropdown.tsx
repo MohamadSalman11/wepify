@@ -1,7 +1,9 @@
 import {
+  Children,
   cloneElement,
   createContext,
   useContext,
+  useEffect,
   useRef,
   useState,
   type MouseEventHandler,
@@ -9,6 +11,7 @@ import {
   type ReactNode,
   type RefObject
 } from 'react';
+import { createPortal } from 'react-dom';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { setModalIsOpen } from '../features/dashboard/slices/dashboardSlice';
@@ -18,10 +21,16 @@ import useOutsideClick from '../hooks/useOutsideClick';
  * Styles
  */
 
-const StyledDropdown = styled.ul<{ top?: number; shouldHide: boolean }>`
+const StyledDropdown = styled.ul<{
+  shouldHide: boolean;
+  top: number;
+  left: number;
+  translateX?: number;
+  translateY?: number;
+}>`
   position: absolute;
-  ${(props) => (props.top === undefined ? 'left: 0;' : 'right: 0;')}
-  ${(props) => props.top !== undefined && `top: ${props.top}px;`}
+  top: ${(props) => props.top}px;
+  left: ${(props) => props.left}px;
   width: 20rem;
   font-size: 1.4rem;
   border-radius: var(--border-radius-sm);
@@ -29,6 +38,7 @@ const StyledDropdown = styled.ul<{ top?: number; shouldHide: boolean }>`
   overflow: hidden;
   z-index: 999;
   background-color: var(--color-white);
+  transform: translate(${(props) => props.translateX ?? 0}%, ${(props) => props.translateY ?? 0}%);
 
   ${(props) =>
     props.shouldHide &&
@@ -104,16 +114,54 @@ function Open({ children }: { children: ClickableElement }) {
   });
 }
 
-function Drop({ children, top, shouldHide }: { children: ReactNode; top?: number; shouldHide: boolean }) {
+function Drop({
+  children,
+  translateX = 0,
+  translateY = 0,
+  shouldHide
+}: {
+  children: ReactNode;
+  translateX?: number;
+  translateY?: number;
+  shouldHide: boolean;
+}) {
   const { isOpen, setIsOpen, toggleRef } = useDropdownContext();
   const dropdownRef = useOutsideClick<HTMLUListElement>(() => setIsOpen(false), undefined, toggleRef);
+  const [position, setPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+
+  useEffect(() => {
+    if (isOpen && toggleRef.current) {
+      const rect = toggleRef.current.getBoundingClientRect();
+      setPosition({
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX
+      });
+    }
+  }, [isOpen, toggleRef]);
 
   if (!isOpen) return null;
 
-  return (
-    <StyledDropdown ref={dropdownRef} top={top} shouldHide={shouldHide}>
-      {children}
-    </StyledDropdown>
+  const childrenWithOnClick = Children.map(children, (child) => {
+    return cloneElement(child, {
+      onClick: (e: React.MouseEvent) => {
+        if (child.props.onClick) child.props.onClick(e);
+        setIsOpen(false);
+      }
+    });
+  });
+
+  return createPortal(
+    <StyledDropdown
+      ref={dropdownRef}
+      top={position.top}
+      left={position.left}
+      shouldHide={shouldHide}
+      translateX={translateX}
+      translateY={translateY}
+    >
+      {childrenWithOnClick}
+    </StyledDropdown>,
+    document.body
   );
 }
 

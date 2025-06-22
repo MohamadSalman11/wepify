@@ -54,11 +54,13 @@ export type PageElement =
 
 export interface SitePage {
   id: string;
+  name: string;
+  title: string;
   siteId: string;
   siteName: string;
   siteDescription: string;
-  name: string;
   elements: PageElement[];
+  isIndex: boolean;
 }
 
 export interface Site {

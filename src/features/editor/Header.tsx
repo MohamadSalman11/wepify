@@ -1,18 +1,29 @@
 import { useState } from 'react';
 import type { IconType } from 'react-icons';
-import { LuEye, LuLaptop, LuMonitor, LuRedo2, LuSmartphone, LuTablet, LuUndo2 } from 'react-icons/lu';
+import {
+  LuEye,
+  LuFileCode2,
+  LuFileMinus,
+  LuLaptop,
+  LuMonitor,
+  LuRedo2,
+  LuSmartphone,
+  LuTablet,
+  LuUndo2
+} from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ActionCreators } from 'redux-undo';
 import styled from 'styled-components';
 import Button from '../../components/Button';
 import Divider from '../../components/divider';
+import Dropdown from '../../components/Dropdown';
 import Input from '../../components/form/Input';
 import Icon from '../../components/Icon';
 import { EditorPath } from '../../constant';
 import { useAppSelector } from '../../store';
 import type { InputChangeEvent } from '../../types';
-import { setIsLoading } from './slices/editorSlice';
+import { setIsLoading, setTargetDownloadSite } from './slices/editorSlice';
 import { setHeight, setScale, setWidth } from './slices/pageSlice';
 
 /**
@@ -123,6 +134,7 @@ type DeviceType = keyof typeof SCREEN_SIZES | 'auto';
 function Header() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { site: siteParam } = useParams();
   const [activeDevice, setActiveDevice] = useState<DeviceType>('auto');
   const { siteName, siteDescription, width, height, scale } = useAppSelector((state) => state.page);
 
@@ -214,8 +226,23 @@ function Header() {
           hover={true}
         />
         <Divider rotate={90} width={30} />
-        <Button variation='secondary'>Download</Button>
-        <Button>Publish</Button>
+        <Dropdown>
+          <Dropdown.open>
+            <Button variation='secondary'>Download</Button>
+          </Dropdown.open>
+          <Dropdown.drop>
+            <li onClick={() => dispatch(setTargetDownloadSite({ id: siteParam, shouldMinify: true }))}>
+              <LuFileMinus /> Download Minified
+            </li>
+            <li onClick={() => dispatch(setTargetDownloadSite({ id: siteParam, shouldMinify: false }))}>
+              <LuFileCode2 /> Download Readable
+            </li>
+          </Dropdown.drop>
+        </Dropdown>
+
+        <Button asLink={true} href='https://app.netlify.com/drop' target='_blank'>
+          Publish
+        </Button>
       </EditorActions>
     </StyledHeader>
   );

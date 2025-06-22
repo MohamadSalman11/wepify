@@ -9,8 +9,8 @@ export const insertElement = (newElement, parentElement) => {
   }
 };
 
-export const renderElementsToIframe = (elements) => {
-  const root = document.querySelector('#root');
+export const renderElements = (elements, doc) => {
+  const root = doc ? doc.body : document.querySelector('#root');
   root.innerHTML = '';
 
   for (const el of elements) {

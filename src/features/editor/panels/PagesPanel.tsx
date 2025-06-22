@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { LuPencil, LuSquareMenu, LuTrash } from 'react-icons/lu';
+import { LuCopy, LuEllipsis, LuHouse, LuPencil, LuSquareMenu, LuTrash2 } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from '../../../components/Button';
+import Dropdown from '../../../components/Dropdown';
 import Input from '../../../components/form/Input';
 import Icon from '../../../components/Icon';
 import Modal, { type OnCloseModal } from '../../../components/Modal';
@@ -13,7 +14,7 @@ import { createNewPage } from '../../../helpers/createNewPage';
 import { useAppSelector } from '../../../store';
 import type { SitePage } from '../../../types';
 import { buildPath } from '../../../utils/buildPath';
-import { addPage, deletePage, deleteSite, updatePageName } from '../../dashboard/slices/dashboardSlice';
+import { addPage, deletePage, deleteSite, setIsIndexPage, updatePageInfo } from '../../dashboard/slices/dashboardSlice';
 import { setIsLoading } from '../slices/editorSlice';
 import { clearPage } from '../slices/pageSlice';
 import { selectElement } from '../slices/selectionSlice';
@@ -31,36 +32,48 @@ const PagesList = styled.ul`
 `;
 
 const PageItem = styled.li<{ active: boolean }>`
-  display: flex;
   position: relative;
-  column-gap: 1.2rem;
-  align-items: center;
-  cursor: pointer;
-  border-radius: var(--border-radius-md);
-  background-color: ${(props) => (props.active ? 'var(--color-primary-light)' : 'var(--color-white-2)')};
-  color: ${(props) => props.active && 'var(--color-white)'};
-  padding: 1.2rem;
-  width: 100%;
-  overflow: hidden;
 
-  &:hover div {
-    transform: translateY(0);
-  }
-
-  div {
+  & > div {
     display: flex;
-    position: absolute;
-    top: 10%;
-    left: 5%;
-    justify-content: space-between;
-    transform: translateY(-4rem);
-    transition: var(--transition-base);
-    width: 90%;
+    position: relative;
+    column-gap: 1.2rem;
+    align-items: center;
+    cursor: pointer;
+    border-radius: var(--border-radius-md);
+    background-color: ${(props) => (props.active ? 'var(--color-primary-light)' : 'var(--color-white-2)')};
+    padding: 1.2rem;
+    width: 100%;
+    overflow: hidden;
+    color: ${(props) => props.active && 'var(--color-white)'};
 
-    span {
-      border-radius: var(--border-radius-sm);
-      background-color: var(--color-white-3);
-      padding: 0.4rem 0.4rem 0.2rem 0.4rem;
+    &:hover div {
+      transform: translateY(0);
+    }
+
+    div {
+      display: flex;
+      position: absolute;
+      top: 10%;
+      left: 5%;
+      justify-content: flex-end;
+      transform: translateY(-4rem);
+      transition: var(--transition-base);
+      width: 90%;
+
+      span {
+        border-radius: var(--border-radius-sm);
+        background-color: var(--color-gray-light-2);
+        padding: 0.2rem 0.2rem 0 0.2rem;
+
+        svg {
+          color: var(--color-white);
+        }
+      }
+
+      @media (pointer: coarse) {
+        transform: none;
+      }
     }
   }
 
@@ -77,17 +90,51 @@ const DialogActions = styled.div`
   margin-top: 1.2rem;
 `;
 
+const IndexBadge = styled.span`
+  position: absolute;
+  top: 0;
+  left: 3%;
+  transform: translateY(-50%);
+  background-color: var(--color-white);
+  font-size: 1rem;
+  font-weight: var(--font-weight-semibold);
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--border-radius-full);
+  text-transform: uppercase;
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 8px;
+  z-index: var(--zindex-base);
+  pointer-events: none;
+  user-select: none;
+`;
 /**
  * Component definition
  */
 
 function PagesPanel() {
-  const { sites } = useAppSelector((state) => state.dashboard.present);
+  const { sites, isModalOpen } = useAppSelector((state) => state.dashboard);
   const { elements } = useAppSelector((state) => state.page);
   const { site: siteId, page: pageId } = useParams();
   const dispatch = useDispatch();
   const pages = sites.find((site) => site.id === siteId)?.pages;
   const navigate = useNavigate();
+
+  const handleCopyLink = (pageName: string) => {
+    const fileName =
+      pageName
+        .toLocaleLowerCase()
+        .trim()
+        .replaceAll(/\s+/g, '_')
+        .replaceAll(/[^\w_-]/g, '') + '.html';
+
+    navigator.clipboard
+      .writeText(fileName)
+      .then(() => {
+        toast.success(ToastMessages.page.fileNameCopied);
+      })
+      .catch(() => {
+        toast.error(ToastMessages.page.fileNameCopiedErr);
+      });
+  };
 
   return (
     <>
@@ -97,7 +144,7 @@ function PagesPanel() {
           dispatch(addPage({ siteId, page: createNewPage(siteId) }));
         }}
       >
-        Add New Site
+        Add New Page
       </Button>
       <PagesList>
         {pages?.map((page, i) => (
@@ -111,34 +158,68 @@ function PagesPanel() {
               navigate(buildPath(Path.Editor, { site: siteId, page: page.id }));
             }}
           >
-            <Icon icon={LuSquareMenu} />
-            <span>{page.name.length > 8 ? `${page.name.slice(0, 8)}...` : page.name}</span>
             <div>
-              <Modal>
-                <Modal.open>
-                  <span data-active>
-                    <Icon icon={LuPencil} />
-                  </span>
-                </Modal.open>
-                <Modal.window>
-                  <Modal.dialog title='Rename'>
-                    <RenameDialog siteId={siteId} pageId={page.id} name={page.name} />
-                  </Modal.dialog>
-                </Modal.window>
-              </Modal>
-              <Modal>
-                <Modal.open>
-                  <span data-active>
-                    <Icon icon={LuTrash} />
-                  </span>
-                </Modal.open>
-                <Modal.window>
-                  <Modal.dialog title='Delete page'>
-                    <DeleteDialog currentIndex={i} currentPageId={pageId} pages={pages} siteId={siteId} page={page} />
-                  </Modal.dialog>
-                </Modal.window>
-              </Modal>
+              <Icon icon={LuSquareMenu} />
+              <span>{page.name.length > 7 ? `${page.name.slice(0, 7)}...` : page.name}</span>
+              <div>
+                <Dropdown>
+                  <Dropdown.open>
+                    <span data-active>
+                      <Icon icon={LuEllipsis} size='md' />
+                    </span>
+                  </Dropdown.open>
+                  <Dropdown.drop translateX={18} translateY={-15} shouldHide={isModalOpen}>
+                    <li
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        dispatch(setIsIndexPage({ siteId, pageId: page.id }));
+                      }}
+                    >
+                      <LuHouse /> Set as index
+                    </li>
+                    <Modal>
+                      <Modal.open>
+                        <li data-active>
+                          <Icon icon={LuPencil} /> Edit
+                        </li>
+                      </Modal.open>
+                      <Modal.window>
+                        <Modal.dialog title='Edit Page'>
+                          <EditDialog siteId={siteId} pageId={page.id} title={page.title} name={page.name} />
+                        </Modal.dialog>
+                      </Modal.window>
+                    </Modal>
+                    <Modal>
+                      <Modal.open>
+                        <li data-active>
+                          <Icon icon={LuTrash2} /> Delete
+                        </li>
+                      </Modal.open>
+                      <Modal.window>
+                        <Modal.dialog title='Delete page'>
+                          <DeleteDialog
+                            currentIndex={i}
+                            currentPageId={pageId}
+                            pages={pages}
+                            siteId={siteId}
+                            page={page}
+                          />
+                        </Modal.dialog>
+                      </Modal.window>
+                    </Modal>
+                    <li
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleCopyLink(page.name);
+                      }}
+                    >
+                      <LuCopy /> Copy filename
+                    </li>
+                  </Dropdown.drop>
+                </Dropdown>
+              </div>
             </div>
+            {page.isIndex && <IndexBadge>Index</IndexBadge>}
           </PageItem>
         ))}
       </PagesList>
@@ -146,19 +227,22 @@ function PagesPanel() {
   );
 }
 
-function RenameDialog({
+function EditDialog({
   name,
+  title,
   siteId,
   pageId,
   onCloseModal
 }: {
   name: string;
+  title: string;
   siteId: string;
   pageId: string;
   onCloseModal: OnCloseModal;
 }) {
   const dispatch = useDispatch();
   const [newName, setNewName] = useState('');
+  const [newTitle, setNewTitle] = useState('');
 
   return (
     <>
@@ -168,10 +252,16 @@ function RenameDialog({
         defaultValue={name}
         onChange={(event) => setNewName(event.target.value)}
       />
+      <Input
+        type='text'
+        placeholder='Page Tittle'
+        defaultValue={title || name}
+        onChange={(event) => setNewTitle(event.target.value)}
+      />
       <DialogActions>
         <Button
           onClick={() => {
-            dispatch(updatePageName({ siteId, pageId, name: newName }));
+            dispatch(updatePageInfo({ siteId, pageId, name: newName, title: newTitle }));
             onCloseModal();
             toast.success(ToastMessages.page.renamed);
           }}

@@ -29,7 +29,7 @@ const initialState: DashboardState = {
   filterLabel: '',
   isModalOpen: true,
   isLoading: true,
-  loadingDuration: getRandomDuration(3.5, 5)
+  loadingDuration: getRandomDuration(2.5, 3.5)
 };
 
 const dashboardSlice = createSlice({
@@ -93,13 +93,25 @@ const dashboardSlice = createSlice({
         };
       });
     },
-    updatePageName(state, action) {
+    updatePageInfo(state, action) {
       const site = state.sites.find((site) => site.id === action.payload.siteId);
       const page = site?.pages.find((page) => page.id === action.payload.pageId);
 
       if (page) {
         page.name = action.payload.name;
+        page.title = action.payload.title;
       }
+    },
+
+    setIsIndexPage(state, action) {
+      const { siteId, pageId } = action.payload;
+      const site = state.sites.find((site) => site.id === siteId);
+
+      if (!site) return;
+
+      site.pages.forEach((page) => {
+        page.isIndex = page.id === pageId;
+      });
     },
 
     setFilters(state, action: PayloadAction<FilterCriteria>) {
@@ -133,7 +145,8 @@ export const {
   duplicateSite,
   updateSiteDetails,
   updatePageElements,
-  updatePageName,
+  updatePageInfo,
+  setIsIndexPage,
   setFilters,
   setFilterLabel,
   toggleSiteStarred,

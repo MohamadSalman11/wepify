@@ -1,7 +1,7 @@
 import { type RefObject, useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { ElementNames, TARGET_ORIGIN } from '../../../constant';
-import type { PageElement } from '../../../types';
+import type { PageElement, SitePage } from '../../../types';
 import { flattenElements } from '../../../utils/flattenElements';
 import { updateElement } from '../slices/pageSlice';
 import { selectElement, setLastSelectedSection, updateSelectElement } from '../slices/selectionSlice';
@@ -25,7 +25,8 @@ enum MessageType {
   UpdateElement = 'UPDATE_ELEMENT',
   InsertElement = 'INSERT_ELEMENT',
   DeleteElement = 'DELETE_ELEMENT',
-  SelectionChanged = 'SELECTION_CHANGED'
+  SelectionChanged = 'SELECTION_CHANGED',
+  DownloadSite = 'DOWNLOAD_SITE'
 }
 
 export const useIframeConnection = (
@@ -137,12 +138,20 @@ export const useIframeConnection = (
     [postMessageToIframe]
   );
 
+  const downloadSite = useCallback(
+    (site: SitePage[], shouldMinify: boolean) => {
+      postMessageToIframe({ type: MessageType.DownloadSite, payload: { site, shouldMinify } });
+    },
+    [postMessageToIframe]
+  );
+
   return {
     iframeReady,
     sendElementsToIframe,
     updateElementInIFrame,
     insertElementInIFrame,
     handleSelectionChange,
-    deleteElementInIframe
+    deleteElementInIframe,
+    downloadSite
   };
 };

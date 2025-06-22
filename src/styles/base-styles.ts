@@ -66,6 +66,7 @@ const baseStyles = css`
 
   a {
     color: var(--color-black-light);
+    text-decoration: none;
   }
 
   ul {

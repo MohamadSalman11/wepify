@@ -39,7 +39,9 @@ export const ToastMessages = {
   },
   page: {
     deleted: 'Site deleted successfully',
-    renamed: 'Site name changed successfully'
+    renamed: 'Site name changed successfully',
+    fileNameCopied: 'File name copied',
+    fileNameCopiedErr: 'Failed to copy file name'
   }
 } as const;
 

@@ -161,7 +161,7 @@ const StarIcon = styled(LuStar)<{ isStarred: boolean }>`
  */
 
 export default function SitesView() {
-  const { sites, filters, filterLabel, isModalOpen } = useAppSelector((state) => state.dashboard.present);
+  const { sites, filters, filterLabel, isModalOpen } = useAppSelector((state) => state.dashboard);
   const dispatch = useDispatch();
   const isFiltering = Boolean(filters.modifiedWithinDays || filters.pageRange || filters.sizeRange);
 
@@ -306,7 +306,7 @@ function TableRow({ site, isModalOpen }: { site: Site; isModalOpen: boolean }) {
             <Dropdown.open>
               <Icon icon={LuEllipsis} size='md' />
             </Dropdown.open>
-            <Dropdown.drop top={0} shouldHide={isModalOpen}>
+            <Dropdown.drop translateX={-80} translateY={-10} shouldHide={isModalOpen}>
               <DropdownOptions site={site} />
             </Dropdown.drop>
           </Dropdown>

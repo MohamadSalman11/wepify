@@ -1,12 +1,52 @@
+import JSZip from 'jszip';
 import Moveable from 'moveable';
+import cssFile from '../style.css?raw';
 import { MOVEABLE_CONFIG } from './config';
 import { generateInlineStyles } from './generateInlineStyles';
 import { createDomTree, postMessageToParent } from './helpers';
+import { cleanUpHTML, minifyHTML } from './minifyHTML';
 import { changeTarget, state, updateElement } from './model';
-import { insertDragButton, insertElement, positionDragButton, renderElementsToIframe, updateTargetStyle } from './view';
-
+import { insertDragButton, insertElement, positionDragButton, renderElements, updateTargetStyle } from './view';
 const NOT_MOVEABLE_ELEMENTS = new Set(['SECTION', 'LI']);
 const FOCUSABLE_ELEMENTS = new Set(['LI', 'SPAN', 'P', 'A', 'BUTTON', 'INPUT']);
+
+async function controlDownloadZip(site, shouldMinify) {
+  const zip = new JSZip();
+
+  zip.file('style.css', cssFile);
+
+  delete site.id;
+
+  for (const page of site.pages) {
+    const doc = document.implementation.createHTMLDocument(page.name);
+
+    doc.head.innerHTML = document.head.innerHTML;
+    doc.title = page.title || page.name;
+
+    delete page.id;
+
+    renderElements(page.elements, doc);
+
+    const htmlString = doc.documentElement.outerHTML;
+
+    const html = shouldMinify ? await minifyHTML(htmlString) : await cleanUpHTML(htmlString);
+    const fileName = page.isIndex ? 'index.html' : `${page.name.toLowerCase().split(' ').join('_')}.html`;
+
+    zip.file(fileName, html);
+  }
+
+  const siteJsonStr = JSON.stringify(site, null, 2);
+  zip.file('site.json', siteJsonStr);
+
+  const content = await zip.generateAsync({ type: 'blob' });
+
+  const url = URL.createObjectURL(content);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'website.zip';
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 const controlUpdateElement = (updates) => {
   updateElement(updates, generateInlineStyles(updates));
@@ -15,7 +55,7 @@ const controlUpdateElement = (updates) => {
 };
 
 const controlReceivedElements = (elements) => {
-  renderElementsToIframe(elements);
+  renderElements(elements);
 
   const isPreview = document.querySelector('body').dataset.isPreview;
   state.isSitePreviewMode = !isPreview || isPreview === 'false' ? false : true;
@@ -96,6 +136,10 @@ const controlIframeMessage = (event) => {
     case 'SELECTION_CHANGED': {
       controlSelectionChanged(payload);
       break;
+    }
+
+    case 'DOWNLOAD_SITE': {
+      controlDownloadZip(payload.site, payload.shouldMinify);
     }
   }
 };

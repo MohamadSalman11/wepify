@@ -79,6 +79,8 @@ function Sidebar() {
     const siteId = nanoid();
     const page = createNewPage(siteId);
 
+    page.isIndex = true;
+
     const site: Site = {
       id: siteId,
       name: DEFAULT_NAME,
@@ -87,7 +89,7 @@ function Sidebar() {
       createdAt: Date.now(),
       lastModified: Date.now(),
       isStarred: false,
-      pages: [page, { ...page, id: nanoid() }]
+      pages: [page]
     };
 
     dispatch(addSite(site));

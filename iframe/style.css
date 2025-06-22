@@ -1,0 +1,52 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+body {
+  position: relative;
+  margin: 0;
+  height: 100vh;
+  color: '#0d1116';
+  list-style-position: inside;
+}
+
+ul,
+ol {
+  max-width: fit-content;
+  max-height: fit-content;
+}
+
+li {
+  padding: 4px;
+
+  &:focus {
+    outline: 1px solid #0d1116;
+    border-radius: 4px;
+  }
+}
+
+input {
+  outline: none;
+}
+
+span,
+a {
+  display: inline-block;
+}
+
+a {
+  text-decoration: none;
+}

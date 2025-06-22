@@ -86,6 +86,7 @@ const StyledButton = styled.button.withConfig({
     font-weight: var(--${prefix}-btn-font-weight);
     white-space: var(--${prefix}-btn-white-space);
     border-radius: ${pill ? 'var(--border-radius-full)' : `var(--${prefix}-btn-border-radius)`};
+    text-decoration: none;
    ${fullWidth && 'width: 100%;'}
   `}
 
@@ -106,6 +107,9 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: Size;
   fullWidth?: boolean;
   pill?: boolean;
+  asLink?: boolean;
+  href?: string;
+  target?: string;
 }
 
 /**
@@ -118,10 +122,18 @@ function Button({
   size = DEFAULT_SIZE,
   fullWidth = false,
   pill = false,
+  asLink = false,
   ...props
 }: ButtonProps) {
   return (
-    <StyledButton variation={variation} size={size} fullWidth={fullWidth} pill={pill} {...props}>
+    <StyledButton
+      as={asLink ? 'a' : 'button'}
+      variation={variation}
+      size={size}
+      fullWidth={fullWidth}
+      pill={pill}
+      {...props}
+    >
       {children}
     </StyledButton>
   );

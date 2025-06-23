@@ -1,5 +1,7 @@
 import { nanoid } from '@reduxjs/toolkit';
-import { LuClock4, LuFilePlus, LuHouse, LuStar } from 'react-icons/lu';
+import { useRef } from 'react';
+import toast from 'react-hot-toast';
+import { LuClock4, LuFilePlus, LuHouse, LuStar, LuUpload } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -23,7 +25,7 @@ const DEFAULT_DESCRIPTION = 'My modern clean site';
  */
 
 const StyledSidebar = styled.aside`
-  width: 20rem;
+  width: 22rem;
   padding-top: 0.4rem;
 
   button {
@@ -34,6 +36,10 @@ const StyledSidebar = styled.aside`
 
     svg {
       color: var(--color-white);
+    }
+
+    &:nth-of-type(2) {
+      margin-top: 1.2rem;
     }
   }
 
@@ -53,7 +59,7 @@ const StyledSidebar = styled.aside`
       cursor: pointer;
       margin-top: 1.2rem;
       border-radius: var(--border-radius-full);
-      padding: 0.8rem 3.2rem;
+      padding: 0.8rem 2.6rem;
       width: 100%;
 
       &:hover {
@@ -74,6 +80,42 @@ const StyledSidebar = styled.aside`
 function Sidebar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleUploadSiteJson = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const parsedSite = JSON.parse(text);
+
+      if (!parsedSite.pages || !Array.isArray(parsedSite.pages)) {
+        toast.error('Invalid site.json: Missing or malformed "pages".');
+        return;
+      }
+
+      const siteId = nanoid();
+
+      const newSite = {
+        ...parsedSite,
+        id: siteId,
+        pages: parsedSite.pages.map((page) => ({
+          ...page,
+          id: nanoid(),
+          siteId,
+          elements: page.elements || []
+        }))
+      };
+
+      dispatch(addSite(newSite));
+      toast.success('Site imported successfully!');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to import site.json.');
+    }
+  };
 
   function handleDesignNewSite() {
     const siteId = nanoid();
@@ -98,9 +140,26 @@ function Sidebar() {
 
   return (
     <StyledSidebar>
+      <input
+        type='file'
+        accept='.json'
+        ref={fileInputRef}
+        onChange={handleUploadSiteJson}
+        style={{ display: 'none' }}
+      />
       <Button fullWidth={true} onClick={handleDesignNewSite}>
         <Icon icon={LuFilePlus} />
         Design New Site
+      </Button>
+      <Button
+        fullWidth={true}
+        variation='secondary'
+        onClick={() => {
+          fileInputRef.current?.click();
+        }}
+      >
+        <Icon icon={LuUpload} />
+        Import Saved Site
       </Button>
       <ul>
         <li>

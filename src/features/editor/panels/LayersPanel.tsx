@@ -14,8 +14,6 @@ import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { useAppSelector } from '../../../store';
 import type { PageElement } from '../../../types';
-import { flattenElements } from '../../../utils/flattenElements';
-import { selectElement } from '../slices/selectionSlice';
 
 /**
  * Constants
@@ -132,15 +130,14 @@ function LayerNode({
   const page = useAppSelector((state) => state.page);
 
   const handleClick = () => {
-    if (hasChildren) {
-      setExpanded((prev) => !prev);
-    }
-
-    const flatElements = flattenElements(page.elements);
-    const found = flatElements.find((el) => el.id === element.id);
-    if (found) {
-      dispatch(selectElement(found));
-    }
+    // if (hasChildren) {
+    //   setExpanded((prev) => !prev);
+    // }
+    // const flatElements = flattenElements(page.elements);
+    // const found = flatElements.find((el) => el.id === element.id);
+    // if (found) {
+    //   dispatch(selectElement(found));
+    // }
   };
 
   return (

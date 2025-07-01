@@ -11,12 +11,12 @@ const DEFAULT_DIVIDER_WIDTH = 60;
  * Styles
  */
 
-const StyledDivider = styled.span<{ rotate: number; width: number }>`
-  width: ${(props) => props.width}px;
+const StyledDivider = styled.span<{ $rotate: number; $width: number }>`
+  width: ${(props) => props.$width}px;
   height: 1px;
   background-color: var(--color-white-3);
   display: inline-block;
-  transform: rotate(${(props) => props.rotate}deg);
+  transform: rotate(${(props) => props.$rotate}deg);
 `;
 
 /**
@@ -24,7 +24,7 @@ const StyledDivider = styled.span<{ rotate: number; width: number }>`
  */
 
 function Divider({ rotate = DEFAULT_ROTATE, width = DEFAULT_DIVIDER_WIDTH }: { rotate?: number; width?: number }) {
-  return <StyledDivider rotate={rotate} width={width} />;
+  return <StyledDivider $rotate={rotate} $width={width} />;
 }
 
 export default Divider;

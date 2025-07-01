@@ -1,13 +1,11 @@
 import { useRef } from 'react';
+import toast from 'react-hot-toast';
 import { LuImage, LuSearch } from 'react-icons/lu';
-import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
+import { useEditorContext } from '../../../pages/Editor';
 import { useAppSelector } from '../../../store';
 import type { InputChangeEvent } from '../../../types';
-import { flattenElements } from '../../../utils/flattenElements';
-import { useAddElementToPage } from '../hooks/useAddElementToPage';
 import { useImageUpload } from '../hooks/useImageUpload';
-import { selectElement } from '../slices/selectionSlice';
 
 /**
  * Styles
@@ -194,17 +192,21 @@ const SectionTitle = styled.span`
  */
 
 function ElementsPanel() {
-  const page = useAppSelector((state) => state.page);
   const selection = useAppSelector((state) => state.selection.present.selectedElement);
-  const dispatch = useDispatch();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { addElementToPage } = useAddElementToPage();
-  const { handleImageUpload } = useImageUpload();
-  console.log(selection);
+  const { iframeConnection } = useEditorContext();
+  const handleImageUpload = useImageUpload(
+    (result) => iframeConnection.insertElement('image', { src: result }),
+    (message) => toast.error(message)
+  );
+
   const handleSearchElement = (event: InputChangeEvent) => {
     const id = event.target.value;
-    const element = flattenElements(page.elements).find((el) => el.id === id);
-    if (element) dispatch(selectElement(element));
+    iframeConnection.searchElement(id);
+  };
+
+  const handleAddElement = (name: string) => {
+    iframeConnection.insertElement(name);
   };
 
   return (
@@ -214,27 +216,27 @@ function ElementsPanel() {
         <SectionTitle>Add Elements</SectionTitle>
         <SearchBar>
           <LuSearch />
-          <input type='text' placeholder='Search Elements' onChange={handleSearchElement} />
+          <input type='text' placeholder='Search by ID' onChange={handleSearchElement} />
         </SearchBar>
       </div>
       <div>
         <SectionTitle>Layout</SectionTitle>
         <PanelList disabled={selection.name === 'grid' || selection.name === 'list'}>
           <LayoutItem data-grid-active>
-            <PanelBox onClick={() => addElementToPage('section')}>
+            <PanelBox onClick={() => handleAddElement('section')}>
               <span>&nbsp;</span>
               <span>&nbsp;</span>
             </PanelBox>
             <span>Section</span>
           </LayoutItem>
           <LayoutItem>
-            <PanelBox onClick={() => addElementToPage('container')}>
+            <PanelBox onClick={() => handleAddElement('container')}>
               <span>&nbsp;</span>
             </PanelBox>
             <span>Container</span>
           </LayoutItem>
           <LayoutItem>
-            <PanelBox onClick={() => addElementToPage('grid')}>
+            <PanelBox onClick={() => handleAddElement('grid')}>
               <span>&nbsp;</span>
               <span>&nbsp;</span>
               <span>&nbsp;</span>
@@ -243,7 +245,7 @@ function ElementsPanel() {
             <span>Grid</span>
           </LayoutItem>
           <LayoutItem>
-            <PanelBox onClick={() => addElementToPage('list')}>
+            <PanelBox onClick={() => handleAddElement('list')}>
               <span>&nbsp;</span>
               <span>&nbsp;</span>
               <span>&nbsp;</span>
@@ -251,7 +253,7 @@ function ElementsPanel() {
             <span>List</span>
           </LayoutItem>
           <LayoutItem disabled={selection.name !== 'grid'} data-grid-active>
-            <PanelBox onClick={() => addElementToPage('gridItem')}>
+            <PanelBox onClick={() => handleAddElement('gridItem')}>
               <span>&nbsp;</span>
               <span>&nbsp;</span>
               <span>&nbsp;</span>
@@ -260,7 +262,7 @@ function ElementsPanel() {
             <span>Grid Item</span>
           </LayoutItem>
           <LayoutItem disabled={selection.name !== 'list'} data-list-active>
-            <PanelBox onClick={() => addElementToPage('listItem')}>
+            <PanelBox onClick={() => handleAddElement('listItem')}>
               <span>&nbsp;</span>
               <span>&nbsp;</span>
               <span>&nbsp;</span>
@@ -273,25 +275,25 @@ function ElementsPanel() {
       <div>
         <SectionTitle>Text</SectionTitle>
         <PanelList disabled={selection.name === 'grid' || selection.name === 'list'}>
-          <TextItem onClick={() => addElementToPage('heading')}>
+          <TextItem onClick={() => handleAddElement('heading')}>
             <PanelBox>H</PanelBox>
             <span>Heading</span>
           </TextItem>
-          <TextItem onClick={() => addElementToPage('text')}>
+          <TextItem onClick={() => handleAddElement('text')}>
             <PanelBox>Text</PanelBox>
             <span>Text Block</span>
           </TextItem>
-          <TextItem onClick={() => addElementToPage('link')}>
+          <TextItem onClick={() => handleAddElement('link')}>
             <PanelBox>Link</PanelBox>
             <span>Text Link</span>
           </TextItem>
-          <TextItem onClick={() => addElementToPage('button')}>
+          <TextItem onClick={() => handleAddElement('button')}>
             <PanelBox>
               <span>Button</span>
             </PanelBox>
             <span>Button</span>
           </TextItem>
-          <TextItem onClick={() => addElementToPage('input')}>
+          <TextItem onClick={() => handleAddElement('input')}>
             <PanelBox>
               <span>&nbsp;</span>
             </PanelBox>

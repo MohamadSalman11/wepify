@@ -47,6 +47,8 @@ const variables = css`
     --color-white-2: ${COLOR_WHITE_2};
     --color-white-3: ${COLOR_WHITE_3};
 
+    --box-shadow: rgba(52, 60, 68, 0.24) 0px 3px 8px;
+
     /* Body */
     --body-font-size: var(--font-size);
     --body-color: var(--color-black-light);
@@ -75,7 +77,10 @@ const variables = css`
     --border-radius-full: 999px;
     --border-base: 1px solid var(--color-white-3);
 
-    --zindex-base: 999;
+    --zindex-base: 10;
+    --zindex-preview-close-button: 100;
+    --zindex-modal: 1000;
+    --zindex-loading-screen: 1100;
     --transition-base: all 0.2s linear;
 
     /* Buttons */

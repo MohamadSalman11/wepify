@@ -1,4 +1,6 @@
-export const MOVEABLE_CONFIG = {
+import type { MoveableProps } from 'moveable';
+
+export const MOVEABLE_CONFIG: MoveableProps = {
   target: null,
   draggable: true,
   dragTarget: null,

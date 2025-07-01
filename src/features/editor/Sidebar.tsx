@@ -1,10 +1,13 @@
 import { LuCloudUpload, LuCodeXml, LuFile, LuLayers3, LuLogOut, LuPlus } from 'react-icons/lu';
+import { useDispatch } from 'react-redux';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Divider from '../../components/divider';
 import Icon from '../../components/Icon';
 import Logo from '../../components/Logo';
 import { Path } from '../../constant';
+import { setIsLoading } from '../dashboard/slices/dashboardSlice';
+import { clearSelection } from './slices/selectionSlice';
 
 /**
  * Styles
@@ -67,6 +70,7 @@ const LeaveButton = styled.button`
 
 function Sidebar() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   return (
     <StyledSidebar>
@@ -101,7 +105,15 @@ function Sidebar() {
       </nav>
       <LeaveButton>
         <Link to={Path.Dashboard}>
-          <Icon onClick={() => navigate(Path.Dashboard)} icon={LuLogOut} hover={true} />
+          <Icon
+            onClick={() => {
+              dispatch(setIsLoading(true));
+              dispatch(clearSelection());
+              navigate(Path.Dashboard);
+            }}
+            icon={LuLogOut}
+            hover={true}
+          />
         </Link>
       </LeaveButton>
     </StyledSidebar>

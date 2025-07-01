@@ -1,40 +1,16 @@
-import { type RefObject, useCallback, useEffect, useState } from 'react';
+import { MessageFromIframe, MessageToIframe, type MessageData, type PageElement, type SitePage } from '@shared/types';
+import { useCallback, useEffect, useState, type RefObject } from 'react';
 import { useDispatch } from 'react-redux';
-import { ElementNames, TARGET_ORIGIN } from '../../../constant';
-import type { PageElement, SitePage } from '../../../types';
-import { flattenElements } from '../../../utils/flattenElements';
-import { updateElement } from '../slices/pageSlice';
-import { selectElement, setLastSelectedSection, updateSelectElement } from '../slices/selectionSlice';
+import { useParams } from 'react-router-dom';
+import { TARGET_ORIGIN } from '../../../constant';
+import { saveElementInStorage } from '../../dashboard/helpers/saveElementInStorage';
+import { addElement } from '../slices/pageSlice';
+import { selectElement, updateSelectElement } from '../slices/selectionSlice';
 
-type Message =
-  | { type: 'IFRAME_READY' }
-  | { type: 'ELEMENT_CLICKED'; payload: { id: string } }
-  | { type: 'UPDATE_POSITION'; payload: { id: string; left: number; top: number } }
-  | { type: 'UPDATE_SIZE'; payload: { id: string; width: number; height: number } }
-  | { type: 'UPDATE_TRANSFORM'; payload: { id: string; transform: string } }
-  | { type: 'UPDATE_ITEM_CONTENT'; payload: { id: string; content: string } };
-
-enum MessageType {
-  IframeReady = 'IFRAME_READY',
-  ElementClicked = 'ELEMENT_CLICKED',
-  UpdatePosition = 'UPDATE_POSITION',
-  UpdateSize = 'UPDATE_SIZE',
-  UpdateTransform = 'UPDATE_TRANSFORM',
-  UpdateContent = 'UPDATE_ITEM_CONTENT',
-  ReceiveElements = 'RECEIVE_ELEMENTS',
-  UpdateElement = 'UPDATE_ELEMENT',
-  InsertElement = 'INSERT_ELEMENT',
-  DeleteElement = 'DELETE_ELEMENT',
-  SelectionChanged = 'SELECTION_CHANGED',
-  DownloadSite = 'DOWNLOAD_SITE'
-}
-
-export const useIframeConnection = (
-  iframeRef: RefObject<HTMLIFrameElement | null>,
-  elements: PageElement[],
-  isPreview: boolean
-) => {
+export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | null>) => {
   const dispatch = useDispatch();
+  const { page: pageParam } = useParams();
+
   const [iframeReady, setIframeReady] = useState(false);
 
   const postMessageToIframe = useCallback(
@@ -48,52 +24,39 @@ export const useIframeConnection = (
   );
 
   useEffect(() => {
-    const flatElements = flattenElements(elements);
-
-    if (isPreview && iframeRef.current?.contentDocument?.body) {
-      iframeRef.current.contentDocument.body.dataset.isPreview = 'true';
-    }
-
-    const handleMessage = (event: MessageEvent) => {
-      const data: Message = event.data;
+    const handleMessage = async (event: MessageEvent) => {
+      const data: MessageData = event.data;
 
       switch (data.type) {
-        case MessageType.IframeReady: {
+        case MessageFromIframe.IframeReady: {
           setIframeReady(true);
           break;
         }
-
-        case MessageType.ElementClicked: {
-          const el = flatElements.find((el) => el.id === data.payload.id);
-
-          if (el) dispatch(selectElement(el));
-          if (el.name === ElementNames.Section) dispatch(setLastSelectedSection(el.id));
+        case MessageFromIframe.SelectionChanged: {
+          dispatch(selectElement(data.payload));
           break;
         }
-        case MessageType.UpdatePosition: {
-          const { id, top, left } = data.payload;
-          const position = { left, top };
-
-          dispatch(updateSelectElement(position));
-          dispatch(updateElement({ id, updates: position }));
+        case MessageFromIframe.UpdateElement: {
+          const { id, fields } = data.payload;
+          dispatch(updateSelectElement(fields));
+          await saveElementInStorage(pageParam, id, (element) => {
+            Object.assign(element, fields);
+          });
           break;
         }
-        case MessageType.UpdateSize: {
-          const { id, width, height } = data.payload;
-          const size = { width, height };
-
-          dispatch(updateSelectElement(size));
-          dispatch(updateElement({ id, updates: size }));
+        case MessageFromIframe.InsertElement: {
+          const { parentId, element } = data.payload;
+          dispatch(addElement(element));
+          await saveElementInStorage(pageParam, parentId, (parent) => {
+            parent.children?.push(element);
+          });
           break;
         }
-        case MessageType.UpdateTransform: {
-          const { id, transform } = data.payload;
-          dispatch(updateElement({ id, updates: { transform } }));
-          break;
-        }
-        case MessageType.UpdateContent: {
-          const { id, content } = data.payload;
-          dispatch(updateElement({ id, updates: { content } }));
+        case MessageFromIframe.ElementDeleted: {
+          const { targetId, parentId } = data.payload;
+          await saveElementInStorage(pageParam, parentId, (parent) => {
+            parent.children = parent.children.filter((el) => el.id !== targetId);
+          });
           break;
         }
       }
@@ -101,57 +64,62 @@ export const useIframeConnection = (
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [dispatch, elements, isPreview, iframeRef]);
+  }, [dispatch, iframeRef, pageParam]);
 
-  const sendElementsToIframe = useCallback(
-    (elements: PageElement[]) => {
-      postMessageToIframe({ type: MessageType.ReceiveElements, payload: { elements } });
+  const sendElements = useCallback(
+    (elements: PageElement[], isPreview: boolean) => {
+      postMessageToIframe({ type: MessageToIframe.ReceiveElements, payload: { isPreview, elements } });
     },
     [postMessageToIframe]
   );
 
-  const updateElementInIFrame = useCallback(
+  const insertElement = useCallback(
+    (name: string, additionalProps?: Record<string, any>) => {
+      postMessageToIframe({ type: MessageToIframe.InsertElement, payload: { name, additionalProps } });
+    },
+    [postMessageToIframe]
+  );
+
+  const updateElement = useCallback(
     (updates: Record<string, any>) => {
-      postMessageToIframe({ type: MessageType.UpdateElement, payload: { updates } });
+      postMessageToIframe({ type: MessageToIframe.UpdateElement, payload: { updates } });
     },
     [postMessageToIframe]
   );
 
-  const insertElementInIFrame = useCallback(
-    (newElement: PageElement) => {
-      postMessageToIframe({ type: MessageType.InsertElement, payload: { newElement } });
-    },
-    [postMessageToIframe]
-  );
-
-  const deleteElementInIframe = useCallback(
-    (id: string) => {
-      postMessageToIframe({ type: MessageType.DeleteElement, payload: { id } });
-    },
-    [postMessageToIframe]
-  );
+  const deleteElement = useCallback(() => {
+    postMessageToIframe({ type: MessageToIframe.DeleteElement });
+  }, [postMessageToIframe]);
 
   const handleSelectionChange = useCallback(
     (id: string) => {
-      postMessageToIframe({ type: MessageType.SelectionChanged, payload: id });
+      postMessageToIframe({ type: MessageToIframe.SelectionChanged, payload: id });
+    },
+    [postMessageToIframe]
+  );
+
+  const searchElement = useCallback(
+    (id: string) => {
+      postMessageToIframe({ type: MessageToIframe.SearchElement, payload: id });
     },
     [postMessageToIframe]
   );
 
   const downloadSite = useCallback(
     (site: SitePage[], shouldMinify: boolean) => {
-      postMessageToIframe({ type: MessageType.DownloadSite, payload: { site, shouldMinify } });
+      postMessageToIframe({ type: MessageToIframe.DownloadSite, payload: { site, shouldMinify } });
     },
     [postMessageToIframe]
   );
 
   return {
     iframeReady,
-    sendElementsToIframe,
-    updateElementInIFrame,
-    insertElementInIFrame,
+    sendElements,
+    updateElement,
+    insertElement,
     handleSelectionChange,
-    deleteElementInIframe,
+    searchElement,
+    deleteElement,
     downloadSite
   };
 };

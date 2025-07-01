@@ -1,11 +1,31 @@
-import localforage from 'localforage';
-import { useEffect, useRef } from 'react';
+import type { Site } from '@shared/types';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import LoadingScreen from '../../components/LoadingScreen';
-import { LoadingMessages } from '../../constant';
-import { useLoadSitesFromStorage } from '../../hooks/useLoadSitesFromStorage';
+import { LoadingMessages, Path } from '../../constant';
+import { useLoadFromStorage } from '../../hooks/useLoadFromStorage';
+import { useEditorContext } from '../../pages/Editor';
 import { useAppSelector } from '../../store';
-import { useCanvasSync } from './hooks/useCanvasSync';
+import { getRandomDuration } from '../../utils/getRandomDuration';
+import { isTyping } from '../../utils/isTyping';
+import { setIsLoading as setDashboardIsLoading } from '../dashboard/slices/dashboardSlice';
+import { setIsLoading, setSite } from './slices/editorSlice';
+import { setHeight, setPage, setWidth } from './slices/pageSlice';
+import { selectElement } from './slices/selectionSlice';
+
+/**
+ * Constants
+ */
+
+const loadingDuration = getRandomDuration(1.5, 3.5);
+const IFRAME_SRC = '/iframe/iframe.html';
+const IFRAME_TITLE = 'Site Preview';
+const SIZE_FILL = '100%';
+const SIZE_SCREEN = '100vh';
+const DELETE_KEY = 'Backspace';
+const DEFAULT_SECTION_ID = 'section-1';
 
 /**
  * Styles
@@ -30,37 +50,90 @@ const StyledCanvas = styled.div`
  * Component definition
  */
 
-function Canvas({ isPreview }: { isPreview: boolean }) {
-  const { width, height, scale } = useAppSelector((state) => state.page);
-  const { sites } = useAppSelector((state) => state.dashboard);
-  const { isLoading, loadingDuration, targetDownloadSite } = useAppSelector((state) => state.editor);
-
+function Canvas() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const canvasRef = useRef<HTMLDivElement>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const { page: pageParam } = useParams();
+  const { iframeConnection, iframeRef, isPreview } = useEditorContext();
+  const { width, height, scale, elements } = useAppSelector((state) => state.page);
+  const { isLoading } = useAppSelector((state) => state.editor);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const [isError, setIsError] = useState(false);
 
-  useCanvasSync(iframeRef, canvasRef, sites, isPreview, loadingDuration, targetDownloadSite);
+  const onLoaded = useCallback(
+    (site: Site | null) => {
+      if (!site) return setIsError(true);
 
-  useLoadSitesFromStorage(loadingDuration);
+      const page = site?.pages.find((p) => p.id === pageParam);
+
+      if (site && page && canvasRef.current) {
+        dispatch(setWidth(canvasRef.current.clientWidth));
+        dispatch(setHeight(canvasRef.current.clientHeight));
+        dispatch(setSite(site));
+        dispatch(setPage(page));
+        dispatch(selectElement(page.elements[0]));
+        setIsDataLoaded(true);
+        setTimeout(() => dispatch(setIsLoading(false)), 100);
+      } else {
+        setIsError(true);
+      }
+    },
+    [canvasRef, dispatch, pageParam, setIsDataLoaded, setIsError]
+  );
+
+  useLoadFromStorage<Site>({
+    storageKey: 'site',
+    loadingDuration,
+    onLoaded
+  });
 
   useEffect(() => {
-    if (sites.length > 0) {
-      localforage.setItem('sites', sites);
+    if (iframeConnection.iframeReady && isDataLoaded) {
+      iframeConnection.sendElements(elements, isPreview);
     }
-  }, [sites]);
+  }, [iframeConnection, isDataLoaded]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === DELETE_KEY && !isTyping(iframeRef)) {
+        iframeConnection.deleteElement();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    const iframeDoc = iframeRef.current?.contentWindow;
+
+    iframeDoc?.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      iframeDoc?.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [iframeConnection, iframeRef]);
 
   return (
     <StyledCanvas ref={canvasRef}>
       <iframe
         ref={iframeRef}
-        src='/iframe/iframe.html'
-        title='Site Preview'
+        src={IFRAME_SRC}
+        title={IFRAME_TITLE}
         style={{
-          width: width === undefined || isPreview ? '100%' : `${width}px`,
-          height: height === undefined || isPreview ? '100vh' : `${height}px`,
+          width: width === undefined || isPreview ? SIZE_FILL : `${width}px`,
+          height: height === undefined || isPreview ? SIZE_SCREEN : `${height}px`,
           transform: `scale(${scale / 100})`
         }}
       />
-      {isLoading && <LoadingScreen loadingText={isPreview ? LoadingMessages.SitePreview : LoadingMessages.Editor} />}
+      {isLoading && (
+        <LoadingScreen
+          handler={() => {
+            dispatch(setDashboardIsLoading(true));
+            navigate(Path.Dashboard);
+          }}
+          buttonText={isError ? 'Back to Dashboard' : ''}
+          text={isError ? LoadingMessages.Error : isPreview ? LoadingMessages.SitePreview : LoadingMessages.Editor}
+        />
+      )}
     </StyledCanvas>
   );
 }

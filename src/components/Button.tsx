@@ -5,10 +5,10 @@ import styled, { css, type RuleSet } from 'styled-components';
  * Constants
  */
 
-const NON_DOM_PROPS = new Set(['variation', 'size', 'fullWidth', 'pill', 'outline', 'prefix']);
-
 const DEFAULT_VARIATION = 'primary';
 const DEFAULT_SIZE = 'md';
+const ELEMENT_LINK = 'a';
+const ELEMENT_BUTTON = 'button';
 
 /**
  * Styles
@@ -66,15 +66,13 @@ const sizes: Record<Size, RuleSet> = {
   `
 };
 
-const StyledButton = styled.button.withConfig({
-  shouldForwardProp: (prop) => !NON_DOM_PROPS.has(prop)
-})<{
-  variation: Variation;
-  size: Size;
-  fullWidth: boolean;
-  pill: boolean;
+const StyledButton = styled.button<{
+  $variation: Variation;
+  $size: Size;
+  $fullWidth: boolean;
+  $pill: boolean;
 }>`
-  ${({ theme: { prefix }, fullWidth, pill }) => css`
+  ${({ theme: { prefix }, $fullWidth, $pill }) => css`
     --${prefix}-btn-transition: var(--btn-transition);
     --${prefix}-btn-border-radius: var(--btn-border-radius);
     --${prefix}-btn-font-weight: var(--btn-font-weight);
@@ -85,13 +83,13 @@ const StyledButton = styled.button.withConfig({
     transition: var(--${prefix}-btn-transition);
     font-weight: var(--${prefix}-btn-font-weight);
     white-space: var(--${prefix}-btn-white-space);
-    border-radius: ${pill ? 'var(--border-radius-full)' : `var(--${prefix}-btn-border-radius)`};
+    border-radius: ${$pill ? 'var(--border-radius-full)' : `var(--${prefix}-btn-border-radius)`};
     text-decoration: none;
-   ${fullWidth && 'width: 100%;'}
+   ${$fullWidth && 'width: 100%;'}
   `}
 
-  ${({ size }) => sizes[size]}
-  ${({ variation }) => variations[variation]}
+  ${({ $size }) => sizes[$size]}
+  ${({ $variation }) => variations[$variation]}
 `;
 
 /**
@@ -127,11 +125,11 @@ function Button({
 }: ButtonProps) {
   return (
     <StyledButton
-      as={asLink ? 'a' : 'button'}
-      variation={variation}
-      size={size}
-      fullWidth={fullWidth}
-      pill={pill}
+      as={asLink ? ELEMENT_LINK : ELEMENT_BUTTON}
+      $variation={variation}
+      $size={size}
+      $fullWidth={fullWidth}
+      $pill={pill}
       {...props}
     >
       {children}

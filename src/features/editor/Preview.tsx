@@ -14,7 +14,7 @@ const ClosePreviewButton = styled(Button).attrs({ size: 'sm', pill: true })`
   position: fixed;
   bottom: 2%;
   left: 1%;
-  z-index: 99999;
+  z-index: var(--zindex-preview-close-button);
 `;
 
 /**
@@ -35,7 +35,7 @@ function Preview() {
   return (
     <>
       <ClosePreviewButton onClick={handleClose}>Close Preview</ClosePreviewButton>
-      <Canvas isPreview={true} />
+      <Canvas />
     </>
   );
 }

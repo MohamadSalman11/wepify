@@ -1,10 +1,10 @@
 import { useRef } from 'react';
+import toast from 'react-hot-toast';
 import { LuTrash } from 'react-icons/lu';
 import Masonry from 'react-masonry-css';
 import styled from 'styled-components';
 import Button from '../../../components/Button';
-import { useAppSelector } from '../../../store';
-import { flattenElements } from '../../../utils/flattenElements';
+import { useEditorContext } from '../../../pages/Editor';
 import { useImageUpload } from '../hooks/useImageUpload';
 
 /**
@@ -59,7 +59,6 @@ const MediaItem = styled.div`
     top: 8px;
     right: 8px;
     transform: translateY(-4rem);
-    z-index: 10;
     transition: transform 0.2s ease-in-out;
     cursor: pointer;
     color: var(--color-white);
@@ -75,10 +74,14 @@ const MediaItem = styled.div`
  */
 
 function UploadsPanel() {
-  const page = useAppSelector((state) => state.page);
-  const images = flattenElements(page.elements).filter((el) => el.name === 'img');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { handleImageUpload } = useImageUpload();
+  const { iframeConnection } = useEditorContext();
+  const handleImageUpload = useImageUpload(
+    (result) => {
+      iframeConnection.insertElement('image', { src: result });
+    },
+    (message) => toast.error(message)
+  );
 
   return (
     <>

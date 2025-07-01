@@ -1,17 +1,13 @@
 import { nanoid } from '@reduxjs/toolkit';
-import { ELEMENTS_TEMPLATE } from '../constant';
-import type { SitePage } from '../types';
+import { ELEMENTS_TEMPLATE } from '@shared/constants';
+import type { SitePage } from '@shared/types';
 
 const DEFAULT_NAME = 'Untitled';
-const DEFAULT_DESCRIPTION = 'My modern clean site';
 
-export const createNewPage = (siteId: string): SitePage => ({
+export const createNewPage = (): SitePage => ({
   id: nanoid(),
-  siteId,
   name: DEFAULT_NAME,
   title: DEFAULT_NAME,
-  siteName: DEFAULT_NAME,
-  siteDescription: DEFAULT_DESCRIPTION,
   isIndex: false,
   elements: [{ ...ELEMENTS_TEMPLATE['section'], id: 'section-1' }]
 });

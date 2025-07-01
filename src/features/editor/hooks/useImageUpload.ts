@@ -1,32 +1,38 @@
+import type { InputChangeEvent } from '@shared/types';
 import toast from 'react-hot-toast';
 import { TOAST_DURATION } from '../../../constant';
-import type { InputChangeEvent } from '../../../types';
-import { useAddElementToPage } from './useAddElementToPage';
 
 const MAX_SIZE_IN_BYTES = 2 * 1024 * 1024;
 
-export const useImageUpload = () => {
-  const { addElementToPage } = useAddElementToPage();
-
+export const useImageUpload = (
+  onLoaded: (result: FileReader['result']) => void,
+  onError?: (message: string) => void
+) => {
   const handleImageUpload = (event: InputChangeEvent) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     if (file.size > MAX_SIZE_IN_BYTES) {
-      toast.error('Image size should not exceed 2MB', { duration: TOAST_DURATION });
+      const errorMessage = 'Image size should not exceed 2MB';
+      toast.error(errorMessage, { duration: TOAST_DURATION });
       event.target.value = '';
       return;
     }
 
     const reader = new FileReader();
-
     reader.addEventListener('load', () => {
-      addElementToPage('image', { src: reader.result });
+      onLoaded(reader.result);
+      event.target.value = '';
+    });
+    reader.addEventListener('error', () => {
+      const errorMessage = 'Failed to read image file';
+      onError?.(errorMessage);
+      toast.error(errorMessage, { duration: TOAST_DURATION });
       event.target.value = '';
     });
 
     reader.readAsDataURL(file);
   };
 
-  return { handleImageUpload };
+  return handleImageUpload;
 };

@@ -25,6 +25,7 @@ export default tseslint.config(
       'unicorn/filename-case': 'off',
       'unicorn/prevent-abbreviations': 'off',
       'unicorn/no-null': 'off',
+      'unicorn/prefer-string-replace-all': 'off',
 
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }]

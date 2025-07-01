@@ -1,26 +1,55 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { getRandomDuration } from '../../../utils/getRandomDuration';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import type { Site, SitePage } from '@shared/types';
 
 interface EditorState {
+  site: Site;
   isLoading: boolean;
-  loadingDuration: number;
   targetDownloadSite: { id: string; shouldMinify: boolean };
 }
 
 const initialState: EditorState = {
-  isLoading: true,
-  loadingDuration: getRandomDuration(1.5, 3.5),
-  targetDownloadSite: {
+  site: {
     id: '',
-    shouldMinify: false
-  }
+    name: '',
+    description: '',
+    pagesCount: 0,
+    createdAt: Date.now(),
+    lastModified: Date.now(),
+    isStarred: false,
+    pages: []
+  },
+  isLoading: true,
+  targetDownloadSite: { id: '', shouldMinify: false }
 };
 
 const editorSlice = createSlice({
   name: 'editor',
   initialState,
   reducers: {
-    setIsLoading(state, action) {
+    setSite(state, action: PayloadAction<Site>) {
+      state.site = action.payload;
+      state.site.lastModified = Date.now();
+    },
+    addPage(state, action: PayloadAction<SitePage>) {
+      state.site.pages.push(action.payload);
+    },
+    updatePageInfo(state, action) {
+      const page = state.site.pages.find((page) => page.id === action.payload.id);
+
+      if (page) {
+        page.name = action.payload.name;
+        page.title = action.payload.title;
+      }
+    },
+    deletePage(state, action) {
+      state.site.pages = state.site.pages.filter((page) => page.id !== action.payload);
+    },
+    setIsIndexPage(state, action) {
+      state.site.pages.forEach((page) => {
+        page.isIndex = page.id === action.payload;
+      });
+    },
+    setIsLoading(state, action: PayloadAction<boolean>) {
       state.isLoading = action.payload;
     },
     setTargetDownloadSite(state, action) {
@@ -30,6 +59,7 @@ const editorSlice = createSlice({
   }
 });
 
-export const { setIsLoading, setTargetDownloadSite } = editorSlice.actions;
+export const { setSite, addPage, updatePageInfo, deletePage, setIsIndexPage, setIsLoading, setTargetDownloadSite } =
+  editorSlice.actions;
 
 export default editorSlice.reducer;

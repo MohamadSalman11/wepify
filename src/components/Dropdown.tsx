@@ -2,6 +2,7 @@ import {
   Children,
   cloneElement,
   createContext,
+  isValidElement,
   useContext,
   useEffect,
   useRef,
@@ -13,36 +14,39 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { useDispatch } from 'react-redux';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { setModalIsOpen } from '../features/dashboard/slices/dashboardSlice';
 import useOutsideClick from '../hooks/useOutsideClick';
+
+const DEFAULT_TRANSLATE_X = 0;
+const DEFAULT_TRANSLATE_Y = 0;
 
 /**
  * Styles
  */
 
 const StyledDropdown = styled.ul<{
-  shouldHide: boolean;
-  top: number;
-  left: number;
-  translateX?: number;
-  translateY?: number;
+  $isHidden: boolean;
+  $top: number;
+  $left: number;
+  $translateX?: number;
+  $translateY?: number;
 }>`
   position: absolute;
-  top: ${(props) => props.top}px;
-  left: ${(props) => props.left}px;
+  top: ${(props) => props.$top}px;
+  left: ${(props) => props.$left}px;
   width: 20rem;
   font-size: 1.4rem;
   border-radius: var(--border-radius-sm);
-  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  box-shadow: var(--box-shadow);
   overflow: hidden;
-  z-index: 999;
+  z-index: var(--zindex-base);
   background-color: var(--color-white);
-  transform: translate(${(props) => props.translateX ?? 0}%, ${(props) => props.translateY ?? 0}%);
+  transform: translate(${(props) => props.$translateX ?? 0}%, ${(props) => props.$translateY ?? 0}%);
 
   ${(props) =>
-    props.shouldHide &&
-    `
+    props.$isHidden &&
+    css`
       opacity: 0;
       pointer-events: none;
       visibility: hidden;
@@ -86,7 +90,7 @@ const DropdownContext = createContext<DropdownContextType | null>(null);
 
 const useDropdownContext = () => {
   const context = useContext(DropdownContext);
-  if (!context) throw new Error('Modal components must be used within <Dropdown>');
+  if (!context) throw new Error('Dropdown components must be used within <Dropdown>');
   return context;
 };
 
@@ -116,14 +120,14 @@ function Open({ children }: { children: ClickableElement }) {
 
 function Drop({
   children,
-  translateX = 0,
-  translateY = 0,
-  shouldHide
+  isHidden = false,
+  translateX = DEFAULT_TRANSLATE_X,
+  translateY = DEFAULT_TRANSLATE_Y
 }: {
   children: ReactNode;
+  isHidden?: boolean;
   translateX?: number;
   translateY?: number;
-  shouldHide: boolean;
 }) {
   const { isOpen, setIsOpen, toggleRef } = useDropdownContext();
   const dropdownRef = useOutsideClick<HTMLUListElement>(() => setIsOpen(false), undefined, toggleRef);
@@ -142,22 +146,29 @@ function Drop({
   if (!isOpen) return null;
 
   const childrenWithOnClick = Children.map(children, (child) => {
-    return cloneElement(child, {
-      onClick: (e: React.MouseEvent) => {
-        if (child.props.onClick) child.props.onClick(e);
-        setIsOpen(false);
+    if (!isValidElement(child)) return child;
+
+    const typedChild = child as ReactElement<any>;
+    const originalOnClick = typedChild.props?.onClick;
+
+    const handleClick = (event: MouseEvent) => {
+      if (typeof originalOnClick === 'function') {
+        originalOnClick(event);
       }
-    });
+      setIsOpen(false);
+    };
+
+    return cloneElement(typedChild, { onClick: handleClick });
   });
 
   return createPortal(
     <StyledDropdown
       ref={dropdownRef}
-      top={position.top}
-      left={position.left}
-      shouldHide={shouldHide}
-      translateX={translateX}
-      translateY={translateY}
+      $top={position.top}
+      $left={position.left}
+      $isHidden={isHidden}
+      $translateX={translateX}
+      $translateY={translateY}
     >
       {childrenWithOnClick}
     </StyledDropdown>,

@@ -55,53 +55,53 @@ const StyledSearchBox = styled.div`
     font-weight: 400;
     font-size: 2.2rem;
   }
+`;
 
-  & > ul {
-    display: flex;
-    column-gap: 2.4rem;
-    justify-content: center;
-    align-items: center;
-    margin-top: 1.6rem;
+const FilterToolbar = styled.ul`
+  display: flex;
+  column-gap: 2.4rem;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1.6rem;
 
-    & > li {
-      position: relative;
-
-      & > span {
-        display: flex;
-        column-gap: 0.8rem;
-        justify-content: center;
-        align-items: center;
-        transition: var(--transition-base);
-        cursor: pointer;
-        border-radius: var(--border-radius-full);
-        background-color: var(--color-gray-light-3);
-        padding: 0.8rem 1.2rem;
-        font-size: 1.2rem;
-
-        &:hover {
-          background-color: var(--color-gray-light-2);
-        }
-
-        svg:nth-child(1) {
-          font-size: 1.8rem;
-        }
-      }
-    }
+  & > li {
+    position: relative;
   }
 `;
 
-const Searchbar = styled.div<{ isSearchResult: boolean }>`
+const FilterButton = styled.span`
+  display: flex;
+  column-gap: 0.8rem;
+  justify-content: center;
+  align-items: center;
+  transition: var(--transition-base);
+  cursor: pointer;
+  border-radius: var(--border-radius-full);
+  background-color: var(--color-gray-light-3);
+  padding: 0.8rem 1.2rem;
+  font-size: 1.2rem;
+
+  &:hover {
+    background-color: var(--color-gray-light-2);
+  }
+
+  svg:nth-child(1) {
+    font-size: 1.8rem;
+  }
+`;
+
+const Searchbar = styled.div<{ $isSearchResult: boolean }>`
   display: flex;
   align-items: center;
   position: relative;
   margin-top: 2.4rem;
 
   input {
-    border-radius: ${({ isSearchResult }) =>
-      isSearchResult ? 'var(--border-radius-xxl)' : 'var(--border-radius-full)'};
+    border-radius: ${({ $isSearchResult }) =>
+      $isSearchResult ? 'var(--border-radius-xxl)' : 'var(--border-radius-full)'};
 
-    ${({ isSearchResult }) =>
-      isSearchResult &&
+    ${({ $isSearchResult }) =>
+      $isSearchResult &&
       css`
         border-bottom-right-radius: 0;
         border-bottom-left-radius: 0;
@@ -118,71 +118,70 @@ const Searchbar = styled.div<{ isSearchResult: boolean }>`
     position: absolute;
     font-size: 2rem;
   }
+`;
 
-  svg.search-icon {
-    left: 3%;
-  }
+const SearchIcon = styled(LuSearch)`
+  left: 3%;
+`;
 
-  svg.clear-icon {
-    right: 2%;
-    cursor: pointer;
-  }
+const ClearIcon = styled(LuX)`
+  right: 2%;
+  cursor: pointer;
 `;
 
 const StyledSearchContainer = styled.ul`
   position: absolute;
-  top: 8.5rem;
+  top: 10rem;
   left: 0;
   width: 100%;
   max-height: 40rem;
   background-color: var(--color-white-2);
-  z-index: 999;
+  z-index: var(--zindex-base);
   padding: 1.2rem;
   border-radius: var(--border-radius-xxl);
   border-top-right-radius: 0;
   border-top-left-radius: 0;
   border-top: 1px solid var(--color-gray-light-2);
   overflow-y: auto;
+`;
 
-  & > p {
-    margin: 1.6rem;
+const NoResultsText = styled.p`
+  margin: 1.6rem;
+`;
+
+const SearchResultList = styled.ul`
+  display: flex;
+  row-gap: 1.2rem;
+  flex-direction: column;
+  width: 100%;
+`;
+
+const SearchResultItem = styled.li`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: var(--transition-base);
+  cursor: pointer;
+  border-radius: var(--border-radius-xl);
+  padding: 1.2rem;
+
+  &:hover {
+    background-color: var(--color-gray-light);
   }
+`;
 
-  ul {
+const ItemContent = styled.div`
+  display: flex;
+  column-gap: 1.2rem;
+  align-items: center;
+
+  & div {
     display: flex;
-    row-gap: 1.2rem;
     flex-direction: column;
-    width: 100%;
-  }
+    justify-content: flex-start;
 
-  li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: var(--transition-base);
-    cursor: pointer;
-    border-radius: var(--border-radius-xl);
-
-    padding: 1.2rem;
-
-    &:hover {
-      background-color: var(--color-gray-light);
-    }
-
-    & > div {
-      display: flex;
-      column-gap: 1.2rem;
-      align-items: center;
-
-      & div {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-
-        span {
-          width: fit-content;
-        }
-      }
+    span {
+      width: fit-content;
     }
   }
 `;
@@ -224,10 +223,10 @@ export default function SearchBox() {
   return (
     <StyledSearchBox>
       <h1>Welcome to Wepify</h1>
-      <Searchbar isSearchResult={isSearchResultVisible}>
-        <LuSearch className='search-icon' />
+      <Searchbar $isSearchResult={isSearchResultVisible}>
+        <SearchIcon />
         <input ref={inputRef} type='text' placeholder='Search in Wepify' onChange={handleSearch} />
-        {isSearching && <LuX className='clear-icon' onClick={clearSearch} />}
+        {isSearching && <ClearIcon onClick={clearSearch} />}
       </Searchbar>
       {isSearchResultVisible && <SearchResults matchedSites={matchedSites} />}
       <FilterList />
@@ -242,27 +241,27 @@ function SearchResults({ matchedSites }: { matchedSites: Site[] }) {
   return (
     <StyledSearchContainer>
       {isNoResult ? (
-        <p>No items match your search</p>
+        <NoResultsText>No items match your search</NoResultsText>
       ) : (
-        <ul>
+        <SearchResultList>
           {matchedSites.map((site) => (
             <>
-              <li
+              <SearchResultItem
                 key={site.id}
                 onClick={() => navigate(buildPath(Path.Editor, { site: site.id, page: site.pages[0].id }))}
               >
-                <div>
+                <ItemContent>
                   <Icon icon={LuLayoutTemplate} />
                   <div>
                     <span>{site.name}</span>
                     <p>{site.description}</p>
                   </div>
-                </div>
+                </ItemContent>
                 <span>{formatDate(site.createdAt)}</span>
-              </li>
+              </SearchResultItem>
             </>
           ))}
-        </ul>
+        </SearchResultList>
       )}
     </StyledSearchContainer>
   );
@@ -277,7 +276,7 @@ function FilterList() {
   };
 
   return (
-    <ul>
+    <FilterToolbar>
       <FilterItem title='Size' icon={LuHardDrive}>
         {OPTIONS_SIZE.map(({ label, min, max }) => (
           <li key={label} onClick={() => handleFilter({ sizeRange: { min, max } }, label)}>
@@ -299,7 +298,7 @@ function FilterList() {
           </li>
         ))}
       </FilterItem>
-    </ul>
+    </FilterToolbar>
   );
 }
 
@@ -308,11 +307,11 @@ function FilterItem({ children, title, icon }: { children: ReactNode; title: str
     <li>
       <Dropdown>
         <Dropdown.open>
-          <span>
+          <FilterButton>
             <Icon icon={icon} />
             {title}
             <LuChevronDown />
-          </span>
+          </FilterButton>
         </Dropdown.open>
         <Dropdown.drop>{children}</Dropdown.drop>
       </Dropdown>

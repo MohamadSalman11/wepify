@@ -5,7 +5,7 @@ import styled from 'styled-components';
  * Constants
  */
 
-const sizeMap: Record<IconSize, string> = {
+const SIZE: Record<IconSize, string> = {
   sm: '1rem',
   md: '1.5rem',
   lg: '2rem'
@@ -59,7 +59,7 @@ const Icon = ({
   borderRadius = DEFAULT_BORDER_RADIUS,
   ...props
 }: IconProps) => {
-  const iconElement = <IconComponent size={sizeMap[size]} onClick={onClick} {...props} />;
+  const iconElement = <IconComponent size={SIZE[size]} onClick={onClick} {...props} />;
 
   if (!hover) return iconElement;
 

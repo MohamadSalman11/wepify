@@ -1,7 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { PageElement, SitePage } from '../../../types';
+import type { PageElement, SitePage } from '@shared/types';
 import { deepDeleteById } from '../../../utils/deepDeleteById';
-import { flattenElements } from '../../../utils/flattenElements';
 
 interface PageState extends SitePage {
   width: number;
@@ -17,10 +16,9 @@ interface PageState extends SitePage {
 
 const initialState: PageState = {
   id: '',
-  siteId: '',
   name: '',
-  siteName: '',
-  siteDescription: '',
+  title: '',
+  isIndex: false,
   width: window.innerWidth,
   height: window.innerHeight,
   originWidth: window.innerWidth,
@@ -36,20 +34,8 @@ const pageSlice = createSlice({
   name: 'page',
   initialState,
   reducers: {
-    setPage(
-      state,
-      action: PayloadAction<{
-        id: string;
-        siteId: string;
-        siteName: string;
-        siteDescription: string;
-        elements: PageElement[];
-      }>
-    ) {
-      state.siteName = action.payload.siteName;
-      state.siteDescription = action.payload.siteDescription;
+    setPage(state, action: PayloadAction<{ id: string; elements: PageElement[] }>) {
       state.id = action.payload.id;
-      state.siteId = action.payload.siteId;
       state.elements = action.payload.elements;
       state.lastAddedElement = undefined;
     },
@@ -78,12 +64,11 @@ const pageSlice = createSlice({
       state.elements.push(action.payload);
     },
     updateElement(state, action: PayloadAction<{ id: string; updates: Partial<PageElement> }>) {
-      const { id, updates } = action.payload;
-      const element = flattenElements(state.elements).find((el) => el.id === id);
-
-      if (element) {
-        Object.assign(element, updates);
-      }
+      // const { id, updates } = action.payload;
+      // const element = flattenElements(state.elements).find((el) => el.id === id);
+      // if (element) {
+      //   Object.assign(element, updates);
+      // }
     },
     deleteElement(state, action: PayloadAction<string>) {
       state.elements = deepDeleteById(state.elements, action.payload);

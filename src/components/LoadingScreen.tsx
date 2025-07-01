@@ -1,6 +1,7 @@
 import { createPortal } from 'react-dom';
 import styled, { keyframes } from 'styled-components';
 import { LoadingMessages } from '../constant';
+import Button from './Button';
 import Logo from './Logo';
 
 const DEFAULT_DURATION = 2000;
@@ -22,7 +23,7 @@ const StyledLoadingScreen = styled.div`
   align-items: center;
   flex-direction: column;
   gap: 24px;
-  z-index: 999999;
+  z-index: var(--zindex-loading-screen);
 `;
 
 const LogoWrapper = styled.div`
@@ -51,11 +52,11 @@ const LoadingBarWrapper = styled.div`
   overflow: hidden;
 `;
 
-const LoadingBar = styled.div<{ duration: string }>`
+const LoadingBar = styled.div<{ $duration: string }>`
   height: 100%;
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
   border-radius: var(--border-radius-lg);
-  animation: ${fillAnimation} ${({ duration }) => duration} ease-in-out;
+  animation: ${fillAnimation} ${({ $duration }) => $duration} ease-in-out;
 `;
 
 const LoadingText = styled.p`
@@ -68,11 +69,16 @@ const LoadingText = styled.p`
  */
 
 function LoadingScreen({
-  loadingText = LoadingMessages.Dashboard,
-  duration
+  text = LoadingMessages.Dashboard,
+  duration,
+  buttonText,
+  handler
 }: {
-  loadingText?: string;
+  text?: string;
+  errorText?: string;
   duration?: number;
+  buttonText?: string;
+  handler?: () => void;
 }) {
   const randomDuration = `${(duration ?? DEFAULT_DURATION) / MS_TO_SECONDS}s`;
 
@@ -83,9 +89,14 @@ function LoadingScreen({
         Wepify
       </LogoWrapper>
       <LoadingBarWrapper>
-        <LoadingBar duration={randomDuration} />
+        <LoadingBar $duration={randomDuration} />
       </LoadingBarWrapper>
-      <LoadingText>{loadingText}...</LoadingText>
+      <LoadingText>{text}</LoadingText>
+      {buttonText && (
+        <Button onClick={handler} size='sm'>
+          Back to dashboard
+        </Button>
+      )}
     </StyledLoadingScreen>,
     document.body
   );

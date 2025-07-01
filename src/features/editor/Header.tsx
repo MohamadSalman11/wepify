@@ -1,3 +1,5 @@
+import type { Site } from '@shared/types';
+import localforage from 'localforage';
 import { useState } from 'react';
 import type { IconType } from 'react-icons';
 import {
@@ -12,7 +14,7 @@ import {
   LuUndo2
 } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ActionCreators } from 'redux-undo';
 import styled from 'styled-components';
 import Button from '../../components/Button';
@@ -21,9 +23,10 @@ import Dropdown from '../../components/Dropdown';
 import Input from '../../components/form/Input';
 import Icon from '../../components/Icon';
 import { EditorPath } from '../../constant';
+import { useEditorContext } from '../../pages/Editor';
 import { useAppSelector } from '../../store';
 import type { InputChangeEvent } from '../../types';
-import { setIsLoading, setTargetDownloadSite } from './slices/editorSlice';
+import { setIsLoading } from './slices/editorSlice';
 import { setHeight, setScale, setWidth } from './slices/pageSlice';
 
 /**
@@ -134,9 +137,9 @@ type DeviceType = keyof typeof SCREEN_SIZES | 'auto';
 function Header() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { site: siteParam } = useParams();
+  const { iframeConnection } = useEditorContext();
   const [activeDevice, setActiveDevice] = useState<DeviceType>('auto');
-  const { siteName, siteDescription, width, height, scale } = useAppSelector((state) => state.page);
+  const { width, height, scale } = useAppSelector((state) => state.page);
 
   const handleHeightChange = (event: InputChangeEvent) => {
     const newHeight = Number(event.target.value);
@@ -153,11 +156,16 @@ function Header() {
     dispatch(setScale(newScale));
   };
 
+  async function handleDownloadSite(shouldMinify: boolean) {
+    const site = (await localforage.getItem('site')) as Site;
+    iframeConnection.downloadSite(site, shouldMinify);
+  }
+
   return (
     <StyledHeader>
       <DesignInfo>
-        <span>{siteName}</span>
-        <p>{siteDescription}</p>
+        <span>S</span>
+        <p>S</p>
       </DesignInfo>
       <DevicePreviewControls>
         <DevicePreviewButton
@@ -231,10 +239,10 @@ function Header() {
             <Button variation='secondary'>Download</Button>
           </Dropdown.open>
           <Dropdown.drop>
-            <li onClick={() => dispatch(setTargetDownloadSite({ id: siteParam, shouldMinify: true }))}>
+            <li onClick={() => handleDownloadSite(true)}>
               <LuFileMinus /> Download Minified
             </li>
-            <li onClick={() => dispatch(setTargetDownloadSite({ id: siteParam, shouldMinify: false }))}>
+            <li onClick={() => handleDownloadSite(false)}>
               <LuFileCode2 /> Download Readable
             </li>
           </Dropdown.drop>

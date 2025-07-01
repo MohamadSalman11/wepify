@@ -24,12 +24,12 @@ const ModalOverlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: var(--box-shadow);
   backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: var(--zindex-modal);
 `;
 
 const StyledDialog = styled.div`
@@ -37,7 +37,7 @@ const StyledDialog = styled.div`
   border-radius: var(--border-radius-lg);
   padding: 2.4rem;
   width: 35rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--box-shadow);
   font-size: 1.4rem;
   display: flex;
   flex-direction: column;

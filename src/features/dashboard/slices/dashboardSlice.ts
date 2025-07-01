@@ -1,6 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { PageElement, Site } from '../../../types';
-import { getRandomDuration } from '../../../utils/getRandomDuration';
+import type { Site } from '@shared/types';
 
 export interface FilterCriteria {
   sizeRange?: {
@@ -20,7 +19,6 @@ interface DashboardState {
   filterLabel: string;
   isModalOpen: boolean;
   isLoading: boolean;
-  loadingDuration: number;
 }
 
 const initialState: DashboardState = {
@@ -28,8 +26,7 @@ const initialState: DashboardState = {
   filters: {},
   filterLabel: '',
   isModalOpen: true,
-  isLoading: true,
-  loadingDuration: getRandomDuration(2.5, 3.5)
+  isLoading: true
 };
 
 const dashboardSlice = createSlice({
@@ -42,22 +39,8 @@ const dashboardSlice = createSlice({
     addSite(state, action: PayloadAction<Site>) {
       state.sites.push(action.payload);
     },
-    addPage(state, action) {
-      const { siteId, page } = action.payload;
-      const site = state.sites.find((site) => site.id === siteId);
-      if (site) {
-        site.pages.push(page);
-      }
-    },
     deleteSite(state, action: PayloadAction<string>) {
       state.sites = state.sites.filter((site) => site.id !== action.payload);
-    },
-    deletePage(state, action) {
-      const site = state.sites.find((site) => site.id === action.payload.siteId);
-
-      if (site) {
-        site.pages = site.pages.filter((page) => page.id !== action.payload.pageId);
-      }
     },
     duplicateSite(state, action: PayloadAction<{ id: string; newId: string }>) {
       const site = state.sites.find((site) => site.id === action.payload.id);
@@ -74,46 +57,6 @@ const dashboardSlice = createSlice({
         site.description = action.payload.description;
       }
     },
-    updatePageElements(state, action: PayloadAction<{ siteId: string; pageId: string; elements: PageElement[] }>) {
-      const { siteId, pageId, elements } = action.payload;
-
-      state.sites = state.sites.map((site) => {
-        if (site.id !== siteId) return site;
-
-        return {
-          ...site,
-          pages: site.pages.map((page) => {
-            if (page.id !== pageId) return page;
-
-            return {
-              ...page,
-              elements
-            };
-          })
-        };
-      });
-    },
-    updatePageInfo(state, action) {
-      const site = state.sites.find((site) => site.id === action.payload.siteId);
-      const page = site?.pages.find((page) => page.id === action.payload.pageId);
-
-      if (page) {
-        page.name = action.payload.name;
-        page.title = action.payload.title;
-      }
-    },
-
-    setIsIndexPage(state, action) {
-      const { siteId, pageId } = action.payload;
-      const site = state.sites.find((site) => site.id === siteId);
-
-      if (!site) return;
-
-      site.pages.forEach((page) => {
-        page.isIndex = page.id === pageId;
-      });
-    },
-
     setFilters(state, action: PayloadAction<FilterCriteria>) {
       state.filters = action.payload;
     },
@@ -139,14 +82,9 @@ const dashboardSlice = createSlice({
 export const {
   setSites,
   addSite,
-  addPage,
   deleteSite,
-  deletePage,
   duplicateSite,
   updateSiteDetails,
-  updatePageElements,
-  updatePageInfo,
-  setIsIndexPage,
   setFilters,
   setFilterLabel,
   toggleSiteStarred,

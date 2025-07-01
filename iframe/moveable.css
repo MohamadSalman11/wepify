@@ -1,7 +1,7 @@
 [contenteditable='true'] {
   cursor: text;
   outline: none;
-  padding: 6px 14px;
+  padding: 6px 14px !important;
 }
 
 .moveable-control-box {
@@ -16,10 +16,12 @@
   display: none !important;
 }
 
-#dragTargetButton {
-  cursor: move;
+.select-item {
+  z-index: 999;
+  box-shadow: 0 0 0 2px #b7bbbf;
 }
 
-section:nth-child(even) {
-  background-color: #f45a65 !important;
+#dragTargetButton {
+  cursor: move;
+  user-select: none;
 }

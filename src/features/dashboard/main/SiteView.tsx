@@ -21,10 +21,10 @@ import Icon from '../../../components/Icon';
 import Modal, { type OnCloseModal } from '../../../components/Modal';
 import { Path, TOAST_DURATION, ToastMessages } from '../../../constant';
 import { useAppSelector } from '../../../store';
-import type { Site } from '../../../types';
 import { buildPath } from '../../../utils/buildPath';
 import { calculateSiteSize } from '../../../utils/calculateSiteSize';
 import { formatDate } from '../../../utils/formatDate';
+import { setIsLoading } from '../../editor/slices/editorSlice';
 import {
   deleteSite,
   setFilterLabel,
@@ -33,16 +33,17 @@ import {
   updateSiteDetails,
   type FilterCriteria
 } from '../slices/dashboardSlice';
+import type { Site } from '@shared/types';
 
 /**
  * Styles
  */
 
-const StyledSiteView = styled.div<{ isFiltering: boolean }>`
+const StyledSiteView = styled.div<{ $isFiltering: boolean }>`
   width: 100%;
   height: 100%;
   overflow-y: auto;
-  margin-top: ${({ isFiltering }) => (isFiltering ? '0' : '5.2rem')};
+  margin-top: ${({ $isFiltering }) => ($isFiltering ? '0' : '5.2rem')};
 
   h2 {
     position: sticky;
@@ -62,7 +63,6 @@ const FilterHeader = styled.div`
 
 const NoResultsWrapper = styled.div`
   text-align: center;
-  flex-direction: column;
   margin-top: 3.2rem;
 `;
 
@@ -74,6 +74,7 @@ const NoResultsMessage = styled.span`
 const NoResultsInfo = styled.p`
   color: var(--color-gray);
   font-size: 1.2rem;
+  margin-top: 1.2rem;
 `;
 
 const Table = styled.table`
@@ -95,50 +96,50 @@ const Table = styled.table`
   th {
     color: var(--color-gray);
   }
+`;
 
-  tbody tr {
-    &:nth-child(1) {
-      border-top: 1px solid var(--color-gray-light-3);
+const StyledTbody = styled.tbody`
+  border-top: 1px solid var(--color-gray-light-3);
+`;
+
+const StyledTableRow = styled.tr`
+  td:nth-child(1) div {
+    display: flex;
+    column-gap: 0.8rem;
+    align-items: center;
+  }
+
+  td:nth-child(7) {
+    text-align: right;
+
+    div {
+      position: relative;
     }
 
-    & td:nth-child(1) div {
-      display: flex;
-      column-gap: 0.8rem;
-      align-items: center;
+    div > svg:not(svg:nth-child(5)) {
+      opacity: 0;
     }
 
-    & td:nth-child(7) {
-      text-align: right;
+    svg {
+      cursor: pointer;
+      margin-left: 1.6rem;
+      font-size: 1.6rem;
 
-      & div {
-        position: relative;
-      }
-
-      & div > svg:not(svg:nth-child(5)) {
-        opacity: 0;
-      }
-
-      svg {
-        cursor: pointer;
-        margin-left: 1.6rem;
-        font-size: 1.6rem;
-
-        &:hover {
-          color: var(--color-gray-light-2);
-        }
+      &:hover {
+        color: var(--color-gray-light-2);
       }
     }
+  }
 
-    & td[colspan='7'] {
-      pointer-events: none;
-    }
+  td[colspan='7'] {
+    pointer-events: none;
+  }
 
-    &:hover {
-      background-color: var(--color-gray-light-3);
+  &:hover {
+    background-color: var(--color-gray-light-3);
 
-      svg {
-        opacity: 1 !important;
-      }
+    svg {
+      opacity: 1 !important;
     }
   }
 `;
@@ -151,9 +152,9 @@ const DialogActions = styled.div`
   margin-top: 1.2rem;
 `;
 
-const StarIcon = styled(LuStar)<{ isStarred: boolean }>`
-  fill: ${(props) => props.isStarred && 'var(--color-gray)'};
-  stroke: ${(props) => props.isStarred && 'var(--color-gray)'};
+const StarIcon = styled(LuStar)<{ $isStarred: boolean }>`
+  fill: ${(props) => props.$isStarred && 'var(--color-gray)'};
+  stroke: ${(props) => props.$isStarred && 'var(--color-gray)'};
 `;
 
 /**
@@ -171,7 +172,7 @@ export default function SitesView() {
   }
 
   return (
-    <StyledSiteView isFiltering={isFiltering}>
+    <StyledSiteView $isFiltering={isFiltering}>
       <h2>
         {isFiltering ? (
           <FilterHeader>
@@ -229,7 +230,7 @@ function TableBody({ sites, filters, isModalOpen }: { sites: Site[]; filters: Fi
 
   if (filteredSites.length === 0) {
     return (
-      <tbody>
+      <StyledTbody>
         <tr>
           <td colSpan={7}>
             <NoResultsWrapper>
@@ -242,7 +243,7 @@ function TableBody({ sites, filters, isModalOpen }: { sites: Site[]; filters: Fi
             </NoResultsWrapper>
           </td>
         </tr>
-      </tbody>
+      </StyledTbody>
     );
   }
 
@@ -264,19 +265,20 @@ function TableRow({ site, isModalOpen }: { site: Site; isModalOpen: boolean }) {
   const toggleStar = () => {
     dispatch(toggleSiteStarred(id));
 
-    const message = isStarred ? ToastMessages.site.addedStar : ToastMessages.site.removedStar;
+    const message = isStarred ? ToastMessages.site.removedStar : ToastMessages.site.addedStar;
     toast.success(message, { duration: TOAST_DURATION });
   };
 
   function handleRowClick(event: MouseEvent<HTMLTableRowElement>) {
     const target = event.target as HTMLElement;
     if (!target.closest('svg') && !target.closest('li')) {
+      dispatch(setIsLoading(true));
       navigate(buildPath(Path.Editor, { site: id, page: pages[0].id }));
     }
   }
 
   return (
-    <tr onClick={handleRowClick}>
+    <StyledTableRow onClick={handleRowClick}>
       <td>
         <div>
           <Icon icon={LuLayoutTemplate} /> {name}
@@ -301,18 +303,18 @@ function TableRow({ site, isModalOpen }: { site: Site; isModalOpen: boolean }) {
               </Modal.dialog>
             </Modal.window>
           </Modal>
-          <StarIcon onClick={toggleStar} isStarred={isStarred} />
+          <StarIcon onClick={toggleStar} $isStarred={isStarred} />
           <Dropdown>
             <Dropdown.open>
               <Icon icon={LuEllipsis} size='md' />
             </Dropdown.open>
-            <Dropdown.drop translateX={-80} translateY={-10} shouldHide={isModalOpen}>
+            <Dropdown.drop translateX={-80} translateY={-10} isHidden={isModalOpen}>
               <DropdownOptions site={site} />
             </Dropdown.drop>
           </Dropdown>
         </div>
       </td>
-    </tr>
+    </StyledTableRow>
   );
 }
 

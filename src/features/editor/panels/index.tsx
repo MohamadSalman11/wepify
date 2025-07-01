@@ -1,9 +1,8 @@
 import styled, { css } from 'styled-components';
-
 import ElementsPanel from './ElementsPanel';
 import LayersPanel from './LayersPanel';
 import PagesPanel from './PagesPanel';
-import SettingsPanel from './settingsPanel/index';
+import { SettingsPanel } from './SettingsPanel';
 import UploadsPanel from './UploadsPanel';
 
 /**

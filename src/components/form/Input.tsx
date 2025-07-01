@@ -19,7 +19,9 @@ const StyledInput = styled.input`
       padding: var(--${prefix}-input-padding-y) var(--${prefix}-input-padding-x);
 
       &:disabled{
+        cursor: not-allowed;
         background-color: var(--color-white-3);
+        opacity: 0.9;
       }
   `}
 `;

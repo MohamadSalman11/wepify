@@ -1,13 +1,23 @@
 import localforage from 'localforage';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import LoadingScreen from '../components/LoadingScreen';
 import Header from '../features/dashboard/Header';
 import Main from '../features/dashboard/main/Main';
 import Sidebar from '../features/dashboard/Sidebar';
-import { useLoadSitesFromStorage } from '../hooks/useLoadSitesFromStorage';
+import { setIsLoading, setSites } from '../features/dashboard/slices/dashboardSlice';
+import { useLoadFromStorage } from '../hooks/useLoadFromStorage';
 import { useAppSelector } from '../store';
+import type { Site } from '../types';
+import { getRandomDuration } from '../utils/getRandomDuration';
+
+/**
+ * Constants
+ */
+
+const loadingDuration = getRandomDuration(2.5, 3.5);
 
 /**
  * Styles
@@ -31,9 +41,22 @@ const DashboardLayout = styled.div`
  */
 
 function Dashboard() {
-  const { sites, isLoading, loadingDuration } = useAppSelector((state) => state.dashboard);
+  const dispatch = useDispatch();
+  const { sites, isLoading } = useAppSelector((state) => state.dashboard);
 
-  useLoadSitesFromStorage(loadingDuration);
+  const onLoaded = useCallback(
+    (sites: Site[] | null) => {
+      if (sites) dispatch(setSites(sites));
+      dispatch(setIsLoading(false));
+    },
+    [dispatch]
+  );
+
+  useLoadFromStorage<Site[]>({
+    storageKey: 'sites',
+    loadingDuration,
+    onLoaded
+  });
 
   useEffect(() => {
     localforage.setItem('sites', sites);

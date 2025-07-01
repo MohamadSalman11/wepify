@@ -1,8 +1,10 @@
+import { createContext, useContext, useRef, type RefObject } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { Outlet, useLocation } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 import Canvas from '../features/editor/Canvas';
 import Header from '../features/editor/Header';
+import { useIframeConnection } from '../features/editor/hooks/useIframeConnection';
 import Panel from '../features/editor/panels';
 import Sidebar from '../features/editor/Sidebar';
 
@@ -25,31 +27,54 @@ const StyledEditor = styled.div<{ isPreview?: boolean }>`
 `;
 
 /**
+ * Context
+ */
+
+type EditorContextType = {
+  iframeRef: RefObject<HTMLIFrameElement | null>;
+  iframeConnection: ReturnType<typeof useIframeConnection>;
+  isPreview: boolean;
+};
+
+const EditorContext = createContext<EditorContextType | null>(null);
+
+export const useEditorContext = () => {
+  const context = useContext(EditorContext);
+  if (!context) throw new Error('useEditorContext must be used inside <EditorContext.Provider>');
+  return context;
+};
+
+/**
  * Component definition
  */
 
 function Editor() {
   const location = useLocation();
   const isPreview = location.pathname.endsWith('/preview');
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const iframeConnection = useIframeConnection(iframeRef);
 
   if (isPreview) {
     return (
-      <StyledEditor isPreview={isPreview}>
-        <Toaster position='top-center' reverseOrder={false} />
-        <Outlet />
-      </StyledEditor>
+      <EditorContext.Provider value={{ iframeRef, iframeConnection, isPreview }}>
+        <StyledEditor isPreview={isPreview}>
+          <Outlet />
+        </StyledEditor>
+      </EditorContext.Provider>
     );
   }
 
   return (
-    <StyledEditor>
-      <Toaster position='top-center' reverseOrder={false} />
-      <Sidebar />
-      <Header />
-      <Outlet />
-      <Canvas isPreview={false} />
-      <Panel panel='settings' sectioned={true} borderDir='left' />
-    </StyledEditor>
+    <EditorContext.Provider value={{ iframeRef, iframeConnection, isPreview }}>
+      <StyledEditor>
+        <Toaster position='top-center' reverseOrder={false} />
+        <Sidebar />
+        <Header />
+        <Outlet />
+        <Canvas />
+        <Panel panel='settings' sectioned={true} borderDir='left' />
+      </StyledEditor>
+    </EditorContext.Provider>
   );
 }
 

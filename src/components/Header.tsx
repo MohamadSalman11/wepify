@@ -6,13 +6,17 @@ import Button from './Button';
 import Icon from './Icon';
 import Logo from './Logo';
 
+/**
+ * Styles
+ */
+
 const StyledHeader = styled.header`
   margin: 4.8rem auto;
   width: 120rem;
   background-color: var(--color-white);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--box-shadow);
   border-radius: var(--border-radius-lg);
-  padding: 1.6rem 3rem;
+  padding: 1.6rem 3.2rem;
   position: relative;
   display: flex;
   align-items: center;
@@ -26,7 +30,6 @@ const LeftSection = styled.div`
   gap: 0.8rem;
   font-size: 1.4rem;
   color: var(--color-gray);
-  font-weight: 500;
   user-select: none;
 
   svg {
@@ -54,6 +57,10 @@ const Brand = styled.div`
     margin-bottom: 0.4rem;
   }
 `;
+
+/**
+ * Component definition
+ */
 
 function Header() {
   const navigate = useNavigate();

@@ -6,6 +6,7 @@ import { useEditorContext } from '../../../pages/Editor';
 import { useAppSelector } from '../../../store';
 import type { InputChangeEvent } from '../../../types';
 import { useImageUpload } from '../hooks/useImageUpload';
+import CollapsibleSection from './CollapsibleSection';
 
 /**
  * Styles
@@ -220,98 +221,101 @@ function ElementsPanel() {
         </SearchBar>
       </div>
       <div>
-        <SectionTitle>Layout</SectionTitle>
-        <PanelList disabled={selection.name === 'grid' || selection.name === 'list'}>
-          <LayoutItem data-grid-active>
-            <PanelBox onClick={() => handleAddElement('section')}>
-              <span>&nbsp;</span>
-              <span>&nbsp;</span>
-            </PanelBox>
-            <span>Section</span>
-          </LayoutItem>
-          <LayoutItem>
-            <PanelBox onClick={() => handleAddElement('container')}>
-              <span>&nbsp;</span>
-            </PanelBox>
-            <span>Container</span>
-          </LayoutItem>
-          <LayoutItem>
-            <PanelBox onClick={() => handleAddElement('grid')}>
-              <span>&nbsp;</span>
-              <span>&nbsp;</span>
-              <span>&nbsp;</span>
-              <span>&nbsp;</span>
-            </PanelBox>
-            <span>Grid</span>
-          </LayoutItem>
-          <LayoutItem>
-            <PanelBox onClick={() => handleAddElement('list')}>
-              <span>&nbsp;</span>
-              <span>&nbsp;</span>
-              <span>&nbsp;</span>
-            </PanelBox>
-            <span>List</span>
-          </LayoutItem>
-          <LayoutItem disabled={selection.name !== 'grid'} data-grid-active>
-            <PanelBox onClick={() => handleAddElement('gridItem')}>
-              <span>&nbsp;</span>
-              <span>&nbsp;</span>
-              <span>&nbsp;</span>
-              <span>&nbsp;</span>
-            </PanelBox>
-            <span>Grid Item</span>
-          </LayoutItem>
-          <LayoutItem disabled={selection.name !== 'list'} data-list-active>
-            <PanelBox onClick={() => handleAddElement('listItem')}>
-              <span>&nbsp;</span>
-              <span>&nbsp;</span>
-              <span>&nbsp;</span>
-            </PanelBox>
-            <span>List Item</span>
-          </LayoutItem>
-        </PanelList>
+        <CollapsibleSection title='Layout' open={true}>
+          <PanelList disabled={selection.name === 'grid' || selection.name === 'list'}>
+            <LayoutItem data-grid-active>
+              <PanelBox onClick={() => handleAddElement('section')}>
+                <span>&nbsp;</span>
+                <span>&nbsp;</span>
+              </PanelBox>
+              <span>Section</span>
+            </LayoutItem>
+            <LayoutItem>
+              <PanelBox onClick={() => handleAddElement('container')}>
+                <span>&nbsp;</span>
+              </PanelBox>
+              <span>Container</span>
+            </LayoutItem>
+            <LayoutItem>
+              <PanelBox onClick={() => handleAddElement('grid')}>
+                <span>&nbsp;</span>
+                <span>&nbsp;</span>
+                <span>&nbsp;</span>
+                <span>&nbsp;</span>
+              </PanelBox>
+              <span>Grid</span>
+            </LayoutItem>
+            <LayoutItem>
+              <PanelBox onClick={() => handleAddElement('list')}>
+                <span>&nbsp;</span>
+                <span>&nbsp;</span>
+                <span>&nbsp;</span>
+              </PanelBox>
+              <span>List</span>
+            </LayoutItem>
+            <LayoutItem disabled={selection.name !== 'grid'} data-grid-active>
+              <PanelBox onClick={() => handleAddElement('gridItem')}>
+                <span>&nbsp;</span>
+                <span>&nbsp;</span>
+                <span>&nbsp;</span>
+                <span>&nbsp;</span>
+              </PanelBox>
+              <span>Grid Item</span>
+            </LayoutItem>
+            <LayoutItem disabled={selection.name !== 'list'} data-list-active>
+              <PanelBox onClick={() => handleAddElement('listItem')}>
+                <span>&nbsp;</span>
+                <span>&nbsp;</span>
+                <span>&nbsp;</span>
+              </PanelBox>
+              <span>List Item</span>
+            </LayoutItem>
+          </PanelList>
+        </CollapsibleSection>
       </div>
 
       <div>
-        <SectionTitle>Text</SectionTitle>
-        <PanelList disabled={selection.name === 'grid' || selection.name === 'list'}>
-          <TextItem onClick={() => handleAddElement('heading')}>
-            <PanelBox>H</PanelBox>
-            <span>Heading</span>
-          </TextItem>
-          <TextItem onClick={() => handleAddElement('text')}>
-            <PanelBox>Text</PanelBox>
-            <span>Text Block</span>
-          </TextItem>
-          <TextItem onClick={() => handleAddElement('link')}>
-            <PanelBox>Link</PanelBox>
-            <span>Text Link</span>
-          </TextItem>
-          <TextItem onClick={() => handleAddElement('button')}>
-            <PanelBox>
+        <CollapsibleSection title='Text' open={true}>
+          <PanelList disabled={selection.name === 'grid' || selection.name === 'list'}>
+            <TextItem onClick={() => handleAddElement('heading')}>
+              <PanelBox>H</PanelBox>
+              <span>Heading</span>
+            </TextItem>
+            <TextItem onClick={() => handleAddElement('text')}>
+              <PanelBox>Text</PanelBox>
+              <span>Text Block</span>
+            </TextItem>
+            <TextItem onClick={() => handleAddElement('link')}>
+              <PanelBox>Link</PanelBox>
+              <span>Text Link</span>
+            </TextItem>
+            <TextItem onClick={() => handleAddElement('button')}>
+              <PanelBox>
+                <span>Button</span>
+              </PanelBox>
               <span>Button</span>
-            </PanelBox>
-            <span>Button</span>
-          </TextItem>
-          <TextItem onClick={() => handleAddElement('input')}>
-            <PanelBox>
-              <span>&nbsp;</span>
-            </PanelBox>
-            <span>Input</span>
-          </TextItem>
-        </PanelList>
+            </TextItem>
+            <TextItem onClick={() => handleAddElement('input')}>
+              <PanelBox>
+                <span>&nbsp;</span>
+              </PanelBox>
+              <span>Input</span>
+            </TextItem>
+          </PanelList>
+        </CollapsibleSection>
       </div>
 
       <div>
-        <SectionTitle>Media</SectionTitle>
-        <PanelList disabled={selection.name === 'grid'}>
-          <MediaItem>
-            <PanelBox onClick={() => fileInputRef.current?.click()}>
-              <LuImage />
-            </PanelBox>
-            <span>Image</span>
-          </MediaItem>
-        </PanelList>
+        <CollapsibleSection title='Media'>
+          <PanelList disabled={selection.name === 'grid'}>
+            <MediaItem>
+              <PanelBox onClick={() => fileInputRef.current?.click()}>
+                <LuImage />
+              </PanelBox>
+              <span>Image</span>
+            </MediaItem>
+          </PanelList>
+        </CollapsibleSection>
       </div>
     </>
   );

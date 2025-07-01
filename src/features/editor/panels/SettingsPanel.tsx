@@ -29,6 +29,7 @@ import { useEditorContext } from '../../../pages/Editor';
 import { useAppSelector } from '../../../store';
 import { flattenElements } from '../../../utils/flattenElements';
 import ColorPicker from '../ColorPicker';
+import CollapsibleSection from './CollapsibleSection';
 
 /**
  * Constants
@@ -86,10 +87,6 @@ export const GridContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.6rem;
-`;
-
-export const Title = styled.span`
-  margin-bottom: 2.4rem;
 `;
 
 export const SubTitle = styled.label`
@@ -155,7 +152,7 @@ const SizeContainer = styled.div`
 `;
 
 const TypographyContainer = styled.div`
-  & > div {
+  & > div:not(:first-child) {
     display: flex;
     row-gap: 3.2rem;
     flex-direction: column;
@@ -370,11 +367,11 @@ export function SettingsPanel() {
     <>
       <SelectorSettings />
       <AlignmentSettings handleStyleChanges={handleStyleChanges} />
-      <SizeSettings handleStyleChanges={handleStyleChanges} />
-      <SpacingSettings handleStyleChanges={handleStyleChanges} />
       {selection.name !== 'grid' || <GridSettings handleStyleChanges={handleStyleChanges} />}
       {selection.name === 'link' && <LinkSettings handleStyleChanges={handleStyleChanges} />}
       {selection.name === 'input' && <InputSettings handleStyleChanges={handleStyleChanges} />}
+      <SizeSettings handleStyleChanges={handleStyleChanges} />
+      <SpacingSettings handleStyleChanges={handleStyleChanges} />
       <TypographySettings handleStyleChanges={handleStyleChanges} />
       {selection.tag === 'section' || <StrokeSettings handleStyleChanges={handleStyleChanges} />}
     </>
@@ -392,15 +389,16 @@ function SelectorSettings() {
 
   return (
     <div>
-      <Title>Selector</Title>
-      <SelectorContainer>
-        <Icon icon={LuMonitor} />
-        <Select
-          options={flattenElements(elements).map((el) => el.id)}
-          defaultSelect={selection.id}
-          onChange={(id) => handleSelection(id as string)}
-        />
-      </SelectorContainer>
+      <CollapsibleSection title='Selector' open={true}>
+        <SelectorContainer>
+          <Icon icon={LuMonitor} />
+          <Select
+            options={flattenElements(elements).map((el) => el.id)}
+            defaultSelect={selection.id}
+            onChange={(id) => handleSelection(id as string)}
+          />
+        </SelectorContainer>
+      </CollapsibleSection>
     </div>
   );
 }
@@ -411,102 +409,103 @@ function SizeSettings({ handleStyleChanges }: { handleStyleChanges: HandleStyleC
 
   return (
     <SizeContainer>
-      <Title>Size</Title>
-      <GridContainer>
-        <div>
-          <label>X</label>
-          <Input
-            disabled={selection.name === 'item'}
-            type='number'
-            name='x'
-            defaultValue={selection.top}
-            onChange={(e) => handleStyleChanges(e.target.value, 'left')}
-          />
-        </div>
-        <div>
-          <label>Y</label>
-          <Input
-            disabled={selection.name === 'item'}
-            type='number'
-            name='y'
-            defaultValue={selection.top}
-            onChange={(e) => handleStyleChanges(e.target.value, 'top')}
-          />
-        </div>
-        <div>
-          <label>W</label>
-          <Select
-            editable
-            editInputType='text'
-            defaultSelect={selection.width}
-            options={OPTIONS_SIZE}
-            onChange={(option) => handleStyleChanges(option, 'width')}
-          />
-        </div>
-        <div>
-          <label>H</label>
-          <Select
-            editable
-            editInputType='text'
-            defaultSelect={selection.height}
-            options={OPTIONS_SIZE}
-            onChange={(option) => handleStyleChanges(option, 'height')}
-          />
-        </div>
-        <div>
-          <label htmlFor='rotation'>R</label>
-          <Input
-            type='text'
-            value={tempRotation}
-            onChange={(e) => {
-              setTempRotation(e.target.value);
-              handleStyleChanges(e.target.value, 'rotate');
-            }}
-            onBlur={() => {
-              const val = parseFloat(tempRotation.replace(/[^0-9.-]/g, '')) || 0;
-              handleStyleChanges(val, 'rotate');
-              setTempRotation(val + '°');
-            }}
-            onFocus={() => {
-              setTempRotation((selection.rotate ?? 0).toString());
-            }}
-          />
-        </div>
-        <RotationContainer>
-          <Icon
-            icon={LuRotateCwSquare}
-            onClick={() => {
-              const current = selection.rotate ?? 0;
-              let newRotate = current - 90;
+      <CollapsibleSection title='Size'>
+        <GridContainer>
+          <div>
+            <label>X</label>
+            <Input
+              disabled={selection.name === 'item'}
+              type='number'
+              name='x'
+              defaultValue={selection.top}
+              onChange={(e) => handleStyleChanges(e.target.value, 'left')}
+            />
+          </div>
+          <div>
+            <label>Y</label>
+            <Input
+              disabled={selection.name === 'item'}
+              type='number'
+              name='y'
+              defaultValue={selection.top}
+              onChange={(e) => handleStyleChanges(e.target.value, 'top')}
+            />
+          </div>
+          <div>
+            <label>W</label>
+            <Select
+              editable
+              editInputType='text'
+              defaultSelect={selection.width}
+              options={OPTIONS_SIZE}
+              onChange={(option) => handleStyleChanges(option, 'width')}
+            />
+          </div>
+          <div>
+            <label>H</label>
+            <Select
+              editable
+              editInputType='text'
+              defaultSelect={selection.height}
+              options={OPTIONS_SIZE}
+              onChange={(option) => handleStyleChanges(option, 'height')}
+            />
+          </div>
+          <div>
+            <label htmlFor='rotation'>R</label>
+            <Input
+              type='text'
+              value={tempRotation}
+              onChange={(e) => {
+                setTempRotation(e.target.value);
+                handleStyleChanges(e.target.value, 'rotate');
+              }}
+              onBlur={() => {
+                const val = parseFloat(tempRotation.replace(/[^0-9.-]/g, '')) || 0;
+                handleStyleChanges(val, 'rotate');
+                setTempRotation(val + '°');
+              }}
+              onFocus={() => {
+                setTempRotation((selection.rotate ?? 0).toString());
+              }}
+            />
+          </div>
+          <RotationContainer>
+            <Icon
+              icon={LuRotateCwSquare}
+              onClick={() => {
+                const current = selection.rotate ?? 0;
+                let newRotate = current - 90;
 
-              if (newRotate <= -180) {
-                newRotate = 180;
-              }
+                if (newRotate <= -180) {
+                  newRotate = 180;
+                }
 
-              handleStyleChanges(newRotate, 'rotate');
-              setTempRotation(newRotate + '°');
-            }}
-          />
-          <Icon
-            icon={LuFlipHorizontal2}
-            onClick={() => {
-              const currentScaleX = selection.scaleX ?? 1;
-              const newScaleX = currentScaleX === 1 ? -1 : 1;
-              handleStyleChanges(newScaleX, 'scaleX');
-              setTempRotation('0°');
-            }}
-          />
-          <Icon
-            icon={LuFlipVertical2}
-            onClick={() => {
-              const currentScaleY = selection.scaleY ?? 1;
-              const newScaleY = currentScaleY === 1 ? -1 : 1;
-              handleStyleChanges(newScaleY, 'scaleY');
-              setTempRotation('0°');
-            }}
-          />
-        </RotationContainer>
-      </GridContainer>
+                handleStyleChanges(newRotate, 'rotate');
+                setTempRotation(newRotate + '°');
+              }}
+            />
+            <Icon
+              icon={LuFlipHorizontal2}
+              onClick={() => {
+                const currentScaleX = selection.scaleX ?? 1;
+                const newScaleX = currentScaleX === 1 ? -1 : 1;
+                handleStyleChanges(newScaleX, 'scaleX');
+                setTempRotation('0°');
+              }}
+            />
+            <Icon
+              icon={LuFlipVertical2}
+              onClick={() => {
+                const currentScaleY = selection.scaleY ?? 1;
+                const newScaleY = currentScaleY === 1 ? -1 : 1;
+                handleStyleChanges(newScaleY, 'scaleY');
+                setTempRotation('0°');
+              }}
+            />
+          </RotationContainer>
+        </GridContainer>
+      </CollapsibleSection>
     </SizeContainer>
   );
 }
@@ -516,44 +515,46 @@ export function AlignmentSettings({ handleStyleChanges }: { handleStyleChanges: 
 
   return (
     <div>
-      <AlignmentContainer>
-        <AlignButton
-          active={selection.textAlign === 'left'}
-          onClick={() => handleStyleChanges('flex-start', 'justifyContent')}
-        >
-          <Icon icon={LuAlignStartVertical} />
-        </AlignButton>
-        <AlignButton
-          active={selection.textAlign === 'right'}
-          onClick={() => handleStyleChanges('flex-end', 'justifyContent')}
-        >
-          <Icon icon={LuAlignEndVertical} />
-        </AlignButton>
-        <AlignButton
-          active={selection.textAlign === 'right'}
-          onClick={() => handleStyleChanges('flex-start', 'alignItems')}
-        >
-          <Icon icon={LuAlignStartHorizontal} />
-        </AlignButton>
-        <AlignButton
-          active={selection.textAlign === 'right'}
-          onClick={() => handleStyleChanges('flex-end', 'alignItems')}
-        >
-          <Icon icon={LuAlignEndHorizontal} />
-        </AlignButton>
-        <AlignButton
-          active={selection.textAlign === 'right'}
-          onClick={() => handleStyleChanges('center', 'justifyContent')}
-        >
-          <Icon icon={LuAlignHorizontalJustifyCenter} />
-        </AlignButton>
-        <AlignButton
-          active={selection.textAlign === 'right'}
-          onClick={() => handleStyleChanges('center', 'alignItems')}
-        >
-          <Icon icon={LuAlignVerticalJustifyCenter} />
-        </AlignButton>
-      </AlignmentContainer>
+      <CollapsibleSection title='Alignment' open={true}>
+        <AlignmentContainer>
+          <AlignButton
+            active={selection.textAlign === 'left'}
+            onClick={() => handleStyleChanges('flex-start', 'justifyContent')}
+          >
+            <Icon icon={LuAlignStartVertical} />
+          </AlignButton>
+          <AlignButton
+            active={selection.textAlign === 'right'}
+            onClick={() => handleStyleChanges('flex-end', 'justifyContent')}
+          >
+            <Icon icon={LuAlignEndVertical} />
+          </AlignButton>
+          <AlignButton
+            active={selection.textAlign === 'right'}
+            onClick={() => handleStyleChanges('flex-start', 'alignItems')}
+          >
+            <Icon icon={LuAlignStartHorizontal} />
+          </AlignButton>
+          <AlignButton
+            active={selection.textAlign === 'right'}
+            onClick={() => handleStyleChanges('flex-end', 'alignItems')}
+          >
+            <Icon icon={LuAlignEndHorizontal} />
+          </AlignButton>
+          <AlignButton
+            active={selection.textAlign === 'right'}
+            onClick={() => handleStyleChanges('center', 'justifyContent')}
+          >
+            <Icon icon={LuAlignHorizontalJustifyCenter} />
+          </AlignButton>
+          <AlignButton
+            active={selection.textAlign === 'right'}
+            onClick={() => handleStyleChanges('center', 'alignItems')}
+          >
+            <Icon icon={LuAlignVerticalJustifyCenter} />
+          </AlignButton>
+        </AlignmentContainer>
+      </CollapsibleSection>
     </div>
   );
 }
@@ -564,68 +565,69 @@ export function SpacingSettings({ handleStyleChanges }: { handleStyleChanges: Ha
 
   return (
     <div>
-      <Title>Spacing</Title>
-      <SpacingBox>
-        <div>
-          <input
-            type='number'
-            value={marginTop ?? 0}
-            onChange={(event) => handleStyleChanges(event.target.value, 'marginTop')}
-          />
-        </div>
-        <PaddingBox>
+      <CollapsibleSection title='Spacing'>
+        <SpacingBox>
           <div>
             <input
               type='number'
-              value={paddingTop ?? 0}
-              onChange={(event) => handleStyleChanges(event.target.value, 'paddingTop')}
+              value={marginTop ?? 0}
+              onChange={(event) => handleStyleChanges(event.target.value, 'marginTop')}
             />
           </div>
-          <div></div>
+          <PaddingBox>
+            <div>
+              <input
+                type='number'
+                value={paddingTop ?? 0}
+                onChange={(event) => handleStyleChanges(event.target.value, 'paddingTop')}
+              />
+            </div>
+            <div></div>
+            <div>
+              <input
+                type='number'
+                value={paddingLeft ?? 0}
+                onChange={(event) => handleStyleChanges(event.target.value, 'paddingLeft')}
+              />
+            </div>
+            <div>
+              <input
+                type='number'
+                value={paddingRight ?? 0}
+                onChange={(event) => handleStyleChanges(event.target.value, 'paddingRight')}
+              />
+            </div>
+            <div>
+              <input
+                type='number'
+                value={paddingBottom ?? 0}
+                onChange={(event) => handleStyleChanges(event.target.value, 'paddingBottom')}
+              />
+            </div>
+          </PaddingBox>
           <div>
             <input
               type='number'
-              value={paddingLeft ?? 0}
-              onChange={(event) => handleStyleChanges(event.target.value, 'paddingLeft')}
+              value={marginLeft ?? 0}
+              onChange={(event) => handleStyleChanges(event.target.value, 'marginLeft')}
             />
           </div>
           <div>
             <input
               type='number'
-              value={paddingRight ?? 0}
-              onChange={(event) => handleStyleChanges(event.target.value, 'paddingRight')}
+              value={marginRight ?? 0}
+              onChange={(event) => handleStyleChanges(event.target.value, 'marginRight')}
             />
           </div>
           <div>
             <input
               type='number'
-              value={paddingBottom ?? 0}
-              onChange={(event) => handleStyleChanges(event.target.value, 'paddingBottom')}
+              value={marginBottom ?? 0}
+              onChange={(event) => handleStyleChanges(event.target.value, 'marginBottom')}
             />
           </div>
-        </PaddingBox>
-        <div>
-          <input
-            type='number'
-            value={marginLeft ?? 0}
-            onChange={(event) => handleStyleChanges(event.target.value, 'marginLeft')}
-          />
-        </div>
-        <div>
-          <input
-            type='number'
-            value={marginRight ?? 0}
-            onChange={(event) => handleStyleChanges(event.target.value, 'marginRight')}
-          />
-        </div>
-        <div>
-          <input
-            type='number'
-            value={marginBottom ?? 0}
-            onChange={(event) => handleStyleChanges(event.target.value, 'marginBottom')}
-          />
-        </div>
-      </SpacingBox>
+        </SpacingBox>
+      </CollapsibleSection>
     </div>
   );
 }
@@ -637,67 +639,68 @@ function GridSettings({ handleStyleChanges }: { handleStyleChanges: HandleStyleC
 
   return (
     <div>
-      <Title>Grid</Title>
-      <GridContainer>
-        <div>
-          <SubTitle>Columns</SubTitle>
-          <Select
-            editable
-            defaultSelect={columns}
-            options={OPTIONS_COLUMN}
-            onChange={(option) => handleStyleChanges(option, 'columns')}
-          />
-        </div>
-        <div>
-          <SubTitle>Rows</SubTitle>
-          <Select
-            editable
-            defaultSelect={rows}
-            options={OPTIONS_ROW}
-            onChange={(option) => handleStyleChanges(option, 'rows')}
-          />
-        </div>
-        <div>
-          <SubTitle>Width</SubTitle>
-          <Select
-            editable
-            editInputType='text'
-            defaultSelect={columnWidth}
-            options={OPTIONS_COLUMN_WIDTH}
-            onChange={(option) => handleStyleChanges(option, 'columnWidth')}
-          />
-        </div>
-        <div>
-          <SubTitle>Height</SubTitle>
-          <Select
-            editable
-            editInputType='text'
-            defaultSelect={rowHeight}
-            options={OPTIONS_ROW_HEIGHT}
-            onChange={(option) => handleStyleChanges(option, 'rowHeight')}
-          />
-        </div>
-        <div>
-          <SubTitle>Gap X</SubTitle>
-          <Select
-            editable
-            editInputType='text'
-            defaultSelect={columnGap}
-            options={OPTIONS_COLUMN_GAP}
-            onChange={(option) => handleStyleChanges(option, 'columnGap')}
-          />
-        </div>
-        <div>
-          <SubTitle>Gap Y</SubTitle>
-          <Select
-            editable
-            editInputType='text'
-            defaultSelect={rowGap}
-            options={OPTIONS_ROW_GAP}
-            onChange={(option) => handleStyleChanges(option, 'rowGap')}
-          />
-        </div>
-      </GridContainer>
+      <CollapsibleSection title='Grid' open={true}>
+        <GridContainer>
+          <div>
+            <SubTitle>Columns</SubTitle>
+            <Select
+              editable
+              defaultSelect={columns}
+              options={OPTIONS_COLUMN}
+              onChange={(option) => handleStyleChanges(option, 'columns')}
+            />
+          </div>
+          <div>
+            <SubTitle>Rows</SubTitle>
+            <Select
+              editable
+              defaultSelect={rows}
+              options={OPTIONS_ROW}
+              onChange={(option) => handleStyleChanges(option, 'rows')}
+            />
+          </div>
+          <div>
+            <SubTitle>Width</SubTitle>
+            <Select
+              editable
+              editInputType='text'
+              defaultSelect={columnWidth}
+              options={OPTIONS_COLUMN_WIDTH}
+              onChange={(option) => handleStyleChanges(option, 'columnWidth')}
+            />
+          </div>
+          <div>
+            <SubTitle>Height</SubTitle>
+            <Select
+              editable
+              editInputType='text'
+              defaultSelect={rowHeight}
+              options={OPTIONS_ROW_HEIGHT}
+              onChange={(option) => handleStyleChanges(option, 'rowHeight')}
+            />
+          </div>
+          <div>
+            <SubTitle>Gap X</SubTitle>
+            <Select
+              editable
+              editInputType='text'
+              defaultSelect={columnGap}
+              options={OPTIONS_COLUMN_GAP}
+              onChange={(option) => handleStyleChanges(option, 'columnGap')}
+            />
+          </div>
+          <div>
+            <SubTitle>Gap Y</SubTitle>
+            <Select
+              editable
+              editInputType='text'
+              defaultSelect={rowGap}
+              options={OPTIONS_ROW_GAP}
+              onChange={(option) => handleStyleChanges(option, 'rowGap')}
+            />
+          </div>
+        </GridContainer>
+      </CollapsibleSection>
     </div>
   );
 }
@@ -707,15 +710,16 @@ function LinkSettings({ handleStyleChanges }: { handleStyleChanges: HandleStyleC
 
   return (
     <div>
-      <Title>Link</Title>
-      <div>
-        <Input
-          type='text'
-          defaultValue={selection.link}
-          placeholder='https://example.com'
-          onChange={(e) => handleStyleChanges(e.target.value, 'link')}
-        />
-      </div>
+      <CollapsibleSection title='Link' open={true}>
+        <div>
+          <Input
+            type='text'
+            defaultValue={selection.link}
+            placeholder='https://example.com'
+            onChange={(e) => handleStyleChanges(e.target.value, 'link')}
+          />
+        </div>
+      </CollapsibleSection>
     </div>
   );
 }
@@ -725,27 +729,28 @@ function InputSettings({ handleStyleChanges }: { handleStyleChanges: HandleStyle
 
   return (
     <div>
-      <Title>Input</Title>
-      <GridContainer>
-        <div>
-          <SubTitle>Placeholder</SubTitle>
-          <Input
-            type='text'
-            defaultValue={placeholder}
-            placeholder='E-Mail'
-            onChange={(e) => handleStyleChanges(e.target.value, 'placeholder')}
-          />
-        </div>
-        <div>
-          <SubTitle>Type</SubTitle>
-          <Select
-            editInputType='text'
-            defaultSelect={type}
-            options={OPTIONS_INPUT_TYPE}
-            onChange={(option) => handleStyleChanges(option, 'type')}
-          />
-        </div>
-      </GridContainer>
+      <CollapsibleSection title='Input' open={true}>
+        <GridContainer>
+          <div>
+            <SubTitle>Placeholder</SubTitle>
+            <Input
+              type='text'
+              defaultValue={placeholder}
+              placeholder='E-Mail'
+              onChange={(e) => handleStyleChanges(e.target.value, 'placeholder')}
+            />
+          </div>
+          <div>
+            <SubTitle>Type</SubTitle>
+            <Select
+              editInputType='text'
+              defaultSelect={type}
+              options={OPTIONS_INPUT_TYPE}
+              onChange={(option) => handleStyleChanges(option, 'type')}
+            />
+          </div>
+        </GridContainer>
+      </CollapsibleSection>
     </div>
   );
 }
@@ -755,60 +760,61 @@ function TypographySettings({ handleStyleChanges }: { handleStyleChanges: Handle
 
   return (
     <TypographyContainer>
-      <Title>Typography</Title>
-      <div>
+      <CollapsibleSection title='Typography'>
         <div>
-          <SubTitle>Font Family</SubTitle>
-          <Select
-            defaultSelect={selection.fontFamily}
-            options={OPTIONS_FONT}
-            onChange={(option) => handleStyleChanges(option, 'fontFamily')}
-          />
-        </div>
-        <GridContainer>
           <div>
-            <SubTitle>Weight</SubTitle>
+            <SubTitle>Font Family</SubTitle>
             <Select
-              defaultSelect={selection.fontWeight}
-              options={Object.keys(FONT_WEIGHT_VALUES)}
-              onChange={(option) => handleStyleChanges(option, 'fontWeight')}
+              defaultSelect={selection.fontFamily}
+              options={OPTIONS_FONT}
+              onChange={(option) => handleStyleChanges(option, 'fontFamily')}
             />
           </div>
+          <GridContainer>
+            <div>
+              <SubTitle>Weight</SubTitle>
+              <Select
+                defaultSelect={selection.fontWeight}
+                options={Object.keys(FONT_WEIGHT_VALUES)}
+                onChange={(option) => handleStyleChanges(option, 'fontWeight')}
+              />
+            </div>
+            <div>
+              <SubTitle>Font Size</SubTitle>
+              <Select
+                editable
+                editInputType='text'
+                defaultSelect={selection.fontSize}
+                options={OPTIONS_FONT_SIZE}
+                onChange={(option) => handleStyleChanges(option, 'fontSize')}
+              />
+            </div>
+          </GridContainer>
+          <GridContainer>
+            <div>
+              <SubTitle>Color</SubTitle>
+              <ColorPicker defaultValue={selection.color} propName='color' onChange={handleStyleChanges} />
+            </div>
+            <div>
+              <SubTitle>Fill</SubTitle>
+              <ColorPicker
+                propName='backgroundColor'
+                defaultValue={selection.backgroundColor}
+                onChange={handleStyleChanges}
+              />
+            </div>
+          </GridContainer>
           <div>
-            <SubTitle>Font Size</SubTitle>
-            <Select
-              editable
-              editInputType='text'
-              defaultSelect={selection.fontSize}
-              options={OPTIONS_FONT_SIZE}
-              onChange={(option) => handleStyleChanges(option, 'fontSize')}
-            />
+            <SubTitle>Text Align</SubTitle>
+            <TextAlignContainer>
+              <Icon icon={LuAlignLeft} onClick={() => handleStyleChanges('left', 'textAlign')} />
+              <Icon icon={LuAlignRight} onClick={() => handleStyleChanges('right', 'textAlign')} />
+              <Icon icon={LuAlignCenter} onClick={() => handleStyleChanges('center', 'textAlign')} />
+              <Icon icon={LuAlignJustify} onClick={() => handleStyleChanges('justify', 'textAlign')} />
+            </TextAlignContainer>
           </div>
-        </GridContainer>
-        <GridContainer>
-          <div>
-            <SubTitle>Color</SubTitle>
-            <ColorPicker defaultValue={selection.color} propName='color' onChange={handleStyleChanges} />
-          </div>
-          <div>
-            <SubTitle>Fill</SubTitle>
-            <ColorPicker
-              propName='backgroundColor'
-              defaultValue={selection.backgroundColor}
-              onChange={handleStyleChanges}
-            />
-          </div>
-        </GridContainer>
-        <div>
-          <SubTitle>Text Align</SubTitle>
-          <TextAlignContainer>
-            <Icon icon={LuAlignLeft} onClick={() => handleStyleChanges('left', 'textAlign')} />
-            <Icon icon={LuAlignRight} onClick={() => handleStyleChanges('right', 'textAlign')} />
-            <Icon icon={LuAlignCenter} onClick={() => handleStyleChanges('center', 'textAlign')} />
-            <Icon icon={LuAlignJustify} onClick={() => handleStyleChanges('justify', 'textAlign')} />
-          </TextAlignContainer>
         </div>
-      </div>
+      </CollapsibleSection>
     </TypographyContainer>
   );
 }
@@ -831,36 +837,37 @@ function StrokeSettings({ handleStyleChanges }: { handleStyleChanges: HandleStyl
 
   return (
     <StrokeContainer>
-      <Title>Stroke</Title>
-      <GridContainer>
-        <div>
-          <ColorPicker
-            defaultValue={borderColor || DEFAULT_BORDER_COLOR}
-            propName='borderColor'
-            onChange={handleStyleChanges}
-          />
-        </div>
-        <StrokeWidthContainer>
-          <label>Stroke Width</label>
-          <Input
-            type='number'
-            defaultValue={borderWidth || DEFAULT_BORDER_WIDTH}
-            onChange={(e) => handleStyleChanges(e.target.value, 'borderWidth')}
-          />
-        </StrokeWidthContainer>
-        <StrokePosition>
-          {BORDER_SIDES.map(({ side, label, icon }) => (
-            <BorderButton
-              key={side}
-              onClick={() => toggleBorder(side)}
-              active={!!borders[side] && borders[side] !== 'none'}
-            >
-              <span>{label}</span>
-              <Icon icon={icon} size='sm' />
-            </BorderButton>
-          ))}
-        </StrokePosition>
-      </GridContainer>
+      <CollapsibleSection title='Stroke'>
+        <GridContainer>
+          <div>
+            <ColorPicker
+              defaultValue={borderColor || DEFAULT_BORDER_COLOR}
+              propName='borderColor'
+              onChange={handleStyleChanges}
+            />
+          </div>
+          <StrokeWidthContainer>
+            <label>Stroke Width</label>
+            <Input
+              type='number'
+              defaultValue={borderWidth || DEFAULT_BORDER_WIDTH}
+              onChange={(e) => handleStyleChanges(e.target.value, 'borderWidth')}
+            />
+          </StrokeWidthContainer>
+          <StrokePosition>
+            {BORDER_SIDES.map(({ side, label, icon }) => (
+              <BorderButton
+                key={side}
+                onClick={() => toggleBorder(side)}
+                active={!!borders[side] && borders[side] !== 'none'}
+              >
+                <span>{label}</span>
+                <Icon icon={icon} size='sm' />
+              </BorderButton>
+            ))}
+          </StrokePosition>
+        </GridContainer>
+      </CollapsibleSection>
     </StrokeContainer>
   );
 }

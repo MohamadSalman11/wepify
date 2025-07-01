@@ -1,3 +1,4 @@
+import type { Site } from '@shared/types';
 import { useState, type MouseEvent } from 'react';
 import toast from 'react-hot-toast';
 import {
@@ -33,7 +34,6 @@ import {
   updateSiteDetails,
   type FilterCriteria
 } from '../slices/dashboardSlice';
-import type { Site } from '@shared/types';
 
 /**
  * Styles

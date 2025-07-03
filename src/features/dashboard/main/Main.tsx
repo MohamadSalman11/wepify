@@ -3,6 +3,19 @@ import SearchBox from './SearchBox';
 import SitesView from './SiteView';
 
 /**
+ * Component definition
+ */
+
+export default function Main() {
+  return (
+    <StyledMain>
+      <SearchBox />
+      <SitesView />
+    </StyledMain>
+  );
+}
+
+/**
  * Styles
  */
 
@@ -16,18 +29,3 @@ const StyledMain = styled.main`
   position: relative;
   overflow-y: hidden;
 `;
-
-/**
- * Component definition
- */
-
-function Main() {
-  return (
-    <StyledMain>
-      <SearchBox />
-      <SitesView />
-    </StyledMain>
-  );
-}
-
-export default Main;

@@ -4,8 +4,50 @@ import { LoadingMessages } from '../constant';
 import Button from './Button';
 import Logo from './Logo';
 
+/**
+ * Constants
+ */
+
 const DEFAULT_DURATION = 2000;
 const MS_TO_SECONDS = 1000;
+
+/**
+ * Component definition
+ */
+
+export default function LoadingScreen({
+  text = LoadingMessages.Dashboard,
+  duration,
+  buttonText,
+  handler
+}: {
+  text?: string;
+  errorText?: string;
+  duration?: number;
+  buttonText?: string;
+  handler?: () => void;
+}) {
+  const randomDuration = `${(duration ?? DEFAULT_DURATION) / MS_TO_SECONDS}s`;
+
+  return createPortal(
+    <StyledLoadingScreen>
+      <LogoWrapper>
+        <Logo />
+        Wepify
+      </LogoWrapper>
+      <LoadingBarWrapper>
+        <LoadingBar $duration={randomDuration} />
+      </LoadingBarWrapper>
+      <LoadingText>{text}</LoadingText>
+      {buttonText && (
+        <Button onClick={handler} size='sm'>
+          Back to dashboard
+        </Button>
+      )}
+    </StyledLoadingScreen>,
+    document.body
+  );
+}
 
 /**
  * Styles
@@ -63,43 +105,3 @@ const LoadingText = styled.p`
   font-size: 1.4rem;
   font-weight: 300;
 `;
-
-/**
- * Styles
- */
-
-function LoadingScreen({
-  text = LoadingMessages.Dashboard,
-  duration,
-  buttonText,
-  handler
-}: {
-  text?: string;
-  errorText?: string;
-  duration?: number;
-  buttonText?: string;
-  handler?: () => void;
-}) {
-  const randomDuration = `${(duration ?? DEFAULT_DURATION) / MS_TO_SECONDS}s`;
-
-  return createPortal(
-    <StyledLoadingScreen>
-      <LogoWrapper>
-        <Logo />
-        Wepify
-      </LogoWrapper>
-      <LoadingBarWrapper>
-        <LoadingBar $duration={randomDuration} />
-      </LoadingBarWrapper>
-      <LoadingText>{text}</LoadingText>
-      {buttonText && (
-        <Button onClick={handler} size='sm'>
-          Back to dashboard
-        </Button>
-      )}
-    </StyledLoadingScreen>,
-    document.body
-  );
-}
-
-export default LoadingScreen;

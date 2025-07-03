@@ -26,143 +26,14 @@ import { buildPath } from '../../../utils/buildPath';
 import { calculateSiteSize } from '../../../utils/calculateSiteSize';
 import { formatDate } from '../../../utils/formatDate';
 import { setIsLoading } from '../../editor/slices/editorSlice';
-import {
-  deleteSite,
-  setFilterLabel,
-  setFilters,
-  toggleSiteStarred,
-  updateSiteDetails,
-  type FilterCriteria
-} from '../slices/dashboardSlice';
-
-/**
- * Styles
- */
-
-const StyledSiteView = styled.div<{ $isFiltering: boolean }>`
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
-  margin-top: ${({ $isFiltering }) => ($isFiltering ? '0' : '5.2rem')};
-
-  h2 {
-    position: sticky;
-    top: 0;
-    background-color: var(--color-white);
-    padding: 1.2rem;
-    width: 100%;
-    font-size: 2rem;
-  }
-`;
-
-const FilterHeader = styled.div`
-  display: flex;
-  flex-direction: column;
-  row-gap: 2.4rem;
-`;
-
-const NoResultsWrapper = styled.div`
-  text-align: center;
-  margin-top: 3.2rem;
-`;
-
-const NoResultsMessage = styled.span`
-  margin-bottom: 0.8rem;
-  font-size: 1.8rem;
-`;
-
-const NoResultsInfo = styled.p`
-  color: var(--color-gray);
-  font-size: 1.2rem;
-  margin-top: 1.2rem;
-`;
-
-const Table = styled.table`
-  width: 100%;
-  margin-top: 2.4rem;
-  border-collapse: collapse;
-  font-size: 1.4rem;
-  margin-bottom: 20rem;
-
-  th,
-  td {
-    cursor: default;
-    padding: 1.2rem;
-    width: 1%;
-    text-align: left;
-    white-space: nowrap;
-  }
-
-  th {
-    color: var(--color-gray);
-  }
-`;
-
-const StyledTbody = styled.tbody`
-  border-top: 1px solid var(--color-gray-light-3);
-`;
-
-const StyledTableRow = styled.tr`
-  td:nth-child(1) div {
-    display: flex;
-    column-gap: 0.8rem;
-    align-items: center;
-  }
-
-  td:nth-child(7) {
-    text-align: right;
-
-    div {
-      position: relative;
-    }
-
-    div > svg:not(svg:nth-child(5)) {
-      opacity: 0;
-    }
-
-    svg {
-      cursor: pointer;
-      margin-left: 1.6rem;
-      font-size: 1.6rem;
-
-      &:hover {
-        color: var(--color-gray-light-2);
-      }
-    }
-  }
-
-  td[colspan='7'] {
-    pointer-events: none;
-  }
-
-  &:hover {
-    background-color: var(--color-gray-light-3);
-
-    svg {
-      opacity: 1 !important;
-    }
-  }
-`;
-
-const DialogActions = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  column-gap: 0.8rem;
-  margin-top: 1.2rem;
-`;
-
-const StarIcon = styled(LuStar)<{ $isStarred: boolean }>`
-  fill: ${(props) => props.$isStarred && 'var(--color-gray)'};
-  stroke: ${(props) => props.$isStarred && 'var(--color-gray)'};
-`;
+import { deleteSite, setFilterLabel, setFilters, toggleSiteStarred, updateSiteDetails } from '../slices/dashboardSlice';
 
 /**
  * Component definition
  */
 
 export default function SitesView() {
-  const { sites, filters, filterLabel, isModalOpen } = useAppSelector((state) => state.dashboard);
+  const { filters, filterLabel } = useAppSelector((state) => state.dashboard);
   const dispatch = useDispatch();
   const isFiltering = Boolean(filters.modifiedWithinDays || filters.pageRange || filters.sizeRange);
 
@@ -187,7 +58,7 @@ export default function SitesView() {
       </h2>
       <Table>
         <TableHead />
-        <TableBody sites={sites} filters={filters} isModalOpen={isModalOpen} />
+        <TableBody />
       </Table>
     </StyledSiteView>
   );
@@ -208,8 +79,9 @@ function TableHead() {
   );
 }
 
-function TableBody({ sites, filters, isModalOpen }: { sites: Site[]; filters: FilterCriteria; isModalOpen: boolean }) {
+function TableBody() {
   const now = Date.now();
+  const { sites, filters } = useAppSelector((state) => state.dashboard);
   const isFiltering = Boolean(filters.modifiedWithinDays || filters.pageRange || filters.sizeRange);
 
   const filteredSites = isFiltering
@@ -228,7 +100,9 @@ function TableBody({ sites, filters, isModalOpen }: { sites: Site[]; filters: Fi
       })
     : sites;
 
-  if (filteredSites.length === 0) {
+  const noSitesToDisplay = filteredSites.length === 0;
+
+  if (noSitesToDisplay) {
     return (
       <StyledTbody>
         <tr>
@@ -250,13 +124,14 @@ function TableBody({ sites, filters, isModalOpen }: { sites: Site[]; filters: Fi
   return (
     <tbody>
       {filteredSites.map((site) => (
-        <TableRow site={site} key={site.id} isModalOpen={isModalOpen} />
+        <TableRow site={site} key={site.id} />
       ))}
     </tbody>
   );
 }
 
-function TableRow({ site, isModalOpen }: { site: Site; isModalOpen: boolean }) {
+function TableRow({ site }: { site: Site }) {
+  const { isModalOpen } = useAppSelector((state) => state.dashboard);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -273,7 +148,7 @@ function TableRow({ site, isModalOpen }: { site: Site; isModalOpen: boolean }) {
     const target = event.target as HTMLElement;
     if (!target.closest('svg') && !target.closest('li')) {
       dispatch(setIsLoading(true));
-      navigate(buildPath(Path.Editor, { site: id, page: pages[0].id }));
+      navigate(buildPath(Path.Editor, { siteId: id, pageId: pages[0].id }));
     }
   }
 
@@ -413,3 +288,125 @@ function DeleteDialog({ site, onCloseModal }: { site: Site; onCloseModal?: OnClo
     </>
   );
 }
+
+/**
+ * Styles
+ */
+
+const StyledSiteView = styled.div<{ $isFiltering: boolean }>`
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  margin-top: ${({ $isFiltering }) => ($isFiltering ? '0' : '5.2rem')};
+
+  h2 {
+    position: sticky;
+    top: 0;
+    background-color: var(--color-white);
+    padding: 1.2rem;
+    width: 100%;
+    font-size: 2rem;
+  }
+`;
+
+const FilterHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  row-gap: 2.4rem;
+`;
+
+const NoResultsWrapper = styled.div`
+  text-align: center;
+  margin-top: 3.2rem;
+`;
+
+const NoResultsMessage = styled.span`
+  margin-bottom: 0.8rem;
+  font-size: 1.8rem;
+`;
+
+const NoResultsInfo = styled.p`
+  color: var(--color-gray);
+  font-size: 1.2rem;
+  margin-top: 1.2rem;
+`;
+
+const Table = styled.table`
+  width: 100%;
+  margin-top: 2.4rem;
+  border-collapse: collapse;
+  font-size: 1.4rem;
+  margin-bottom: 20rem;
+
+  th,
+  td {
+    cursor: default;
+    padding: 1.2rem;
+    width: 1%;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  th {
+    color: var(--color-gray);
+  }
+`;
+
+const StyledTbody = styled.tbody`
+  border-top: 1px solid var(--color-gray-light-3);
+`;
+
+const StyledTableRow = styled.tr`
+  td:nth-child(1) div {
+    display: flex;
+    column-gap: 0.8rem;
+    align-items: center;
+  }
+
+  td:nth-child(7) {
+    text-align: right;
+
+    div {
+      position: relative;
+    }
+
+    div > svg:not(svg:nth-child(5)) {
+      opacity: 0;
+    }
+
+    svg {
+      cursor: pointer;
+      margin-left: 1.6rem;
+      font-size: 1.6rem;
+
+      &:hover {
+        color: var(--color-gray-light-2);
+      }
+    }
+  }
+
+  td[colspan='7'] {
+    pointer-events: none;
+  }
+
+  &:hover {
+    background-color: var(--color-gray-light-3);
+
+    svg {
+      opacity: 1 !important;
+    }
+  }
+`;
+
+const DialogActions = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  column-gap: 0.8rem;
+  margin-top: 1.2rem;
+`;
+
+const StarIcon = styled(LuStar)<{ $isStarred: boolean }>`
+  fill: ${(props) => props.$isStarred && 'var(--color-gray)'};
+  stroke: ${(props) => props.$isStarred && 'var(--color-gray)'};
+`;

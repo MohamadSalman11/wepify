@@ -11,34 +11,7 @@ import UploadsPanel from './UploadsPanel';
 
 const DEFAULT_BORDER_DIRECTION = 'right';
 
-/**
- * Styles
- */
-
-const PanelContainer = styled.div<{ sectioned: boolean; borderDir: BorderDirection }>`
-  background-color: var(--color-white);
-  overflow-y: auto;
-  padding: ${({ sectioned }) => (sectioned ? '0' : '3.2rem 2.4rem')};
-  ${({ borderDir }) => css`border-${borderDir}: var(--border-base);`}
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  ${({ sectioned }) =>
-    sectioned &&
-    css`
-      & > div {
-        display: flex;
-        flex-direction: column;
-        border-bottom: var(--border-base);
-        padding: 3.2rem 2.4rem;
-        width: 100%;
-      }
-    `}
-`;
-
-const panelComponents: Record<PanelKey, React.ComponentType> = {
+const PANEL_COMPONENTS: Record<PanelKey, React.ComponentType> = {
   elements: ElementsPanel,
   settings: SettingsPanel,
   pages: PagesPanel,
@@ -63,14 +36,39 @@ interface PanelProps {
  * Component definition
  */
 
-function Panel({ panel, sectioned = false, borderDir = DEFAULT_BORDER_DIRECTION }: PanelProps) {
-  const PanelComponent = panelComponents[panel];
+export default function Panel({ panel, sectioned = false, borderDir = DEFAULT_BORDER_DIRECTION }: PanelProps) {
+  const PanelComponent = PANEL_COMPONENTS[panel];
 
   return (
-    <PanelContainer sectioned={sectioned} borderDir={borderDir}>
+    <PanelContainer $sectioned={sectioned} $borderDir={borderDir}>
       <PanelComponent />
     </PanelContainer>
   );
 }
 
-export default Panel;
+/**
+ * Styles
+ */
+
+const PanelContainer = styled.div<{ $sectioned: boolean; $borderDir: BorderDirection }>`
+  background-color: var(--color-white);
+  overflow-y: auto;
+  padding: ${({ $sectioned }) => ($sectioned ? '0' : '3.2rem 2.4rem')};
+  ${({ $borderDir }) => css`border-${$borderDir}: var(--border-base);`}
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  ${({ $sectioned }) =>
+    $sectioned &&
+    css`
+      & > div {
+        display: flex;
+        flex-direction: column;
+        border-bottom: var(--border-base);
+        padding: 3.2rem 2.4rem;
+        width: 100%;
+      }
+    `}
+`;

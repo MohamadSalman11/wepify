@@ -4,7 +4,7 @@ import type { Site, SitePage } from '@shared/types';
 interface EditorState {
   site: Site;
   isLoading: boolean;
-  targetDownloadSite: { id: string; shouldMinify: boolean };
+  images: string[];
 }
 
 const initialState: EditorState = {
@@ -19,7 +19,7 @@ const initialState: EditorState = {
     pages: []
   },
   isLoading: true,
-  targetDownloadSite: { id: '', shouldMinify: false }
+  images: []
 };
 
 const editorSlice = createSlice({
@@ -52,14 +52,13 @@ const editorSlice = createSlice({
     setIsLoading(state, action: PayloadAction<boolean>) {
       state.isLoading = action.payload;
     },
-    setTargetDownloadSite(state, action) {
-      state.targetDownloadSite.id = action.payload.id;
-      state.targetDownloadSite.shouldMinify = action.payload.shouldMinify;
+    setImages(state, action) {
+      state.images = action.payload;
     }
   }
 });
 
-export const { setSite, addPage, updatePageInfo, deletePage, setIsIndexPage, setIsLoading, setTargetDownloadSite } =
+export const { setSite, addPage, updatePageInfo, deletePage, setIsIndexPage, setIsLoading, setImages } =
   editorSlice.actions;
 
 export default editorSlice.reducer;

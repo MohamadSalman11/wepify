@@ -1,4 +1,4 @@
-import type { PageElement } from '../types';
+import type { PageElement } from '@shared/types';
 
 export function findElementById(id: string, elements: PageElement[]): PageElement | null {
   for (const el of elements) {

@@ -99,7 +99,10 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     rowHeight: 'auto',
     columns: 2,
     rows: 2,
-    padding: { x: 12, y: 12 }
+    paddingTop: 12,
+    paddingRight: 12,
+    paddingLeft: 12,
+    paddingBottom: 12
   }),
   gridItem: createElTemplate({
     left: 0,
@@ -117,7 +120,10 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     width: 150,
     height: 110,
     backgroundColor: '#b8e986',
-    padding: { x: 24, y: 24 }
+    paddingTop: 24,
+    paddingRight: 24,
+    paddingLeft: 24,
+    paddingBottom: 24
   }),
   listItem: createElTemplate({
     left: 0,
@@ -157,9 +163,12 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     tag: 'button',
     name: 'button',
     width: 150,
-    padding: { x: 6, y: 6 },
     content: 'text',
-    backgroundColor: '#f4f8f8'
+    backgroundColor: '#f4f8f8',
+    paddingTop: 6,
+    paddingRight: 6,
+    paddingLeft: 6,
+    paddingBottom: 6
   }),
   input: createElTemplate({
     tag: 'input',
@@ -167,8 +176,11 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     type: 'text',
     placeholder: 'E-Mail',
     width: 155,
-    padding: { x: 6, y: 6 },
-    fontSize: 14
+    fontSize: 14,
+    paddingTop: 6,
+    paddingRight: 6,
+    paddingLeft: 6,
+    paddingBottom: 6
   }),
   image: createElTemplate({
     tag: 'img',

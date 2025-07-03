@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import LoadingScreen from '../../components/LoadingScreen';
-import { LoadingMessages, Path } from '../../constant';
+import { LoadingMessages, Path, StorageKey } from '../../constant';
 import { useLoadFromStorage } from '../../hooks/useLoadFromStorage';
 import { useEditorContext } from '../../pages/Editor';
 import { useAppSelector } from '../../store';
@@ -25,36 +25,16 @@ const IFRAME_TITLE = 'Site Preview';
 const SIZE_FILL = '100%';
 const SIZE_SCREEN = '100vh';
 const DELETE_KEY = 'Backspace';
-const DEFAULT_SECTION_ID = 'section-1';
-
-/**
- * Styles
- */
-
-const StyledCanvas = styled.div`
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
-  background-color: transparent;
-  overflow-y: auto;
-  overflow-x: hidden;
-  background-color: var(--color-black-light);
-
-  iframe {
-    border: none;
-  }
-`;
 
 /**
  * Component definition
  */
 
-function Canvas() {
+export default function Canvas() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLDivElement>(null);
-  const { page: pageParam } = useParams();
+  const { pageId } = useParams();
   const { iframeConnection, iframeRef, isPreview } = useEditorContext();
   const { width, height, scale, elements } = useAppSelector((state) => state.page);
   const { isLoading } = useAppSelector((state) => state.editor);
@@ -65,7 +45,7 @@ function Canvas() {
     (site: Site | null) => {
       if (!site) return setIsError(true);
 
-      const page = site?.pages.find((p) => p.id === pageParam);
+      const page = site?.pages.find((p) => p.id === pageId);
 
       if (site && page && canvasRef.current) {
         dispatch(setWidth(canvasRef.current.clientWidth));
@@ -79,11 +59,11 @@ function Canvas() {
         setIsError(true);
       }
     },
-    [canvasRef, dispatch, pageParam, setIsDataLoaded, setIsError]
+    [canvasRef, dispatch, pageId, setIsDataLoaded, setIsError]
   );
 
   useLoadFromStorage<Site>({
-    storageKey: 'site',
+    storageKey: StorageKey.Site,
     loadingDuration,
     onLoaded
   });
@@ -138,4 +118,21 @@ function Canvas() {
   );
 }
 
-export default Canvas;
+/**
+ * Styles
+ */
+
+const StyledCanvas = styled.div`
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  background-color: transparent;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: var(--color-black-light);
+
+  iframe {
+    border: none;
+  }
+`;

@@ -1,4 +1,4 @@
-import { ChangeEvent, InputHTMLAttributes } from 'react';
+import type { ChangeEvent, InputHTMLAttributes } from 'react';
 
 export type InputChangeEvent = ChangeEvent<HTMLInputElement>;
 

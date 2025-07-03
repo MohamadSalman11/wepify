@@ -7,21 +7,10 @@ import Canvas from './Canvas';
 import { setIsLoading } from './slices/editorSlice';
 
 /**
- * Styles
- */
-
-const ClosePreviewButton = styled(Button).attrs({ size: 'sm', pill: true })`
-  position: fixed;
-  bottom: 2%;
-  left: 1%;
-  z-index: var(--zindex-preview-close-button);
-`;
-
-/**
  * Component definition
  */
 
-function Preview() {
+export default function Preview() {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -40,4 +29,16 @@ function Preview() {
   );
 }
 
-export default Preview;
+/**
+ * Styles
+ */
+
+const ClosePreviewButton = styled(Button).attrs({
+  size: 'sm',
+  pill: true
+})`
+  position: fixed;
+  bottom: 2%;
+  left: 1%;
+  z-index: var(--zindex-preview-close-button);
+`;

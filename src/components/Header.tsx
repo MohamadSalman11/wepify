@@ -7,6 +7,32 @@ import Icon from './Icon';
 import Logo from './Logo';
 
 /**
+ * Component definition
+ */
+
+export default function Header() {
+  const navigate = useNavigate();
+
+  return (
+    <StyledHeader>
+      <LeftSection>
+        <Icon icon={LuRocket} />
+        Build fast, launch faster
+      </LeftSection>
+      <Brand onClick={() => navigate(Path.Home)}>
+        <Logo />
+        Wepify
+      </Brand>
+      <div>
+        <Button onClick={() => navigate(Path.Dashboard)} variation='outline'>
+          Get Started
+        </Button>
+      </div>
+    </StyledHeader>
+  );
+}
+
+/**
  * Styles
  */
 
@@ -57,31 +83,3 @@ const Brand = styled.div`
     margin-bottom: 0.4rem;
   }
 `;
-
-/**
- * Component definition
- */
-
-function Header() {
-  const navigate = useNavigate();
-
-  return (
-    <StyledHeader>
-      <LeftSection>
-        <Icon icon={LuRocket} />
-        Build fast, launch faster
-      </LeftSection>
-      <Brand onClick={() => navigate(Path.Home)}>
-        <Logo />
-        Wepify
-      </Brand>
-      <div>
-        <Button onClick={() => navigate(Path.Dashboard)} variation='outline'>
-          Get Started
-        </Button>
-      </div>
-    </StyledHeader>
-  );
-}
-
-export default Header;

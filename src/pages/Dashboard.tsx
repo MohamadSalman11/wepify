@@ -1,16 +1,17 @@
-import localforage from 'localforage';
-import { useCallback, useEffect } from 'react';
+import type { Site } from '@shared/types';
+import { useCallback, useEffect, useMemo } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import LoadingScreen from '../components/LoadingScreen';
+import { StorageKey } from '../constant';
 import Header from '../features/dashboard/Header';
 import Main from '../features/dashboard/main/Main';
 import Sidebar from '../features/dashboard/Sidebar';
 import { setIsLoading, setSites } from '../features/dashboard/slices/dashboardSlice';
 import { useLoadFromStorage } from '../hooks/useLoadFromStorage';
 import { useAppSelector } from '../store';
-import type { Site } from '../types';
+import { AppStorage } from '../utils/appStorage';
 import { getRandomDuration } from '../utils/getRandomDuration';
 
 /**
@@ -20,46 +21,42 @@ import { getRandomDuration } from '../utils/getRandomDuration';
 const loadingDuration = getRandomDuration(2.5, 3.5);
 
 /**
- * Styles
- */
-
-const StyledDashboard = styled.div`
-  padding: 1.2rem 2.4rem;
-  user-select: none;
-
-  & > div:nth-of-type(2) {
-    margin-top: 1.2rem;
-  }
-`;
-
-const DashboardLayout = styled.div`
-  display: flex;
-`;
-
-/**
  * Component definition
  */
 
-function Dashboard() {
+export default function Dashboard() {
   const dispatch = useDispatch();
   const { sites, isLoading } = useAppSelector((state) => state.dashboard);
+  const storageKey = useMemo(() => ['sites', 'site'], []);
 
   const onLoaded = useCallback(
-    (sites: Site[] | null) => {
-      if (sites) dispatch(setSites(sites));
+    (data: { sites: Site[] | null; site: Site | null } | null) => {
+      if (!data) {
+        dispatch(setIsLoading(false));
+        return;
+      }
+
+      const updatedSites = data.sites ?? [];
+
+      if (data.site) {
+        const i = updatedSites.findIndex((s) => s.id === data.site!.id);
+        i >= 0 ? (updatedSites[i] = data.site) : updatedSites.push(data.site);
+      }
+
+      dispatch(setSites(updatedSites));
       dispatch(setIsLoading(false));
     },
     [dispatch]
   );
 
-  useLoadFromStorage<Site[]>({
-    storageKey: 'sites',
+  useLoadFromStorage<{ sites: Site[] | null; site: Site | null }>({
+    storageKey,
     loadingDuration,
     onLoaded
   });
 
   useEffect(() => {
-    localforage.setItem('sites', sites);
+    AppStorage.setItem(StorageKey.Sites, sites);
   }, [sites]);
 
   if (isLoading) {
@@ -78,4 +75,19 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;
+/**
+ * Styles
+ */
+
+const StyledDashboard = styled.div`
+  padding: 1.2rem 2.4rem;
+  user-select: none;
+
+  & > div:nth-of-type(2) {
+    margin-top: 1.2rem;
+  }
+`;
+
+const DashboardLayout = styled.div`
+  display: flex;
+`;

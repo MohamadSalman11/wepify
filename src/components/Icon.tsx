@@ -15,24 +15,6 @@ const DEFAULT_ICON_SIZE = 'lg';
 const DEFAULT_BORDER_RADIUS = 'full';
 
 /**
- * Styles
- */
-
-const IconWrapper = styled.span<{ $borderRadius: BorderRadius }>`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: var(--transition-base);
-  cursor: pointer;
-  border-radius: ${({ $borderRadius }) => `var(--border-radius-${$borderRadius})`};
-  padding: 0.6rem;
-
-  &:hover {
-    background-color: var(--color-white-2);
-  }
-`;
-
-/**
  * Types
  */
 
@@ -51,14 +33,14 @@ interface IconProps {
  * Component definition
  */
 
-const Icon = ({
+export default function Icon({
   icon: IconComponent,
   size = DEFAULT_ICON_SIZE,
   onClick,
   hover,
   borderRadius = DEFAULT_BORDER_RADIUS,
   ...props
-}: IconProps) => {
+}: IconProps) {
   const iconElement = <IconComponent size={SIZE[size]} onClick={onClick} {...props} />;
 
   if (!hover) return iconElement;
@@ -68,6 +50,22 @@ const Icon = ({
       {iconElement}
     </IconWrapper>
   );
-};
+}
 
-export default Icon;
+/**
+ * Styles
+ */
+
+const IconWrapper = styled.span<{ $borderRadius: BorderRadius }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: var(--transition-base);
+  cursor: pointer;
+  border-radius: ${({ $borderRadius }) => `var(--border-radius-${$borderRadius})`};
+  padding: 0.6rem;
+
+  &:hover {
+    background-color: var(--color-white-2);
+  }
+`;

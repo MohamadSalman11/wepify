@@ -1,5 +1,7 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { type ButtonHTMLAttributes, type ReactNode } from 'react';
+import type { IconType } from 'react-icons';
 import styled, { css, type RuleSet } from 'styled-components';
+import Icon from './Icon';
 
 /**
  * Constants
@@ -9,6 +11,54 @@ const DEFAULT_VARIATION = 'primary';
 const DEFAULT_SIZE = 'md';
 const ELEMENT_LINK = 'a';
 const ELEMENT_BUTTON = 'button';
+
+/**
+ * Types
+ */
+
+type Variation = keyof typeof variations;
+type Size = 'md' | 'sm';
+
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  children: ReactNode;
+  icon?: IconType;
+  variation?: Variation;
+  size?: Size;
+  fullWidth?: boolean;
+  pill?: boolean;
+  asLink?: boolean;
+  href?: string;
+  target?: string;
+}
+
+/**
+ * Component definition
+ */
+
+export default function Button({
+  children,
+  icon,
+  variation = DEFAULT_VARIATION,
+  size = DEFAULT_SIZE,
+  fullWidth = false,
+  pill = false,
+  asLink = false,
+  ...props
+}: ButtonProps) {
+  return (
+    <StyledButton
+      as={asLink ? ELEMENT_LINK : ELEMENT_BUTTON}
+      $variation={variation}
+      $size={size}
+      $fullWidth={fullWidth}
+      $pill={pill}
+      $hasIcon={!!icon}
+      {...props}
+    >
+      {icon && <Icon icon={icon} />} {children}
+    </StyledButton>
+  );
+}
 
 /**
  * Styles
@@ -71,70 +121,38 @@ const StyledButton = styled.button<{
   $size: Size;
   $fullWidth: boolean;
   $pill: boolean;
+  $hasIcon: boolean;
 }>`
-  ${({ theme: { prefix }, $fullWidth, $pill }) => css`
-    --${prefix}-btn-transition: var(--btn-transition);
-    --${prefix}-btn-border-radius: var(--btn-border-radius);
-    --${prefix}-btn-font-weight: var(--btn-font-weight);
-    --${prefix}-btn-white-space: var(--btn-white-space);
-    --${prefix}-btn-color: var(--color-white);
+  ${({ theme: { prefix }, $variation, $size, $fullWidth, $pill, $hasIcon }) => css`
+  --${prefix}-btn-transition: var(--btn-transition);
+  --${prefix}-btn-border-radius: var(--btn-border-radius);
+  --${prefix}-btn-font-weight: var(--btn-font-weight);
+  --${prefix}-btn-white-space: var(--btn-white-space);
+  --${prefix}-btn-color: var(--color-white);
 
-    color: var(--${prefix}-btn-color);
-    transition: var(--${prefix}-btn-transition);
-    font-weight: var(--${prefix}-btn-font-weight);
-    white-space: var(--${prefix}-btn-white-space);
-    border-radius: ${$pill ? 'var(--border-radius-full)' : `var(--${prefix}-btn-border-radius)`};
-    text-decoration: none;
-   ${$fullWidth && 'width: 100%;'}
-  `}
+  color: var(--${prefix}-btn-color);
+  transition: var(--${prefix}-btn-transition);
+  font-weight: var(--${prefix}-btn-font-weight);
+  white-space: var(--${prefix}-btn-white-space);
+  border-radius: ${$pill ? 'var(--border-radius-full)' : `var(--${prefix}-btn-border-radius)`};
+  text-decoration: none;
+  ${$fullWidth && 'width: 100%;'}
 
-  ${({ $size }) => sizes[$size]}
-  ${({ $variation }) => variations[$variation]}
+  svg{
+    color: currentColor;
+  }
+
+  ${
+    $hasIcon &&
+    css`
+      display: flex;
+      column-gap: 1.2rem;
+      justify-content: center;
+      align-items: center;
+    `
+  }
+
+  ${sizes[$size]};
+  ${variations[$variation]};
+`}
 `;
-
-/**
- * Types
- */
-
-type Variation = keyof typeof variations;
-type Size = 'md' | 'sm';
-
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  children: ReactNode;
-  variation?: Variation;
-  size?: Size;
-  fullWidth?: boolean;
-  pill?: boolean;
-  asLink?: boolean;
-  href?: string;
-  target?: string;
-}
-
-/**
- * Component definition
- */
-
-function Button({
-  children,
-  variation = DEFAULT_VARIATION,
-  size = DEFAULT_SIZE,
-  fullWidth = false,
-  pill = false,
-  asLink = false,
-  ...props
-}: ButtonProps) {
-  return (
-    <StyledButton
-      as={asLink ? ELEMENT_LINK : ELEMENT_BUTTON}
-      $variation={variation}
-      $size={size}
-      $fullWidth={fullWidth}
-      $pill={pill}
-      {...props}
-    >
-      {children}
-    </StyledButton>
-  );
-}
-
-export default Button;

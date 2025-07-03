@@ -15,51 +15,6 @@ import { setModalIsOpen } from '../features/dashboard/slices/dashboardSlice';
 import Icon from './Icon';
 
 /**
- * Styles
- */
-
-const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--box-shadow);
-  backdrop-filter: blur(2px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: var(--zindex-modal);
-`;
-
-const StyledDialog = styled.div`
-  background-color: var(--color-white);
-  border-radius: var(--border-radius-lg);
-  padding: 2.4rem;
-  width: 35rem;
-  box-shadow: var(--box-shadow);
-  font-size: 1.4rem;
-  display: flex;
-  flex-direction: column;
-  row-gap: 1.2rem;
-`;
-
-const DialogHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.2rem;
-
-  h3 {
-    font-size: 1.6rem;
-  }
-
-  span {
-    transform: translateY(-2px);
-  }
-`;
-
-/**
  * types
  */
 
@@ -91,7 +46,7 @@ const useModalContext = () => {
  * Component definition
  */
 
-function Modal({ children }: { children: ReactNode }) {
+export function Modal({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return <ModalContext.Provider value={{ isOpen, setIsOpen }}>{children}</ModalContext.Provider>;
@@ -149,4 +104,47 @@ Modal.close = Close;
 Modal.window = Window;
 Modal.dialog = Dialog;
 
-export default Modal;
+/**
+ * Styles
+ */
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--box-shadow);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--zindex-modal);
+`;
+
+const StyledDialog = styled.div`
+  background-color: var(--color-white);
+  border-radius: var(--border-radius-lg);
+  padding: 2.4rem;
+  width: 35rem;
+  box-shadow: var(--box-shadow);
+  font-size: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  row-gap: 1.2rem;
+`;
+
+const DialogHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.2rem;
+
+  h3 {
+    font-size: 1.6rem;
+  }
+
+  span {
+    transform: translateY(-2px);
+  }
+`;

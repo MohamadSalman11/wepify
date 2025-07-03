@@ -4,6 +4,23 @@ import Logo from '../../components/Logo';
 import { Path } from '../../constant';
 
 /**
+ * Component definition
+ */
+
+export default function Header() {
+  const navigate = useNavigate();
+
+  return (
+    <StyledHeader>
+      <LogoBox onClick={() => navigate(Path.Home)}>
+        <Logo />
+        <span>Wepify</span>
+      </LogoBox>
+    </StyledHeader>
+  );
+}
+
+/**
  * Styles
  */
 
@@ -24,22 +41,3 @@ const LogoBox = styled.div`
     margin-bottom: 0.4rem;
   }
 `;
-
-/**
- * Component definition
- */
-
-function Header() {
-  const navigate = useNavigate();
-
-  return (
-    <StyledHeader>
-      <LogoBox onClick={() => navigate(Path.Home)}>
-        <Logo />
-        <span>Wepify</span>
-      </LogoBox>
-    </StyledHeader>
-  );
-}
-
-export default Header;

@@ -4,7 +4,7 @@ export const TOAST_DURATION = 5000;
 export enum Path {
   Home = '/',
   Dashboard = '/dashboard',
-  Editor = '/editor/sites/:site/pages/:page'
+  Editor = '/editor/sites/:siteId/pages/:pageId'
 }
 
 export enum EditorPath {
@@ -20,6 +20,12 @@ export enum LoadingMessages {
   SitePreview = 'Setting up your site preview...',
   Editor = 'Setting up your site editor...',
   Error = 'Something went wrong while loading the site.'
+}
+
+export enum StorageKey {
+  Sites = 'sites',
+  Site = 'site',
+  Images = 'images'
 }
 
 export const ToastMessages = {

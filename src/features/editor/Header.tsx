@@ -1,5 +1,4 @@
-import type { Site } from '@shared/types';
-import localforage from 'localforage';
+import type { InputChangeEvent, Site } from '@shared/types';
 import { useState } from 'react';
 import type { IconType } from 'react-icons';
 import {
@@ -22,16 +21,18 @@ import Divider from '../../components/divider';
 import Dropdown from '../../components/Dropdown';
 import Input from '../../components/form/Input';
 import Icon from '../../components/Icon';
-import { EditorPath } from '../../constant';
+import { EditorPath, StorageKey } from '../../constant';
 import { useEditorContext } from '../../pages/Editor';
 import { useAppSelector } from '../../store';
-import type { InputChangeEvent } from '../../types';
+import { AppStorage } from '../../utils/appStorage';
 import { setIsLoading } from './slices/editorSlice';
 import { setHeight, setScale, setWidth } from './slices/pageSlice';
 
 /**
  * Constants
  */
+
+const PUBLISH_LINK = 'https://app.netlify.com/drop';
 
 const SCREEN_SIZES = {
   monitor: { width: 1440, height: 900 },
@@ -40,88 +41,7 @@ const SCREEN_SIZES = {
   smartphone: { width: 375, height: 667 }
 } as const;
 
-/**
- * Styles
- */
 
-const CanvasSizeInput = styled(Input)`
-  width: 7rem;
-  padding: 0.8rem 0.8rem 0.8rem 2.4rem;
-`;
-
-const StyledHeader = styled.header`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  grid-column: 2 / 5;
-  padding: 0.8rem 3.2rem;
-  border-bottom: var(--border-base);
-  background-color: var(--color-white);
-
-  & > div {
-    flex-grow: 1;
-    justify-content: end;
-  }
-`;
-
-const CanvasSizeControls = styled.div`
-  display: flex;
-  column-gap: 1.2rem;
-  align-items: center;
-
-  div {
-    position: relative;
-
-    span {
-      position: absolute;
-      top: 55%;
-      left: 10%;
-      transform: translateY(-50%);
-      color: var(--color-gray);
-      font-size: 1.2rem;
-    }
-  }
-`;
-
-const DevicePreviewControls = styled.div`
-  display: flex;
-  column-gap: 4.8rem;
-  align-items: center;
-`;
-
-const EditorActions = styled.div`
-  display: flex;
-  column-gap: 2.4rem;
-  align-items: center;
-`;
-
-const DesignInfo = styled.div`
-  user-select: text;
-
-  span {
-    font-size: 1.8rem;
-  }
-
-  p {
-    margin-top: 0.8rem;
-    color: var(--color-gray);
-    font-size: 1.2rem;
-  }
-`;
-
-const StyledDevicePreviewButton = styled.button<{ active?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--border-radius-md);
-  padding: 0.8rem;
-  transition: var(--transition-base);
-  background-color: ${({ active }) => (active ? 'var(--color-white-3)' : 'transparent')};
-
-  &:hover {
-    background-color: var(--color-white-3);
-  }
-`;
 
 /**
  * Types
@@ -134,7 +54,7 @@ type DeviceType = keyof typeof SCREEN_SIZES | 'auto';
  * Component definition
  */
 
-function Header() {
+export default function Header() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { iframeConnection } = useEditorContext();
@@ -157,7 +77,7 @@ function Header() {
   };
 
   async function handleDownloadSite(shouldMinify: boolean) {
-    const site = (await localforage.getItem('site')) as Site;
+    const site = await AppStorage.getItem<Site>(StorageKey.Site);
     iframeConnection.downloadSite(site, shouldMinify);
   }
 
@@ -199,15 +119,15 @@ function Header() {
         <CanvasSizeControls>
           <div>
             <span>W</span>
-            <CanvasSizeInput type='text' value={width} placeholder='px' onChange={handleWidthChange} />
+            <Input fullWidth={false} type='text' value={width} placeholder='px' onChange={handleWidthChange} />
           </div>
           <div>
             <span>H</span>
-            <CanvasSizeInput type='text' value={height} placeholder='px' onChange={handleHeightChange} />
+            <Input fullWidth={false} type='text' value={height} placeholder='px' onChange={handleHeightChange} />
           </div>
           <div>
             <span>%</span>
-            <CanvasSizeInput type='text' value={scale} placeholder='%' onChange={handleScaleChange} />
+            <Input fullWidth={false} type='text' value={scale} placeholder='%' onChange={handleScaleChange} />
           </div>
         </CanvasSizeControls>
       </DevicePreviewControls>
@@ -240,15 +160,18 @@ function Header() {
           </Dropdown.open>
           <Dropdown.drop>
             <li onClick={() => handleDownloadSite(true)}>
-              <LuFileMinus /> Download Minified
+              <DropdownItemButton>
+                <Icon icon={LuFileMinus} /> Download Minified
+              </DropdownItemButton>
             </li>
             <li onClick={() => handleDownloadSite(false)}>
-              <LuFileCode2 /> Download Readable
+              <DropdownItemButton>
+                <Icon icon={LuFileCode2} /> Download Readable
+              </DropdownItemButton>
             </li>
           </Dropdown.drop>
         </Dropdown>
-
-        <Button asLink={true} href='https://app.netlify.com/drop' target='_blank'>
+        <Button asLink={true} href={PUBLISH_LINK} target='_blank'>
           Publish
         </Button>
       </EditorActions>
@@ -278,13 +201,6 @@ function DevicePreviewButton({
     dispatch(setScale(newScale ?? 100));
   };
 
-  function calculateScaleToFit(containerSize: Size, targetSize: Size) {
-    const scaleX = containerSize.width / targetSize.width;
-    const scaleY = containerSize.height / targetSize.height;
-    const scaleVal = Math.floor(Math.min(scaleX, scaleY) * 100);
-    return Math.max(Math.min(scaleVal, 100), 10);
-  }
-
   const handleClick = () => {
     if (isActive) {
       setActiveDevice('auto');
@@ -297,10 +213,107 @@ function DevicePreviewButton({
   };
 
   return (
-    <StyledDevicePreviewButton active={isActive} onClick={handleClick}>
+    <StyledDevicePreviewButton $active={isActive} onClick={handleClick}>
       <Icon icon={icon} />
     </StyledDevicePreviewButton>
   );
 }
 
-export default Header;
+function calculateScaleToFit(containerSize: Size, targetSize: Size) {
+  const scaleX = containerSize.width / targetSize.width;
+  const scaleY = containerSize.height / targetSize.height;
+  const scaleVal = Math.floor(Math.min(scaleX, scaleY) * 100);
+  return Math.max(Math.min(scaleVal, 100), 10);
+}
+
+
+/**
+ * Styles
+ */
+
+const StyledHeader = styled.header`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  grid-column: 2 / 5;
+  padding: 0.8rem 3.2rem;
+  border-bottom: var(--border-base);
+  background-color: var(--color-white);
+
+  & > div {
+    flex-grow: 1;
+    justify-content: end;
+  }
+`;
+
+const CanvasSizeControls = styled.div`
+  display: flex;
+  column-gap: 1.2rem;
+  align-items: center;
+
+  div {
+    position: relative;
+
+    span {
+      position: absolute;
+      top: 55%;
+      left: 10%;
+      transform: translateY(-50%);
+      color: var(--color-gray);
+      font-size: 1.2rem;
+    }
+  }
+
+  input {
+    padding-right: 0.8rem;
+    padding-left: 3.2rem;
+    width: 8.5rem;
+  }
+`;
+
+const DevicePreviewControls = styled.div`
+  display: flex;
+  column-gap: 4.8rem;
+  align-items: center;
+`;
+
+const EditorActions = styled.div`
+  display: flex;
+  column-gap: 2.4rem;
+  align-items: center;
+`;
+
+const DropdownItemButton = styled.button`
+  display: flex;
+  align-items: center;
+  column-gap: 1.2rem;
+  background-color: transparent;
+`;
+
+const DesignInfo = styled.div`
+  user-select: text;
+
+  span {
+    font-size: 1.8rem;
+  }
+
+  p {
+    margin-top: 0.8rem;
+    color: var(--color-gray);
+    font-size: 1.2rem;
+  }
+`;
+
+const StyledDevicePreviewButton = styled.button<{ $active?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius-md);
+  padding: 0.8rem;
+  transition: var(--transition-base);
+  background-color: ${({ $active }) => ($active ? 'var(--color-white-3)' : 'transparent')};
+
+  &:hover {
+    background-color: var(--color-white-3);
+  }
+`;

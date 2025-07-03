@@ -1,6 +1,14 @@
 import styled from 'styled-components';
 
 /**
+ * Component definition
+ */
+
+export default function Logo() {
+  return <StyledLogo src='/logo.png' alt='logo' />;
+}
+
+/**
  * Styles
  */
 
@@ -10,13 +18,3 @@ const StyledLogo = styled.img`
   height: 5rem;
   margin-bottom: 1.4rem;
 `;
-
-/**
- * Component definition
- */
-
-function Logo() {
-  return <StyledLogo src='/logo.png' alt='logo' />;
-}
-
-export default Logo;

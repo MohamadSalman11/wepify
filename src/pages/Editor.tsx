@@ -9,24 +9,6 @@ import Panel from '../features/editor/panels';
 import Sidebar from '../features/editor/Sidebar';
 
 /**
- * Styles
- */
-
-const editorLayout = css`
-  display: grid;
-  grid-template-columns: 10rem 34rem 3.5fr 34rem;
-  grid-template-rows: 8rem 1fr;
-`;
-
-const StyledEditor = styled.div<{ isPreview?: boolean }>`
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  user-select: none;
-  ${({ isPreview }) => !isPreview && editorLayout}
-`;
-
-/**
  * Context
  */
 
@@ -48,7 +30,7 @@ export const useEditorContext = () => {
  * Component definition
  */
 
-function Editor() {
+export default function Editor() {
   const location = useLocation();
   const isPreview = location.pathname.endsWith('/preview');
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -57,7 +39,7 @@ function Editor() {
   if (isPreview) {
     return (
       <EditorContext.Provider value={{ iframeRef, iframeConnection, isPreview }}>
-        <StyledEditor isPreview={isPreview}>
+        <StyledEditor $isPreview={isPreview}>
           <Outlet />
         </StyledEditor>
       </EditorContext.Provider>
@@ -78,4 +60,20 @@ function Editor() {
   );
 }
 
-export default Editor;
+/**
+ * Styles
+ */
+
+const editorLayout = css`
+  display: grid;
+  grid-template-columns: 10rem 34rem 3.5fr 34rem;
+  grid-template-rows: 8rem 1fr;
+`;
+
+const StyledEditor = styled.div<{ $isPreview?: boolean }>`
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  user-select: none;
+  ${({ $isPreview }) => !$isPreview && editorLayout}
+`;

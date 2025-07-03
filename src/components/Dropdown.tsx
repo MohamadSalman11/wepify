@@ -22,55 +22,6 @@ const DEFAULT_TRANSLATE_X = 0;
 const DEFAULT_TRANSLATE_Y = 0;
 
 /**
- * Styles
- */
-
-const StyledDropdown = styled.ul<{
-  $isHidden: boolean;
-  $top: number;
-  $left: number;
-  $translateX?: number;
-  $translateY?: number;
-}>`
-  position: absolute;
-  top: ${(props) => props.$top}px;
-  left: ${(props) => props.$left}px;
-  width: 20rem;
-  font-size: 1.4rem;
-  border-radius: var(--border-radius-sm);
-  box-shadow: var(--box-shadow);
-  overflow: hidden;
-  z-index: var(--zindex-base);
-  background-color: var(--color-white);
-  transform: translate(${(props) => props.$translateX ?? 0}%, ${(props) => props.$translateY ?? 0}%);
-
-  ${(props) =>
-    props.$isHidden &&
-    css`
-      opacity: 0;
-      pointer-events: none;
-      visibility: hidden;
-    `}
-
-  li {
-    display: flex;
-    column-gap: 1.2rem;
-    align-items: center;
-    cursor: pointer;
-    padding: 1.2rem;
-    width: 100%;
-
-    &:hover {
-      background-color: var(--color-gray-light-3);
-    }
-
-    svg {
-      font-size: 1.7rem;
-    }
-  }
-`;
-
-/**
  * Types
  */
 
@@ -98,7 +49,7 @@ const useDropdownContext = () => {
  * Component definition
  */
 
-function Dropdown({ children }: { children: ReactNode }) {
+export default function Dropdown({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const toggleRef = useRef<HTMLElement>(null);
 
@@ -179,4 +130,51 @@ function Drop({
 Dropdown.open = Open;
 Dropdown.drop = Drop;
 
-export default Dropdown;
+/**
+ * Styles
+ */
+
+const StyledDropdown = styled.ul<{
+  $isHidden: boolean;
+  $top: number;
+  $left: number;
+  $translateX?: number;
+  $translateY?: number;
+}>`
+  position: absolute;
+  top: ${(props) => props.$top}px;
+  left: ${(props) => props.$left}px;
+  width: 20rem;
+  font-size: 1.4rem;
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--box-shadow);
+  overflow: hidden;
+  z-index: var(--zindex-base);
+  background-color: var(--color-white);
+  transform: translate(${(props) => props.$translateX ?? 0}%, ${(props) => props.$translateY ?? 0}%);
+
+  ${(props) =>
+    props.$isHidden &&
+    css`
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+    `}
+
+  li {
+    display: flex;
+    column-gap: 1.2rem;
+    align-items: center;
+    cursor: pointer;
+    padding: 1.2rem;
+    width: 100%;
+
+    &:hover {
+      background-color: var(--color-gray-light-3);
+    }
+
+    svg {
+      font-size: 1.7rem;
+    }
+  }
+`;

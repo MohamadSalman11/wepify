@@ -11,6 +11,84 @@ import Icon from '../Icon';
 const DEFAULT_EDIT_INPUT_TYPE = 'number';
 
 /**
+ * Types
+ */
+
+interface SelectProps {
+  name: string;
+  editable?: boolean;
+  editInputType?: 'number' | 'text';
+  options: (string | number)[];
+  defaultSelect?: string | number;
+  onChange?: (event: { target: { value: string | number; name: string } }) => void;
+}
+
+/**
+ * Component definition
+ */
+
+export default function Select({
+  options,
+  onChange,
+  defaultSelect = '',
+  name,
+  editable,
+  editInputType = DEFAULT_EDIT_INPUT_TYPE
+}: SelectProps) {
+  const [selected, setSelected] = useState<string | number>(defaultSelect);
+  const [isOpen, setIsOpen] = useState(false);
+  const wrapperRef = useOutsideClick<HTMLDivElement>(() => setIsOpen(false));
+
+  const handleSelect = (option: string | number) => {
+    setSelected(option);
+    setIsOpen(false);
+    onChange?.({ target: { value: option, name } });
+  };
+
+  useEffect(() => {
+    setSelected(defaultSelect ?? '');
+  }, [defaultSelect]);
+
+  const toggleDropdown = () => setIsOpen((prev) => !prev);
+
+  return (
+    <Wrapper ref={wrapperRef}>
+      <SelectButton
+        aria-haspopup='listbox'
+        aria-expanded={isOpen}
+        role='button'
+        $clickable={!editable}
+        onClick={editable ? undefined : toggleDropdown}
+      >
+        {editable ? (
+          <LabelInput
+            type={editInputType}
+            value={selected}
+            onChange={(event) => {
+              const value = event.target.value;
+              setSelected(value);
+              onChange?.({ target: { value, name } });
+            }}
+          />
+        ) : (
+          <LabelEditable>{selected || 'Select...'}</LabelEditable>
+        )}
+        <Chevron $clickable={true} onClick={editable ? toggleDropdown : undefined}>
+          <Icon icon={LuChevronDown} />
+        </Chevron>
+      </SelectButton>
+      <DropdownList role='listbox' $open={isOpen}>
+        {options.map((option) => (
+          <DropdownItem key={option} role='option' onClick={() => handleSelect(option)}>
+            {option}
+          </DropdownItem>
+        ))}
+      </DropdownList>
+    </Wrapper>
+  );
+}
+
+/**
  * Styles
  */
 
@@ -71,81 +149,3 @@ const DropdownItem = styled.li`
     background: var(--color-white-3);
   }
 `;
-
-/**
- * Types
- */
-
-interface SelectProps {
-  options: (string | number)[];
-  onChange: (option: string | number, propName?: string) => void;
-  defaultSelect?: string | number;
-  editable?: boolean;
-  editInputType?: 'number' | 'text';
-}
-
-/**
- * Component definition
- */
-
-const Select = ({
-  options,
-  onChange,
-  defaultSelect = '',
-  editable,
-  editInputType = DEFAULT_EDIT_INPUT_TYPE
-}: SelectProps) => {
-  const [selected, setSelected] = useState<string | number>(defaultSelect);
-  const [isOpen, setIsOpen] = useState(false);
-  const wrapperRef = useOutsideClick<HTMLDivElement>(() => setIsOpen(false));
-
-  const handleSelect = (option: string | number) => {
-    setSelected(option);
-    setIsOpen(false);
-    onChange(option);
-  };
-
-  useEffect(() => {
-    setSelected(defaultSelect ?? '');
-  }, [defaultSelect]);
-
-  const toggleDropdown = () => setIsOpen((prev) => !prev);
-
-  return (
-    <Wrapper ref={wrapperRef}>
-      <SelectButton
-        aria-haspopup='listbox'
-        aria-expanded={isOpen}
-        role='button'
-        $clickable={!editable}
-        onClick={editable ? undefined : toggleDropdown}
-      >
-        {editable ? (
-          <LabelInput
-            type={editInputType}
-            value={selected}
-            onChange={(event) => {
-              const text = event.target.value;
-              setSelected(text);
-              onChange(text);
-            }}
-          />
-        ) : (
-          <LabelEditable>{selected || 'Select...'}</LabelEditable>
-        )}
-        <Chevron $clickable={true} onClick={editable ? toggleDropdown : undefined}>
-          <Icon icon={LuChevronDown} />
-        </Chevron>
-      </SelectButton>
-      <DropdownList role='listbox' $open={isOpen}>
-        {options.map((option) => (
-          <DropdownItem key={option} role='option' onClick={() => handleSelect(option)}>
-            {option}
-          </DropdownItem>
-        ))}
-      </DropdownList>
-    </Wrapper>
-  );
-};
-
-export default Select;

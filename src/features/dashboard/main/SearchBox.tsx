@@ -1,3 +1,4 @@
+import type { InputChangeEvent, Site } from '@shared/types';
 import { useRef, useState, type ReactNode } from 'react';
 import type { IconType } from 'react-icons';
 import { LuCalendar, LuChevronDown, LuFileStack, LuHardDrive, LuLayoutTemplate, LuSearch, LuX } from 'react-icons/lu';
@@ -5,10 +6,10 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 import Dropdown from '../../../components/Dropdown';
+import Input from '../../../components/form/Input';
 import Icon from '../../../components/Icon';
 import { Path } from '../../../constant';
 import { useAppSelector } from '../../../store';
-import type { InputChangeEvent, Site } from '../../../types';
 import { buildPath } from '../../../utils/buildPath';
 import { formatDate } from '../../../utils/formatDate';
 import { setFilterLabel, setFilters, type FilterCriteria } from '../slices/dashboardSlice';
@@ -42,6 +43,144 @@ const OPTIONS_MODIFIED = [
 ];
 
 /**
+ * Component definition
+ */
+
+export default function SearchBox() {
+  const { sites, filters } = useAppSelector((state) => state.dashboard);
+  const [matchedSites, setMatchedSites] = useState<Site[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const isSearchResultVisible = isSearching;
+  const hasActiveFilters = Object.keys(filters).length > 0;
+
+  function handleSearch(event: InputChangeEvent) {
+    const search = event.target.value.toLowerCase();
+    const matchSites = search
+      ? sites.filter(
+          (site) => site.name.toLowerCase().includes(search) || site.description.toLowerCase().includes(search)
+        )
+      : [];
+
+    setMatchedSites(matchSites);
+    setIsSearching(!!search);
+  }
+
+  function clearSearch() {
+    if (inputRef.current) inputRef.current.value = '';
+    setMatchedSites([]);
+    setIsSearching(false);
+  }
+
+  if (hasActiveFilters) {
+    return null;
+  }
+
+  return (
+    <StyledSearchBox>
+      <h1>Welcome to Wepify</h1>
+      <Searchbar $isSearchResult={isSearchResultVisible}>
+        <SearchIcon />
+        <Input
+          size='lg'
+          pill={true}
+          ref={inputRef}
+          type='text'
+          placeholder='Search in Wepify'
+          onChange={handleSearch}
+        />
+        {isSearching && <ClearIcon onClick={clearSearch} />}
+      </Searchbar>
+      {isSearchResultVisible && <SearchResults matchedSites={matchedSites} />}
+      <FilterList />
+    </StyledSearchBox>
+  );
+}
+
+function SearchResults({ matchedSites }: { matchedSites: Site[] }) {
+  const navigate = useNavigate();
+  const isNoResult = matchedSites.length === 0;
+
+  return (
+    <StyledSearchContainer>
+      {isNoResult ? (
+        <NoResultsText>No items match your search</NoResultsText>
+      ) : (
+        <SearchResultList>
+          {matchedSites.map((site) => (
+            <SearchResultItem
+              key={site.id}
+              onClick={() => navigate(buildPath(Path.Editor, { siteId: site.id, pageId: site.pages[0].id }))}
+            >
+              <ItemContent>
+                <Icon icon={LuLayoutTemplate} />
+                <div>
+                  <span>{site.name}</span>
+                  <p>{site.description}</p>
+                </div>
+              </ItemContent>
+              <span>{formatDate(site.createdAt)}</span>
+            </SearchResultItem>
+          ))}
+        </SearchResultList>
+      )}
+    </StyledSearchContainer>
+  );
+}
+
+function FilterList() {
+  const dispatch = useDispatch();
+
+  const handleFilter = (filter: Partial<FilterCriteria>, label: string) => {
+    dispatch(setFilters(filter));
+    dispatch(setFilterLabel(label));
+  };
+
+  return (
+    <FilterToolbar>
+      <FilterItem title='Size' icon={LuHardDrive}>
+        {OPTIONS_SIZE.map(({ label, min, max }) => (
+          <li key={label} onClick={() => handleFilter({ sizeRange: { min, max } }, label)}>
+            {label}
+          </li>
+        ))}
+      </FilterItem>
+      <FilterItem title='Pages' icon={LuFileStack}>
+        {OPTIONS_PAGE.map(({ label, min, max }) => (
+          <li key={label} onClick={() => handleFilter({ pageRange: { min, max } }, label)}>
+            {label}
+          </li>
+        ))}
+      </FilterItem>
+      <FilterItem title='Modified' icon={LuCalendar}>
+        {OPTIONS_MODIFIED.map(({ label, days }) => (
+          <li key={label} onClick={() => handleFilter({ modifiedWithinDays: days }, label)}>
+            {label}
+          </li>
+        ))}
+      </FilterItem>
+    </FilterToolbar>
+  );
+}
+
+function FilterItem({ children, title, icon }: { children: ReactNode; title: string; icon: IconType }) {
+  return (
+    <li>
+      <Dropdown>
+        <Dropdown.open>
+          <FilterButton>
+            <Icon icon={icon} />
+            {title}
+            <Icon icon={LuChevronDown} />
+          </FilterButton>
+        </Dropdown.open>
+        <Dropdown.drop>{children}</Dropdown.drop>
+      </Dropdown>
+    </li>
+  );
+}
+
+/**
  * Styles
  */
 
@@ -59,9 +198,9 @@ const StyledSearchBox = styled.div`
 
 const FilterToolbar = styled.ul`
   display: flex;
-  column-gap: 2.4rem;
   justify-content: center;
   align-items: center;
+  column-gap: 2.4rem;
   margin-top: 1.6rem;
 
   & > li {
@@ -71,9 +210,9 @@ const FilterToolbar = styled.ul`
 
 const FilterButton = styled.span`
   display: flex;
-  column-gap: 0.8rem;
   justify-content: center;
   align-items: center;
+  column-gap: 0.8rem;
   transition: var(--transition-base);
   cursor: pointer;
   border-radius: var(--border-radius-full);
@@ -107,11 +246,7 @@ const Searchbar = styled.div<{ $isSearchResult: boolean }>`
         border-bottom-left-radius: 0;
       `};
 
-    outline: none;
-    background-color: var(--color-white-2);
-    padding: 1.6rem 1.6rem 1.6rem 6.4rem;
     width: 80rem;
-    font-size: 1.6rem;
   }
 
   svg {
@@ -185,136 +320,3 @@ const ItemContent = styled.div`
     }
   }
 `;
-
-/**
- * Component definition
- */
-
-export default function SearchBox() {
-  const { sites, filters } = useAppSelector((state) => state.dashboard);
-  const [matchedSites, setMatchedSites] = useState<Site[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  function handleSearch(event: InputChangeEvent) {
-    const search = event.target.value.toLowerCase();
-    const matchSites = search
-      ? sites.filter(
-          (site) => site.name.toLowerCase().includes(search) || site.description.toLowerCase().includes(search)
-        )
-      : [];
-
-    setMatchedSites(matchSites);
-    setIsSearching(!!search);
-  }
-
-  function clearSearch() {
-    if (inputRef.current) inputRef.current.value = '';
-    setMatchedSites([]);
-    setIsSearching(false);
-  }
-
-  const isSearchResultVisible = isSearching;
-
-  if (filters.modifiedWithinDays || filters.pageRange || filters.sizeRange) {
-    return null;
-  }
-
-  return (
-    <StyledSearchBox>
-      <h1>Welcome to Wepify</h1>
-      <Searchbar $isSearchResult={isSearchResultVisible}>
-        <SearchIcon />
-        <input ref={inputRef} type='text' placeholder='Search in Wepify' onChange={handleSearch} />
-        {isSearching && <ClearIcon onClick={clearSearch} />}
-      </Searchbar>
-      {isSearchResultVisible && <SearchResults matchedSites={matchedSites} />}
-      <FilterList />
-    </StyledSearchBox>
-  );
-}
-
-function SearchResults({ matchedSites }: { matchedSites: Site[] }) {
-  const navigate = useNavigate();
-  const isNoResult = matchedSites.length === 0;
-
-  return (
-    <StyledSearchContainer>
-      {isNoResult ? (
-        <NoResultsText>No items match your search</NoResultsText>
-      ) : (
-        <SearchResultList>
-          {matchedSites.map((site) => (
-            <>
-              <SearchResultItem
-                key={site.id}
-                onClick={() => navigate(buildPath(Path.Editor, { site: site.id, page: site.pages[0].id }))}
-              >
-                <ItemContent>
-                  <Icon icon={LuLayoutTemplate} />
-                  <div>
-                    <span>{site.name}</span>
-                    <p>{site.description}</p>
-                  </div>
-                </ItemContent>
-                <span>{formatDate(site.createdAt)}</span>
-              </SearchResultItem>
-            </>
-          ))}
-        </SearchResultList>
-      )}
-    </StyledSearchContainer>
-  );
-}
-
-function FilterList() {
-  const dispatch = useDispatch();
-
-  const handleFilter = (filter: Partial<FilterCriteria>, label: string) => {
-    dispatch(setFilters(filter));
-    dispatch(setFilterLabel(label));
-  };
-
-  return (
-    <FilterToolbar>
-      <FilterItem title='Size' icon={LuHardDrive}>
-        {OPTIONS_SIZE.map(({ label, min, max }) => (
-          <li key={label} onClick={() => handleFilter({ sizeRange: { min, max } }, label)}>
-            {label}
-          </li>
-        ))}
-      </FilterItem>
-      <FilterItem title='Pages' icon={LuFileStack}>
-        {OPTIONS_PAGE.map(({ label, min, max }) => (
-          <li key={label} onClick={() => handleFilter({ pageRange: { min, max } }, label)}>
-            {label}
-          </li>
-        ))}
-      </FilterItem>
-      <FilterItem title='Modified' icon={LuCalendar}>
-        {OPTIONS_MODIFIED.map(({ label, days }) => (
-          <li key={label} onClick={() => handleFilter({ modifiedWithinDays: days }, label)}>
-            {label}
-          </li>
-        ))}
-      </FilterItem>
-    </FilterToolbar>
-  );
-}
-
-function FilterItem({ children, title, icon }: { children: ReactNode; title: string; icon: IconType }) {
-  return (
-    <li>
-      <Dropdown>
-        <Dropdown.open>
-          <FilterButton>
-            <Icon icon={icon} />
-            {title}
-            <LuChevronDown />
-          </FilterButton>
-        </Dropdown.open>
-        <Dropdown.drop>{children}</Dropdown.drop>
-      </Dropdown>
-    </li>
-  );
-}

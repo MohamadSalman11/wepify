@@ -99,10 +99,18 @@ const variables = css`
     --btn-transition: var(--transition-base);
 
     /* Forms */
-    --input-padding-y: 0.8rem;
-    --input-padding-x: var(--padding-x);
+    --input-padding-y: 1.2rem;
+    --input-padding-x: 3.6rem;
     --input-font-size: var(--font-size);
     --input-border-radius: var(--border-radius-md);
+
+    --input-padding-y-sm: 0.8rem;
+    --input-padding-x-sm: var(--padding-x);
+    --input-font-size-sm: var(--font-size);
+
+    --input-padding-y-lg: 1.6rem;
+    --input-padding-x-lg: 6.4rem;
+    --input-font-size-lg: 1.6rem;
 
     /* Typography */
     --font-family-sans-serif:

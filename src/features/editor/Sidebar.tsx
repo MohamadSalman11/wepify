@@ -1,13 +1,62 @@
-import { LuCloudUpload, LuCodeXml, LuFile, LuLayers3, LuLogOut, LuPlus } from 'react-icons/lu';
+import { LuCloudUpload, LuFile, LuLayers3, LuLogOut, LuPlus } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Divider from '../../components/divider';
 import Icon from '../../components/Icon';
 import Logo from '../../components/Logo';
-import { Path } from '../../constant';
+import { EditorPath, Path } from '../../constant';
 import { setIsLoading } from '../dashboard/slices/dashboardSlice';
 import { clearSelection } from './slices/selectionSlice';
+
+/**
+ * Constants
+ */
+
+const NAV_ITEMS = [
+  { to: EditorPath.Elements, icon: LuPlus },
+  { to: EditorPath.Pages, icon: LuFile },
+  { to: EditorPath.Layers, icon: LuLayers3 },
+  { to: EditorPath.Uploads, icon: LuCloudUpload }
+];
+
+/**
+ * Component definition
+ */
+
+export default function Sidebar() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  function handleLogout() {
+    dispatch(setIsLoading(true));
+    dispatch(clearSelection());
+    navigate(Path.Dashboard);
+  }
+
+  return (
+    <StyledSidebar>
+      <Logo />
+      <Divider />
+      <nav>
+        <ul>
+          {NAV_ITEMS.map(({ to, icon }, i) => (
+            <li key={i}>
+              <NavLink to={to}>
+                <Icon icon={icon} hover borderRadius='md' />
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </nav>
+      <LeaveButton>
+        <Link to={Path.Dashboard}>
+          <Icon onClick={handleLogout} icon={LuLogOut} hover={true} />
+        </Link>
+      </LeaveButton>
+    </StyledSidebar>
+  );
+}
 
 /**
  * Styles
@@ -63,61 +112,3 @@ const LeaveButton = styled.button`
     color: var(--color-red);
   }
 `;
-
-/**
- * Component definition
- */
-
-function Sidebar() {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-
-  return (
-    <StyledSidebar>
-      <Logo />
-      <Divider />
-      <nav>
-        <ul>
-          <li>
-            <NavLink to='elements'>
-              <Icon icon={LuPlus} hover={true} borderRadius='md' />
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to='pages'>
-              <Icon icon={LuFile} hover={true} borderRadius='md' />
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to='layers'>
-              <Icon icon={LuLayers3} hover={true} borderRadius='md' />
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to='uploads'>
-              <Icon icon={LuCloudUpload} hover={true} borderRadius='md' />
-            </NavLink>
-          </li>
-          <li>
-            <Icon icon={LuCodeXml} />
-          </li>
-        </ul>
-      </nav>
-      <LeaveButton>
-        <Link to={Path.Dashboard}>
-          <Icon
-            onClick={() => {
-              dispatch(setIsLoading(true));
-              dispatch(clearSelection());
-              navigate(Path.Dashboard);
-            }}
-            icon={LuLogOut}
-            hover={true}
-          />
-        </Link>
-      </LeaveButton>
-    </StyledSidebar>
-  );
-}
-
-export default Sidebar;

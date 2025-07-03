@@ -1,4 +1,6 @@
-import type { Site } from '../types';
+import type { Site } from '@shared/types';
+
+export const BYTES_IN_KB = 1024;
 
 type Unit = 'bytes' | 'kb' | 'mb' | 'gb' | 'tb';
 
@@ -14,10 +16,10 @@ function calculateSiteSize(site: Site, unit?: Unit): number | string {
     totalSizeBytes += sizeBytes;
   }
 
-  const sizeKB = totalSizeBytes / 1024;
-  const sizeMB = sizeKB / 1024;
-  const sizeGB = sizeMB / 1024;
-  const sizeTB = sizeGB / 1024;
+  const sizeKB = totalSizeBytes / BYTES_IN_KB;
+  const sizeMB = sizeKB / BYTES_IN_KB;
+  const sizeGB = sizeMB / BYTES_IN_KB;
+  const sizeTB = sizeGB / BYTES_IN_KB;
 
   switch (unit) {
     case 'bytes': {

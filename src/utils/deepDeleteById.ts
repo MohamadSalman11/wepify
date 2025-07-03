@@ -1,4 +1,4 @@
-import type { PageElement } from '../types';
+import type { PageElement } from '@shared/types';
 
 export const deepDeleteById = (elements: PageElement[], targetId: string): PageElement[] => {
   return elements

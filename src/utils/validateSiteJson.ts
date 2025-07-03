@@ -1,4 +1,4 @@
-import type { PageElement, Site, SitePage } from '../../../types';
+import type { PageElement, Site, SitePage } from '@shared/types';
 
 const SITE_SCHEMA = {
   name: 'string',
@@ -33,7 +33,7 @@ const validate = (obj: Site | SitePage | PageElement, schema: Record<string, str
   });
 };
 
-export const validateSiteJSON = (site: Site): boolean =>
+export const validateSiteJson = (site: Site): boolean =>
   validate(site, SITE_SCHEMA) &&
   Array.isArray(site.pages) &&
   site.pages.every(

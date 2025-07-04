@@ -22,7 +22,7 @@ import Dropdown from '../../components/Dropdown';
 import Input from '../../components/form/Input';
 import Icon from '../../components/Icon';
 import { EditorPath, StorageKey } from '../../constant';
-import { useEditorContext } from '../../pages/Editor';
+import { useEditorContext } from '../../context/EditorContext';
 import { useAppSelector } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
 import { setIsLoading } from './slices/editorSlice';
@@ -40,8 +40,6 @@ const SCREEN_SIZES = {
   tablet: { width: 768, height: 1024 },
   smartphone: { width: 375, height: 667 }
 } as const;
-
-
 
 /**
  * Types
@@ -155,10 +153,10 @@ export default function Header() {
         />
         <Divider rotate={90} width={30} />
         <Dropdown>
-          <Dropdown.open>
+          <Dropdown.Open>
             <Button variation='secondary'>Download</Button>
-          </Dropdown.open>
-          <Dropdown.drop>
+          </Dropdown.Open>
+          <Dropdown.Drop>
             <li onClick={() => handleDownloadSite(true)}>
               <DropdownItemButton>
                 <Icon icon={LuFileMinus} /> Download Minified
@@ -169,7 +167,7 @@ export default function Header() {
                 <Icon icon={LuFileCode2} /> Download Readable
               </DropdownItemButton>
             </li>
-          </Dropdown.drop>
+          </Dropdown.Drop>
         </Dropdown>
         <Button asLink={true} href={PUBLISH_LINK} target='_blank'>
           Publish
@@ -225,7 +223,6 @@ function calculateScaleToFit(containerSize: Size, targetSize: Size) {
   const scaleVal = Math.floor(Math.min(scaleX, scaleY) * 100);
   return Math.max(Math.min(scaleVal, 100), 10);
 }
-
 
 /**
  * Styles

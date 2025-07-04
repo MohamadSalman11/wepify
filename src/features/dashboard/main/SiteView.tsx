@@ -21,6 +21,7 @@ import Input from '../../../components/form/Input';
 import Icon from '../../../components/Icon';
 import Modal, { type OnCloseModal } from '../../../components/Modal';
 import { Path, TOAST_DURATION, ToastMessages } from '../../../constant';
+import { useModalContext } from '../../../context/ModalContext';
 import { useAppSelector } from '../../../store';
 import { buildPath } from '../../../utils/buildPath';
 import { calculateSiteSize } from '../../../utils/calculateSiteSize';
@@ -124,16 +125,18 @@ function TableBody() {
   return (
     <tbody>
       {filteredSites.map((site) => (
-        <TableRow site={site} key={site.id} />
+        <Modal key={site.id}>
+          <TableRow site={site} />
+        </Modal>
       ))}
     </tbody>
   );
 }
 
 function TableRow({ site }: { site: Site }) {
-  const { isModalOpen } = useAppSelector((state) => state.dashboard);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { open } = useModalContext();
 
   const { id, name, description, pagesCount, pages, createdAt, lastModified, isStarred } = site;
 
@@ -168,68 +171,42 @@ function TableRow({ site }: { site: Site }) {
         <div>
           <Icon icon={LuEye} size='md' />
           <Icon icon={LuDownload} size='md' />
-          <Modal>
-            <Modal.open>
-              <Icon icon={LuPencilLine} size='md' />
-            </Modal.open>
-            <Modal.window>
-              <Modal.dialog title='Edit Site'>
-                <EditDialog site={site} />
-              </Modal.dialog>
-            </Modal.window>
-          </Modal>
+          <Icon icon={LuPencilLine} size='md' onClick={() => open('edit')} />
+          <Modal.Window name='edit'>
+            <Modal.Dialog title='Edit Site'>
+              <EditDialog site={site} />
+            </Modal.Dialog>
+          </Modal.Window>
           <StarIcon onClick={toggleStar} $isStarred={isStarred} />
           <Dropdown>
-            <Dropdown.open>
+            <Dropdown.Open>
               <Icon icon={LuEllipsis} size='md' />
-            </Dropdown.open>
-            <Dropdown.drop translateX={-80} translateY={-10} isHidden={isModalOpen}>
-              <DropdownOptions site={site} />
-            </Dropdown.drop>
+            </Dropdown.Open>
+            <Dropdown.Drop translateX={-80} translateY={-10}>
+              <Dropdown.Button icon={LuEye}>Preview</Dropdown.Button>
+              <Dropdown.Button icon={LuDownload}>Download</Dropdown.Button>
+              <Dropdown.Button onClick={() => open('edit')} icon={LuPencilLine}>
+                Edit
+              </Dropdown.Button>
+              <Dropdown.Button icon={LuCopy}>Duplicate</Dropdown.Button>
+              <Dropdown.Button icon={LuTrash2} onClick={() => open('delete')}>
+                Delete
+              </Dropdown.Button>
+              <Modal.Window name='edit'>
+                <Modal.Dialog title='Edit Site'>
+                  <EditDialog site={site} />
+                </Modal.Dialog>
+              </Modal.Window>
+              <Modal.Window name='delete'>
+                <Modal.Dialog title='Delete Site'>
+                  <DeleteDialog site={site} />
+                </Modal.Dialog>
+              </Modal.Window>
+            </Dropdown.Drop>
           </Dropdown>
         </div>
       </td>
     </StyledTableRow>
-  );
-}
-
-function DropdownOptions({ site }: { site: Site }) {
-  return (
-    <>
-      <li>
-        <Icon icon={LuEye} size='md' /> Preview
-      </li>
-      <li>
-        <Icon icon={LuDownload} size='md' /> Download
-      </li>
-      <Modal>
-        <Modal.open>
-          <li>
-            <Icon icon={LuPencilLine} size='md' /> Edit
-          </li>
-        </Modal.open>
-        <Modal.window>
-          <Modal.dialog title='Edit Site'>
-            <EditDialog site={site} />
-          </Modal.dialog>
-        </Modal.window>
-      </Modal>
-      <li>
-        <Icon icon={LuCopy} size='md' /> Duplicate
-      </li>
-      <Modal>
-        <Modal.open>
-          <li>
-            <Icon icon={LuTrash2} size='md' /> Delete
-          </li>
-        </Modal.open>
-        <Modal.window>
-          <Modal.dialog title='Delete Site'>
-            <DeleteDialog site={site} />
-          </Modal.dialog>
-        </Modal.window>
-      </Modal>
-    </>
   );
 }
 

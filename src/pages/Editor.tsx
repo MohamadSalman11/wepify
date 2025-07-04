@@ -1,30 +1,13 @@
-import { createContext, useContext, useRef, type RefObject } from 'react';
+import { useRef } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { Outlet, useLocation } from 'react-router-dom';
 import styled, { css } from 'styled-components';
+import { EditorContext } from '../context/EditorContext';
 import Canvas from '../features/editor/Canvas';
 import Header from '../features/editor/Header';
 import { useIframeConnection } from '../features/editor/hooks/useIframeConnection';
 import Panel from '../features/editor/panels';
 import Sidebar from '../features/editor/Sidebar';
-
-/**
- * Context
- */
-
-type EditorContextType = {
-  iframeRef: RefObject<HTMLIFrameElement | null>;
-  iframeConnection: ReturnType<typeof useIframeConnection>;
-  isPreview: boolean;
-};
-
-const EditorContext = createContext<EditorContextType | null>(null);
-
-export const useEditorContext = () => {
-  const context = useContext(EditorContext);
-  if (!context) throw new Error('useEditorContext must be used inside <EditorContext.Provider>');
-  return context;
-};
 
 /**
  * Component definition

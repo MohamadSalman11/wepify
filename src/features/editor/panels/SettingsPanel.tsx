@@ -25,7 +25,7 @@ import styled from 'styled-components';
 import Input from '../../../components/form/Input';
 import Select from '../../../components/form/Select';
 import Icon from '../../../components/Icon';
-import { useEditorContext } from '../../../pages/Editor';
+import { useEditorContext } from '../../../context/EditorContext';
 import { useAppSelector } from '../../../store';
 import { flattenElements } from '../../../utils/flattenElements';
 import CollapsibleSection from '../CollapsibleSection';

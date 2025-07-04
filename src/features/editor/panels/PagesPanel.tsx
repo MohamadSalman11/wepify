@@ -9,7 +9,7 @@ import Button from '../../../components/Button';
 import Dropdown from '../../../components/Dropdown';
 import Input from '../../../components/form/Input';
 import Icon from '../../../components/Icon';
-import { Modal, type OnCloseModal } from '../../../components/Modal';
+import Modal, { type OnCloseModal } from '../../../components/Modal';
 import { Path, StorageKey, ToastMessages } from '../../../constant';
 import { useAppSelector } from '../../../store';
 import { AppStorage } from '../../../utils/appStorage';
@@ -30,7 +30,6 @@ const PAGE_NAME_MAX_LENGTH = 7;
  */
 
 export default function PagesPanel() {
-  const { isModalOpen } = useAppSelector((state) => state.dashboard);
   const { site } = useAppSelector((state) => state.editor);
   const { pageId } = useParams();
   const dispatch = useDispatch();
@@ -75,16 +74,16 @@ export default function PagesPanel() {
                       <Icon icon={LuEllipsis} size='md' />
                     </span>
                   </Dropdown.open>
-                  <Dropdown.drop translateX={18} translateY={-15} isHidden={isModalOpen}>
+                  <Dropdown.drop translateX={18} translateY={-15}>
                     <li onClick={(event) => handleSetIndexPage(event, page.id)}>
                       <Icon icon={LuHouse} /> Set as index
                     </li>
                     <Modal>
-                      <Modal.open>
+                      <Modal.Open>
                         <li data-active>
                           <Icon icon={LuPencil} /> Edit
                         </li>
-                      </Modal.open>
+                      </Modal.Open>
                       <Modal.window>
                         <Modal.dialog title='Edit Page'>
                           <EditDialog page={page} />

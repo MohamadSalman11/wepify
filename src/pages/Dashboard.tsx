@@ -26,8 +26,8 @@ const loadingDuration = getRandomDuration(2.5, 3.5);
 
 export default function Dashboard() {
   const dispatch = useDispatch();
-  const { sites, isLoading } = useAppSelector((state) => state.dashboard);
   const storageKey = useMemo(() => ['sites', 'site'], []);
+  const { sites, isLoading } = useAppSelector((state) => state.dashboard);
 
   const onLoaded = useCallback(
     (data: { sites: Site[] | null; site: Site | null } | null) => {
@@ -82,6 +82,7 @@ export default function Dashboard() {
 const StyledDashboard = styled.div`
   padding: 1.2rem 2.4rem;
   user-select: none;
+  overflow:;
 
   & > div:nth-of-type(2) {
     margin-top: 1.2rem;

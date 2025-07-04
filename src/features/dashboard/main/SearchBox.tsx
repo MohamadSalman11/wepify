@@ -167,14 +167,14 @@ function FilterItem({ children, title, icon }: { children: ReactNode; title: str
   return (
     <li>
       <Dropdown>
-        <Dropdown.open>
+        <Dropdown.Open>
           <FilterButton>
             <Icon icon={icon} />
             {title}
             <Icon icon={LuChevronDown} />
           </FilterButton>
-        </Dropdown.open>
-        <Dropdown.drop>{children}</Dropdown.drop>
+        </Dropdown.Open>
+        <Dropdown.Drop>{children}</Dropdown.Drop>
       </Dropdown>
     </li>
   );

@@ -17,7 +17,6 @@ interface DashboardState {
   sites: Site[];
   filters: FilterCriteria;
   filterLabel: string;
-  isModalOpen: boolean;
   isLoading: boolean;
 }
 
@@ -25,7 +24,6 @@ const initialState: DashboardState = {
   sites: [],
   filters: {},
   filterLabel: '',
-  isModalOpen: true,
   isLoading: true
 };
 
@@ -70,9 +68,6 @@ const dashboardSlice = createSlice({
         site.isStarred = !site.isStarred;
       }
     },
-    setModalIsOpen(state, action) {
-      state.isModalOpen = action.payload;
-    },
     setIsLoading(state, action) {
       state.isLoading = action.payload;
     },
@@ -91,7 +86,6 @@ export const {
   setFilters,
   setFilterLabel,
   toggleSiteStarred,
-  setModalIsOpen,
   setIsLoading,
   setImages
 } = dashboardSlice.actions;

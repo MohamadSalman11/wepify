@@ -1,27 +1,13 @@
-import {
-  cloneElement,
-  createContext,
-  useContext,
-  useState,
-  type MouseEventHandler,
-  type ReactElement,
-  type ReactNode
-} from 'react';
+import { cloneElement, useState, type MouseEventHandler, type ReactElement, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { LuX } from 'react-icons/lu';
-import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { setModalIsOpen } from '../features/dashboard/slices/dashboardSlice';
+import { ModalContext, useModalContext } from '../context/ModalContext';
 import Icon from './Icon';
 
 /**
  * types
  */
-
-interface ModalContextType {
-  isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
-}
 
 type ClickableElement = ReactElement<{
   onClick?: MouseEventHandler;
@@ -31,78 +17,67 @@ type ClickableElement = ReactElement<{
 export type OnCloseModal = () => void;
 
 /**
- * Context
- */
-
-const ModalContext = createContext<ModalContextType | null>(null);
-
-const useModalContext = () => {
-  const context = useContext(ModalContext);
-  if (!context) throw new Error('Modal components must be used within <Modal>');
-  return context;
-};
-
-/**
  * Component definition
  */
 
-export function Modal({ children }: { children: ReactNode }) {
-  const [isOpen, setIsOpen] = useState(false);
+export default function Modal({ children }: { children: ReactNode }) {
+  const [openName, setOpenName] = useState('');
 
-  return <ModalContext.Provider value={{ isOpen, setIsOpen }}>{children}</ModalContext.Provider>;
+  const close = () => setOpenName('');
+  const open = setOpenName;
+
+  return <ModalContext.Provider value={{ openName, close, open }}>{children}</ModalContext.Provider>;
 }
 
-function Open({ children }: { children: ClickableElement }) {
-  const { setIsOpen } = useModalContext();
-  const dispatch = useDispatch();
+function Open({ children, openName }: { children: ClickableElement; openName: string }) {
+  const { open } = useModalContext();
 
   return cloneElement(children, {
-    onClick: () => {
-      setIsOpen(true);
-      dispatch(setModalIsOpen(true));
-    }
+    onClick: () => open(openName)
   });
 }
 
 function Close({ children }: { children: ClickableElement }) {
-  const { setIsOpen } = useModalContext();
+  const { close } = useModalContext();
 
   return cloneElement(children, {
-    onClick: () => setIsOpen(false)
+    onClick: close
   });
 }
 
-function Window({ children }: { children: ReactNode }) {
-  const { isOpen } = useModalContext();
+function Window({ children, name }: { children: ReactNode; name: string }) {
+  const { openName } = useModalContext();
 
-  if (!isOpen) return null;
+  if (name !== openName) return null;
 
   return createPortal(
-    <ModalOverlay onClick={(event) => event.stopPropagation()}>{children}</ModalOverlay>,
+    <ModalOverlay key='modal-overlay' onClick={(event) => event.stopPropagation()}>
+      {children}
+    </ModalOverlay>,
     document.body
   );
 }
 
 function Dialog({ children, title }: { children: ClickableElement; title: string }) {
-  const { setIsOpen } = useModalContext();
+  const { close } = useModalContext();
 
   return (
     <StyledDialog>
       <DialogHeader>
         <h3>{title}</h3>
-        <Icon onClick={() => setIsOpen(false)} icon={LuX} hover={true} />
+        <Icon onClick={close} icon={LuX} hover={true} />
       </DialogHeader>
       {cloneElement(children, {
-        onCloseModal: () => setIsOpen(false)
+        onCloseModal: close
       })}
     </StyledDialog>
   );
 }
 
-Modal.open = Open;
-Modal.close = Close;
-Modal.window = Window;
-Modal.dialog = Dialog;
+Modal.Open = Open;
+Modal.Close = Close;
+Modal.Window = Window;
+Modal.Dialog = Dialog;
 
 /**
  * Styles

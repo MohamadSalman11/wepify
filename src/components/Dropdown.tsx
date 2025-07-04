@@ -1,10 +1,7 @@
 import {
-  Children,
   cloneElement,
   createContext,
-  isValidElement,
   useContext,
-  useEffect,
   useRef,
   useState,
   type MouseEventHandler,
@@ -13,10 +10,10 @@ import {
   type RefObject
 } from 'react';
 import { createPortal } from 'react-dom';
-import { useDispatch } from 'react-redux';
-import styled, { css } from 'styled-components';
-import { setModalIsOpen } from '../features/dashboard/slices/dashboardSlice';
+import type { IconType } from 'react-icons';
+import styled from 'styled-components';
 import useOutsideClick from '../hooks/useOutsideClick';
+import Icon from './Icon';
 
 const DEFAULT_TRANSLATE_X = 0;
 const DEFAULT_TRANSLATE_Y = 0;
@@ -52,18 +49,27 @@ const useDropdownContext = () => {
 export default function Dropdown({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const toggleRef = useRef<HTMLElement>(null);
+  const [position, setPosition] = useState(null);
 
-  return <DropdownContext.Provider value={{ setIsOpen, isOpen, toggleRef }}>{children}</DropdownContext.Provider>;
+  return (
+    <DropdownContext.Provider value={{ setIsOpen, isOpen, toggleRef, position, setPosition }}>
+      {children}
+    </DropdownContext.Provider>
+  );
 }
 
 function Open({ children }: { children: ClickableElement }) {
-  const { setIsOpen, toggleRef } = useDropdownContext();
-  const dispatch = useDispatch();
+  const { setIsOpen, toggleRef, setPosition } = useDropdownContext();
 
   return cloneElement(children, {
     ref: toggleRef,
     onClick: () => {
-      dispatch(setModalIsOpen(false));
+      const rect = toggleRef.current?.getBoundingClientRect();
+      setPosition({
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX
+      });
+
       setIsOpen(true);
     }
   });
@@ -71,79 +77,57 @@ function Open({ children }: { children: ClickableElement }) {
 
 function Drop({
   children,
-  isHidden = false,
   translateX = DEFAULT_TRANSLATE_X,
   translateY = DEFAULT_TRANSLATE_Y
 }: {
   children: ReactNode;
-  isHidden?: boolean;
   translateX?: number;
   translateY?: number;
 }) {
-  const { isOpen, setIsOpen, toggleRef } = useDropdownContext();
+  const { isOpen, setIsOpen, toggleRef, position } = useDropdownContext();
   const dropdownRef = useOutsideClick<HTMLUListElement>(() => setIsOpen(false), undefined, toggleRef);
-  const [position, setPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
-
-  useEffect(() => {
-    if (isOpen && toggleRef.current) {
-      const rect = toggleRef.current.getBoundingClientRect();
-      setPosition({
-        top: rect.bottom + window.scrollY,
-        left: rect.left + window.scrollX
-      });
-    }
-  }, [isOpen, toggleRef]);
 
   if (!isOpen) return null;
 
-  const childrenWithOnClick = Children.map(children, (child) => {
-    if (!isValidElement(child)) return child;
-
-    const typedChild = child as ReactElement<any>;
-    const originalOnClick = typedChild.props?.onClick;
-
-    const handleClick = (event: MouseEvent) => {
-      if (typeof originalOnClick === 'function') {
-        originalOnClick(event);
-      }
-      setIsOpen(false);
-    };
-
-    return cloneElement(typedChild, { onClick: handleClick });
-  });
-
   return createPortal(
-    <StyledDropdown
-      ref={dropdownRef}
-      $top={position.top}
-      $left={position.left}
-      $isHidden={isHidden}
-      $translateX={translateX}
-      $translateY={translateY}
-    >
-      {childrenWithOnClick}
+    <StyledDropdown ref={dropdownRef} $position={position} $translateX={translateX} $translateY={translateY}>
+      {children}
     </StyledDropdown>,
     document.body
   );
 }
 
-Dropdown.open = Open;
-Dropdown.drop = Drop;
+function Button({ children, icon, onClick, ...props }: { children: ReactNode; icon: IconType; onClick?: () => void }) {
+  const { setIsOpen } = useDropdownContext();
+
+  function handleClick() {
+    onClick?.();
+    setIsOpen(false);
+  }
+
+  return (
+    <li onClick={handleClick} {...props}>
+      <Icon size='md' icon={icon} /> {children}
+    </li>
+  );
+}
+
+Dropdown.Open = Open;
+Dropdown.Drop = Drop;
+Dropdown.Button = Button;
 
 /**
  * Styles
  */
 
 const StyledDropdown = styled.ul<{
-  $isHidden: boolean;
-  $top: number;
-  $left: number;
+  $position: Record<string, any>;
   $translateX?: number;
   $translateY?: number;
 }>`
-  position: absolute;
-  top: ${(props) => props.$top}px;
-  left: ${(props) => props.$left}px;
+  position: fixed;
+  top: ${(props) => props.$position.top}px;
+  left: ${(props) => props.$position.left}px;
   width: 20rem;
   font-size: 1.4rem;
   border-radius: var(--border-radius-sm);
@@ -152,14 +136,6 @@ const StyledDropdown = styled.ul<{
   z-index: var(--zindex-base);
   background-color: var(--color-white);
   transform: translate(${(props) => props.$translateX ?? 0}%, ${(props) => props.$translateY ?? 0}%);
-
-  ${(props) =>
-    props.$isHidden &&
-    css`
-      opacity: 0;
-      pointer-events: none;
-      visibility: hidden;
-    `}
 
   li {
     display: flex;

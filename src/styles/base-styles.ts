@@ -33,6 +33,7 @@ const baseStyles = css`
 
   body {
     background-color: var(--body-bg);
+    overflow: hidden;
     color: var(--body-color);
     font-size: var(--body-font-size);
     font-family: var(--font-family-base);

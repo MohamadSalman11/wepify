@@ -25,11 +25,11 @@ import styled from 'styled-components';
 import Input from '../../../components/form/Input';
 import Select from '../../../components/form/Select';
 import Icon from '../../../components/Icon';
-import { useEditorContext } from '../../../context/EditorContext';
 import { useAppSelector } from '../../../store';
 import { flattenElements } from '../../../utils/flattenElements';
 import CollapsibleSection from '../CollapsibleSection';
 import ColorPicker from '../ColorPicker';
+import { useIframeContext } from '../../../context/IframeContext';
 
 /**
  * Constants
@@ -107,7 +107,7 @@ interface SettingsContextType {
 
 export function SettingsPanel() {
   const selectedElement = useAppSelector((state) => state.selection.present.selectedElement);
-  const { iframeConnection } = useEditorContext();
+  const { iframeConnection } = useIframeContext();
 
   const handleElementChange = (name: string, value: string | number) => {
     const updates = { [name]: value };
@@ -147,7 +147,7 @@ function ChangeElement({ children }: { children: ReactElement<{ onChange?: (even
 function SelectorSettings() {
   const { elements } = useAppSelector((state) => state.page);
   const selection = useAppSelector((state) => state.selection.present.selectedElement);
-  const { iframeConnection } = useEditorContext();
+  const { iframeConnection } = useIframeContext();
 
   const handleSelection = (id: string) => {
     iframeConnection.handleSelectionChange(id);

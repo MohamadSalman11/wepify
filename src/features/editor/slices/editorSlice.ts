@@ -28,7 +28,6 @@ const editorSlice = createSlice({
   reducers: {
     setSite(state, action: PayloadAction<Site>) {
       state.site = action.payload;
-      state.site.lastModified = Date.now();
     },
     addPage(state, action: PayloadAction<SitePage>) {
       state.site.pages.push(action.payload);

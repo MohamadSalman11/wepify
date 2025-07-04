@@ -159,6 +159,8 @@ const saveElementInStorage = async (
   const site = await AppStorage.getItem<Site>(StorageKey.Site);
   const page = site?.pages.find((p) => p.id === pageId);
 
+  site.lastModified = Date.now();
+
   if (!site || !page) return;
 
   const element = findElementById(elementId, page.elements);

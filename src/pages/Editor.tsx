@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { Outlet, useLocation } from 'react-router-dom';
 import styled, { css } from 'styled-components';
-import { EditorContext } from '../context/EditorContext';
+import { IframeContext } from '../context/IframeContext';
 import Canvas from '../features/editor/Canvas';
 import Header from '../features/editor/Header';
 import { useIframeConnection } from '../features/editor/hooks/useIframeConnection';
@@ -21,25 +21,25 @@ export default function Editor() {
 
   if (isPreview) {
     return (
-      <EditorContext.Provider value={{ iframeRef, iframeConnection, isPreview }}>
+      <IframeContext.Provider value={{ iframeRef, iframeConnection }}>
         <StyledEditor $isPreview={isPreview}>
           <Outlet />
         </StyledEditor>
-      </EditorContext.Provider>
+      </IframeContext.Provider>
     );
   }
 
   return (
-    <EditorContext.Provider value={{ iframeRef, iframeConnection, isPreview }}>
+    <IframeContext.Provider value={{ iframeRef, iframeConnection }}>
       <StyledEditor>
         <Toaster position='top-center' reverseOrder={false} />
         <Sidebar />
         <Header />
         <Outlet />
-        <Canvas />
+        <Canvas isPreview={isPreview} />
         <Panel panel='settings' sectioned={true} borderDir='left' />
       </StyledEditor>
-    </EditorContext.Provider>
+    </IframeContext.Provider>
   );
 }
 

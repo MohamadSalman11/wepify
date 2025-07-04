@@ -4,7 +4,7 @@ import { LuImage, LuSearch } from 'react-icons/lu';
 import styled from 'styled-components';
 import Input from '../../../components/form/Input';
 import Icon from '../../../components/Icon';
-import { useEditorContext } from '../../../context/EditorContext';
+import { useIframeContext } from '../../../context/IframeContext';
 import { useFilePicker } from '../../../hooks/useFilePicker';
 import { useAppSelector } from '../../../store';
 import CollapsibleSection from '../CollapsibleSection';
@@ -16,7 +16,7 @@ import { useImageUpload } from '../hooks/useImageUpload';
 
 export default function ElementsPanel() {
   const selection = useAppSelector((state) => state.selection.present.selectedElement);
-  const { iframeConnection } = useEditorContext();
+  const { iframeConnection } = useIframeContext();
 
   const handleImageUpload = useImageUpload(
     (result) => iframeConnection.insertElement('image', { src: result }),

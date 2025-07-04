@@ -22,7 +22,7 @@ import Dropdown from '../../components/Dropdown';
 import Input from '../../components/form/Input';
 import Icon from '../../components/Icon';
 import { EditorPath, StorageKey } from '../../constant';
-import { useEditorContext } from '../../context/EditorContext';
+import { useIframeContext } from '../../context/IframeContext';
 import { useAppSelector } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
 import { setIsLoading } from './slices/editorSlice';
@@ -55,7 +55,7 @@ type DeviceType = keyof typeof SCREEN_SIZES | 'auto';
 export default function Header() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { iframeConnection } = useEditorContext();
+  const { iframeConnection } = useIframeContext();
   const [activeDevice, setActiveDevice] = useState<DeviceType>('auto');
   const { width, height, scale } = useAppSelector((state) => state.page);
 
@@ -145,8 +145,8 @@ export default function Header() {
         <Divider rotate={90} width={30} />
         <Icon
           onClick={() => {
-            navigate(EditorPath.Preview, { replace: true });
             dispatch(setIsLoading(true));
+            navigate(EditorPath.Preview, { replace: true });
           }}
           icon={LuEye}
           hover={true}

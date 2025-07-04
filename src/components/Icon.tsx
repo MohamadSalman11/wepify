@@ -64,6 +64,7 @@ const IconWrapper = styled.span<{ $borderRadius: BorderRadius }>`
   cursor: pointer;
   border-radius: ${({ $borderRadius }) => `var(--border-radius-${$borderRadius})`};
   padding: 0.6rem;
+  width: fit-content;
 
   &:hover {
     background-color: var(--color-white-2);

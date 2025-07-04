@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import LoadingScreen from '../../components/LoadingScreen';
 import { LoadingMessages, Path, StorageKey } from '../../constant';
-import { useEditorContext } from '../../context/EditorContext';
+import { useIframeContext } from '../../context/IframeContext';
 import { useLoadFromStorage } from '../../hooks/useLoadFromStorage';
 import { useAppSelector } from '../../store';
 import { getRandomDuration } from '../../utils/getRandomDuration';
@@ -30,12 +30,12 @@ const DELETE_KEY = 'Backspace';
  * Component definition
  */
 
-export default function Canvas() {
+export default function Canvas({ isPreview }: { isPreview: boolean }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLDivElement>(null);
   const { pageId } = useParams();
-  const { iframeConnection, iframeRef, isPreview } = useEditorContext();
+  const { iframeConnection, iframeRef } = useIframeContext();
   const { width, height, scale, elements } = useAppSelector((state) => state.page);
   const { isLoading } = useAppSelector((state) => state.editor);
   const [isDataLoaded, setIsDataLoaded] = useState(false);

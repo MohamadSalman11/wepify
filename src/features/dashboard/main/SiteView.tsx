@@ -1,3 +1,4 @@
+import { nanoid } from '@reduxjs/toolkit';
 import type { Site } from '@shared/types';
 import { useState, type MouseEvent } from 'react';
 import toast from 'react-hot-toast';
@@ -15,19 +16,28 @@ import {
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { controlDownloadZip } from '../../../../iframe/ts/controller';
 import Button from '../../../components/Button';
 import Dropdown from '../../../components/Dropdown';
 import Input from '../../../components/form/Input';
 import Icon from '../../../components/Icon';
 import Modal, { type OnCloseModal } from '../../../components/Modal';
-import { Path, TOAST_DURATION, ToastMessages } from '../../../constant';
+import { EditorPath, Path, StorageKey, TOAST_DURATION, ToastMessages } from '../../../constant';
 import { useModalContext } from '../../../context/ModalContext';
 import { useAppSelector } from '../../../store';
+import { AppStorage } from '../../../utils/appStorage';
 import { buildPath } from '../../../utils/buildPath';
 import { calculateSiteSize } from '../../../utils/calculateSiteSize';
 import { formatDate } from '../../../utils/formatDate';
 import { setIsLoading } from '../../editor/slices/editorSlice';
-import { deleteSite, setFilterLabel, setFilters, toggleSiteStarred, updateSiteDetails } from '../slices/dashboardSlice';
+import {
+  deleteSite,
+  duplicateSite,
+  setFilterLabel,
+  setFilters,
+  toggleSiteStarred,
+  updateSiteDetails
+} from '../slices/dashboardSlice';
 
 /**
  * Component definition
@@ -147,12 +157,23 @@ function TableRow({ site }: { site: Site }) {
     toast.success(message, { duration: TOAST_DURATION });
   };
 
-  function handleRowClick(event: MouseEvent<HTMLTableRowElement>) {
+  async function handleRowClick(event: MouseEvent<HTMLTableRowElement>) {
     const target = event.target as HTMLElement;
     if (!target.closest('svg') && !target.closest('li')) {
       dispatch(setIsLoading(true));
+      await AppStorage.setItem(StorageKey.Site, site);
       navigate(buildPath(Path.Editor, { siteId: id, pageId: pages[0].id }));
     }
+  }
+
+  async function handlePreviewSite() {
+    dispatch(setIsLoading(true));
+    await AppStorage.setItem(StorageKey.Site, site);
+    navigate(`${buildPath(Path.Editor, { siteId: id, pageId: pages[0].id })}/${EditorPath.Preview}`);
+  }
+
+  async function handleDownloadSite(shouldMinify: boolean) {
+    await controlDownloadZip(site, shouldMinify);
   }
 
   return (
@@ -169,8 +190,8 @@ function TableRow({ site }: { site: Site }) {
       <td>{formatDate(lastModified)}</td>
       <td>
         <div>
-          <Icon icon={LuEye} size='md' />
-          <Icon icon={LuDownload} size='md' />
+          <Icon icon={LuEye} size='md' onClick={handlePreviewSite} />
+          <Icon icon={LuDownload} size='md' onClick={() => handleDownloadSite(true)} />
           <Icon icon={LuPencilLine} size='md' onClick={() => open('edit')} />
           <Modal.Window name='edit'>
             <Modal.Dialog title='Edit Site'>
@@ -183,27 +204,33 @@ function TableRow({ site }: { site: Site }) {
               <Icon icon={LuEllipsis} size='md' />
             </Dropdown.Open>
             <Dropdown.Drop translateX={-80} translateY={-10}>
-              <Dropdown.Button icon={LuEye}>Preview</Dropdown.Button>
-              <Dropdown.Button icon={LuDownload}>Download</Dropdown.Button>
-              <Dropdown.Button onClick={() => open('edit')} icon={LuPencilLine}>
+              <Dropdown.Button onClick={handlePreviewSite} icon={LuEye}>
+                Preview
+              </Dropdown.Button>
+              <Dropdown.Button icon={LuDownload} onClick={() => handleDownloadSite(true)}>
+                Download
+              </Dropdown.Button>
+              <Dropdown.Button icon={LuPencilLine} onClick={() => open('edit')}>
                 Edit
               </Dropdown.Button>
-              <Dropdown.Button icon={LuCopy}>Duplicate</Dropdown.Button>
+              <Dropdown.Button icon={LuCopy} onClick={() => dispatch(duplicateSite({ id, newId: nanoid() }))}>
+                Duplicate
+              </Dropdown.Button>
               <Dropdown.Button icon={LuTrash2} onClick={() => open('delete')}>
                 Delete
               </Dropdown.Button>
-              <Modal.Window name='edit'>
-                <Modal.Dialog title='Edit Site'>
-                  <EditDialog site={site} />
-                </Modal.Dialog>
-              </Modal.Window>
-              <Modal.Window name='delete'>
-                <Modal.Dialog title='Delete Site'>
-                  <DeleteDialog site={site} />
-                </Modal.Dialog>
-              </Modal.Window>
             </Dropdown.Drop>
           </Dropdown>
+          <Modal.Window name='edit'>
+            <Modal.Dialog title='Edit Site'>
+              <EditDialog site={site} />
+            </Modal.Dialog>
+          </Modal.Window>
+          <Modal.Window name='delete'>
+            <Modal.Dialog title='Delete Site'>
+              <DeleteDialog site={site} />
+            </Modal.Dialog>
+          </Modal.Window>
         </div>
       </td>
     </StyledTableRow>

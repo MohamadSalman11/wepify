@@ -30,7 +30,7 @@ export default function Dashboard() {
   const { sites, isLoading } = useAppSelector((state) => state.dashboard);
 
   const onLoaded = useCallback(
-    (data: { sites: Site[] | null; site: Site | null } | null) => {
+    async (data: { sites: Site[] | null; site: Site | null } | null) => {
       if (!data) {
         dispatch(setIsLoading(false));
         return;
@@ -43,6 +43,7 @@ export default function Dashboard() {
         i >= 0 ? (updatedSites[i] = data.site) : updatedSites.push(data.site);
       }
 
+      await AppStorage.setItem(StorageKey.Site, null);
       dispatch(setSites(updatedSites));
       dispatch(setIsLoading(false));
     },
@@ -82,7 +83,6 @@ export default function Dashboard() {
 const StyledDashboard = styled.div`
   padding: 1.2rem 2.4rem;
   user-select: none;
-  overflow:;
 
   & > div:nth-of-type(2) {
     margin-top: 1.2rem;

@@ -50,7 +50,7 @@ const iframeMessageHandlers: Record<MessageToIframe, (payload: any) => void> = {
   [MessageToIframe.DownloadSite]: (payload) => controlDownloadZip(payload.site, payload.shouldMinify)
 };
 
-async function controlDownloadZip(site: Site, shouldMinify: boolean) {
+export async function controlDownloadZip(site: Site, shouldMinify: boolean) {
   const zip = new JSZip();
 
   zip.file(FileNames.StyleCSS, shouldMinify ? minifyCSS(cssFile) : cssFile);

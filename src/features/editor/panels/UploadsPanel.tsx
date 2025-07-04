@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import Button from '../../../components/Button';
 import Icon from '../../../components/Icon';
 import { StorageKey } from '../../../constant';
-import { useEditorContext } from '../../../context/EditorContext';
+import { useIframeContext } from '../../../context/IframeContext';
 import { useFilePicker } from '../../../hooks/useFilePicker';
 import { useLoadFromStorage } from '../../../hooks/useLoadFromStorage';
 import { useAppSelector } from '../../../store';
@@ -21,7 +21,7 @@ import { setImages } from '../slices/editorSlice';
 export default function UploadsPanel() {
   const dispatch = useDispatch();
   const images = useAppSelector((state) => state.editor.images);
-  const { iframeConnection } = useEditorContext();
+  const { iframeConnection } = useIframeContext();
 
   const handleImageUpload = useImageUpload(
     (result) => {

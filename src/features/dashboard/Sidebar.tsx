@@ -7,7 +7,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from '../../components/Button';
 import Icon from '../../components/Icon';
-import { Path, StorageKey, TOAST_DURATION, ToastMessages } from '../../constant';
+import { DashboardPath, Path, StorageKey, TOAST_DURATION, ToastMessages } from '../../constant';
 import { useFilePicker } from '../../hooks/useFilePicker';
 import { AppStorage } from '../../utils/appStorage';
 import { buildPath } from '../../utils/buildPath';
@@ -92,17 +92,17 @@ export default function Sidebar() {
       <nav>
         <NavList>
           <NavItem>
-            <NavLink to={Path.Dashboard}>
+            <NavLink to={Path.Dashboard} end>
               <Icon icon={LuHouse} /> Home
             </NavLink>
           </NavItem>
           <NavItem>
-            <NavLink to={'recent'}>
+            <NavLink to={DashboardPath.Recent}>
               <Icon icon={LuClock4} /> Recent
             </NavLink>
           </NavItem>
           <NavItem>
-            <NavLink>
+            <NavLink to={DashboardPath.Starred}>
               <Icon icon={LuStar} /> Starred
             </NavLink>
           </NavItem>
@@ -148,9 +148,9 @@ const NavItem = styled.li`
     svg {
       color: var(--color-black-light-2);
     }
+  }
 
-    .active {
-      background-color: var(--color-primary-light-2);
-    }
+  a.active {
+    background-color: var(--color-primary-light-2);
   }
 `;

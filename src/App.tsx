@@ -3,6 +3,7 @@ import { ThemeProvider } from 'styled-components';
 import { DashboardPath, EditorPath, Path } from './constant';
 import RecentSites from './features/dashboard/main/RecentSites';
 import SitesView from './features/dashboard/main/SitesView';
+import StarredSites from './features/dashboard/main/StarredSites';
 import Panel from './features/editor/panels';
 import Preview from './features/editor/Preview';
 import Dashboard from './pages/Dashboard';
@@ -21,6 +22,7 @@ function App() {
           <Route path={Path.Dashboard} element={<Dashboard />}>
             <Route index element={<SitesView />} />
             <Route path={DashboardPath.Recent} element={<RecentSites />} />
+            <Route path={DashboardPath.Starred} element={<StarredSites />} />
           </Route>
           <Route path={Path.Editor} element={<Editor />}>
             <Route index element={<Navigate replace to={EditorPath.Elements} />} />

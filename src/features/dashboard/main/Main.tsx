@@ -8,7 +8,7 @@ import SearchBox from './SearchBox';
  * Constants
  */
 
-const SEARCHBOX_EXCLUDE_PATHS = new Set([DashboardPath.Recent, DashboardPath.starred]);
+const SEARCHBOX_EXCLUDE_PATHS = new Set([DashboardPath.Recent, DashboardPath.Starred]);
 
 /**
  * Component definition

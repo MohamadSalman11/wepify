@@ -7,6 +7,11 @@ export enum Path {
   Editor = '/editor/sites/:siteId/pages/:pageId'
 }
 
+export enum DashboardPath {
+  Recent = 'recent',
+  starred = 'starred'
+}
+
 export enum EditorPath {
   Elements = 'elements',
   Pages = 'pages',

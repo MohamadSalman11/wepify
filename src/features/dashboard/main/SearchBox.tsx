@@ -47,12 +47,11 @@ const OPTIONS_MODIFIED = [
  */
 
 export default function SearchBox() {
-  const { sites, filters } = useAppSelector((state) => state.dashboard);
+  const { sites } = useAppSelector((state) => state.dashboard);
   const [matchedSites, setMatchedSites] = useState<Site[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const isSearchResultVisible = isSearching;
-  const hasActiveFilters = Object.keys(filters).length > 0;
 
   function handleSearch(event: InputChangeEvent) {
     const search = event.target.value.toLowerCase();
@@ -70,10 +69,6 @@ export default function SearchBox() {
     if (inputRef.current) inputRef.current.value = '';
     setMatchedSites([]);
     setIsSearching(false);
-  }
-
-  if (hasActiveFilters) {
-    return null;
   }
 
   return (

@@ -3,7 +3,7 @@ import type { Site, SitePage } from '@shared/types';
 import toast from 'react-hot-toast';
 import { LuClock4, LuFilePlus, LuHouse, LuStar } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from '../../components/Button';
 import Icon from '../../components/Icon';
@@ -92,13 +92,19 @@ export default function Sidebar() {
       <nav>
         <NavList>
           <NavItem>
-            <Icon icon={LuHouse} /> Home
+            <NavLink to={Path.Dashboard}>
+              <Icon icon={LuHouse} /> Home
+            </NavLink>
           </NavItem>
           <NavItem>
-            <Icon icon={LuClock4} /> Recent
+            <NavLink to={'recent'}>
+              <Icon icon={LuClock4} /> Recent
+            </NavLink>
           </NavItem>
           <NavItem>
-            <Icon icon={LuStar} /> Starred
+            <NavLink>
+              <Icon icon={LuStar} /> Starred
+            </NavLink>
           </NavItem>
         </NavList>
       </nav>
@@ -124,25 +130,27 @@ const NavList = styled.ul`
 `;
 
 const NavItem = styled.li`
-  display: flex;
-  column-gap: 1.2rem;
-  align-items: center;
-  transition: var(--transition-base);
-  cursor: pointer;
-  margin-top: 1.2rem;
-  border-radius: var(--border-radius-full);
-  padding: 0.8rem 2.4rem;
-  width: 100%;
+  a {
+    display: flex;
+    column-gap: 1.2rem;
+    align-items: center;
+    transition: var(--transition-base);
+    cursor: pointer;
+    margin-top: 1.2rem;
+    border-radius: var(--border-radius-full);
+    padding: 0.8rem 2.4rem;
+    width: 100%;
 
-  &:hover {
-    background-color: var(--color-gray-light-2);
-  }
+    &:hover {
+      background-color: var(--color-gray-light-2);
+    }
 
-  &:nth-child(1) {
-    background-color: var(--color-primary-light-2);
-  }
+    svg {
+      color: var(--color-black-light-2);
+    }
 
-  svg {
-    color: var(--color-black-light-2);
+    .active {
+      background-color: var(--color-primary-light-2);
+    }
   }
 `;

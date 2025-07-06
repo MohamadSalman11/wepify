@@ -33,6 +33,7 @@ import { setIsLoading } from '../../editor/slices/editorSlice';
 import {
   deleteSite,
   duplicateSite,
+  FilterCriteria,
   setFilterLabel,
   setFilters,
   toggleSiteStarred,
@@ -43,10 +44,11 @@ import {
  * Component definition
  */
 
-export default function SitesView() {
-  const { filters, filterLabel } = useAppSelector((state) => state.dashboard);
-  const dispatch = useDispatch();
+export default function SitesView({ sites, title }: { sites?: Site[]; title?: string }) {
+  const { sites: fallbackSites, filters, filterLabel } = useAppSelector((state) => state.dashboard);
+  const sitesToRender = sites ?? [...fallbackSites].sort((a, b) => b.createdAt - a.createdAt);
   const isFiltering = Boolean(filters.modifiedWithinDays || filters.pageRange || filters.sizeRange);
+  const dispatch = useDispatch();
 
   function handleClearFilter() {
     dispatch(setFilterLabel(''));
@@ -64,12 +66,12 @@ export default function SitesView() {
             {filterLabel}
           </FilterHeader>
         ) : (
-          'Sites'
+          title || 'Sites'
         )}
       </h2>
       <Table>
         <TableHead />
-        <TableBody />
+        <TableBody sites={sitesToRender} filters={filters} />
       </Table>
     </StyledSiteView>
   );
@@ -90,9 +92,8 @@ function TableHead() {
   );
 }
 
-function TableBody() {
+function TableBody({ sites, filters }: { sites: Site[]; filters: FilterCriteria }) {
   const now = Date.now();
-  const { sites, filters } = useAppSelector((state) => state.dashboard);
   const isFiltering = Boolean(filters.modifiedWithinDays || filters.pageRange || filters.sizeRange);
 
   const filteredSites = isFiltering
@@ -100,7 +101,6 @@ function TableBody() {
         const sizeKB = calculateSiteSize(site, 'kb');
         const pageCount = site.pages.length;
         const modifiedTime = new Date(site.lastModified).getTime();
-
         const sizeMatch = !filters.sizeRange || (sizeKB >= filters.sizeRange.min && sizeKB <= filters.sizeRange.max);
         const pageMatch =
           !filters.pageRange || (pageCount >= filters.pageRange.min && pageCount <= filters.pageRange.max);
@@ -134,7 +134,7 @@ function TableBody() {
 
   return (
     <tbody>
-      {filteredSites.map((site) => (
+      {sites.map((site) => (
         <Modal key={site.id}>
           <TableRow site={site} />
         </Modal>

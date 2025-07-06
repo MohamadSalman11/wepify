@@ -1,16 +1,30 @@
+import { Outlet, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
+import { DashboardPath } from '../../../constant';
+import { useAppSelector } from '../../../store';
 import SearchBox from './SearchBox';
-import SitesView from './SiteView';
+
+/**
+ * Constants
+ */
+
+const SEARCHBOX_EXCLUDE_PATHS = new Set([DashboardPath.Recent, DashboardPath.starred]);
 
 /**
  * Component definition
  */
 
 export default function Main() {
+  const { filters } = useAppSelector((state) => state.dashboard);
+  const { pathname } = useLocation();
+  const hasActiveFilters = Object.keys(filters).length > 0;
+  const lastPathSegment = pathname.split('/').findLast((segment) => segment.length > 0) ?? '';
+  const hideSearch = SEARCHBOX_EXCLUDE_PATHS.has(lastPathSegment as DashboardPath);
+
   return (
     <StyledMain>
-      <SearchBox />
-      <SitesView />
+      {hasActiveFilters || hideSearch || <SearchBox />}
+      <Outlet />
     </StyledMain>
   );
 }

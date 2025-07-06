@@ -1,6 +1,8 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
-import { EditorPath, Path } from './constant';
+import { DashboardPath, EditorPath, Path } from './constant';
+import RecentSites from './features/dashboard/main/RecentSites';
+import SitesView from './features/dashboard/main/SitesView';
 import Panel from './features/editor/panels';
 import Preview from './features/editor/Preview';
 import Dashboard from './pages/Dashboard';
@@ -16,7 +18,10 @@ function App() {
         <GlobalStyles />
         <Routes>
           <Route path={Path.Home} element={<Home />} />
-          <Route path={Path.Dashboard} element={<Dashboard />} />
+          <Route path={Path.Dashboard} element={<Dashboard />}>
+            <Route index element={<SitesView />} />
+            <Route path={DashboardPath.Recent} element={<RecentSites />} />
+          </Route>
           <Route path={Path.Editor} element={<Editor />}>
             <Route index element={<Navigate replace to={EditorPath.Elements} />} />
             <Route path={EditorPath.Elements} element={<Panel panel={EditorPath.Elements} sectioned={true} />} />

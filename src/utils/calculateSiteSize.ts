@@ -4,16 +4,19 @@ export const BYTES_IN_KB = 1024;
 
 type Unit = 'bytes' | 'kb' | 'mb' | 'gb' | 'tb';
 
-function calculateSiteSize(site: Site): string;
-function calculateSiteSize(site: Site, unit: Unit): number;
+function calculateSiteSize(site: Site | Site[]): string;
+function calculateSiteSize(site: Site | Site[], unit: Unit): number;
 
-function calculateSiteSize(site: Site, unit?: Unit): number | string {
+function calculateSiteSize(site: Site | Site[], unit?: Unit): number | string {
   let totalSizeBytes = 0;
+  const sites = Array.isArray(site) ? site : [site];
 
-  for (const page of site.pages) {
-    const jsonString = JSON.stringify(page.elements);
-    const sizeBytes = new TextEncoder().encode(jsonString).length;
-    totalSizeBytes += sizeBytes;
+  for (const s of sites) {
+    for (const page of s.pages) {
+      const jsonString = JSON.stringify(page.elements);
+      const sizeBytes = new TextEncoder().encode(jsonString).length;
+      totalSizeBytes += sizeBytes;
+    }
   }
 
   const sizeKB = totalSizeBytes / BYTES_IN_KB;
@@ -22,21 +25,16 @@ function calculateSiteSize(site: Site, unit?: Unit): number | string {
   const sizeTB = sizeGB / BYTES_IN_KB;
 
   switch (unit) {
-    case 'bytes': {
+    case 'bytes':
       return totalSizeBytes;
-    }
-    case 'kb': {
+    case 'kb':
       return sizeKB;
-    }
-    case 'mb': {
+    case 'mb':
       return sizeMB;
-    }
-    case 'gb': {
+    case 'gb':
       return sizeGB;
-    }
-    case 'tb': {
+    case 'tb':
       return sizeTB;
-    }
   }
 
   if (sizeTB >= 1) {

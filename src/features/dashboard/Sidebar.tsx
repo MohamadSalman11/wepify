@@ -1,7 +1,7 @@
 import { nanoid } from '@reduxjs/toolkit';
 import type { Site, SitePage } from '@shared/types';
 import toast from 'react-hot-toast';
-import { LuClock4, LuFilePlus, LuHouse, LuStar } from 'react-icons/lu';
+import { LuClock4, LuCloud, LuFilePlus, LuHouse, LuStar } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -9,8 +9,10 @@ import Button from '../../components/Button';
 import Icon from '../../components/Icon';
 import { DashboardPath, Path, StorageKey, TOAST_DURATION, ToastMessages } from '../../constant';
 import { useFilePicker } from '../../hooks/useFilePicker';
+import { useAppSelector } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
 import { buildPath } from '../../utils/buildPath';
+import { calculateSiteSize } from '../../utils/calculateSiteSize';
 import { createNewPage } from '../../utils/createNewPage';
 import { validateSiteJson } from '../../utils/validateSiteJson';
 import { setIsLoading } from '../editor/slices/editorSlice';
@@ -29,6 +31,7 @@ const DEFAULT_PAGES_COUNT = 1;
  */
 
 export default function Sidebar() {
+  const sites = useAppSelector((state) => state.dashboard.sites);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { input, openFilePicker } = useFilePicker({ accept: '.json', onSelect: handleUploadSiteJson });
@@ -108,6 +111,9 @@ export default function Sidebar() {
           </NavItem>
         </NavList>
       </nav>
+      <TotalSize>
+        <Icon icon={LuCloud} /> Total size: {sites.length > 0 ? calculateSiteSize(sites) : '0 KB'}
+      </TotalSize>
     </StyledSidebar>
   );
 }
@@ -122,6 +128,10 @@ const StyledSidebar = styled.aside`
 
   button:nth-of-type(1) {
     margin-bottom: 1.2rem;
+  }
+
+  svg {
+    color: var(--color-black-light-2);
   }
 `;
 
@@ -144,13 +154,17 @@ const NavItem = styled.li`
     &:hover {
       background-color: var(--color-gray-light-2);
     }
-
-    svg {
-      color: var(--color-black-light-2);
-    }
   }
 
   a.active {
     background-color: var(--color-primary-light-2);
   }
+`;
+
+const TotalSize = styled.span`
+  display: flex;
+  column-gap: 1.2rem;
+  align-items: center;
+  margin-top: 1.2rem;
+  padding: 0.8rem 2.4rem;
 `;

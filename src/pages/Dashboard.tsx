@@ -84,6 +84,20 @@ const StyledDashboard = styled.div`
   padding: 1.2rem 2.4rem;
   user-select: none;
 
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: var(--border-radius-sm);
+    background: var(--color-gray-dark);
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
   & > div:nth-of-type(2) {
     margin-top: 1.2rem;
   }

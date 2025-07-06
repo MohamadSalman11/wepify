@@ -51,6 +51,20 @@ const editorLayout = css`
   display: grid;
   grid-template-columns: 10rem 34rem 3.5fr 34rem;
   grid-template-rows: 8rem 1fr;
+
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: var(--border-radius-sm);
+    background: var(--color-gray-dark);
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
 `;
 
 const StyledEditor = styled.div<{ $isPreview?: boolean }>`

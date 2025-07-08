@@ -1,6 +1,8 @@
+import { nanoid } from '@reduxjs/toolkit';
 import type { InputChangeEvent } from '@shared/types';
 import toast from 'react-hot-toast';
 import { LuImage, LuSearch } from 'react-icons/lu';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import Input from '../../../components/form/Input';
 import Icon from '../../../components/Icon';
@@ -9,17 +11,22 @@ import { useFilePicker } from '../../../hooks/useFilePicker';
 import { useAppSelector } from '../../../store';
 import CollapsibleSection from '../CollapsibleSection';
 import { useImageUpload } from '../hooks/useImageUpload';
+import { addImage } from '../slices/editorSlice';
 
 /**
  * Component definition
  */
 
 export default function ElementsPanel() {
+  const dispatch = useDispatch();
   const selection = useAppSelector((state) => state.selection.present.selectedElement);
   const { iframeConnection } = useIframeContext();
 
   const handleImageUpload = useImageUpload(
-    (result) => iframeConnection.insertElement('image', { src: result }),
+    (result) => {
+      iframeConnection.insertElement('image', { src: result });
+      dispatch(addImage({ id: nanoid(), dataUrl: result }));
+    },
     (message) => toast.error(message)
   );
 

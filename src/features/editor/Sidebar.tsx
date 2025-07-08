@@ -1,4 +1,4 @@
-import { LuCloudUpload, LuFile, LuLayers3, LuLogOut, LuPlus } from 'react-icons/lu';
+import { LuFile, LuImage, LuLayers3, LuLogOut, LuPlus } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -17,7 +17,7 @@ const NAV_ITEMS = [
   { to: EditorPath.Elements, icon: LuPlus },
   { to: EditorPath.Pages, icon: LuFile },
   { to: EditorPath.Layers, icon: LuLayers3 },
-  { to: EditorPath.Uploads, icon: LuCloudUpload }
+  { to: EditorPath.Uploads, icon: LuImage }
 ];
 
 /**

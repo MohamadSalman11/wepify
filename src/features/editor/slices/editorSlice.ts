@@ -7,7 +7,7 @@ interface EditorState {
   site: Site;
   isLoading: boolean;
   isError: boolean;
-  images: string[];
+  images: { id: string; dataUrl: string }[];
 }
 
 const initialState: EditorState = {
@@ -60,6 +60,12 @@ const editorSlice = createSlice({
     },
     setImages(state, action) {
       state.images = action.payload;
+    },
+    addImage(state, action) {
+      state.images.push(action.payload);
+    },
+    deleteImage(state, action) {
+      state.images = state.images.filter((image) => image.id !== action.payload);
     },
     addElement(
       state,
@@ -140,7 +146,9 @@ export const {
   setImages,
   addElement,
   updateElementInSite,
-  deleteElementInSite
+  deleteElementInSite,
+  deleteImage,
+  addImage
 } = editorSlice.actions;
 
 export default editorSlice.reducer;

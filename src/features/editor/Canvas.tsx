@@ -38,7 +38,7 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
   const { pageId } = useParams();
   const { iframeConnection, iframeRef } = useIframeContext();
   const { width, height, scale } = useAppSelector((state) => state.page);
-  const { site, isLoading, isError } = useAppSelector((state) => state.editor);
+  const { images, site, isLoading, isError } = useAppSelector((state) => state.editor);
 
   const onLoaded = useCallback(
     (site: Site | null) => {
@@ -68,9 +68,12 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
 
   useEffect(() => {
     if (!site.id) return;
-
     AppStorage.setItem(StorageKey.Site, site);
   }, [site]);
+
+  useEffect(() => {
+    AppStorage.setItem(StorageKey.Images, images);
+  }, [images]);
 
   useEffect(() => {
     if (iframeConnection.iframeReady && !isLoading) {

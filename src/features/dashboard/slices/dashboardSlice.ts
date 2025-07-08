@@ -70,9 +70,6 @@ const dashboardSlice = createSlice({
     },
     setIsLoading(state, action) {
       state.isLoading = action.payload;
-    },
-    setImages(state, action) {
-      state.images = action.payload;
     }
   }
 });
@@ -86,8 +83,7 @@ export const {
   setFilters,
   setFilterLabel,
   toggleSiteStarred,
-  setIsLoading,
-  setImages
+  setIsLoading
 } = dashboardSlice.actions;
 
 export default dashboardSlice.reducer;

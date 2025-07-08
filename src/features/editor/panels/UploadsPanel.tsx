@@ -1,6 +1,7 @@
+import { nanoid } from '@reduxjs/toolkit';
 import { useCallback } from 'react';
 import toast from 'react-hot-toast';
-import { LuTrash } from 'react-icons/lu';
+import { LuTrash2 } from 'react-icons/lu';
 import Masonry from 'react-masonry-css';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
@@ -12,11 +13,7 @@ import { useFilePicker } from '../../../hooks/useFilePicker';
 import { useLoadFromStorage } from '../../../hooks/useLoadFromStorage';
 import { useAppSelector } from '../../../store';
 import { useImageUpload } from '../hooks/useImageUpload';
-import { setImages } from '../slices/editorSlice';
-
-/**
- * Component definition
- */
+import { addImage, deleteImage, setImages } from '../slices/editorSlice';
 
 export default function UploadsPanel() {
   const dispatch = useDispatch();
@@ -26,7 +23,7 @@ export default function UploadsPanel() {
   const handleImageUpload = useImageUpload(
     (result) => {
       iframeConnection.insertElement('image', { src: result });
-      dispatch(setImages([...images, result]));
+      dispatch(addImage({ id: nanoid(), dataUrl: result }));
     },
     (message) => toast.error(message)
   );
@@ -54,21 +51,27 @@ export default function UploadsPanel() {
       <Button fullWidth={true} onClick={openFilePicker}>
         Upload File
       </Button>
+
+      {images.length === 0 && <EmptyMessage>No images uploaded yet</EmptyMessage>}
+
       <MasonryGrid breakpointCols={2} className='masonry-grid' columnClassName='masonry-grid_column'>
-        {images?.map((src, i) => (
-          <MediaItem key={i}>
-            <img src={src} alt={`uploaded image ${i + 1}`} loading='lazy' />
-            <Icon icon={LuTrash} />
+        {images?.map((img, i) => (
+          <MediaItem key={i} onClick={() => iframeConnection.insertElement('image', { src: img.dataUrl })}>
+            <img src={img.dataUrl} alt={`uploaded image ${i + 1}`} loading='lazy' />
+            <span
+              onClick={(event) => {
+                event.stopPropagation();
+                dispatch(deleteImage(img.id));
+              }}
+            >
+              <Icon icon={LuTrash2} />
+            </span>
           </MediaItem>
         ))}
       </MasonryGrid>
     </>
   );
 }
-
-/**
- * Styles
- */
 
 const MasonryGrid = styled(Masonry)`
   display: flex !important;
@@ -124,4 +127,11 @@ const MediaItem = styled.div`
   &:hover svg {
     transform: translateY(0);
   }
+`;
+
+const EmptyMessage = styled.p`
+  margin-top: 2.4rem;
+  text-align: center;
+  color: var(--color-gray-light);
+  font-size: 1.2rem;
 `;

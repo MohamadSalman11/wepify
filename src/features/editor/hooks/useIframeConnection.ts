@@ -2,8 +2,7 @@ import { MessageFromIframe, MessageFromIframeData, MessageToIframe, PageElement,
 import { useCallback, useEffect, useMemo, useState, type RefObject } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { StorageKey, TARGET_ORIGIN } from '../../../constant';
-import { AppStorage } from '../../../utils/appStorage';
+import { TARGET_ORIGIN } from '../../../constant';
 import { addElement, deleteElementInSite, updateElementInSite } from '../slices/editorSlice';
 import { selectElement, updateSelectElement } from '../slices/selectionSlice';
 
@@ -47,12 +46,6 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
         case MessageFromIframe.ElementInserted: {
           const { parentId, element } = data.payload;
           dispatch(addElement({ pageId, parentElementId: parentId, newElement: element }));
-
-          if (element.name === 'image') {
-            const images: string[] | null = await AppStorage.getItem(StorageKey.Images);
-            await AppStorage.setItem(StorageKey.Images, [...(images || []), element.src]);
-          }
-
           break;
         }
         case MessageFromIframe.ElementDeleted: {

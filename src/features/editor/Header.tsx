@@ -25,7 +25,7 @@ import { EditorPath, StorageKey } from '../../constant';
 import { useIframeContext } from '../../context/IframeContext';
 import { useAppSelector } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
-import { setIsLoading } from './slices/editorSlice';
+import { setIsDownloadingSite, setIsLoading } from './slices/editorSlice';
 import { setHeight, setScale, setWidth } from './slices/pageSlice';
 
 /**
@@ -58,6 +58,7 @@ export default function Header() {
   const { iframeConnection } = useIframeContext();
   const [activeDevice, setActiveDevice] = useState<DeviceType>('auto');
   const { width, height, scale } = useAppSelector((state) => state.page);
+  const { site, isDownloadingSite } = useAppSelector((state) => state.editor);
 
   const handleHeightChange = (event: InputChangeEvent) => {
     const newHeight = Number(event.target.value);
@@ -75,6 +76,7 @@ export default function Header() {
   };
 
   async function handleDownloadSite(shouldMinify: boolean) {
+    dispatch(setIsDownloadingSite(true));
     const site = await AppStorage.getItem<Site>(StorageKey.Site);
     iframeConnection.downloadSite(site, shouldMinify);
   }
@@ -82,8 +84,8 @@ export default function Header() {
   return (
     <StyledHeader>
       <DesignInfo>
-        <span>S</span>
-        <p>S</p>
+        <span>{site.name}</span>
+        <p>{site.description}</p>
       </DesignInfo>
       <DevicePreviewControls>
         <DevicePreviewButton
@@ -154,19 +156,17 @@ export default function Header() {
         <Divider rotate={90} width={30} />
         <Dropdown>
           <Dropdown.Open>
-            <Button variation='secondary'>Download</Button>
+            <Button variation='secondary' disabled={isDownloadingSite}>
+              Download
+            </Button>
           </Dropdown.Open>
           <Dropdown.Drop>
-            <li onClick={() => handleDownloadSite(true)}>
-              <DropdownItemButton>
-                <Icon icon={LuFileMinus} /> Download Minified
-              </DropdownItemButton>
-            </li>
-            <li onClick={() => handleDownloadSite(false)}>
-              <DropdownItemButton>
-                <Icon icon={LuFileCode2} /> Download Readable
-              </DropdownItemButton>
-            </li>
+            <Dropdown.Button icon={LuFileMinus} onClick={() => handleDownloadSite(true)}>
+              Download Minified
+            </Dropdown.Button>
+            <Dropdown.Button icon={LuFileCode2} onClick={() => handleDownloadSite(false)}>
+              Download Readable
+            </Dropdown.Button>
           </Dropdown.Drop>
         </Dropdown>
         <Button asLink={true} href={PUBLISH_LINK} target='_blank'>
@@ -278,13 +278,6 @@ const EditorActions = styled.div`
   display: flex;
   column-gap: 2.4rem;
   align-items: center;
-`;
-
-const DropdownItemButton = styled.button`
-  display: flex;
-  align-items: center;
-  column-gap: 1.2rem;
-  background-color: transparent;
 `;
 
 const DesignInfo = styled.div`

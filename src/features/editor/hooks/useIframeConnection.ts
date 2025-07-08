@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState, type RefObject } from 'react
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { TARGET_ORIGIN } from '../../../constant';
-import { addElement, deleteElementInSite, updateElementInSite } from '../slices/editorSlice';
+import { addElement, deleteElementInSite, setIsDownloadingSite, updateElementInSite } from '../slices/editorSlice';
 import { selectElement, updateSelectElement } from '../slices/selectionSlice';
 
 export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | null>) => {
@@ -51,6 +51,10 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
         case MessageFromIframe.ElementDeleted: {
           const { targetId, parentId } = data.payload;
           dispatch(deleteElementInSite({ pageId, parentElementId: parentId, elementId: targetId }));
+          break;
+        }
+        case MessageFromIframe.SiteDownloaded: {
+          dispatch(setIsDownloadingSite(false));
           break;
         }
       }

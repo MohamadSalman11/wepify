@@ -78,6 +78,10 @@ const variations = {
     &:hover {
       background-color: var(--color-gray-light-2);
     }
+
+    &:disabled {
+      background-color: var(--color-gray-light);
+    }
   `,
   outline: css`
     border: 2px solid var(--color-primary);

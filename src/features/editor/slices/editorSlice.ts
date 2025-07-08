@@ -7,6 +7,7 @@ interface EditorState {
   site: Site;
   isLoading: boolean;
   isError: boolean;
+  isDownloadingSite: boolean;
   images: { id: string; dataUrl: string }[];
 }
 
@@ -23,6 +24,7 @@ const initialState: EditorState = {
   },
   isLoading: true,
   isError: false,
+  isDownloadingSite: false,
   images: []
 };
 
@@ -57,6 +59,9 @@ const editorSlice = createSlice({
     },
     setIsError(state, action) {
       state.isError = action.payload;
+    },
+    setIsDownloadingSite(state, action) {
+      state.isDownloadingSite = action.payload;
     },
     setImages(state, action) {
       state.images = action.payload;
@@ -148,7 +153,8 @@ export const {
   updateElementInSite,
   deleteElementInSite,
   deleteImage,
-  addImage
+  addImage,
+  setIsDownloadingSite
 } = editorSlice.actions;
 
 export default editorSlice.reducer;

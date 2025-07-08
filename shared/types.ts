@@ -103,7 +103,8 @@ export enum MessageFromIframe {
   SelectionChanged = 'SELECTION_CHANGED',
   ElementUpdated = 'ELEMENT_UPDATED',
   ElementInserted = 'ELEMENT_INSERTED',
-  ElementDeleted = 'ELEMENT_DELETED'
+  ElementDeleted = 'ELEMENT_DELETED',
+  SiteDownloaded = 'SITE_DOWNLOADED'
 }
 
 export enum MessageToIframe {
@@ -121,4 +122,5 @@ export type MessageFromIframeData =
   | { type: MessageFromIframe.SelectionChanged; payload: PageElement }
   | { type: MessageFromIframe.ElementUpdated; payload: { id: string; fields: Partial<PageElement> } }
   | { type: MessageFromIframe.ElementInserted; payload: { parentId: string; element: PageElement } }
-  | { type: MessageFromIframe.ElementDeleted; payload: { targetId: string; parentId: string } };
+  | { type: MessageFromIframe.ElementDeleted; payload: { targetId: string; parentId: string } }
+  | { type: MessageFromIframe.SiteDownloaded };

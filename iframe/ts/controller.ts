@@ -53,20 +53,32 @@ const iframeMessageHandlers: Record<MessageToIframe, (payload: any) => void> = {
 
 export async function controlDownloadZip(site: Site, shouldMinify: boolean) {
   const zip = new JSZip();
+  let imageCount = 0;
 
   zip.file(FileNames.StyleCSS, shouldMinify ? minifyCSS(cssFile) : cssFile);
 
   for (const page of site.pages) {
     const doc = document.implementation.createHTMLDocument(page.name);
-
     doc.head.innerHTML = document.head.innerHTML;
     doc.title = page.title || page.name;
 
     renderElements(page.elements, doc);
 
-    const htmlString = doc.documentElement.outerHTML;
-    const html = shouldMinify ? await minifyHTML(htmlString) : await cleanUpHTML(htmlString);
-    const fileName = page.isIndex ? FileNames.IndexPage : `${page.name.toLowerCase().split(' ').join('_')}.html`;
+    const images = doc.querySelectorAll('img[src^="data:image"]');
+    images.forEach((img) => {
+      const src = img.src;
+      const ext = src.substring(src.indexOf('/') + 1, src.indexOf(';'));
+      const base64 = src.split(',')[1];
+      const fileName = `image_${++imageCount}.${ext}`;
+      zip.file(`images/${fileName}`, base64, { base64: true });
+      img.src = `images/${fileName}`;
+    });
+
+    const html = shouldMinify
+      ? await minifyHTML(doc.documentElement.outerHTML)
+      : await cleanUpHTML(doc.documentElement.outerHTML);
+
+    const fileName = page.isIndex ? FileNames.IndexPage : `${page.name.toLowerCase().replace(/\s+/g, '_')}.html`;
 
     zip.file(fileName, html);
   }
@@ -74,8 +86,9 @@ export async function controlDownloadZip(site: Site, shouldMinify: boolean) {
   zip.file(FileNames.SiteJson, JSON.stringify({ __WARNING__: SITE_JSON_WARNING, ...site }, null, 2));
 
   const content = await zip.generateAsync({ type: 'blob' });
-
   downloadBlob(content, FileNames.ZipDownload);
+
+  postMessageToApp({ type: MessageFromIframe.SiteDownloaded });
 }
 
 const controlUpdateElement = (updates: Partial<PageElement>) => {

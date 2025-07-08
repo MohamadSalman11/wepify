@@ -50,7 +50,7 @@ export default function Editor() {
 
 const editorLayout = css`
   display: grid;
-  grid-template-columns: 10rem 34rem 3.5fr 34rem;
+  grid-template-columns: 8rem 30rem 3.5fr 30rem;
   grid-template-rows: 8rem 1fr;
 
   ::-webkit-scrollbar {

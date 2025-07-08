@@ -67,7 +67,7 @@ const PanelContainer = styled.div<{ $sectioned: boolean; $borderDir: BorderDirec
         display: flex;
         flex-direction: column;
         border-bottom: var(--border-base);
-        padding: 3.2rem 2.4rem;
+        padding: 3.2rem 2.2rem;
         width: 100%;
       }
     `}

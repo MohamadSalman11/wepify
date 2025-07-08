@@ -205,10 +205,21 @@ const LayoutItem = styled.li<{ $disabled?: boolean }>`
     grid-column: 1 / -1;
   }
 
+  &:nth-child(3) div,
+  &:nth-child(5) div {
+    justify-items: center;
+
+    span {
+      transform: translateY(-2px);
+      width: 1.4rem;
+      height: 1.4rem;
+    }
+  }
+
   &:nth-child(4) div span,
   &:nth-child(6) div span {
     grid-column: 1 / -1;
-    height: 10px;
+    height: 7px;
   }
 
   &:nth-child(5) div span {
@@ -229,7 +240,7 @@ const TextItem = styled.li`
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 2rem;
+    font-size: 1.6rem;
 
     span {
       background-color: var(--color-gray-light);
@@ -237,34 +248,34 @@ const TextItem = styled.li`
   }
 
   &:nth-child(1) div {
-    font-size: 3rem;
+    font-size: 2.4rem;
   }
 
   &:nth-child(3) div {
     text-decoration: underline;
-    text-underline-offset: 8px;
+    text-underline-offset: 4px;
   }
 
   &:nth-child(4) div span {
     border-radius: var(--border-radius-md);
     padding: 0.4rem 0.8rem;
-    font-size: 1.4rem;
+    font-size: 1rem;
   }
 
   &:nth-child(5) div span {
     display: inline-block;
     position: relative;
-    width: 6rem;
-    height: 2.5rem;
+    width: 100%;
+    height: 1.5rem;
 
     &::after {
       position: absolute;
-      top: 50%;
+      top: 53%;
       left: 20%;
       transform: translateY(-50%);
       background-color: var(--color-gray);
       width: 2px;
-      height: 1.2rem;
+      height: 0.8rem;
       content: '';
     }
   }
@@ -275,7 +286,6 @@ const MediaItem = styled.li`
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 3rem;
   }
 `;
 
@@ -297,8 +307,8 @@ const PanelBox = styled.div`
   border-radius: var(--border-radius-md);
   background-color: var(--color-white-3);
   padding: 1.2rem;
-  width: 8rem;
-  height: 6rem;
+  width: 6rem;
+  height: 5rem;
   color: var(--color-gray);
   position: relative;
 

@@ -16,6 +16,7 @@ import Sidebar from '../features/editor/Sidebar';
 export default function Editor() {
   const location = useLocation();
   const isPreview = location.pathname.endsWith('/preview');
+
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const iframeConnection = useIframeConnection(iframeRef);
 

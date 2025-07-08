@@ -1,24 +1,15 @@
-import {
-  MessageFromIframe,
-  MessageToIframe,
-  type MessageData,
-  type PageElement,
-  type Site,
-  type SitePage
-} from '@shared/types';
+import { MessageFromIframe, MessageFromIframeData, MessageToIframe, PageElement, type SitePage } from '@shared/types';
 import { useCallback, useEffect, useMemo, useState, type RefObject } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { StorageKey, TARGET_ORIGIN } from '../../../constant';
 import { AppStorage } from '../../../utils/appStorage';
-import { findElementById } from '../../../utils/findElementById';
-import { addElement } from '../slices/pageSlice';
+import { addElement, deleteElementInSite, updateElementInSite } from '../slices/editorSlice';
 import { selectElement, updateSelectElement } from '../slices/selectionSlice';
 
 export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | null>) => {
   const dispatch = useDispatch();
   const { pageId } = useParams();
-
   const [iframeReady, setIframeReady] = useState(false);
 
   const postMessageToIframe = useCallback(
@@ -33,7 +24,9 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
 
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
-      const data: MessageData = event.data;
+      const data: MessageFromIframeData = event.data;
+
+      if (!pageId) return;
 
       switch (data.type) {
         case MessageFromIframe.IframeReady: {
@@ -44,21 +37,16 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
           dispatch(selectElement(data.payload));
           break;
         }
-        case MessageFromIframe.UpdateElement: {
+        case MessageFromIframe.ElementUpdated: {
           const { id, fields } = data.payload;
+
           dispatch(updateSelectElement(fields));
-          await saveElementInStorage(pageId, id, (element) => {
-            Object.assign(element, fields);
-          });
+          dispatch(updateElementInSite({ pageId, elementId: id, updates: fields }));
           break;
         }
-        case MessageFromIframe.InsertElement: {
+        case MessageFromIframe.ElementInserted: {
           const { parentId, element } = data.payload;
-          dispatch(addElement(element));
-
-          await saveElementInStorage(pageId, parentId, (parent) => {
-            parent.children?.push(element);
-          });
+          dispatch(addElement({ pageId, parentElementId: parentId, newElement: element }));
 
           if (element.name === 'image') {
             const images: string[] | null = await AppStorage.getItem(StorageKey.Images);
@@ -69,9 +57,7 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
         }
         case MessageFromIframe.ElementDeleted: {
           const { targetId, parentId } = data.payload;
-          await saveElementInStorage(pageId, parentId, (parent) => {
-            parent.children = parent.children.filter((el) => el.id !== targetId);
-          });
+          dispatch(deleteElementInSite({ pageId, parentElementId: parentId, elementId: targetId }));
           break;
         }
       }
@@ -81,9 +67,9 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
     return () => window.removeEventListener('message', handleMessage);
   }, [dispatch, iframeRef, pageId]);
 
-  const sendElements = useCallback(
+  const renderElements = useCallback(
     (elements: PageElement[], isPreview: boolean) => {
-      postMessageToIframe({ type: MessageToIframe.ReceiveElements, payload: { isPreview, elements } });
+      postMessageToIframe({ type: MessageToIframe.RenderElements, payload: { isPreview, elements } });
     },
     [postMessageToIframe]
   );
@@ -108,7 +94,7 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
 
   const handleSelectionChange = useCallback(
     (id: string) => {
-      postMessageToIframe({ type: MessageToIframe.SelectionChanged, payload: id });
+      postMessageToIframe({ type: MessageToIframe.ChangeSelection, payload: id });
     },
     [postMessageToIframe]
   );
@@ -130,7 +116,7 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
   return useMemo(
     () => ({
       iframeReady,
-      sendElements,
+      renderElements,
       updateElement,
       insertElement,
       handleSelectionChange,
@@ -140,7 +126,7 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
     }),
     [
       iframeReady,
-      sendElements,
+      renderElements,
       updateElement,
       insertElement,
       handleSelectionChange,
@@ -149,25 +135,4 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
       downloadSite
     ]
   );
-};
-
-const saveElementInStorage = async (
-  pageId: string | undefined,
-  elementId: string,
-  fn: (element: PageElement) => void
-) => {
-  const site = await AppStorage.getItem<Site>(StorageKey.Site);
-  const page = site?.pages.find((p) => p.id === pageId);
-
-  site.lastModified = Date.now();
-
-  if (!site || !page) return;
-
-  const element = findElementById(elementId, page.elements);
-
-  if (element) {
-    fn(element);
-  }
-
-  await AppStorage.setItem(StorageKey.Site, site);
 };

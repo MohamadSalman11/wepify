@@ -11,18 +11,18 @@ import Input from '../../../components/form/Input';
 import Icon from '../../../components/Icon';
 import Modal, { type OnCloseModal } from '../../../components/Modal';
 import { Path, StorageKey, ToastMessages } from '../../../constant';
+import { useIframeContext } from '../../../context/IframeContext';
+import { useModalContext } from '../../../context/ModalContext';
 import { useAppSelector } from '../../../store';
 import { AppStorage } from '../../../utils/appStorage';
 import { buildPath } from '../../../utils/buildPath';
 import { createNewPage } from '../../../utils/createNewPage';
 import { addPage, deletePage, setIsIndexPage, setIsLoading, updatePageInfo } from '../slices/editorSlice';
-import { setPage } from '../slices/pageSlice';
 
 /**
  * Constants
  */
 
-const SELECTOR_DROPDOWN_ACTIVE = '[data-active]';
 const PAGE_NAME_MAX_LENGTH = 7;
 
 /**
@@ -30,28 +30,12 @@ const PAGE_NAME_MAX_LENGTH = 7;
  */
 
 export default function PagesPanel() {
-  const { site } = useAppSelector((state) => state.editor);
-  const { pageId } = useParams();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const { site } = useAppSelector((state) => state.editor);
 
-  // TODO: save page
-
-  function handleAddNewPage() {
+  async function handleAddNewPage() {
     const newPage = createNewPage();
     dispatch(addPage(newPage));
-  }
-
-  function handleOpenEditor(event: MouseEvent<HTMLLIElement>, page: SitePage) {
-    if ((event.target as HTMLElement).closest(SELECTOR_DROPDOWN_ACTIVE)) return;
-    dispatch(setIsLoading(true));
-    dispatch(setPage({ id: page.id, elements: page.elements }));
-    navigate(buildPath(Path.Editor, { siteId: site.id, pageId: page.id }));
-  }
-
-  function handleSetIndexPage(event: MouseEvent, pageId: string) {
-    event.stopPropagation();
-    dispatch(setIsIndexPage(pageId));
   }
 
   return (
@@ -59,85 +43,101 @@ export default function PagesPanel() {
       <Button fullWidth={true} onClick={handleAddNewPage}>
         Add New Page
       </Button>
-      <PagesList>
+      <StyledPagesList>
         {site.pages?.map((page, i) => (
-          <PageItem $active={page.id === pageId} onClick={(event) => handleOpenEditor(event, page)}>
-            <div>
-              <Icon icon={LuSquareMenu} />
-              <span>
-                {page.name.length > PAGE_NAME_MAX_LENGTH ? `${page.name.slice(0, PAGE_NAME_MAX_LENGTH)}...` : page.name}
-              </span>
-              <div>
-                <Dropdown>
-                  <Dropdown.open>
-                    <span data-active>
-                      <Icon icon={LuEllipsis} size='md' />
-                    </span>
-                  </Dropdown.open>
-                  <Dropdown.drop translateX={18} translateY={-15}>
-                    <li onClick={(event) => handleSetIndexPage(event, page.id)}>
-                      <Icon icon={LuHouse} /> Set as index
-                    </li>
-                    <Modal>
-                      <Modal.Open>
-                        <li data-active>
-                          <Icon icon={LuPencil} /> Edit
-                        </li>
-                      </Modal.Open>
-                      <Modal.window>
-                        <Modal.dialog title='Edit Page'>
-                          <EditDialog page={page} />
-                        </Modal.dialog>
-                      </Modal.window>
-                    </Modal>
-                    <Modal>
-                      <Modal.open>
-                        <li data-active>
-                          <Icon icon={LuTrash2} /> Delete
-                        </li>
-                      </Modal.open>
-                      <Modal.window>
-                        <Modal.dialog title='Delete page'>
-                          <DeleteDialog currentIndex={i} page={page} />
-                        </Modal.dialog>
-                      </Modal.window>
-                    </Modal>
-                    <li
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        handleCopyLink(page.name);
-                      }}
-                    >
-                      <Icon icon={LuCopy} /> Copy page link
-                    </li>
-                  </Dropdown.drop>
-                </Dropdown>
-              </div>
-            </div>
-            {page.isIndex && <IndexBadge>Index</IndexBadge>}
-          </PageItem>
+          <Modal>
+            <PageItem page={page} index={i} />
+          </Modal>
         ))}
-      </PagesList>
+      </StyledPagesList>
     </>
+  );
+}
+
+function PageItem({ page, index }: { page: SitePage; index: number }) {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { siteId, pageId } = useParams();
+  const { open } = useModalContext();
+  const { iframeRef } = useIframeContext();
+
+  function handleOpenEditor(event: MouseEvent<HTMLLIElement>, page: SitePage) {
+    const target = event.target as HTMLElement;
+
+    if (page.id === pageId) return;
+
+    if (!target.closest('svg')) {
+      dispatch(setIsLoading(true));
+      iframeRef.current?.contentWindow?.location.reload();
+      navigate(buildPath(Path.Editor, { siteId, pageId: page.id }));
+    }
+  }
+
+  return (
+    <StyledPageItem $active={page.id === pageId} onClick={(event) => handleOpenEditor(event, page)}>
+      <div>
+        <Icon icon={LuSquareMenu} />
+        <span>
+          {page.name.length > PAGE_NAME_MAX_LENGTH ? `${page.name.slice(0, PAGE_NAME_MAX_LENGTH)}...` : page.name}
+        </span>
+        <div>
+          <Dropdown>
+            <Dropdown.Open>
+              <span>
+                <Icon icon={LuEllipsis} size='md' />
+              </span>
+            </Dropdown.Open>
+            <Dropdown.Drop translateX={18} translateY={-15}>
+              <Dropdown.Button icon={LuHouse} onClick={() => dispatch(setIsIndexPage(page.id))}>
+                Set as index
+              </Dropdown.Button>
+              <Modal.Open openName='edit'>
+                <Dropdown.Button icon={LuPencil} onClick={() => open('edit')}>
+                  Edit
+                </Dropdown.Button>
+              </Modal.Open>
+              <Modal.Open openName='delete'>
+                <Dropdown.Button icon={LuTrash2} onClick={() => open('delete')}>
+                  Delete
+                </Dropdown.Button>
+              </Modal.Open>
+              <Dropdown.Button icon={LuCopy} onClick={() => handleCopyLink(page.name)}>
+                Copy page link
+              </Dropdown.Button>
+            </Dropdown.Drop>
+          </Dropdown>
+          <Modal.Window name='edit'>
+            <Modal.Dialog title='Edit Page'>
+              <EditDialog page={page} />
+            </Modal.Dialog>
+          </Modal.Window>
+          <Modal.Window name='delete'>
+            <Modal.Dialog title='Delete page'>
+              <DeleteDialog currentIndex={index} page={page} />
+            </Modal.Dialog>
+          </Modal.Window>
+        </div>
+      </div>
+      {page.isIndex && <IndexBadge>Index</IndexBadge>}
+    </StyledPageItem>
   );
 }
 
 function EditDialog({ page, onCloseModal }: { page: SitePage; onCloseModal?: OnCloseModal }) {
   const dispatch = useDispatch();
-  const [newName, setNewName] = useState('');
-  const [newTitle, setNewTitle] = useState('');
+  const [newName, setNewName] = useState(page.name || '');
+  const [newTitle, setNewTitle] = useState(page.title || page.name || '');
   const { site } = useAppSelector((state) => state.editor);
 
   function handleSave() {
     const trimmedName = newName.trim();
+
     if (!trimmedName) {
       toast.error('Page name cannot be empty');
       return;
     }
 
-    const nameExists = site.pages.some(
-      (p) => page.name.toLowerCase() === trimmedName.toLowerCase() && p.id !== page.id
-    );
+    const nameExists = site.pages.some((p) => p.name.toLowerCase() === trimmedName.toLowerCase() && p.id !== page.id);
 
     if (nameExists) {
       toast.error('A page with this name already exists. Please choose a different name.');
@@ -159,7 +159,7 @@ function EditDialog({ page, onCloseModal }: { page: SitePage; onCloseModal?: OnC
       <Input
         type='text'
         placeholder='Page Tittle'
-        defaultValue={page.title || page.name}
+        defaultValue={page.title}
         onChange={(event) => setNewTitle(event.target.value)}
       />
       <DialogActions>
@@ -203,10 +203,11 @@ function DeleteDialog({
     }
 
     if (page.isIndex) {
-      dispatch(setIsIndexPage({ siteId: site.id, pageId: availablePageId }));
+      dispatch(setIsIndexPage(availablePageId));
     }
 
-    if (pageId === page.id) {
+    if (isDeletingCurrentPage) {
+      dispatch(setIsLoading(true));
       navigate(buildPath(Path.Editor, { siteId: site.id, pageId: availablePageId }));
     }
   }
@@ -248,7 +249,7 @@ const handleCopyLink = (pageName: string) => {
  * Styles
  */
 
-const PagesList = styled.ul`
+const StyledPagesList = styled.ul`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.2rem;
@@ -256,7 +257,7 @@ const PagesList = styled.ul`
   list-style: none;
 `;
 
-const PageItem = styled.li<{ $active: boolean }>`
+const StyledPageItem = styled.li<{ $active: boolean }>`
   position: relative;
 
   & > div {

@@ -1,7 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import Divider from '../../components/divider';
 import Logo from '../../components/Logo';
 import { Path } from '../../constant';
+import { useAppSelector } from '../../store';
 
 /**
  * Component definition
@@ -9,6 +11,7 @@ import { Path } from '../../constant';
 
 export default function Header() {
   const navigate = useNavigate();
+  const sites = useAppSelector((state) => state.dashboard.sites);
 
   return (
     <StyledHeader>
@@ -16,6 +19,11 @@ export default function Header() {
         <Logo />
         <span>Wepify</span>
       </LogoBox>
+      <HeaderInfo>
+        <span>Sites: {sites.length}</span>
+        <Divider rotate={90} width={30} color='var(--color-gray-light-2)' />
+        <span>Welcome back 👋</span>
+      </HeaderInfo>
     </StyledHeader>
   );
 }
@@ -28,6 +36,8 @@ const StyledHeader = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 0 2.4rem;
+  height: 5.6rem;
 `;
 
 const LogoBox = styled.div`
@@ -40,4 +50,12 @@ const LogoBox = styled.div`
   img {
     margin-bottom: 0.4rem;
   }
+`;
+
+const HeaderInfo = styled.div`
+  display: flex;
+  align-items: center;
+  column-gap: 1.6rem;
+  font-size: 1.4rem;
+  color: var(--color-gray-dark);
 `;

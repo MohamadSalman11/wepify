@@ -1,6 +1,7 @@
 import {
   cloneElement,
   createContext,
+  MouseEvent,
   useContext,
   useRef,
   useState,
@@ -97,10 +98,20 @@ function Drop({
   );
 }
 
-function Button({ children, icon, onClick, ...props }: { children: ReactNode; icon: IconType; onClick?: () => void }) {
+function Button({
+  children,
+  icon,
+  onClick,
+  ...props
+}: {
+  children: ReactNode;
+  icon: IconType;
+  onClick?: (event?: any) => void;
+}) {
   const { setIsOpen } = useDropdownContext();
 
-  function handleClick() {
+  function handleClick(event: MouseEvent<HTMLLIElement>) {
+    event.stopPropagation();
     onClick?.();
     setIsOpen(false);
   }

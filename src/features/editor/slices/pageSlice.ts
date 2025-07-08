@@ -1,8 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { PageElement, SitePage } from '@shared/types';
-import { deepDeleteById } from '../../../utils/deepDeleteById';
 
-interface PageState extends SitePage {
+interface PageState {
   width: number;
   height: number;
   originWidth: number;
@@ -10,34 +8,24 @@ interface PageState extends SitePage {
   scale: number;
   hasSetOriginSize: boolean;
   iframe: HTMLIFrameElement | undefined;
-  lastAddedElement: PageElement | undefined;
-  elements: PageElement[];
 }
 
 const initialState: PageState = {
-  id: '',
-  name: '',
-  title: '',
-  isIndex: false,
   width: window.innerWidth,
   height: window.innerHeight,
   originWidth: window.innerWidth,
   originHeight: window.innerHeight,
   scale: 100,
   hasSetOriginSize: false,
-  iframe: undefined,
-  lastAddedElement: undefined,
-  elements: []
+  iframe: undefined
 };
 
 const pageSlice = createSlice({
   name: 'page',
   initialState,
   reducers: {
-    setPage(state, action: PayloadAction<{ id: string; elements: PageElement[] }>) {
-      state.id = action.payload.id;
-      state.elements = action.payload.elements;
-      state.lastAddedElement = undefined;
+    setPage(state, action) {
+      Object.assign(state, action.payload);
     },
     setWidth(state, action: PayloadAction<number>) {
       state.width = action.payload;
@@ -56,43 +44,10 @@ const pageSlice = createSlice({
     },
     setScale(state, action: PayloadAction<number>) {
       state.scale = action.payload;
-    },
-    setElements(state, action: PayloadAction<PageElement[]>) {
-      state.elements = action.payload;
-    },
-    addElement(state, action: PayloadAction<PageElement>) {
-      state.elements.push(action.payload);
-    },
-    updateElement(state, action: PayloadAction<{ id: string; updates: Partial<PageElement> }>) {
-      // const { id, updates } = action.payload;
-      // const element = flattenElements(state.elements).find((el) => el.id === id);
-      // if (element) {
-      //   Object.assign(element, updates);
-      // }
-    },
-    deleteElement(state, action: PayloadAction<string>) {
-      state.elements = deepDeleteById(state.elements, action.payload);
-    },
-    setNewElement(state, action: PayloadAction<PageElement>) {
-      state.lastAddedElement = action.payload;
-    },
-    clearPage(state) {
-      Object.assign(state, initialState);
     }
   }
 });
 
-export const {
-  setPage,
-  setWidth,
-  setHeight,
-  setScale,
-  setElements,
-  addElement,
-  updateElement,
-  deleteElement,
-  setNewElement,
-  clearPage
-} = pageSlice.actions;
+export const { setPage, setWidth, setHeight, setScale } = pageSlice.actions;
 
 export default pageSlice.reducer;

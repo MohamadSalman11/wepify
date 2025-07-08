@@ -12,6 +12,7 @@ import {
   LuTextCursorInput
 } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Icon from '../../../components/Icon';
 import { useAppSelector } from '../../../store';
@@ -35,7 +36,9 @@ const ICON_MAP: Record<string, IconType> = {
  */
 
 export default function LayersPanel() {
-  const page = useAppSelector((state) => state.page);
+  const { pageId } = useParams();
+  const pages = useAppSelector((state) => state.editor.site.pages);
+  const page = pages.find((p) => p.id === pageId);
   const selectedElementId = useAppSelector((state) => state.selection.present.selectedElement.id);
 
   return (

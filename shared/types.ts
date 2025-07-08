@@ -101,17 +101,17 @@ export interface Site {
 export enum MessageFromIframe {
   IframeReady = 'IFRAME_READY',
   SelectionChanged = 'SELECTION_CHANGED',
-  UpdateElement = 'UPDATE_ELEMENT',
-  InsertElement = 'INSERT_ELEMENT',
+  ElementUpdated = 'ELEMENT_UPDATED',
+  ElementInserted = 'ELEMENT_INSERTED',
   ElementDeleted = 'ELEMENT_DELETED'
 }
 
 export enum MessageToIframe {
-  ReceiveElements = 'RECEIVE_ELEMENTS',
+  RenderElements = 'RENDER_ELEMENTS',
   InsertElement = 'INSERT_ELEMENT',
   UpdateElement = 'UPDATE_ELEMENT',
   DeleteElement = 'DELETE_ELEMENT',
-  SelectionChanged = 'SELECTION_CHANGED',
+  ChangeSelection = 'CHANGE_SELECTION',
   SearchElement = 'SEARCH_ELEMENT',
   DownloadSite = 'DOWNLOAD_SITE'
 }
@@ -119,6 +119,6 @@ export enum MessageToIframe {
 export type MessageFromIframeData =
   | { type: MessageFromIframe.IframeReady }
   | { type: MessageFromIframe.SelectionChanged; payload: PageElement }
-  | { type: MessageFromIframe.UpdateElement; payload: { id: string; fields: Partial<PageElement> } }
-  | { type: MessageFromIframe.InsertElement; payload: { parentId: string; element: PageElement } }
+  | { type: MessageFromIframe.ElementUpdated; payload: { id: string; fields: Partial<PageElement> } }
+  | { type: MessageFromIframe.ElementInserted; payload: { parentId: string; element: PageElement } }
   | { type: MessageFromIframe.ElementDeleted; payload: { targetId: string; parentId: string } };

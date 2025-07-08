@@ -1,7 +1,7 @@
 import { Tags } from '@shared/constants';
 import { MessageFromIframe, type PageElement } from '@shared/types';
 import { CONTENT_EDITABLE_ELEMENTS, SELECTOR_TARGET } from '../../constants';
-import { postMessage } from '../../utils/postMessage';
+import { postMessageToApp } from '../../utils/postMessageToApp';
 import { positionDragButton } from '../../view';
 import { generateInlineStyles } from './generateInlineStyles';
 
@@ -70,7 +70,7 @@ const handleEditableElement = (elementNode: HTMLElement) => {
 
     if (!id) return;
 
-    postMessage({
+    postMessageToApp({
       type: MessageFromIframe.UpdateElement,
       payload: { id, fields: { content: (textContent || '').trim() } }
     });

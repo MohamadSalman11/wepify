@@ -1,5 +1,5 @@
-import type { Site } from '@shared/types';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Site } from '@shared/types';
+import { useCallback, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -8,10 +8,11 @@ import { LoadingMessages, Path, StorageKey } from '../../constant';
 import { useIframeContext } from '../../context/IframeContext';
 import { useLoadFromStorage } from '../../hooks/useLoadFromStorage';
 import { useAppSelector } from '../../store';
+import { AppStorage } from '../../utils/appStorage';
 import { getRandomDuration } from '../../utils/getRandomDuration';
 import { isTyping } from '../../utils/isTyping';
 import { setIsLoading as setDashboardIsLoading } from '../dashboard/slices/dashboardSlice';
-import { setIsLoading, setSite } from './slices/editorSlice';
+import { setIsError, setIsLoading, setSite } from './slices/editorSlice';
 import { setHeight, setPage, setWidth } from './slices/pageSlice';
 import { selectElement } from './slices/selectionSlice';
 
@@ -36,14 +37,12 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const { pageId } = useParams();
   const { iframeConnection, iframeRef } = useIframeContext();
-  const { width, height, scale, elements } = useAppSelector((state) => state.page);
-  const { isLoading } = useAppSelector((state) => state.editor);
-  const [isDataLoaded, setIsDataLoaded] = useState(false);
-  const [isError, setIsError] = useState(false);
+  const { width, height, scale } = useAppSelector((state) => state.page);
+  const { site, isLoading, isError } = useAppSelector((state) => state.editor);
 
   const onLoaded = useCallback(
     (site: Site | null) => {
-      if (!site) return setIsError(true);
+      if (!site) return dispatch(setIsError(true));
 
       const page = site?.pages.find((p) => p.id === pageId);
 
@@ -53,13 +52,12 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
         dispatch(setSite(site));
         dispatch(setPage(page));
         dispatch(selectElement(page.elements[0]));
-        setIsDataLoaded(true);
         setTimeout(() => dispatch(setIsLoading(false)), 100);
       } else {
-        setIsError(true);
+        dispatch(setIsError(true));
       }
     },
-    [canvasRef, dispatch, pageId, setIsDataLoaded, setIsError]
+    [canvasRef, dispatch, pageId]
   );
 
   useLoadFromStorage<Site>({
@@ -69,10 +67,18 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
   });
 
   useEffect(() => {
-    if (iframeConnection.iframeReady && isDataLoaded) {
-      iframeConnection.sendElements(elements, isPreview);
+    if (!site.id) return;
+
+    AppStorage.setItem(StorageKey.Site, site);
+  }, [site]);
+
+  useEffect(() => {
+    if (iframeConnection.iframeReady && !isLoading) {
+      const elements = site.pages.find((p) => p.id === pageId)?.elements;
+
+      iframeConnection.renderElements(elements, isPreview);
     }
-  }, [iframeConnection, isDataLoaded]);
+  }, [iframeConnection, isLoading, isPreview, pageId]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

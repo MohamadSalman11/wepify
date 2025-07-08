@@ -4,7 +4,7 @@ import { createDomTree } from './compiler/dom/createDomTree';
 import { getTarget } from './model';
 import moveIcon from '/move.png';
 
-const SELECTION_ROOT = '#root';
+const SELECTION_ROOT = '#iframe-root';
 const SELECTION_MOVEABLE_CONTROL = '.moveable-control';
 const SELECTION_DRAG_BUTTON_ID = 'dragTargetButton';
 export const SELECTION_DRAG_BUTTON = `#${SELECTION_DRAG_BUTTON_ID}`;

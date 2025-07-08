@@ -14,7 +14,7 @@ import { changeTarget, getMoveableInstance, getTarget, state, updateElement } fr
 import { adjustGridColumnsIfNeeded } from './utils/adjustGridColumnsIfNeeded';
 import { createNewElement } from './utils/createNewElement';
 import { downloadBlob } from './utils/downloadBlob';
-import { postMessage } from './utils/postMessage';
+import { postMessageToApp } from './utils/postMessageToApp';
 import {
   insertDragButton,
   insertElement,
@@ -41,11 +41,11 @@ enum FileNames {
 }
 
 const iframeMessageHandlers: Record<MessageToIframe, (payload: any) => void> = {
-  [MessageToIframe.ReceiveElements]: (payload) => controlReceivedElements(payload.elements, payload.isPreview),
+  [MessageToIframe.RenderElements]: (payload) => controlRenderElements(payload.elements, payload.isPreview),
   [MessageToIframe.UpdateElement]: (payload) => controlUpdateElement(payload.updates),
   [MessageToIframe.InsertElement]: (payload) => controlInsertElement(payload.name, payload.additionalProps),
   [MessageToIframe.DeleteElement]: () => controlDeleteElement(),
-  [MessageToIframe.SelectionChanged]: (payload) => controlSelectionChanged(payload),
+  [MessageToIframe.ChangeSelection]: (payload) => controlSelectionChanged(payload.id),
   [MessageToIframe.SearchElement]: (payload) => controlSearchElement(payload),
   [MessageToIframe.DownloadSite]: (payload) => controlDownloadZip(payload.site, payload.shouldMinify)
 };
@@ -85,10 +85,10 @@ const controlUpdateElement = (updates: Partial<PageElement>) => {
   getMoveableInstance().updateRect();
   positionDragButton(getTarget().clientHeight);
 
-  postMessage({ type: MessageFromIframe.UpdateElement, payload: { id: target.id, fields: updates } });
+  postMessageToApp({ type: MessageFromIframe.ElementUpdated, payload: { id: target.id, fields: updates } });
 };
 
-const controlReceivedElements = (elements: PageElement[], isPreview: boolean) => {
+const controlRenderElements = (elements: PageElement[], isPreview: boolean) => {
   renderElements(elements);
 
   state.isSitePreviewMode = isPreview;
@@ -99,13 +99,10 @@ const controlReceivedElements = (elements: PageElement[], isPreview: boolean) =>
 
   if (state.isSitePreviewMode) return;
 
-  if (!state.moveable) {
-    state.target = document.querySelector(SELECTOR_SECTION);
-    state.targetName = ElementNames.Section;
-    initializeMoveable();
-    insertDragButton();
-    getMoveableInstance().dragTarget = document.querySelector(SELECTION_DRAG_BUTTON) as SVGAElement;
-  }
+  changeTarget(document.querySelector(SELECTOR_SECTION), ElementNames.Section);
+  initializeMoveable();
+  insertDragButton();
+  getMoveableInstance().dragTarget = document.querySelector(SELECTION_DRAG_BUTTON) as SVGAElement;
 };
 
 const controlInsertElement = (name: string, additionalProps?: Record<string, any>) => {
@@ -129,8 +126,8 @@ const controlInsertElement = (name: string, additionalProps?: Record<string, any
     positionDragButton(elementNode.clientHeight);
   }
 
-  postMessage({
-    type: MessageFromIframe.InsertElement,
+  postMessageToApp({
+    type: MessageFromIframe.ElementInserted,
     payload: {
       parentId: canHaveNotChildren
         ? (target.parentElement || target.closest(SELECTOR_CLOSEST_SECTION) || { id: SELECTOR_FIRST_SECTION }).id
@@ -145,15 +142,16 @@ const controlInsertElement = (name: string, additionalProps?: Record<string, any
 
 const controlDeleteElement = () => {
   const section = document.querySelector(SELECTOR_CLOSEST_SECTION) as HTMLElementTagNameMap['section'];
-  const parentId = state.target?.parentElement?.id;
-  const targetId = state.target?.id;
+  const target = getTarget();
+  const parentId = target.parentElement?.id;
+  const targetId = target.id;
 
   if (!section || !parentId || !targetId) return;
 
-  state.target?.remove();
+  target.remove();
   section.click();
 
-  postMessage({
+  postMessageToApp({
     type: MessageFromIframe.ElementDeleted,
     payload: { targetId, parentId }
   });
@@ -176,7 +174,7 @@ const controlSearchElement = (id: string) => {
 
   element.click();
 
-  postMessage({
+  postMessageToApp({
     type: MessageFromIframe.SelectionChanged,
     payload: domToPageElement(element)
   });
@@ -190,7 +188,7 @@ const controlDocumentClick = (event: MouseEvent) => {
   event.stopPropagation();
   changeTarget(target, target.id.split('-')[0]);
   positionDragButton(target.clientHeight);
-  postMessage({ type: MessageFromIframe.SelectionChanged, payload: domToPageElement(target) });
+  postMessageToApp({ type: MessageFromIframe.SelectionChanged, payload: domToPageElement(target) });
 
   if (!NOT_MOVEABLE_ELEMENTS.has(state.targetName || '')) {
     getMoveableInstance().target = target;
@@ -222,7 +220,7 @@ const controlDrag = (event: OnDrag) => {
     ['top', `${top}px`]
   ]);
 
-  postMessage({ type: MessageFromIframe.UpdateElement, payload: { id: target.id, fields: { left, top } } });
+  postMessageToApp({ type: MessageFromIframe.ElementUpdated, payload: { id: target.id, fields: { left, top } } });
 };
 
 const controlResize = (event: OnResize) => {
@@ -244,7 +242,7 @@ const controlResize = (event: OnResize) => {
   }
 
   positionDragButton(height);
-  postMessage({ type: MessageFromIframe.UpdateElement, payload: { id: target.id, fields: { width, height } } });
+  postMessageToApp({ type: MessageFromIframe.ElementUpdated, payload: { id: target.id, fields: { width, height } } });
 };
 
 function initializeMoveable() {
@@ -264,8 +262,8 @@ function initializeMoveable() {
   state.moveable.on('drag', controlDrag).on('resize', controlResize);
 }
 
-const controlDOMContentLoaded = () => {
-  postMessage({ type: MessageFromIframe.IframeReady });
+const controlDOMContentLoaded = async () => {
+  postMessageToApp({ type: MessageFromIframe.IframeReady });
 };
 
 document.addEventListener('click', controlDocumentClick);

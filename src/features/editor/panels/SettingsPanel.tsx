@@ -21,6 +21,7 @@ import {
   LuPanelTop,
   LuRotateCwSquare
 } from 'react-icons/lu';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Input from '../../../components/form/Input';
 import Select from '../../../components/form/Select';
@@ -145,7 +146,9 @@ function ChangeElement({ children }: { children: ReactElement<{ onChange?: (even
 }
 
 function SelectorSettings() {
-  const { elements } = useAppSelector((state) => state.page);
+  const { pageId } = useParams();
+  const pages = useAppSelector((state) => state.editor.site.pages);
+  const page = pages.find((p) => p.id === pageId);
   const selection = useAppSelector((state) => state.selection.present.selectedElement);
   const { iframeConnection } = useIframeContext();
 
@@ -160,7 +163,7 @@ function SelectorSettings() {
           <Icon icon={LuMonitor} />
           <Select
             name='selector'
-            options={flattenElements(elements).map((el) => el.id)}
+            options={flattenElements(page?.elements || []).map((el) => el.id)}
             defaultSelect={selection.id}
             onChange={(event) => handleSelection(event.target.value as string)}
           />

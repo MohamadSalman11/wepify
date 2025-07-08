@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { ElementNames } from '@shared/constants';
 import type { PageElement, Site, SitePage } from '@shared/types';
 import { findElementById } from '../../../utils/findElementById';
 
@@ -73,6 +74,11 @@ const editorSlice = createSlice({
       const page = state.site.pages.find((p) => p.id === pageId);
       if (!page) return;
 
+      if (newElement.name === ElementNames.Section) {
+        page.elements.push(newElement);
+        return;
+      }
+
       const parentEl = findElementById(parentElementId, page.elements);
       if (!parentEl) return;
 
@@ -110,7 +116,13 @@ const editorSlice = createSlice({
       if (!page) return;
 
       const parentEl = findElementById(parentElementId, page.elements);
-      if (!parentEl || !parentEl.children) return;
+
+      if (!parentEl) {
+        page.elements = page.elements.filter((el) => el.id !== elementId);
+        return;
+      }
+
+      if (!parentEl.children) return;
 
       parentEl.children = parentEl.children.filter((el) => el.id !== elementId);
     }

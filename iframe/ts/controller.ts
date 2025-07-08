@@ -27,7 +27,8 @@ import {
 const SELECTOR_SECTION = 'section';
 const SELECTOR_CLOSEST_SECTION = "[id^='section-']";
 const SELECTOR_ACTIVE_ITEM = '[class*="select-item"]';
-const SELECTOR_FIRST_SECTION = '#section-1';
+const ID_FIRST_SECTION = 'section-1';
+const SELECTOR_FIRST_SECTION = `#${ID_FIRST_SECTION}`;
 const CLASS_SELECTED_ITEM = 'select-item';
 const NOT_MOVEABLE_ELEMENTS = new Set(['section', 'item']);
 const FOCUSABLE_ELEMENTS = new Set(['LI', 'SPAN', 'P', 'A', 'BUTTON', 'INPUT']);
@@ -45,7 +46,7 @@ const iframeMessageHandlers: Record<MessageToIframe, (payload: any) => void> = {
   [MessageToIframe.UpdateElement]: (payload) => controlUpdateElement(payload.updates),
   [MessageToIframe.InsertElement]: (payload) => controlInsertElement(payload.name, payload.additionalProps),
   [MessageToIframe.DeleteElement]: () => controlDeleteElement(),
-  [MessageToIframe.ChangeSelection]: (payload) => controlSelectionChanged(payload.id),
+  [MessageToIframe.ChangeSelection]: (payload) => controlSelectionChanged(payload),
   [MessageToIframe.SearchElement]: (payload) => controlSearchElement(payload),
   [MessageToIframe.DownloadSite]: (payload) => controlDownloadZip(payload.site, payload.shouldMinify)
 };
@@ -146,7 +147,7 @@ const controlDeleteElement = () => {
   const parentId = target.parentElement?.id;
   const targetId = target.id;
 
-  if (!section || !parentId || !targetId) return;
+  if (!section || !parentId || !targetId || target.id === ID_FIRST_SECTION) return;
 
   target.remove();
   section.click();
@@ -164,6 +165,7 @@ const controlSelectionChanged = (id: string) => {
     elementNode.scrollIntoView({ block: 'center' });
     elementNode.click();
     positionDragButton(getTarget().clientHeight);
+    postMessageToApp({ type: MessageFromIframe.SelectionChanged, payload: domToPageElement(elementNode) });
   }
 };
 

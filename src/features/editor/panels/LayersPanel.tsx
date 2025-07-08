@@ -11,11 +11,12 @@ import {
   LuSquare,
   LuTextCursorInput
 } from 'react-icons/lu';
-import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Icon from '../../../components/Icon';
+import { useIframeContext } from '../../../context/IframeContext';
 import { useAppSelector } from '../../../store';
+import { flattenElements } from '../../../utils/flattenElements';
 
 /**
  * Constants
@@ -45,8 +46,13 @@ export default function LayersPanel() {
     <>
       <Title>Layers</Title>
       <LayerList>
-        {page.elements.map((element) => (
-          <LayerNode key={element.id} element={element} selectedElementId={selectedElementId} />
+        {page?.elements.map((element) => (
+          <LayerNode
+            key={element.id}
+            elements={page.elements}
+            element={element}
+            selectedElementId={selectedElementId}
+          />
         ))}
       </LayerList>
     </>
@@ -54,28 +60,35 @@ export default function LayersPanel() {
 }
 
 function LayerNode({
+  elements,
   element,
   nested = false,
   selectedElementId
 }: {
+  elements: PageElement[];
   element: PageElement;
   nested?: boolean;
   selectedElementId: string | null;
 }) {
   const [expanded, setExpanded] = useState(false);
   const hasChildren = (element.children?.length ?? 0) > 0;
-  const dispatch = useDispatch();
-  const page = useAppSelector((state) => state.page);
+  const { iframeConnection } = useIframeContext();
+
+  console.log(elements);
 
   const handleClick = () => {
-    // if (hasChildren) {
-    //   setExpanded((prev) => !prev);
-    // }
-    // const flatElements = flattenElements(page.elements);
-    // const found = flatElements.find((el) => el.id === element.id);
-    // if (found) {
-    //   dispatch(selectElement(found));
-    // }
+    if (!elements) return;
+
+    if (hasChildren) {
+      setExpanded((prev) => !prev);
+    }
+
+    const flatElements = flattenElements(elements);
+    const found = flatElements.find((el) => el.id === element.id);
+
+    if (found) {
+      iframeConnection.handleSelectionChange(found.id);
+    }
   };
 
   return (
@@ -91,7 +104,13 @@ function LayerNode({
       {hasChildren && expanded && (
         <NestedList>
           {element.children?.map((child) => (
-            <LayerNode key={child.id} element={child} nested selectedElementId={selectedElementId} />
+            <LayerNode
+              key={child.id}
+              elements={elements}
+              element={child}
+              nested
+              selectedElementId={selectedElementId}
+            />
           ))}
         </NestedList>
       )}

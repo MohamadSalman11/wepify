@@ -27,9 +27,11 @@ import {
 const SELECTOR_SECTION = 'section';
 const SELECTOR_CLOSEST_SECTION = "[id^='section-']";
 const SELECTOR_ACTIVE_ITEM = '[class*="select-item"]';
+const SELECTOR_ACTIVE_SECTION = '[class*="select-section"]';
 const ID_FIRST_SECTION = 'section-1';
 const SELECTOR_FIRST_SECTION = `#${ID_FIRST_SECTION}`;
 const CLASS_SELECTED_ITEM = 'select-item';
+const CLASS_SELECTED_SECTION = 'select-section';
 const NOT_MOVEABLE_ELEMENTS = new Set(['section', 'item']);
 const FOCUSABLE_ELEMENTS = new Set(['LI', 'SPAN', 'P', 'A', 'BUTTON', 'INPUT']);
 const SITE_JSON_WARNING = `⚠️ Do NOT modify any fields in this file manually, it will break the application. Upload it and edit in the app`;
@@ -113,7 +115,10 @@ const controlRenderElements = (elements: PageElement[], isPreview: boolean) => {
 
   if (state.isSitePreviewMode) return;
 
-  changeTarget(document.querySelector(SELECTOR_SECTION), ElementNames.Section);
+  const target = document.querySelector(SELECTOR_SECTION);
+
+  target?.classList.add(CLASS_SELECTED_SECTION);
+  changeTarget(target, ElementNames.Section);
   initializeMoveable();
   insertDragButton();
   getMoveableInstance().dragTarget = document.querySelector(SELECTION_DRAG_BUTTON) as SVGAElement;
@@ -212,8 +217,13 @@ const controlDocumentClick = (event: MouseEvent) => {
   const previousSelected = document.querySelector(SELECTOR_ACTIVE_ITEM);
   previousSelected?.classList.remove(CLASS_SELECTED_ITEM);
 
-  if (state.targetName === ElementNames.Item && state.target) {
+  if (state.target && state.targetName === ElementNames.Item) {
     state.target.classList.add(CLASS_SELECTED_ITEM);
+  }
+
+  if (state.target && state.targetName === ElementNames.Section) {
+    document.querySelector(SELECTOR_ACTIVE_SECTION)?.classList.remove(CLASS_SELECTED_SECTION);
+    state.target.classList.add(CLASS_SELECTED_SECTION);
   }
 
   if (FOCUSABLE_ELEMENTS.has(target.tagName)) {

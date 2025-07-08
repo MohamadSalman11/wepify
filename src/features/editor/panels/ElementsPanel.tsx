@@ -210,9 +210,8 @@ const LayoutItem = styled.li<{ $disabled?: boolean }>`
     justify-items: center;
 
     span {
-      transform: translateY(-2px);
-      width: 1.4rem;
-      height: 1.4rem;
+      width: 1.5rem;
+      height: 1.2rem;
     }
   }
 

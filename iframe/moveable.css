@@ -18,10 +18,42 @@
 
 .select-item {
   z-index: 999;
-  box-shadow: 0 0 0 2px #b7bbbf;
+  border: 2px solid #3e7df5;
 }
 
 #dragTargetButton {
   cursor: move;
   user-select: none;
+}
+
+#iframe-root {
+  padding: 48px 48px 0 48px;
+}
+
+section:not(.select-section) {
+  transition: background-color 0.2s;
+  cursor: pointer;
+
+  &:hover {
+    filter: brightness(0.8);
+  }
+}
+
+.select-section .span {
+  background-color: #f45a65;
+}
+
+.span {
+  display: flex;
+  position: absolute;
+  top: 0;
+  left: 0;
+  justify-content: center;
+  align-items: center;
+  transform: translate(-100%);
+  border-radius: 6px 0px 6px 6px;
+  background-color: #f2f4f7;
+  width: 20px;
+  height: 20px;
+  font-size: 10px;
 }

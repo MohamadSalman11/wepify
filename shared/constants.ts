@@ -77,7 +77,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     top: 0,
     width: 'fill',
     height: 'screen',
-    backgroundColor: '#ecf2fe'
+    backgroundColor: '#fff'
   }),
   container: createElTemplate({
     tag: 'div',

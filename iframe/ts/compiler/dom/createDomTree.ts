@@ -1,4 +1,4 @@
-import { Tags } from '@shared/constants';
+import { ElementNames, Tags } from '@shared/constants';
 import { MessageFromIframe, type PageElement } from '@shared/types';
 import { CONTENT_EDITABLE_ELEMENTS, SELECTOR_TARGET } from '../../constants';
 import { postMessageToApp } from '../../utils/postMessageToApp';
@@ -42,6 +42,15 @@ export const createDomTree = (element: PageElement) => {
       const childNode = createDomTree(child);
       elementNode.append(childNode);
     }
+  }
+
+  if (element.name === ElementNames.Section) {
+    const sectionCount = document.querySelectorAll('section').length;
+    const span = document.createElement('span');
+    span.classList.add('span');
+    span.textContent = sectionCount + 1;
+
+    elementNode.append(span);
   }
 
   return elementNode;

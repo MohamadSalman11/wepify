@@ -1,7 +1,8 @@
+import { nanoid } from '@reduxjs/toolkit';
 import type { SitePage } from '@shared/types';
 import { useState, type MouseEvent } from 'react';
 import toast from 'react-hot-toast';
-import { LuCopy, LuEllipsis, LuHouse, LuPencil, LuSquareMenu, LuTrash2 } from 'react-icons/lu';
+import { LuCopy, LuEllipsis, LuHouse, LuLink, LuPencil, LuSquareMenu, LuTrash2 } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -101,8 +102,14 @@ function PageItem({ page, index }: { page: SitePage; index: number }) {
                   Delete
                 </Dropdown.Button>
               </Modal.Open>
-              <Dropdown.Button icon={LuCopy} onClick={() => handleCopyLink(page.name)}>
+              <Dropdown.Button icon={LuLink} onClick={() => handleCopyLink(page.name)}>
                 Copy page link
+              </Dropdown.Button>
+              <Dropdown.Button
+                icon={LuCopy}
+                onClick={() => dispatch(addPage({ ...page, id: nanoid(), isIndex: false }))}
+              >
+                Duplicate page
               </Dropdown.Button>
             </Dropdown.Drop>
           </Dropdown>

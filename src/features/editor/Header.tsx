@@ -119,7 +119,13 @@ export default function Header() {
         <CanvasSizeControls>
           <div>
             <span>W</span>
-            <Input fullWidth={false} type='text' value={width} placeholder='px' onChange={handleWidthChange} />
+            <Input
+              fullWidth={false}
+              type='text'
+              value={width - 60 - 60}
+              placeholder='px'
+              onChange={handleWidthChange}
+            />
           </div>
           <div>
             <span>H</span>

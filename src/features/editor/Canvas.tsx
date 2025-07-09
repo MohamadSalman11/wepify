@@ -47,8 +47,8 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
       const page = site?.pages.find((p) => p.id === pageId);
 
       if (site && page && canvasRef.current) {
-        dispatch(setWidth(canvasRef.current.clientWidth - 48 * 2));
-        dispatch(setHeight(canvasRef.current.clientHeight - 48));
+        dispatch(setWidth(canvasRef.current.clientWidth));
+        dispatch(setHeight(canvasRef.current.clientHeight));
         dispatch(setSite(site));
         dispatch(setPage(page));
         dispatch(selectElement(page.elements[0]));

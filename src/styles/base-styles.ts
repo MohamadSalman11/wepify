@@ -83,8 +83,6 @@ const baseStyles = css`
     appearance: textfield;
     -moz-appearance: textfield;
   }
-
-
 `;
 
 export default baseStyles;

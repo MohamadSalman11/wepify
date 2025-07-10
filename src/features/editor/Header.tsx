@@ -1,4 +1,4 @@
-import type { InputChangeEvent, Site } from '@shared/types';
+import type { Site } from '@shared/types';
 import { useState } from 'react';
 import type { IconType } from 'react-icons';
 import {
@@ -19,7 +19,6 @@ import styled from 'styled-components';
 import Button from '../../components/Button';
 import Divider from '../../components/divider';
 import Dropdown from '../../components/Dropdown';
-import Input from '../../components/form/Input';
 import Icon from '../../components/Icon';
 import { EditorPath, StorageKey } from '../../constant';
 import { useIframeContext } from '../../context/IframeContext';
@@ -35,10 +34,10 @@ import { setHeight, setScale, setWidth } from './slices/pageSlice';
 const PUBLISH_LINK = 'https://app.netlify.com/drop';
 
 const SCREEN_SIZES = {
-  monitor: { width: 1440, height: 900 },
-  laptop: { width: 1280, height: 800 },
-  tablet: { width: 768, height: 1024 },
-  smartphone: { width: 375, height: 667 }
+  monitor: { width: 1920 + 120, height: 1080 },
+  laptop: { width: 1280 + 120, height: 800 },
+  tablet: { width: 768 + 120, height: 1024 },
+  smartphone: { width: 375 + 120, height: 667 }
 } as const;
 
 /**
@@ -57,23 +56,8 @@ export default function Header() {
   const navigate = useNavigate();
   const { iframeConnection } = useIframeContext();
   const [activeDevice, setActiveDevice] = useState<DeviceType>('auto');
-  const { width, height, scale } = useAppSelector((state) => state.page);
   const { site, isDownloadingSite } = useAppSelector((state) => state.editor);
-
-  const handleHeightChange = (event: InputChangeEvent) => {
-    const newHeight = Number(event.target.value);
-    dispatch(setHeight(newHeight));
-  };
-
-  const handleWidthChange = (event: InputChangeEvent) => {
-    const newWidth = Number(event.target.value);
-    dispatch(setWidth(newWidth));
-  };
-
-  const handleScaleChange = (event: InputChangeEvent) => {
-    const newScale = Number(event.target.value);
-    dispatch(setScale(newScale));
-  };
+  const { originWidth, originHeight } = useAppSelector((state) => state.page);
 
   async function handleDownloadSite(shouldMinify: boolean) {
     dispatch(setIsDownloadingSite(true));
@@ -116,26 +100,6 @@ export default function Header() {
           setActiveDevice={setActiveDevice}
           screenSize={SCREEN_SIZES.smartphone}
         />
-        <CanvasSizeControls>
-          <div>
-            <span>W</span>
-            <Input
-              fullWidth={false}
-              type='text'
-              value={width - 60 - 60}
-              placeholder='px'
-              onChange={handleWidthChange}
-            />
-          </div>
-          <div>
-            <span>H</span>
-            <Input fullWidth={false} type='text' value={height} placeholder='px' onChange={handleHeightChange} />
-          </div>
-          <div>
-            <span>%</span>
-            <Input fullWidth={false} type='text' value={scale} placeholder='%' onChange={handleScaleChange} />
-          </div>
-        </CanvasSizeControls>
       </DevicePreviewControls>
       <EditorActions>
         <Icon
@@ -153,6 +117,10 @@ export default function Header() {
         <Divider rotate={90} width={30} />
         <Icon
           onClick={() => {
+            setActiveDevice('auto');
+            dispatch(setWidth(originWidth));
+            dispatch(setWidth(originHeight));
+            dispatch(setScale(100));
             dispatch(setIsLoading(true));
             navigate(EditorPath.Preview, { replace: true });
           }}
@@ -198,11 +166,14 @@ function DevicePreviewButton({
 }) {
   const dispatch = useDispatch();
   const { originWidth, originHeight } = useAppSelector((state) => state.page);
+  const { iframeConnection } = useIframeContext();
 
-  const setCanvasSize = (size: Size, newScale?: number) => {
+  const setCanvasSize = (size: Size, scaleFactor: number = 100) => {
+    iframeConnection.handleViewportChanged(scaleFactor);
+
     dispatch(setWidth(size.width));
     dispatch(setHeight(size.height));
-    dispatch(setScale(newScale ?? 100));
+    dispatch(setScale(scaleFactor));
   };
 
   const handleClick = () => {
@@ -211,6 +182,7 @@ function DevicePreviewButton({
       setCanvasSize({ width: originWidth, height: originHeight }, 100);
     } else {
       const scaleVal = calculateScaleToFit({ width: originWidth, height: originHeight }, screenSize);
+      console.log(scaleVal, screenSize);
       setCanvasSize(screenSize, scaleVal);
       setActiveDevice(deviceType);
     }
@@ -223,13 +195,16 @@ function DevicePreviewButton({
   );
 }
 
-function calculateScaleToFit(containerSize: Size, targetSize: Size) {
-  const scaleX = containerSize.width / targetSize.width;
-  const scaleY = containerSize.height / targetSize.height;
-  const scaleVal = Math.floor(Math.min(scaleX, scaleY) * 100);
-  return Math.max(Math.min(scaleVal, 100), 10);
-}
+function calculateScaleToFit(originSize: Size, screenSize: Size) {
+  if (screenSize.width > originSize.width) {
+    const scaleX = originSize.width / screenSize.width;
+    const scaleY = originSize.height / screenSize.height;
+    const scale = Math.floor(Math.min(scaleX, scaleY) * 100);
+    return Math.max(scale, 10);
+  }
 
+  return 100;
+}
 /**
  * Styles
  */
@@ -246,31 +221,6 @@ const StyledHeader = styled.header`
   & > div {
     flex-grow: 1;
     justify-content: end;
-  }
-`;
-
-const CanvasSizeControls = styled.div`
-  display: flex;
-  column-gap: 1.2rem;
-  align-items: center;
-
-  div {
-    position: relative;
-
-    span {
-      position: absolute;
-      top: 55%;
-      left: 10%;
-      transform: translateY(-50%);
-      color: var(--color-gray);
-      font-size: 1.2rem;
-    }
-  }
-
-  input {
-    padding-right: 0.8rem;
-    padding-left: 3.2rem;
-    width: 8.5rem;
   }
 `;
 

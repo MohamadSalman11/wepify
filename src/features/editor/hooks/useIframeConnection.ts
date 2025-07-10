@@ -110,6 +110,13 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
     [postMessageToIframe]
   );
 
+  const handleViewportChanged = useCallback(
+    (scaleFactor: number) => {
+      postMessageToIframe({ type: MessageToIframe.ViewPortChanged, payload: scaleFactor });
+    },
+    [postMessageToIframe]
+  );
+
   return useMemo(
     () => ({
       iframeReady,
@@ -119,7 +126,8 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
       handleSelectionChange,
       searchElement,
       deleteElement,
-      downloadSite
+      downloadSite,
+      handleViewportChanged
     }),
     [
       iframeReady,
@@ -129,7 +137,8 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
       handleSelectionChange,
       searchElement,
       deleteElement,
-      downloadSite
+      downloadSite,
+      handleViewportChanged
     ]
   );
 };

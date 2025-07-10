@@ -4,20 +4,13 @@
   padding: 0;
 }
 
-html::-webkit-scrollbar {
-  display: none;
-}
-
 html {
   margin: 0;
   padding: 0;
-  overflow-y: auto;
-  scrollbar-width: none;
 }
 
 body {
   position: relative;
-  margin: 0;
   height: 100vh;
   color: '#0d1116';
   list-style-position: inside;

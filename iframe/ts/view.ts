@@ -41,11 +41,12 @@ export const insertDragButton = () => {
   document.querySelector(SELECTION_MOVEABLE_CONTROL)?.append(img);
 };
 
-export const positionDragButton = (elementHeight: number) => {
+export const positionDragButton = (elementHeight: number, scaleFactor: number) => {
   const dragButton = document.querySelector(SELECTION_DRAG_BUTTON) as HTMLImageElement;
 
   if (dragButton) {
-    dragButton.style.transform = `translateZ(0px) translate(-2px, ${elementHeight + 16 + 'px'})`;
+    const scale = scaleFactor === 100 ? 1 : scaleFactor / 100;
+    dragButton.style.transform = `translateZ(0px) translate(-2px, ${elementHeight * scale + 16}px)`;
   }
 };
 

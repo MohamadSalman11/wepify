@@ -50,6 +50,7 @@ const iframeMessageHandlers: Record<MessageToIframe, (payload: any) => void> = {
   [MessageToIframe.DeleteElement]: () => controlDeleteElement(),
   [MessageToIframe.ChangeSelection]: (payload) => controlSelectionChanged(payload),
   [MessageToIframe.SearchElement]: (payload) => controlSearchElement(payload),
+  [MessageToIframe.ViewPortChanged]: (payload) => controlViewPortChanged(payload),
   [MessageToIframe.DownloadSite]: (payload) => controlDownloadZip(payload.site, payload.shouldMinify)
 };
 
@@ -93,13 +94,19 @@ export async function controlDownloadZip(site: Site, shouldMinify: boolean) {
   postMessageToApp({ type: MessageFromIframe.SiteDownloaded });
 }
 
+const controlViewPortChanged = (scaleFactor: number) => {
+  state.scaleFactor = scaleFactor;
+
+  getTarget().closest(SELECTOR_CLOSEST_SECTION)?.click();
+};
+
 const controlUpdateElement = (updates: Partial<PageElement>) => {
   if (Object.keys(updates).length === 0) return;
   const target = getTarget();
 
   updateElement(updates, generateInlineStyles(updates));
   getMoveableInstance().updateRect();
-  positionDragButton(getTarget().clientHeight);
+  positionDragButton(getTarget().clientHeight, state.scaleFactor);
 
   postMessageToApp({ type: MessageFromIframe.ElementUpdated, payload: { id: target.id, fields: updates } });
 };
@@ -107,6 +114,17 @@ const controlUpdateElement = (updates: Partial<PageElement>) => {
 const controlRenderElements = (elements: PageElement[], isPreview: boolean) => {
   renderElements(elements);
 
+  const linkHref = './moveable.css';
+  const existingLink = document.querySelector(`link[href="${linkHref}"]`);
+
+  if (isPreview) {
+    existingLink?.remove();
+  } else if (!existingLink) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = linkHref;
+    document.head.append(link);
+  }
   state.isSitePreviewMode = isPreview;
 
   if (state.moveable) {
@@ -142,7 +160,7 @@ const controlInsertElement = (name: string, additionalProps?: Record<string, any
   }
 
   if (newElement.name !== ElementNames.Item && newElement.name !== ElementNames.Image) {
-    positionDragButton(elementNode.clientHeight);
+    positionDragButton(elementNode.clientHeight, state.scaleFactor);
   }
 
   postMessageToApp({
@@ -182,7 +200,7 @@ const controlSelectionChanged = (id: string) => {
   if (elementNode) {
     elementNode.scrollIntoView({ block: 'center' });
     elementNode.click();
-    positionDragButton(getTarget().clientHeight);
+    positionDragButton(getTarget().clientHeight, state.scaleFactor);
     postMessageToApp({ type: MessageFromIframe.SelectionChanged, payload: domToPageElement(elementNode) });
   }
 };
@@ -207,7 +225,7 @@ const controlDocumentClick = (event: MouseEvent) => {
 
   event.stopPropagation();
   changeTarget(target, target.id.split('-')[0]);
-  positionDragButton(target.clientHeight);
+  positionDragButton(target.clientHeight, state.scaleFactor);
   postMessageToApp({ type: MessageFromIframe.SelectionChanged, payload: domToPageElement(target) });
 
   if (!NOT_MOVEABLE_ELEMENTS.has(state.targetName || '')) {
@@ -266,7 +284,7 @@ const controlResize = (event: OnResize) => {
     ]);
   }
 
-  positionDragButton(height);
+  positionDragButton(height, state.scaleFactor);
   postMessageToApp({ type: MessageFromIframe.ElementUpdated, payload: { id: target.id, fields: { width, height } } });
 };
 

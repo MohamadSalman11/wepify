@@ -6,12 +6,14 @@ export const state: {
   targetName: string | null;
   initRender: boolean;
   isSitePreviewMode: boolean;
+  scaleFactor: number;
 } = {
   moveable: null,
   target: null,
   targetName: null,
   initRender: false,
-  isSitePreviewMode: false
+  isSitePreviewMode: false,
+  scaleFactor: 100
 };
 
 export const getTarget = (): HTMLElement => {

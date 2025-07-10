@@ -50,22 +50,8 @@ export default function Editor() {
 
 const editorLayout = css`
   display: grid;
-  grid-template-columns: 8rem 30rem 3.5fr 30rem;
+  grid-template-columns: 8rem 30rem 1fr 30rem;
   grid-template-rows: 8rem 1fr;
-
-  ::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    border-radius: var(--border-radius-sm);
-    background: var(--color-gray-dark);
-  }
-
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
 `;
 
 const StyledEditor = styled.div<{ $isPreview?: boolean }>`

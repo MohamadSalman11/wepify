@@ -101,18 +101,21 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
     };
   }, [iframeConnection, iframeRef]);
 
+  useEffect(() => {
+    const iframeDoc = iframeRef.current?.contentDocument;
+    const iframeRoot = iframeDoc?.querySelector<HTMLElement>('#iframe-root');
+
+    if (!iframeRoot) return;
+
+    iframeRoot.style.width = isPreview ? SIZE_FILL : `${width}px`;
+    iframeRoot.style.height = isPreview ? SIZE_SCREEN : `${height}px`;
+    iframeRoot.style.scale = `${isPreview ? 1 : scale / 100}`;
+    iframeRoot.style.transformOrigin = 'top left';
+  }, [iframeRef, width, height, scale, isPreview]);
+
   return (
-    <StyledCanvas ref={canvasRef}>
-      <iframe
-        ref={iframeRef}
-        src={IFRAME_SRC}
-        title={IFRAME_TITLE}
-        style={{
-          width: width === undefined || isPreview ? SIZE_FILL : `${width}px`,
-          height: height === undefined || isPreview ? SIZE_SCREEN : `${height}px`,
-          transform: `scale(${scale / 100})`
-        }}
-      />
+    <StyledCanvas ref={canvasRef} $isPreview={isPreview}>
+      <iframe ref={iframeRef} src={IFRAME_SRC} title={IFRAME_TITLE} />
       {isLoading && (
         <LoadingScreen
           handler={() => {
@@ -131,15 +134,22 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
  * Styles
  */
 
-const StyledCanvas = styled.div`
+const StyledCanvas = styled.div<{ $isPreview: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: transparent;
-  overflow: hidden;
+  justify-content: center;
   background-color: var(--color-black-light);
+  overflow: auto;
 
   iframe {
+    transform: translateZ(0);
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    will-change: transform;
     border: none;
+    width: 100%;
+    height: 100vh;
+    overflow: auto;
   }
 `;

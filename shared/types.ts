@@ -114,6 +114,7 @@ export enum MessageToIframe {
   DeleteElement = 'DELETE_ELEMENT',
   ChangeSelection = 'CHANGE_SELECTION',
   SearchElement = 'SEARCH_ELEMENT',
+  ViewPortChanged = 'VIEW_PORT_CHANGED',
   DownloadSite = 'DOWNLOAD_SITE'
 }
 

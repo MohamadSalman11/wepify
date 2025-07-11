@@ -69,6 +69,13 @@ export const FONT_WEIGHT_NAMES = {
   '900': 'Black'
 } as const;
 
+export const SCREEN_SIZES = {
+  monitor: { width: 1920 + 120, height: 1080 },
+  laptop: { width: 1280 + 120, height: 800 },
+  tablet: { width: 768 + 120, height: 1024 },
+  smartphone: { width: 375 + 120, height: 667 }
+} as const;
+
 export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
   section: createElTemplate({
     tag: 'section',

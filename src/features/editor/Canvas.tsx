@@ -1,3 +1,4 @@
+import { SCREEN_SIZES } from '@shared/constants';
 import { Site } from '@shared/types';
 import { useCallback, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
@@ -13,7 +14,7 @@ import { getRandomDuration } from '../../utils/getRandomDuration';
 import { isTyping } from '../../utils/isTyping';
 import { setIsLoading as setDashboardIsLoading } from '../dashboard/slices/dashboardSlice';
 import { setIsError, setIsLoading, setSite } from './slices/editorSlice';
-import { setHeight, setPage, setWidth } from './slices/pageSlice';
+import { setPage, setSize } from './slices/pageSlice';
 import { selectElement } from './slices/selectionSlice';
 
 /**
@@ -47,8 +48,15 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
       const page = site?.pages.find((p) => p.id === pageId);
 
       if (site && page && canvasRef.current) {
-        dispatch(setWidth(canvasRef.current.clientWidth));
-        dispatch(setHeight(canvasRef.current.clientHeight));
+        dispatch(
+          setSize({
+            width: SCREEN_SIZES.tablet.width,
+            height: SCREEN_SIZES.tablet.height,
+            originWidth: canvasRef.current.clientWidth,
+            originHeight: canvasRef.current.clientHeight
+          })
+        );
+
         dispatch(setSite(site));
         dispatch(setPage(page));
         dispatch(selectElement(page.elements[0]));
@@ -105,13 +113,17 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
     const iframeDoc = iframeRef.current?.contentDocument;
     const iframeRoot = iframeDoc?.querySelector<HTMLElement>('#iframe-root');
 
-    if (!iframeRoot) return;
+    console.log(iframeRoot);
+
+    if (!iframeRoot || isLoading) return;
+
+    console.log(width, height);
 
     iframeRoot.style.width = isPreview ? SIZE_FILL : `${width}px`;
     iframeRoot.style.height = isPreview ? SIZE_SCREEN : `${height}px`;
     iframeRoot.style.scale = `${isPreview ? 1 : scale / 100}`;
     iframeRoot.style.transformOrigin = 'top left';
-  }, [iframeRef, width, height, scale, isPreview]);
+  }, [isLoading, iframeRef, width, height, scale, isPreview]);
 
   return (
     <StyledCanvas ref={canvasRef} $isPreview={isPreview}>

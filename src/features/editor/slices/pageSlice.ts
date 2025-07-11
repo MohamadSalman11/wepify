@@ -27,18 +27,23 @@ const pageSlice = createSlice({
     setPage(state, action) {
       Object.assign(state, action.payload);
     },
-    setWidth(state, action: PayloadAction<number>) {
-      state.width = action.payload;
+    setSize(
+      state,
+      action: PayloadAction<{
+        width: number;
+        height: number;
+        originWidth?: number;
+        originHeight?: number;
+      }>
+    ) {
+      const { width, height, originWidth, originHeight } = action.payload;
+
+      state.width = width;
+      state.height = height;
 
       if (!state.hasSetOriginSize) {
-        state.originWidth = action.payload;
-      }
-    },
-    setHeight(state, action: PayloadAction<number>) {
-      state.height = action.payload;
-
-      if (!state.hasSetOriginSize) {
-        state.originHeight = action.payload;
+        state.originWidth = originWidth ?? width;
+        state.originHeight = originHeight ?? height;
         state.hasSetOriginSize = true;
       }
     },
@@ -48,6 +53,6 @@ const pageSlice = createSlice({
   }
 });
 
-export const { setPage, setWidth, setHeight, setScale } = pageSlice.actions;
+export const { setPage, setSize, setScale } = pageSlice.actions;
 
 export default pageSlice.reducer;

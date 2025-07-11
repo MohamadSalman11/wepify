@@ -17,7 +17,7 @@ export default function Preview() {
 
   const handleClose = () => {
     const newPath = location.pathname.replace(new RegExp(`${EditorPath.Preview}$`), EditorPath.Elements);
-    navigate(newPath, { replace: true });
+    navigate(newPath);
     dispatch(setIsLoading(true));
   };
 

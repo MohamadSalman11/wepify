@@ -1,3 +1,4 @@
+import { SCREEN_SIZES } from '@shared/constants';
 import type { Site } from '@shared/types';
 import { Tooltip } from 'radix-ui';
 import { useState } from 'react';
@@ -26,7 +27,7 @@ import { useIframeContext } from '../../context/IframeContext';
 import { useAppSelector } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
 import { setIsDownloadingSite, setIsLoading } from './slices/editorSlice';
-import { setHeight, setScale, setWidth } from './slices/pageSlice';
+import { setScale, setSize } from './slices/pageSlice';
 
 /**
  * Constants
@@ -34,19 +35,12 @@ import { setHeight, setScale, setWidth } from './slices/pageSlice';
 
 const PUBLISH_LINK = 'https://app.netlify.com/drop';
 
-const SCREEN_SIZES = {
-  monitor: { width: 1920 + 120, height: 1080 },
-  laptop: { width: 1280 + 120, height: 800 },
-  tablet: { width: 768 + 120, height: 1024 },
-  smartphone: { width: 375 + 120, height: 667 }
-} as const;
-
 /**
  * Types
  */
 
 type Size = { width: number; height: number };
-type DeviceType = keyof typeof SCREEN_SIZES | 'auto';
+type DeviceType = keyof typeof SCREEN_SIZES;
 
 /**
  * Component definition
@@ -56,8 +50,8 @@ export default function Header() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { iframeConnection } = useIframeContext();
-  const [activeDevice, setActiveDevice] = useState<DeviceType>('auto');
   const { site, isDownloadingSite } = useAppSelector((state) => state.editor);
+  const [activeDevice, setActiveDevice] = useState<DeviceType>('tablet');
   const { originWidth, originHeight } = useAppSelector((state) => state.page);
 
   async function handleDownloadSite(shouldMinify: boolean) {
@@ -80,7 +74,6 @@ export default function Header() {
           setActiveDevice={setActiveDevice}
           screenSize={SCREEN_SIZES.monitor}
         />
-
         <DevicePreviewButton
           icon={LuLaptop}
           deviceType='laptop'
@@ -115,7 +108,6 @@ export default function Header() {
             </Tooltip.Content>
           </Tooltip.Portal>
         </Tooltip.Root>
-
         <Tooltip.Root>
           <Tooltip.Trigger asChild>
             <Icon onClick={() => dispatch(ActionCreators.redo())} icon={LuRedo2} />
@@ -132,10 +124,14 @@ export default function Header() {
           <Tooltip.Trigger asChild>
             <Icon
               onClick={() => {
-                setActiveDevice('auto');
-                dispatch(setWidth(originWidth));
-                dispatch(setWidth(originHeight));
-                dispatch(setScale(100));
+                dispatch(
+                  setScale(
+                    calculateScaleToFit(
+                      { width: originWidth, height: originHeight },
+                      { width: SCREEN_SIZES.tablet.width, height: SCREEN_SIZES.tablet.height }
+                    )
+                  )
+                );
                 dispatch(setIsLoading(true));
                 navigate(EditorPath.Preview, { replace: true });
               }}
@@ -195,21 +191,14 @@ function DevicePreviewButton({
   const setCanvasSize = (size: Size, scaleFactor: number = 100) => {
     iframeConnection.handleViewportChanged(scaleFactor);
 
-    dispatch(setWidth(size.width));
-    dispatch(setHeight(size.height));
+    dispatch(setSize({ width: size.width, height: size.height }));
     dispatch(setScale(scaleFactor));
   };
 
   const handleClick = () => {
-    if (isActive) {
-      setActiveDevice('auto');
-      setCanvasSize({ width: originWidth, height: originHeight }, 100);
-    } else {
-      const scaleVal = calculateScaleToFit({ width: originWidth, height: originHeight }, screenSize);
-      console.log(scaleVal, screenSize);
-      setCanvasSize(screenSize, scaleVal);
-      setActiveDevice(deviceType);
-    }
+    const scaleVal = calculateScaleToFit({ width: originWidth, height: originHeight }, screenSize);
+    setCanvasSize(screenSize, scaleVal);
+    setActiveDevice(deviceType);
   };
 
   return (

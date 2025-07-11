@@ -1,4 +1,5 @@
 import type { Site } from '@shared/types';
+import { Tooltip } from 'radix-ui';
 import { useState } from 'react';
 import type { IconType } from 'react-icons';
 import {
@@ -79,6 +80,7 @@ export default function Header() {
           setActiveDevice={setActiveDevice}
           screenSize={SCREEN_SIZES.monitor}
         />
+
         <DevicePreviewButton
           icon={LuLaptop}
           deviceType='laptop'
@@ -102,31 +104,52 @@ export default function Header() {
         />
       </DevicePreviewControls>
       <EditorActions>
-        <Icon
-          onClick={() => {
-            dispatch(ActionCreators.undo());
-          }}
-          icon={LuUndo2}
-        />
-        <Icon
-          onClick={() => {
-            dispatch(ActionCreators.redo());
-          }}
-          icon={LuRedo2}
-        />
+        <Tooltip.Root>
+          <Tooltip.Trigger asChild>
+            <Icon onClick={() => dispatch(ActionCreators.undo())} icon={LuUndo2} />
+          </Tooltip.Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Content className='TooltipContent' sideOffset={20}>
+              Undo
+              <Tooltip.Arrow className='TooltipArrow' />
+            </Tooltip.Content>
+          </Tooltip.Portal>
+        </Tooltip.Root>
+
+        <Tooltip.Root>
+          <Tooltip.Trigger asChild>
+            <Icon onClick={() => dispatch(ActionCreators.redo())} icon={LuRedo2} />
+          </Tooltip.Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Content className='TooltipContent' sideOffset={20}>
+              Redo
+              <Tooltip.Arrow className='TooltipArrow' />
+            </Tooltip.Content>
+          </Tooltip.Portal>
+        </Tooltip.Root>
         <Divider rotate={90} width={30} />
-        <Icon
-          onClick={() => {
-            setActiveDevice('auto');
-            dispatch(setWidth(originWidth));
-            dispatch(setWidth(originHeight));
-            dispatch(setScale(100));
-            dispatch(setIsLoading(true));
-            navigate(EditorPath.Preview, { replace: true });
-          }}
-          icon={LuEye}
-          hover={true}
-        />
+        <Tooltip.Root>
+          <Tooltip.Trigger asChild>
+            <Icon
+              onClick={() => {
+                setActiveDevice('auto');
+                dispatch(setWidth(originWidth));
+                dispatch(setWidth(originHeight));
+                dispatch(setScale(100));
+                dispatch(setIsLoading(true));
+                navigate(EditorPath.Preview, { replace: true });
+              }}
+              icon={LuEye}
+              hover={true}
+            />
+          </Tooltip.Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Content className='TooltipContent' sideOffset={20}>
+              Preview Site
+              <Tooltip.Arrow className='TooltipArrow' />
+            </Tooltip.Content>
+          </Tooltip.Portal>
+        </Tooltip.Root>
         <Divider rotate={90} width={30} />
         <Dropdown>
           <Dropdown.Open>
@@ -162,6 +185,7 @@ function DevicePreviewButton({
   screenSize: Size;
   deviceType: DeviceType;
   isActive: boolean;
+
   setActiveDevice: (device: DeviceType) => void;
 }) {
   const dispatch = useDispatch();
@@ -189,9 +213,19 @@ function DevicePreviewButton({
   };
 
   return (
-    <StyledDevicePreviewButton $active={isActive} onClick={handleClick}>
-      <Icon icon={icon} />
-    </StyledDevicePreviewButton>
+    <Tooltip.Root>
+      <Tooltip.Trigger asChild>
+        <StyledDevicePreviewButton $active={isActive} onClick={handleClick}>
+          <Icon icon={icon} />
+        </StyledDevicePreviewButton>
+      </Tooltip.Trigger>
+      <Tooltip.Portal>
+        <Tooltip.Content className='TooltipContent' sideOffset={10}>
+          {getTooltipLabel(deviceType)}
+          <Tooltip.Arrow className='TooltipArrow' />
+        </Tooltip.Content>
+      </Tooltip.Portal>
+    </Tooltip.Root>
   );
 }
 
@@ -205,6 +239,22 @@ function calculateScaleToFit(originSize: Size, screenSize: Size) {
 
   return 100;
 }
+
+function getTooltipLabel(deviceType: DeviceType) {
+  switch (deviceType) {
+    case 'monitor':
+      return 'Edit for Desktop version';
+    case 'laptop':
+      return 'Edit for Laptop version';
+    case 'tablet':
+      return 'Edit for Tablet version';
+    case 'smartphone':
+      return 'Edit for Smartphone version';
+    default:
+      return 'Edit view';
+  }
+}
+
 /**
  * Styles
  */

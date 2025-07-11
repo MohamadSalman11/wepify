@@ -1,3 +1,4 @@
+import { Tooltip } from 'radix-ui';
 import { LuFile, LuImage, LuLayers3, LuLogOut, LuPlus } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
@@ -43,7 +44,17 @@ export default function Sidebar() {
           {NAV_ITEMS.map(({ to, icon }, i) => (
             <li key={i}>
               <NavLink to={to}>
-                <Icon icon={icon} hover borderRadius='md' />
+                <Tooltip.Root>
+                  <Tooltip.Trigger asChild>
+                    <Icon icon={icon} hover borderRadius='md' />
+                  </Tooltip.Trigger>
+                  <Tooltip.Portal>
+                    <Tooltip.Content className='TooltipContent' side='right' sideOffset={15}>
+                      {getTooltipLabel(to)}
+                      <Tooltip.Arrow className='TooltipArrow' />
+                    </Tooltip.Content>
+                  </Tooltip.Portal>
+                </Tooltip.Root>
               </NavLink>
             </li>
           ))}
@@ -56,6 +67,21 @@ export default function Sidebar() {
       </LeaveButton>
     </StyledSidebar>
   );
+}
+
+function getTooltipLabel(to: string) {
+  switch (to) {
+    case EditorPath.Elements:
+      return 'Elements';
+    case EditorPath.Pages:
+      return 'Pages';
+    case EditorPath.Layers:
+      return 'Layers';
+    case EditorPath.Uploads:
+      return 'Uploads';
+    default:
+      return '';
+  }
 }
 
 /**

@@ -49,10 +49,10 @@ const DEFAULT_BORDER_COLOR = '#4a90e2';
 const DEFAULT_BORDER_WIDTH = 2;
 
 const BORDER_SIDES = [
-  { side: 'top', label: 'Top', icon: LuPanelTop },
-  { side: 'right', label: 'Right', icon: LuPanelRight },
-  { side: 'bottom', label: 'Bottom', icon: LuPanelBottom },
-  { side: 'left', label: 'Left', icon: LuPanelLeft }
+  { side: 'Top', icon: LuPanelTop },
+  { side: 'Right', icon: LuPanelRight },
+  { side: 'Bottom', icon: LuPanelBottom },
+  { side: 'Left', icon: LuPanelLeft }
 ] as const;
 
 const OPTIONS_INPUT_TYPE = [
@@ -539,17 +539,26 @@ function TypographySettings() {
 
 function StrokeSettings() {
   const { handleElementChange } = useSettingsContext();
-  const { borderTop, borderRight, borderBottom, borderLeft, borderColor, borderWidth } = useAppSelector(
-    (state) => state.selection.present.selectedElement
-  );
+  const {
+    borderTop,
+    borderRight,
+    borderBottom,
+    borderLeft,
+    borderColor = DEFAULT_BORDER_COLOR,
+    borderWidth = DEFAULT_BORDER_WIDTH
+  } = useAppSelector((state) => state.selection.present.selectedElement);
 
-  const borders = { top: borderTop, right: borderRight, bottom: borderBottom, left: borderLeft };
+  const borders = { borderTop, borderRight, borderBottom, borderLeft };
 
-  const toggleBorder = (side: BorderSide) => {
-    const current = borders[side];
+  function toggleBorder(side, value) {
+    const currentBorderValue = borders[side];
 
-    const newValue = !current || current === 'none' ? `${borderWidth || DEFAULT_BORDER_WIDTH}px solid` : 'none';
-  };
+    if (currentBorderValue === 'none' || !currentBorderValue) {
+      handleElementChange(side, value);
+    } else {
+      handleElementChange(side, 'none');
+    }
+  }
 
   return (
     <div>
@@ -557,23 +566,32 @@ function StrokeSettings() {
         <GridContainer>
           <div>
             <ChangeElement>
-              <ColorPicker name='borderColor' defaultValue={borderColor || DEFAULT_BORDER_COLOR} />
+              <ColorPicker
+                name='borderColor'
+                defaultValue={borderColor}
+                onChange={(event) => handleElementChange('borderColor', event.target.value)}
+              />
             </ChangeElement>
           </div>
           <StrokeWidthContainer>
             <StrokeLabel>Stroke Width</StrokeLabel>
             <ChangeElement>
-              <Input name='borderWidth' type='number' defaultValue={borderWidth || DEFAULT_BORDER_WIDTH} />
+              <Input
+                name='borderWidth'
+                type='number'
+                defaultValue={borderWidth}
+                onChange={(event) => handleElementChange('borderWidth', event.target.value)}
+              />
             </ChangeElement>
           </StrokeWidthContainer>
           <StrokePosition>
-            {BORDER_SIDES.map(({ side, label, icon }) => (
+            {BORDER_SIDES.map(({ side, icon }) => (
               <BorderButton
                 key={side}
-                onClick={() => toggleBorder(side)}
-                $active={!!borders[side] && borders[side] !== 'none'}
+                onClick={() => toggleBorder(`border${side}`, `${borderWidth}px solid ${borderColor}`)}
+                $active={borders[`border${side}`] !== 'none' && borders[`border${side}`] !== undefined}
               >
-                <span>{label}</span>
+                <span>{side}</span>
                 <Icon icon={icon} size='sm' />
               </BorderButton>
             ))}
@@ -627,7 +645,7 @@ const StrokeWidthContainer = styled.div`
   position: relative;
 
   Input {
-    padding-right: 9.6rem;
+    padding-left: 1.2rem;
     width: 100%;
   }
 `;

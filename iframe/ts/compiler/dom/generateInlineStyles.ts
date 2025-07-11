@@ -62,8 +62,7 @@ export const generateInlineStyles = (element: Partial<PageElement>) => {
   if (borderRight) style.borderRight = borderRight;
   if (borderBottom) style.borderBottom = borderBottom;
   if (borderLeft) style.borderLeft = borderLeft;
-  if (borderColor) style.borderColor = borderColor;
-
+  
   if ((element.name || state.targetName) === ElementNames.Grid) {
     generateGridStyles(element as GridElement, style);
   }

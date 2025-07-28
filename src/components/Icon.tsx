@@ -27,6 +27,7 @@ interface IconProps {
   size?: IconSize;
   hover?: boolean;
   isActive?: boolean;
+  disabled?: boolean;
   tooltipLabel?: string;
   tooltipSide?: 'top' | 'right' | 'bottom' | 'left';
   tooltipSideOffset?: number;
@@ -43,6 +44,7 @@ export default function Icon({
   size = DEFAULT_ICON_SIZE,
   hover,
   isActive = false,
+  disabled = false,
   tooltipLabel,
   tooltipSide = 'bottom',
   tooltipSideOffset = 15,
@@ -50,10 +52,17 @@ export default function Icon({
   onClick,
   ...props
 }: IconProps) {
-  const iconElement = <IconComponent size={SIZE[size]} onClick={onClick} {...props} />;
+  const iconElement = (
+    <IconComponent
+      style={{ color: disabled ? 'var(--color-gray-light-2)' : 'var(--color-gray)' }}
+      size={SIZE[size]}
+      onClick={disabled ? undefined : onClick}
+      {...props}
+    />
+  );
 
   const wrappedIcon = hover ? (
-    <IconWrapper $borderRadius={borderRadius} $isActive={isActive} onClick={onClick}>
+    <IconWrapper $borderRadius={borderRadius} $isActive={isActive} $disabled={disabled} onClick={onClick}>
       {iconElement}
     </IconWrapper>
   ) : (
@@ -82,6 +91,7 @@ export default function Icon({
 const IconWrapper = styled.span<{
   $borderRadius: BorderRadius;
   $isActive?: boolean;
+  $disabled?: boolean;
 }>`
   display: flex;
   justify-content: center;
@@ -91,7 +101,6 @@ const IconWrapper = styled.span<{
   border-radius: ${({ $borderRadius }) => `var(--border-radius-${$borderRadius})`};
   padding: 0.6rem;
   width: fit-content;
-
   background-color: ${({ $isActive }) => ($isActive ? 'var(--color-white-2)' : 'transparent')};
 
   &:hover {

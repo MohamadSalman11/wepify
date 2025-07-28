@@ -289,9 +289,9 @@ function SizeSettings() {
             </ChangeElement>
           </SizeRow>
           <RotationContainer>
-            <Icon icon={LuRotateCwSquare} onClick={handleRotate} />
-            <Icon icon={LuFlipHorizontal2} onClick={handleFlipHorizontal} />
-            <Icon icon={LuFlipVertical2} onClick={handleFlipVertical} />
+            <Icon icon={LuRotateCwSquare} disabled={disableInput} onClick={handleRotate} />
+            <Icon icon={LuFlipHorizontal2} disabled={disableInput} onClick={handleFlipHorizontal} />
+            <Icon icon={LuFlipVertical2} disabled={disableInput} onClick={handleFlipVertical} />
           </RotationContainer>
         </GridContainer>
       </CollapsibleSection>

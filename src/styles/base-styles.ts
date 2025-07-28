@@ -60,10 +60,6 @@ const baseStyles = css`
     border: none;
   }
 
-  svg {
-    color: var(--color-gray);
-  }
-
   a {
     color: var(--color-black-light);
     text-decoration: none;

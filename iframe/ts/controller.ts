@@ -139,6 +139,7 @@ const controlUpdateElement = (updates: Partial<PageElement>) => {
   if (Object.keys(updates).length === 0) return;
 
   const target = getTarget();
+  const section = target.closest(SELECTOR_CLOSEST_SECTION) as HTMLElement;
   const { link, type, placeholder } = updates as Record<string, any>;
 
   const styles = generateInlineStyles(
@@ -162,6 +163,10 @@ const controlUpdateElement = (updates: Partial<PageElement>) => {
       fields: RESPONSIVE_PROPS.has(Object.keys(updates)[0]) ? wrapUpdatesWithBreakpoint(updates) : updates
     }
   });
+
+  if (updates.fontFamily && section) {
+    changeTarget(section, ElementsName.Section);
+  }
 };
 
 const controlUpdatePage = (updates: { backgroundColor: string }) => {

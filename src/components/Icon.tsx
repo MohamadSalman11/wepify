@@ -27,6 +27,7 @@ interface IconProps {
   size?: IconSize;
   hover?: boolean;
   isActive?: boolean;
+  isSelected?: boolean;
   disabled?: boolean;
   tooltipLabel?: string;
   tooltipSide?: 'top' | 'right' | 'bottom' | 'left';
@@ -44,6 +45,7 @@ export default function Icon({
   size = DEFAULT_ICON_SIZE,
   hover,
   isActive = false,
+  isSelected = false,
   disabled = false,
   tooltipLabel,
   tooltipSide = 'bottom',
@@ -55,7 +57,7 @@ export default function Icon({
   const iconElement = (
     <IconComponent
       style={{
-        color: disabled ? 'var(--color-gray-light-2)' : 'var(--color-gray)',
+        color: disabled ? 'var(--color-gray-light-2)' : isSelected ? 'var(--color-primary)' : 'var(--color-gray)',
         cursor: disabled ? 'auto' : 'pointer'
       }}
       size={SIZE[size]}

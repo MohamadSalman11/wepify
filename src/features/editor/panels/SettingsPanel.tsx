@@ -320,39 +320,36 @@ function AlignmentSettings() {
     <div>
       <CollapsibleSection title='Alignment' open={true}>
         <AlignmentContainer>
-          <AlignButton
-            $active={alignItems === 'flex-start'}
+          <Icon
+            icon={LuAlignStartVertical}
+            isSelected={alignItems === 'flex-start'}
             onClick={() => handleElementChange('alignItems', 'flex-start')}
-          >
-            <Icon icon={LuAlignStartVertical} />
-          </AlignButton>
-          <AlignButton
-            $active={alignItems === 'flex-end'}
+          />
+          <Icon
+            icon={LuAlignEndVertical}
+            isSelected={alignItems === 'flex-end'}
             onClick={() => handleElementChange('alignItems', 'flex-end')}
-          >
-            <Icon icon={LuAlignEndVertical} />
-          </AlignButton>
-          <AlignButton
-            $active={justifyContent === 'flex-start'}
+          />
+          <Icon
+            icon={LuAlignStartHorizontal}
+            isSelected={justifyContent === 'flex-start'}
             onClick={() => handleElementChange('justifyContent', 'flex-start')}
-          >
-            <Icon icon={LuAlignStartHorizontal} />
-          </AlignButton>
-          <AlignButton
-            $active={justifyContent === 'flex-end'}
+          />
+          <Icon
+            icon={LuAlignEndHorizontal}
+            isSelected={justifyContent === 'flex-end'}
             onClick={() => handleElementChange('justifyContent', 'flex-end')}
-          >
-            <Icon icon={LuAlignEndHorizontal} />
-          </AlignButton>
-          <AlignButton $active={alignItems === 'center'} onClick={() => handleElementChange('alignItems', 'center')}>
-            <Icon icon={LuAlignHorizontalJustifyCenter} />
-          </AlignButton>
-          <AlignButton
-            $active={justifyContent === 'center'}
+          />
+          <Icon
+            icon={LuAlignHorizontalJustifyCenter}
+            isSelected={alignItems === 'center'}
+            onClick={() => handleElementChange('alignItems', 'center')}
+          />
+          <Icon
+            icon={LuAlignVerticalJustifyCenter}
+            isSelected={justifyContent === 'center'}
             onClick={() => handleElementChange('justifyContent', 'center')}
-          >
-            <Icon icon={LuAlignVerticalJustifyCenter} />
-          </AlignButton>
+          />
         </AlignmentContainer>
       </CollapsibleSection>
     </div>
@@ -556,6 +553,7 @@ function TypographySettings() {
   const selectedElement = useAppSelector((state) => state.selection.present.selectedElement);
   const deviceType = useAppSelector((state) => state.editor.deviceType);
   const { handleElementChange } = useSettingsContext();
+  const textAlign = getResponsiveValue(selectedElement.textAlign, deviceType);
 
   if (selectedElement.name === ElementsName.Image) {
     return null;
@@ -611,10 +609,26 @@ function TypographySettings() {
         <div>
           <SubTitle>Text Align</SubTitle>
           <TextAlignContainer>
-            <Icon icon={LuAlignLeft} onClick={() => handleElementChange('textAlign', 'left')} />
-            <Icon icon={LuAlignRight} onClick={() => handleElementChange('textAlign', 'right')} />
-            <Icon icon={LuAlignCenter} onClick={() => handleElementChange('textAlign', 'center')} />
-            <Icon icon={LuAlignJustify} onClick={() => handleElementChange('textAlign', 'justify')} />
+            <Icon
+              icon={LuAlignLeft}
+              isSelected={textAlign === 'left'}
+              onClick={() => handleElementChange('textAlign', 'left')}
+            />
+            <Icon
+              icon={LuAlignRight}
+              isSelected={textAlign === 'right'}
+              onClick={() => handleElementChange('textAlign', 'right')}
+            />
+            <Icon
+              icon={LuAlignCenter}
+              isSelected={textAlign === 'center'}
+              onClick={() => handleElementChange('textAlign', 'center')}
+            />
+            <Icon
+              icon={LuAlignJustify}
+              isSelected={textAlign === 'justify'}
+              onClick={() => handleElementChange('textAlign', 'justify')}
+            />
           </TextAlignContainer>
         </div>
       </CollapsibleSection>
@@ -964,26 +978,6 @@ const AlignmentContainer = styled.div`
   border-radius: var(--border-radius-sm);
   background-color: var(--color-white-3);
   padding: 0.6rem;
-`;
-
-const AlignButton = styled.button<{ $active?: boolean }>`
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.4rem;
-  border-radius: 0.4rem;
-  transition: background-color 0.2s;
-
-  svg {
-    color: ${({ $active }) => ($active ? 'var(--color-primary)' : 'var(--color-gray)')};
-  }
-
-  &:hover {
-    background-color: var(--color-white-dark);
-  }
 `;
 
 const TextAlignContainer = styled.div`

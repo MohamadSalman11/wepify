@@ -143,7 +143,10 @@ const maybeApplyInputProps = (elementNode: HTMLElement, inputElement: InputEleme
 };
 
 function toResponsiveValue(value: string | number) {
-  return typeof value === 'string'
-    ? { [state.deviceType]: Number.parseFloat(value) || value }
-    : { [state.deviceType]: value };
+  if (typeof value === 'string') {
+    const parsed = Number.parseFloat(value);
+    return { [state.deviceType]: Number.isNaN(parsed) ? value : parsed };
+  }
+
+  return { [state.deviceType]: value };
 }

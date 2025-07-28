@@ -389,7 +389,7 @@ export function SpacingSettings() {
           <PaddingBox>
             <div>
               <ChangeElement>
-                <input name='paddingTop' type='number' defaultValue={getResponsiveValue(paddingTop, deviceType) ?? 0} />
+                <input name='paddingTop' type='number' value={getResponsiveValue(paddingTop, deviceType) ?? 0} />
               </ChangeElement>
             </div>
             <div></div>

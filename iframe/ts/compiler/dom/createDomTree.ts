@@ -10,7 +10,7 @@ import { generateInlineStyles } from './generateInlineStyles';
 const DEFAULT_INPUT_AUTOCOMPLETE = 'off';
 const HTML_ELEMENT_ROLE_HEADING = 'heading';
 
-export const createDomTree = (element: PageElement) => {
+export const createDomTree = (element: PageElement, isSitePreviewMode: boolean) => {
   const { id, content, tag, children, name } = element;
   const elementNode = document.createElement(tag);
   const isEditable = CONTENT_EDITABLE_ELEMENTS.has(tag);
@@ -29,6 +29,7 @@ export const createDomTree = (element: PageElement) => {
 
   if (isLinkElement && element.link) {
     elementNode.href = element.link;
+    elementNode.target = '_blank';
   } else if (isImgElement) {
     elementNode.src = element.src || '';
     elementNode.addEventListener('load', () => positionDragButton(elementNode.clientHeight));
@@ -36,13 +37,13 @@ export const createDomTree = (element: PageElement) => {
     handleInputElement(elementNode, element.type as string, element.placeholder as string);
   }
 
-  if (isEditable) {
+  if (isEditable && !state.isSitePreviewMode) {
     handleEditableElement(elementNode);
   }
 
   if (Array.isArray(children)) {
     for (const child of children) {
-      const childNode = createDomTree(child);
+      const childNode = createDomTree(child, isSitePreviewMode);
       elementNode.append(childNode);
     }
   }

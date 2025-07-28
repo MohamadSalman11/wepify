@@ -90,11 +90,16 @@ function maybeGenerateFlexStyles(
 ) {
   const { justifyContent, alignItems } = extractResponsiveProps(element, isResponsive);
 
-  style.justifyContent = isNotDefault(justifyContent) ? justifyContent : '';
-  style.alignItems = isNotDefault(alignItems) ? alignItems : '';
+  if (justifyContent) {
+    style.justifyContent = isNotDefault(justifyContent) ? justifyContent : '';
+  }
+
+  if (alignItems) {
+    style.alignItems = isNotDefault(alignItems) ? alignItems : '';
+  }
 
   if (justifyContent || alignItems) {
-    const isDefaultFlex = !isNotDefault(justifyContent) && !isNotDefault(alignItems);
+    const isDefaultFlex = isNotDefault(justifyContent) && isNotDefault(alignItems);
 
     style.display = isDefaultFlex ? '' : 'flex';
     style.flexDirection = isDefaultFlex ? '' : 'column';

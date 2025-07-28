@@ -310,7 +310,8 @@ function AlignmentSettings() {
     selectedElement.name === ElementsName.Grid ||
     selectedElement.name === ElementsName.List ||
     selectedElement.name === ElementsName.Link ||
-    selectedElement.name === ElementsName.Image
+    selectedElement.name === ElementsName.Image ||
+    selectedElement.name === ElementsName.Input
   ) {
     return null;
   }

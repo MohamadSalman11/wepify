@@ -54,7 +54,10 @@ export default function Icon({
 }: IconProps) {
   const iconElement = (
     <IconComponent
-      style={{ color: disabled ? 'var(--color-gray-light-2)' : 'var(--color-gray)' }}
+      style={{
+        color: disabled ? 'var(--color-gray-light-2)' : 'var(--color-gray)',
+        cursor: disabled ? 'auto' : 'pointer'
+      }}
       size={SIZE[size]}
       onClick={disabled ? undefined : onClick}
       {...props}

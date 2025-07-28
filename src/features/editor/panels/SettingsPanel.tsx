@@ -1000,10 +1000,8 @@ const TextAlignContainer = styled.div`
 `;
 
 const RotationContainer = styled.div`
+  display: flex;
+  align-items: center;
+  column-gap: 1.4rem;
   margin-left: auto;
-  column-gap: 2.4rem !important;
-
-  svg {
-    cursor: pointer;
-  }
 `;

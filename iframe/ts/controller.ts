@@ -28,6 +28,7 @@ import {
   positionDragButton,
   renderElements,
   SELECTOR_DRAG_BUTTON,
+  SELECTOR_ROOT,
   updateTargetStyle
 } from './view';
 
@@ -365,8 +366,8 @@ const controlResize = (event: OnResize) => {
   if (h) positionDragButton(height, state.scaleFactor);
 
   const updates: any = {};
-  if (w) updates.width = width;
-  if (h) updates.height = height;
+  if (w) updates.width = width === document.querySelector(SELECTOR_ROOT)?.clientWidth - 120 ? 'fill' : width;
+  if (h) updates.height = height === document.querySelector(SELECTOR_ROOT)?.clientHeight - 60 ? 'fill' : height;
 
   positionDragButton(height, state.scaleFactor, getVerticalBorderSum(target as HTMLElement));
 

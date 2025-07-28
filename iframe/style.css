@@ -44,3 +44,8 @@ a {
 ul {
   display: inline-block;
 }
+
+button,
+a {
+  cursor: pointer;
+}

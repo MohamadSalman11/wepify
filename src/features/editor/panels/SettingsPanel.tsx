@@ -698,13 +698,13 @@ function StrokeSettings() {
           </StrokeWidthContainer>
           <StrokePosition>
             {BORDER_SIDES.map(({ side, icon }) => (
-              <BorderButton
+              <Icon
                 key={side}
+                icon={icon}
+                size='md'
+                isSelected={!borders[`border${side}`]?.includes('none') && borders[`border${side}`] !== undefined}
                 onClick={() => toggleBorder(side, `${borderWidth}px solid ${borderColor}`)}
-                $active={!borders[`border${side}`]?.includes('none') && borders[`border${side}`] !== undefined}
-              >
-                <Icon icon={icon} size='sm' />
-              </BorderButton>
+              />
             ))}
           </StrokePosition>
         </GridContainer>
@@ -824,22 +824,9 @@ const StrokeLabel = styled.label`
 const StrokePosition = styled.div`
   display: flex;
   align-items: center;
-  column-gap: 1.9rem;
-  justify-content: space-between;
-  width: 0;
+  column-gap: 1.2rem;
+  justify-content: center;
   margin-top: 1.2rem;
-`;
-
-const BorderButton = styled.div<{ $active?: boolean }>`
-  display: flex;
-  column-gap: 0.4rem;
-  align-items: center;
-  cursor: pointer;
-  font-size: 1.2rem;
-
-  svg {
-    color: ${({ $active }) => ($active ? 'var(--color-black-light)' : 'var(--color-gray)')};
-  }
 `;
 
 const SelectorContainer = styled.div`

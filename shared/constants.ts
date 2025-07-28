@@ -222,7 +222,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
   input: createElTemplate({
     tag: 'input',
     name: 'input',
-    type: 'text',
+    type: 'email',
     placeholder: 'E-Mail',
     width: { monitor: 150 },
     fontSize: { monitor: 14 },

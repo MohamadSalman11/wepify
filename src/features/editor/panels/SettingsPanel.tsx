@@ -675,7 +675,7 @@ function StrokeSettings() {
             </ChangeElement>
           </div>
           <StrokeWidthContainer>
-            <StrokeLabel>Width</StrokeLabel>
+            <StrokeLabel>width</StrokeLabel>
             <ChangeElement>
               <Input
                 name='borderWidth'
@@ -686,7 +686,7 @@ function StrokeSettings() {
             </ChangeElement>
           </StrokeWidthContainer>
           <StrokeWidthContainer>
-            <StrokeLabel>Radius</StrokeLabel>
+            <StrokeLabel>radius</StrokeLabel>
             <ChangeElement>
               <Input
                 name='borderRadius'

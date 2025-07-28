@@ -67,7 +67,7 @@ function PageItem({ page, index }: { page: SitePage; index: number }) {
 
     if (page.id === pageId) return;
 
-    if (!target.closest('svg')) {
+    if (!target.closest('svg') && siteId) {
       dispatch(setIsLoading(true));
       iframeRef.current?.contentWindow?.location.reload();
       navigate(buildPath(Path.Editor, { siteId, pageId: page.id }));
@@ -140,16 +140,17 @@ function EditDialog({ page, onCloseModal }: { page: SitePage; onCloseModal?: OnC
     const trimmedName = newName.trim();
 
     if (!trimmedName) {
-      toast.error('Page name cannot be empty');
+      toast.error(ToastMessages.page.emptyName);
       return;
     }
 
     const nameExists = site.pages.some((p) => p.name.toLowerCase() === trimmedName.toLowerCase() && p.id !== page.id);
 
     if (nameExists) {
-      toast.error('A page with this name already exists. Please choose a different name.');
+      toast.error(ToastMessages.page.duplicateName);
       return;
     }
+
     dispatch(updatePageInfo({ id: page.id, name: newName, title: newTitle }));
     onCloseModal?.();
     toast.success(ToastMessages.page.renamed);

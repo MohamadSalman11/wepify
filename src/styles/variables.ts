@@ -79,8 +79,9 @@ const variables = css`
 
     --zindex-base: 10;
     --zindex-preview-close-button: 100;
+    --zindex-panel: 200;
     --zindex-modal: 1000;
-    --zindex-loading-screen: 1100;
+    --zindex-loading-screen: 1200;
     --transition-base: all 0.2s linear;
 
     /* Buttons */

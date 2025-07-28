@@ -1,9 +1,25 @@
-import { MessageFromIframe, MessageFromIframeData, MessageToIframe, PageElement, type SitePage } from '@shared/types';
+import { RESPONSIVE_PROPS } from '@shared/constants';
+import {
+  DeviceType,
+  MessageFromIframe,
+  MessageFromIframeData,
+  MessageToIframe,
+  PageElement,
+  Site
+} from '@shared/types';
 import { useCallback, useEffect, useMemo, useState, type RefObject } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { TARGET_ORIGIN } from '../../../constant';
-import { addElement, deleteElementInSite, setIsDownloadingSite, updateElementInSite } from '../slices/editorSlice';
+import {
+  addElement,
+  deleteElementInSite,
+  setDeviceType,
+  setIsDownloadingSite,
+  updateElementInSite,
+  updatePageInSite
+} from '../slices/editorSlice';
+import { setBackground } from '../slices/pageSlice';
 import { selectElement, updateSelectElement } from '../slices/selectionSlice';
 
 export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | null>) => {
@@ -32,6 +48,10 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
           setIframeReady(true);
           break;
         }
+        case MessageFromIframe.BreakpointChanged: {
+          dispatch(setDeviceType(data.payload.newDeviceType));
+          break;
+        }
         case MessageFromIframe.SelectionChanged: {
           dispatch(selectElement(data.payload));
           break;
@@ -40,7 +60,24 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
           const { id, fields } = data.payload;
 
           dispatch(updateSelectElement(fields));
-          dispatch(updateElementInSite({ pageId, elementId: id, updates: fields }));
+          dispatch(
+            updateElementInSite({
+              pageId,
+              elementId: id,
+              updates: fields,
+              shouldBeResponsive: RESPONSIVE_PROPS.has(Object.keys(fields)[0])
+            })
+          );
+          break;
+        }
+        case MessageFromIframe.PageUpdated: {
+          const { updates } = data.payload;
+
+          if (updates.backgroundColor) {
+            dispatch(setBackground(updates.backgroundColor));
+          }
+
+          dispatch(updatePageInSite({ id: pageId, updates }));
           break;
         }
         case MessageFromIframe.ElementInserted: {
@@ -65,8 +102,17 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
   }, [dispatch, iframeRef, pageId]);
 
   const renderElements = useCallback(
-    (elements: PageElement[], isPreview: boolean) => {
-      postMessageToIframe({ type: MessageToIframe.RenderElements, payload: { isPreview, elements } });
+    (
+      elements: PageElement[],
+      isPreview: boolean,
+      deviceType: DeviceType,
+      scaleFactor: number,
+      backgroundColor: string
+    ) => {
+      postMessageToIframe({
+        type: MessageToIframe.RenderElements,
+        payload: { isPreview, elements, deviceType, scaleFactor, backgroundColor }
+      });
     },
     [postMessageToIframe]
   );
@@ -81,6 +127,13 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
   const updateElement = useCallback(
     (updates: Record<string, any>) => {
       postMessageToIframe({ type: MessageToIframe.UpdateElement, payload: { updates } });
+    },
+    [postMessageToIframe]
+  );
+
+  const updatePage = useCallback(
+    (updates: Record<string, any>) => {
+      postMessageToIframe({ type: MessageToIframe.UpdatePage, payload: { updates } });
     },
     [postMessageToIframe]
   );
@@ -104,15 +157,8 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
   );
 
   const downloadSite = useCallback(
-    (site: SitePage[], shouldMinify: boolean) => {
+    (site: Site, shouldMinify: boolean) => {
       postMessageToIframe({ type: MessageToIframe.DownloadSite, payload: { site, shouldMinify } });
-    },
-    [postMessageToIframe]
-  );
-
-  const handleViewportChanged = useCallback(
-    (scaleFactor: number) => {
-      postMessageToIframe({ type: MessageToIframe.ViewPortChanged, payload: scaleFactor });
     },
     [postMessageToIframe]
   );
@@ -127,7 +173,7 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
       searchElement,
       deleteElement,
       downloadSite,
-      handleViewportChanged
+      updatePage
     }),
     [
       iframeReady,
@@ -138,7 +184,7 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
       searchElement,
       deleteElement,
       downloadSite,
-      handleViewportChanged
+      updatePage
     ]
   );
 };

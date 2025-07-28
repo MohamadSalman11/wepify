@@ -48,16 +48,16 @@ export default function Editor() {
  * Styles
  */
 
-const editorLayout = css`
-  display: grid;
-  grid-template-columns: 8rem 30rem 1fr 30rem;
-  grid-template-rows: 8rem 1fr;
-`;
-
 const StyledEditor = styled.div<{ $isPreview?: boolean }>`
   width: 100%;
   height: 100vh;
   overflow: hidden;
   user-select: none;
-  ${({ $isPreview }) => !$isPreview && editorLayout}
+  ${({ $isPreview }) => !$isPreview && EditorLayout}
+`;
+
+const EditorLayout = css`
+  display: grid;
+  grid-template-columns: 8rem 30rem 1fr 30rem;
+  grid-template-rows: 8rem 1fr;
 `;

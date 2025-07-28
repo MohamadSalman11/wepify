@@ -15,10 +15,20 @@ import { useAppSelector } from '../../../store';
 import { useImageUpload } from '../hooks/useImageUpload';
 import { addImage, deleteImage, setImages } from '../slices/editorSlice';
 
+/**
+ * Constants
+ */
+
+const ACCEPTED_FILE_TYPE = 'image/*';
+
+/**
+ * Component definition
+ */
+
 export default function UploadsPanel() {
   const dispatch = useDispatch();
-  const images = useAppSelector((state) => state.editor.images);
   const { iframeConnection } = useIframeContext();
+  const images = useAppSelector((state) => state.editor.images);
 
   const handleImageUpload = useImageUpload(
     (result) => {
@@ -28,7 +38,7 @@ export default function UploadsPanel() {
     (message) => toast.error(message)
   );
 
-  const { input, openFilePicker } = useFilePicker({ accept: 'image/*', onSelect: handleImageUpload });
+  const { input, openFilePicker } = useFilePicker({ accept: ACCEPTED_FILE_TYPE, onSelect: handleImageUpload });
 
   const onLoaded = useCallback(
     (images: string[] | null) => {
@@ -51,12 +61,10 @@ export default function UploadsPanel() {
       <Button fullWidth={true} onClick={openFilePicker}>
         Upload File
       </Button>
-
       {images.length === 0 && <EmptyMessage>No images uploaded yet</EmptyMessage>}
-
       <MasonryGrid breakpointCols={2} className='masonry-grid' columnClassName='masonry-grid_column'>
         {images?.map((img, i) => (
-          <MediaItem key={i} onClick={() => iframeConnection.insertElement('image', { src: img.dataUrl })}>
+          <MediaItem key={img.id} onClick={() => iframeConnection.insertElement('image', { src: img.dataUrl })}>
             <img src={img.dataUrl} alt={`uploaded image ${i + 1}`} loading='lazy' />
             <span
               onClick={(event) => {
@@ -72,6 +80,10 @@ export default function UploadsPanel() {
     </>
   );
 }
+
+/**
+ * Styles
+ */
 
 const MasonryGrid = styled(Masonry)`
   display: flex !important;

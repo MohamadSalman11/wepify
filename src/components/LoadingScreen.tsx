@@ -12,6 +12,17 @@ const DEFAULT_DURATION = 2000;
 const MS_TO_SECONDS = 1000;
 
 /**
+ * Types
+ */
+
+interface LoadingScreenProps {
+  text?: string;
+  duration?: number;
+  buttonText?: string;
+  handler?: () => void;
+}
+
+/**
  * Component definition
  */
 
@@ -20,13 +31,7 @@ export default function LoadingScreen({
   duration,
   buttonText,
   handler
-}: {
-  text?: string;
-  errorText?: string;
-  duration?: number;
-  buttonText?: string;
-  handler?: () => void;
-}) {
+}: LoadingScreenProps) {
   const randomDuration = `${(duration ?? DEFAULT_DURATION) / MS_TO_SECONDS}s`;
 
   return createPortal(

@@ -15,7 +15,7 @@ export default function Footer() {
 const StyledFooter = styled.footer`
   width: 100%;
   padding: 2.4rem;
-  margin-top: 6.4rem;
+  margin-top: 3.2rem;
   background-color: var(--color-white);
   text-align: center;
   font-size: 1.4rem;

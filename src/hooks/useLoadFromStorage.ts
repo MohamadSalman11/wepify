@@ -2,13 +2,19 @@ import { useEffect } from 'react';
 import type { StorageKey } from '../constant';
 import { AppStorage } from '../utils/appStorage';
 
+const DEFAULT_LOADING_DURATION = 0;
+
 type UseLoadFromStorage<T> = {
   storageKey: StorageKey | StorageKey[];
   loadingDuration?: number;
   onLoaded: (data: T | null) => void;
 };
 
-export function useLoadFromStorage<T>({ storageKey, loadingDuration = 0, onLoaded }: UseLoadFromStorage<T>) {
+export function useLoadFromStorage<T>({
+  storageKey,
+  loadingDuration = DEFAULT_LOADING_DURATION,
+  onLoaded
+}: UseLoadFromStorage<T>) {
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
@@ -24,7 +30,7 @@ export function useLoadFromStorage<T>({ storageKey, loadingDuration = 0, onLoade
         data = (await AppStorage.getItem<T>(storageKey)) as T | null;
       }
 
-      if (loadingDuration > 0) {
+      if (loadingDuration > DEFAULT_LOADING_DURATION) {
         timeoutId = setTimeout(() => onLoaded(data), loadingDuration);
       } else {
         onLoaded(data);

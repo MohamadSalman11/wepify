@@ -8,8 +8,9 @@ import styled, { css } from 'styled-components';
 import Dropdown from '../../../components/Dropdown';
 import Input from '../../../components/form/Input';
 import Icon from '../../../components/Icon';
-import { Path } from '../../../constant';
+import { Path, StorageKey } from '../../../constant';
 import { useAppSelector } from '../../../store';
+import { AppStorage } from '../../../utils/appStorage';
 import { buildPath } from '../../../utils/buildPath';
 import { formatDate } from '../../../utils/formatDate';
 import { setFilterLabel, setFilters, type FilterCriteria } from '../slices/dashboardSlice';
@@ -47,7 +48,7 @@ const OPTIONS_MODIFIED = [
  */
 
 export default function SearchBox() {
-  const { sites } = useAppSelector((state) => state.dashboard);
+  const sites = useAppSelector((state) => state.dashboard.sites);
   const [matchedSites, setMatchedSites] = useState<Site[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -96,6 +97,11 @@ function SearchResults({ matchedSites }: { matchedSites: Site[] }) {
   const navigate = useNavigate();
   const isNoResult = matchedSites.length === 0;
 
+  async function handleOpenEditor(site: Site) {
+    await AppStorage.setItem(StorageKey.Site, site);
+    navigate(buildPath(Path.Editor, { siteId: site.id, pageId: site.pages[0].id }));
+  }
+
   return (
     <StyledSearchContainer>
       {isNoResult ? (
@@ -103,10 +109,7 @@ function SearchResults({ matchedSites }: { matchedSites: Site[] }) {
       ) : (
         <SearchResultList>
           {matchedSites.map((site) => (
-            <SearchResultItem
-              key={site.id}
-              onClick={() => navigate(buildPath(Path.Editor, { siteId: site.id, pageId: site.pages[0].id }))}
-            >
+            <SearchResultItem key={site.id} onClick={() => handleOpenEditor(site)}>
               <ItemContent>
                 <Icon icon={LuLayoutTemplate} />
                 <div>

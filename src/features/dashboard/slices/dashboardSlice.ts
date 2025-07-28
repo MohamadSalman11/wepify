@@ -68,7 +68,7 @@ const dashboardSlice = createSlice({
         site.isStarred = !site.isStarred;
       }
     },
-    setIsLoading(state, action) {
+    setIsLoading(state, action: PayloadAction<boolean>) {
       state.isLoading = action.payload;
     }
   }

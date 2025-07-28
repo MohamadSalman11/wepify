@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { SitePage } from '@shared/types';
 
 interface PageState {
   width: number;
@@ -8,6 +9,7 @@ interface PageState {
   scale: number;
   hasSetOriginSize: boolean;
   iframe: HTMLIFrameElement | undefined;
+  backgroundColor: string;
 }
 
 const initialState: PageState = {
@@ -17,14 +19,15 @@ const initialState: PageState = {
   originHeight: window.innerHeight,
   scale: 100,
   hasSetOriginSize: false,
-  iframe: undefined
+  iframe: undefined,
+  backgroundColor: '#343c44'
 };
 
 const pageSlice = createSlice({
   name: 'page',
   initialState,
   reducers: {
-    setPage(state, action) {
+    setPage(state, action: PayloadAction<SitePage>) {
       Object.assign(state, action.payload);
     },
     setSize(
@@ -49,10 +52,16 @@ const pageSlice = createSlice({
     },
     setScale(state, action: PayloadAction<number>) {
       state.scale = action.payload;
+    },
+    setHasOriginSize(state, action: PayloadAction<boolean>) {
+      state.hasSetOriginSize = action.payload;
+    },
+    setBackground(state, action: PayloadAction<string>) {
+      state.backgroundColor = action.payload;
     }
   }
 });
 
-export const { setPage, setSize, setScale } = pageSlice.actions;
+export const { setPage, setSize, setScale, setHasOriginSize, setBackground } = pageSlice.actions;
 
 export default pageSlice.reducer;

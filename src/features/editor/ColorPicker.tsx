@@ -1,4 +1,5 @@
 import type { InputChangeEvent } from '@shared/types';
+import { rgbaToHex, rgbToHex } from '@shared/utils';
 import Sketch from '@uiw/react-color-sketch';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -10,6 +11,25 @@ import useOutsideClick from '../../hooks/useOutsideClick';
  */
 
 const DEFAULT_COLOR = '#ffffff';
+
+const PRESET_COLORS = [
+  '#D0021B',
+  '#F5A623',
+  '#f8e61b',
+  '#8B572A',
+  '#7ED321',
+  '#417505',
+  '#BD10E0',
+  '#9013FE',
+  '#4A90E2',
+  '#50E3C2',
+  '#B8E986',
+  '#000000',
+  '#4A4A4A',
+  '#9B9B9B',
+  '#FFFFFF',
+  '#343c44'
+];
 
 /**
  * Types
@@ -41,9 +61,11 @@ export default function ColorPicker({ name, defaultValue, onChange }: ColorPicke
     onChange?.({ target: { value: hex, name } });
   }
 
-  function handleSketchColorChange(color: { hex: string }) {
-    setHex(color.hex);
-    onChange?.({ target: { value: color.hex, name } });
+  function handleSketchColorChange(color: Record<string, any>) {
+    const { r, g, b } = color.rgb;
+    const hex = color.rgba.a === 1 ? rgbToHex(`rgb(${r}, ${g}, ${b})`) : rgbaToHex(color.rgba);
+    setHex(hex);
+    onChange?.({ target: { value: hex, name } });
   }
 
   return (
@@ -52,7 +74,7 @@ export default function ColorPicker({ name, defaultValue, onChange }: ColorPicke
         <PreviewBox style={{ backgroundColor: hex }} />
         <PreviewInput name={name} type='text' value={hex} onChange={handleHexInputChange} />
       </Preview>
-      {isOpen && <StyledSketch color={hex} onChange={handleSketchColorChange} />}
+      {isOpen && <StyledSketch presetColors={PRESET_COLORS} color={hex} onChange={handleSketchColorChange} />}
     </div>
   );
 }
@@ -104,7 +126,8 @@ const PreviewBox = styled.div`
 `;
 
 const PreviewInput = styled(Input)`
-  padding-left: 4.8rem;
+  padding-left: 4.2rem;
+  padding-right: 0.8rem;
   background-color: transparent;
   border: var(--border-base);
 `;

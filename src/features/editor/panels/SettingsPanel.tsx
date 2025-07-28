@@ -1,6 +1,12 @@
-import { FONT_WEIGHT_VALUES, OPTIONS_FONT } from '@shared/constants';
-import type { GridElement, InputElement, LinkElement } from '@shared/types';
-import { cloneElement, createContext, useContext, useState, type ChangeEvent, type ReactElement } from 'react';
+import {
+  DEFAULT_BORDER_COLOR,
+  DEFAULT_BORDER_WIDTH,
+  ElementsName,
+  FONT_WEIGHT_VALUES,
+  OPTIONS_FONT
+} from '@shared/constants';
+import type { DeviceType, GridElement, InputElement, LinkElement, PageElement } from '@shared/types';
+import { cloneElement, createContext, useContext, type ChangeEvent, type ReactElement } from 'react';
 import {
   LuAlignCenter,
   LuAlignEndHorizontal,
@@ -29,6 +35,7 @@ import Icon from '../../../components/Icon';
 import { useIframeContext } from '../../../context/IframeContext';
 import { useAppSelector } from '../../../store';
 import { flattenElements } from '../../../utils/flattenElements';
+import { getResponsiveValue } from '../../../utils/getResponsiveValue';
 import CollapsibleSection from '../CollapsibleSection';
 import ColorPicker from '../ColorPicker';
 
@@ -43,10 +50,8 @@ const OPTIONS_ROW_GAP = OPTIONS_COLUMN_GAP;
 const OPTIONS_ROW_HEIGHT = OPTIONS_COLUMN_WIDTH;
 const OPTIONS_ROW = OPTIONS_COLUMN;
 const OPTIONS_FONT_SIZE = ['Inherit', 10, 11, 12, 13, 14, 15, 16, 20, 24, 32, 36, 40, 48, 64, 96, 128];
-const OPTIONS_SIZE = ['screen', 'fill', 'fit', 50, 250, 500];
-
-const DEFAULT_BORDER_COLOR = '#4a90e2';
-const DEFAULT_BORDER_WIDTH = 2;
+const OPTIONS_SIZE = ['fill', 'fit', 50, 100, 150, 250, 500];
+const DEFAULT_BORDER_RADIUS = 0;
 
 const BORDER_SIDES = [
   { side: 'Top', icon: LuPanelTop },
@@ -96,8 +101,6 @@ const useSettingsContext = () => {
  * Types
  */
 
-type BorderSide = 'top' | 'right' | 'bottom' | 'left';
-
 interface SettingsContextType {
   handleElementChange: (name: string, value: string | number) => void;
 }
@@ -107,15 +110,18 @@ interface SettingsContextType {
  */
 
 export function SettingsPanel() {
-  const selectedElement = useAppSelector((state) => state.selection.present.selectedElement);
   const { iframeConnection } = useIframeContext();
+  const selectedElement = useAppSelector((state) => state.selection.present.selectedElement);
+  const deviceType = useAppSelector((state) => state.editor.deviceType);
 
   const handleElementChange = (name: string, value: string | number) => {
     const updates = { [name]: value };
 
-    if (selectedElement.name === 'grid') {
-      Object.assign(updates, getSynchronizedGridUpdates(name, selectedElement as GridElement));
+    if (selectedElement.name === ElementsName.Grid) {
+      Object.assign(updates, getSynchronizedGridUpdates(name, selectedElement as GridElement, deviceType));
     }
+
+    Object.assign(updates, getSynchronizedTransform(name, selectedElement, deviceType));
 
     iframeConnection.updateElement(updates);
   };
@@ -124,22 +130,32 @@ export function SettingsPanel() {
     <SettingsContext.Provider value={{ handleElementChange }}>
       <SelectorSettings />
       <AlignmentSettings />
-      {selectedElement.name !== 'grid' || <GridSettings />}
-      {selectedElement.name === 'link' && <LinkSettings />}
-      {selectedElement.name === 'input' && <InputSettings />}
+      {selectedElement.name !== ElementsName.Grid || <GridSettings />}
+      {selectedElement.name === ElementsName.Link && <LinkSettings />}
+      {selectedElement.name === ElementsName.Input && <InputSettings />}
       <SizeSettings />
       <SpacingSettings />
       <TypographySettings />
-      {selectedElement.tag === 'section' || <StrokeSettings />}
+      {selectedElement.name === ElementsName.Section || <StrokeSettings />}
+      <PageSettings />
     </SettingsContext.Provider>
   );
 }
 
-function ChangeElement({ children }: { children: ReactElement<{ onChange?: (event: ChangeEvent<any>) => void }> }) {
+function ChangeElement({
+  children,
+  handler
+}: {
+  children: ReactElement<{
+    onChange?: (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  }>;
+  handler?: (value: string | number) => void;
+}) {
   const { handleElementChange } = useSettingsContext();
 
   return cloneElement(children, {
-    onChange: (event: ChangeEvent<any>) => {
+    onChange: (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      handler?.(event.target.value);
       handleElementChange(event.target.name, event.target.value);
     }
   });
@@ -163,7 +179,15 @@ function SelectorSettings() {
           <Icon icon={LuMonitor} />
           <Select
             name='selector'
-            options={flattenElements(page?.elements || []).map((el) => el.id)}
+            options={flattenElements(page?.elements || [])
+              .map((el) => el.id)
+              .sort((a, b) => {
+                const [aBase, aNum] = a.split(/-(\d+)$/);
+                const [bBase, bNum] = b.split(/-(\d+)$/);
+
+                if (aBase !== bBase) return aBase.localeCompare(bBase);
+                return Number(aNum) - Number(bNum);
+              })}
             defaultSelect={selection.id}
             onChange={(event) => handleSelection(event.target.value as string)}
           />
@@ -174,29 +198,33 @@ function SelectorSettings() {
 }
 
 function SizeSettings() {
-  const [rotate, setRotate] = useState(0);
   const { handleElementChange } = useSettingsContext();
-  const selection = useAppSelector((state) => state.selection.present.selectedElement);
+  const selectedElement = useAppSelector((state) => state.selection.present.selectedElement);
+  const deviceType = useAppSelector((state) => state.editor.deviceType);
+  const disableInput = selectedElement.name === ElementsName.Item || selectedElement.name === ElementsName.Section;
 
   const handleRotate = () => {
-    const current = selection.rotate ?? 0;
+    const current = getResponsiveValue(selectedElement.rotate, deviceType) ?? 0;
     let newRotate = current - 90;
     if (newRotate <= -180) newRotate = 180;
     handleElementChange('rotate', newRotate);
-    setRotate(newRotate);
   };
 
   const handleFlipHorizontal = () => {
-    const currentScaleX = selection.scaleX ?? 1;
+    const currentScaleX = getResponsiveValue(selectedElement.scaleX, deviceType) ?? 1;
     const newScaleX = currentScaleX === 1 ? -1 : 1;
     handleElementChange('scaleX', newScaleX);
   };
 
   const handleFlipVertical = () => {
-    const currentScaleY = selection.scaleY ?? 1;
+    const currentScaleY = getResponsiveValue(selectedElement.scaleY, deviceType) ?? 1;
     const newScaleY = currentScaleY === 1 ? -1 : 1;
     handleElementChange('scaleY', newScaleY);
   };
+
+  if (selectedElement.name === ElementsName.Item) {
+    return null;
+  }
 
   return (
     <div>
@@ -205,13 +233,23 @@ function SizeSettings() {
           <SizeRow>
             <label>X</label>
             <ChangeElement>
-              <Input name='left' disabled={selection.name === 'item'} type='number' defaultValue={selection.left} />
+              <Input
+                name='left'
+                disabled={disableInput}
+                type='number'
+                value={disableInput ? '' : parseNumber(getResponsiveValue(selectedElement.left, deviceType))}
+              />
             </ChangeElement>
           </SizeRow>
           <SizeRow>
             <label>Y</label>
             <ChangeElement>
-              <Input name='top' disabled={selection.name === 'item'} type='number' defaultValue={selection.top} />
+              <Input
+                name='top'
+                disabled={disableInput}
+                type='number'
+                value={disableInput ? '' : parseNumber(getResponsiveValue(selectedElement.top, deviceType))}
+              />
             </ChangeElement>
           </SizeRow>
           <SizeRow>
@@ -222,7 +260,8 @@ function SizeSettings() {
                 editable
                 editInputType='text'
                 options={OPTIONS_SIZE}
-                defaultSelect={selection.width}
+                disabled={disableInput}
+                defaultSelect={disableInput ? '' : parseNumber(getResponsiveValue(selectedElement.width, deviceType))}
               />
             </ChangeElement>
           </SizeRow>
@@ -234,14 +273,19 @@ function SizeSettings() {
                 editable
                 editInputType='text'
                 options={OPTIONS_SIZE}
-                defaultSelect={selection.height}
+                defaultSelect={parseNumber(getResponsiveValue(selectedElement.height, deviceType))}
               />
             </ChangeElement>
           </SizeRow>
           <SizeRow>
             <label htmlFor='rotation'>R</label>
             <ChangeElement>
-              <Input name='rotate' type='text' value={rotate} />
+              <Input
+                name='rotate'
+                type='text'
+                disabled={disableInput}
+                value={disableInput ? '' : (parseNumber(getResponsiveValue(selectedElement.rotate, deviceType)) ?? 0)}
+              />
             </ChangeElement>
           </SizeRow>
           <RotationContainer>
@@ -255,47 +299,56 @@ function SizeSettings() {
   );
 }
 
-export function AlignmentSettings() {
-  const selection = useAppSelector((state) => state.selection.present.selectedElement);
+function AlignmentSettings() {
+  const selectedElement = useAppSelector((state) => state.selection.present.selectedElement);
   const { handleElementChange } = useSettingsContext();
+  const deviceType = useAppSelector((state) => state.editor.deviceType);
+  const justifyContent = getResponsiveValue(selectedElement.justifyContent, deviceType) || 'flex-start';
+  const alignItems = getResponsiveValue(selectedElement.alignItems, deviceType) || 'flex-start';
+
+  if (
+    selectedElement.name === ElementsName.Grid ||
+    selectedElement.name === ElementsName.List ||
+    selectedElement.name === ElementsName.Link ||
+    selectedElement.name === ElementsName.Image
+  ) {
+    return null;
+  }
 
   return (
     <div>
       <CollapsibleSection title='Alignment' open={true}>
         <AlignmentContainer>
           <AlignButton
-            $active={selection.textAlign === 'left'}
-            onClick={() => handleElementChange('justifyContent', 'flex-start')}
+            $active={alignItems === 'flex-start'}
+            onClick={() => handleElementChange('alignItems', 'flex-start')}
           >
             <Icon icon={LuAlignStartVertical} />
           </AlignButton>
           <AlignButton
-            $active={selection.textAlign === 'right'}
-            onClick={() => handleElementChange('justifyContent', 'flex-end')}
+            $active={alignItems === 'flex-end'}
+            onClick={() => handleElementChange('alignItems', 'flex-end')}
           >
             <Icon icon={LuAlignEndVertical} />
           </AlignButton>
           <AlignButton
-            $active={selection.textAlign === 'right'}
-            onClick={() => handleElementChange('alignItems', 'flex-start')}
+            $active={justifyContent === 'flex-start'}
+            onClick={() => handleElementChange('justifyContent', 'flex-start')}
           >
             <Icon icon={LuAlignStartHorizontal} />
           </AlignButton>
           <AlignButton
-            $active={selection.textAlign === 'right'}
-            onClick={() => handleElementChange('alignItems', 'flex-end')}
+            $active={justifyContent === 'flex-end'}
+            onClick={() => handleElementChange('justifyContent', 'flex-end')}
           >
             <Icon icon={LuAlignEndHorizontal} />
           </AlignButton>
-          <AlignButton
-            $active={selection.textAlign === 'right'}
-            onClick={() => handleElementChange('justifyContent', 'center')}
-          >
+          <AlignButton $active={alignItems === 'center'} onClick={() => handleElementChange('alignItems', 'center')}>
             <Icon icon={LuAlignHorizontalJustifyCenter} />
           </AlignButton>
           <AlignButton
-            $active={selection.textAlign === 'right'}
-            onClick={() => handleElementChange('alignItems', 'center')}
+            $active={justifyContent === 'center'}
+            onClick={() => handleElementChange('justifyContent', 'center')}
           >
             <Icon icon={LuAlignVerticalJustifyCenter} />
           </AlignButton>
@@ -306,8 +359,22 @@ export function AlignmentSettings() {
 }
 
 export function SpacingSettings() {
-  const { marginTop, marginRight, marginBottom, marginLeft, paddingTop, paddingRight, paddingBottom, paddingLeft } =
-    useAppSelector((state) => state.selection.present.selectedElement);
+  const deviceType = useAppSelector((state) => state.editor.deviceType);
+  const {
+    name,
+    marginTop,
+    marginRight,
+    marginBottom,
+    marginLeft,
+    paddingTop,
+    paddingRight,
+    paddingBottom,
+    paddingLeft
+  } = useAppSelector((state) => state.selection.present.selectedElement);
+
+  if (name === ElementsName.Image) {
+    return null;
+  }
 
   return (
     <div>
@@ -315,45 +382,45 @@ export function SpacingSettings() {
         <SpacingBox>
           <div>
             <ChangeElement>
-              <input name='marginTop' type='number' value={marginTop ?? 0} />
+              <input name='marginTop' type='number' value={getResponsiveValue(marginTop, deviceType) ?? 0} />
             </ChangeElement>
           </div>
           <PaddingBox>
             <div>
               <ChangeElement>
-                <input name='paddingTop' type='number' value={paddingTop ?? 0} />
+                <input name='paddingTop' type='number' defaultValue={getResponsiveValue(paddingTop, deviceType) ?? 0} />
               </ChangeElement>
             </div>
             <div></div>
             <div>
               <ChangeElement>
-                <input name='paddingTop' type='number' value={paddingLeft ?? 0} />
+                <input name='paddingLeft' type='number' value={getResponsiveValue(paddingLeft, deviceType) ?? 0} />
               </ChangeElement>
             </div>
             <div>
               <ChangeElement>
-                <input name='paddingRight' type='number' value={paddingRight ?? 0} />
+                <input name='paddingRight' type='number' value={getResponsiveValue(paddingRight, deviceType) ?? 0} />
               </ChangeElement>
             </div>
             <div>
               <ChangeElement>
-                <input name='paddingBottom' type='number' value={paddingBottom ?? 0} />
+                <input name='paddingBottom' type='number' value={getResponsiveValue(paddingBottom, deviceType) ?? 0} />
               </ChangeElement>
             </div>
           </PaddingBox>
           <div>
             <ChangeElement>
-              <input name='marginLeft' type='number' value={marginLeft ?? 0} />
+              <input name='marginLeft' type='number' value={getResponsiveValue(marginLeft, deviceType) ?? 0} />
             </ChangeElement>
           </div>
           <div>
             <ChangeElement>
-              <input name='marginRight' type='number' value={marginRight ?? 0} />
+              <input name='marginRight' type='number' value={getResponsiveValue(marginRight, deviceType) ?? 0} />
             </ChangeElement>
           </div>
           <div>
             <ChangeElement>
-              <input name='marginBottom' type='number' value={marginBottom ?? 0} />
+              <input name='marginBottom' type='number' value={getResponsiveValue(marginBottom, deviceType) ?? 0} />
             </ChangeElement>
           </div>
         </SpacingBox>
@@ -363,6 +430,7 @@ export function SpacingSettings() {
 }
 
 function GridSettings() {
+  const deviceType = useAppSelector((state) => state.editor.deviceType);
   const { columns, rows, columnWidth, rowHeight, columnGap, rowGap } = useAppSelector(
     (state) => state.selection.present.selectedElement
   ) as GridElement;
@@ -374,13 +442,18 @@ function GridSettings() {
           <div>
             <SubTitle>Columns</SubTitle>
             <ChangeElement>
-              <Select name='columns' editable defaultSelect={columns} options={OPTIONS_COLUMN} />
+              <Select
+                name='columns'
+                editable
+                defaultSelect={getResponsiveValue(columns, deviceType)}
+                options={OPTIONS_COLUMN}
+              />
             </ChangeElement>
           </div>
           <div>
             <SubTitle>Rows</SubTitle>
             <ChangeElement>
-              <Select name='rows' editable defaultSelect={rows} options={OPTIONS_ROW} />
+              <Select name='rows' editable defaultSelect={getResponsiveValue(rows, deviceType)} options={OPTIONS_ROW} />
             </ChangeElement>
           </div>
           <div>
@@ -390,7 +463,7 @@ function GridSettings() {
                 name='columnWidth'
                 editable
                 editInputType='text'
-                defaultSelect={columnWidth}
+                defaultSelect={getResponsiveValue(columnWidth, deviceType)}
                 options={OPTIONS_COLUMN_WIDTH}
               />
             </ChangeElement>
@@ -402,7 +475,7 @@ function GridSettings() {
                 name='rowHeight'
                 editable
                 editInputType='text'
-                defaultSelect={rowHeight}
+                defaultSelect={getResponsiveValue(rowHeight, deviceType)}
                 options={OPTIONS_ROW_HEIGHT}
               />
             </ChangeElement>
@@ -414,7 +487,7 @@ function GridSettings() {
                 name='columnGap'
                 editable
                 editInputType='text'
-                defaultSelect={columnGap}
+                defaultSelect={getResponsiveValue(columnGap, deviceType)}
                 options={OPTIONS_COLUMN_GAP}
               />
             </ChangeElement>
@@ -422,7 +495,13 @@ function GridSettings() {
           <div>
             <SubTitle>Gap Y</SubTitle>
             <ChangeElement>
-              <Select name='rowGap' editable editInputType='text' defaultSelect={rowGap} options={OPTIONS_ROW_GAP} />
+              <Select
+                name='rowGap'
+                editable
+                editInputType='text'
+                defaultSelect={getResponsiveValue(rowGap, deviceType)}
+                options={OPTIONS_ROW_GAP}
+              />
             </ChangeElement>
           </div>
         </GridContainer>
@@ -432,14 +511,14 @@ function GridSettings() {
 }
 
 function LinkSettings() {
-  const selection = useAppSelector((state) => state.selection.present.selectedElement) as LinkElement;
+  const selectedElement = useAppSelector((state) => state.selection.present.selectedElement) as LinkElement;
 
   return (
     <div>
       <CollapsibleSection title='Link' open={true}>
         <div>
           <ChangeElement>
-            <Input name='link' type='text' defaultValue={selection.link} placeholder='https://example.com' />
+            <Input name='link' type='text' defaultValue={selectedElement.link} placeholder='https://example.com' />
           </ChangeElement>
         </div>
       </CollapsibleSection>
@@ -473,8 +552,13 @@ function InputSettings() {
 }
 
 function TypographySettings() {
-  const selection = useAppSelector((state) => state.selection.present.selectedElement);
+  const selectedElement = useAppSelector((state) => state.selection.present.selectedElement);
+  const deviceType = useAppSelector((state) => state.editor.deviceType);
   const { handleElementChange } = useSettingsContext();
+
+  if (selectedElement.name === ElementsName.Image) {
+    return null;
+  }
 
   return (
     <TypographyContainer>
@@ -482,7 +566,7 @@ function TypographySettings() {
         <div>
           <SubTitle>Font Family</SubTitle>
           <ChangeElement>
-            <Select name='fontFamily' defaultSelect={selection.fontFamily} options={OPTIONS_FONT} />
+            <Select name='fontFamily' defaultSelect={selectedElement.fontFamily} options={OPTIONS_FONT} />
           </ChangeElement>
         </div>
         <GridContainer>
@@ -491,7 +575,7 @@ function TypographySettings() {
             <ChangeElement>
               <Select
                 name='fontWeight'
-                defaultSelect={selection.fontWeight}
+                defaultSelect={selectedElement.fontWeight}
                 options={Object.keys(FONT_WEIGHT_VALUES)}
               />
             </ChangeElement>
@@ -503,7 +587,7 @@ function TypographySettings() {
                 name='fontSize'
                 editable
                 editInputType='text'
-                defaultSelect={selection.fontSize}
+                defaultSelect={getResponsiveValue(selectedElement.fontSize, deviceType)}
                 options={OPTIONS_FONT_SIZE}
               />
             </ChangeElement>
@@ -513,13 +597,13 @@ function TypographySettings() {
           <div>
             <SubTitle>Color</SubTitle>
             <ChangeElement>
-              <ColorPicker name='color' defaultValue={selection.color} />
+              <ColorPicker name='color' defaultValue={selectedElement.color} />
             </ChangeElement>
           </div>
           <div>
             <SubTitle>Fill</SubTitle>
             <ChangeElement>
-              <ColorPicker name='backgroundColor' defaultValue={selection.backgroundColor} />
+              <ColorPicker name='backgroundColor' defaultValue={selectedElement.backgroundColor} />
             </ChangeElement>
           </div>
         </GridContainer>
@@ -538,25 +622,27 @@ function TypographySettings() {
 }
 
 function StrokeSettings() {
-  const { handleElementChange } = useSettingsContext();
   const {
     borderTop,
     borderRight,
     borderBottom,
     borderLeft,
+    borderRadius = DEFAULT_BORDER_RADIUS,
     borderColor = DEFAULT_BORDER_COLOR,
     borderWidth = DEFAULT_BORDER_WIDTH
   } = useAppSelector((state) => state.selection.present.selectedElement);
+  const { handleElementChange } = useSettingsContext();
 
   const borders = { borderTop, borderRight, borderBottom, borderLeft };
 
-  function toggleBorder(side, value) {
-    const currentBorderValue = borders[side];
+  function toggleBorder(side: 'Top' | 'Right' | 'Bottom' | 'Left', value: string) {
+    const border = `border${side}`;
+    const currentBorderValue = borders[border as keyof typeof borders];
 
-    if (currentBorderValue === 'none' || !currentBorderValue) {
-      handleElementChange(side, value);
+    if (currentBorderValue?.includes('none') || !currentBorderValue) {
+      handleElementChange(border, value);
     } else {
-      handleElementChange(side, 'none');
+      handleElementChange(border, 'none');
     }
   }
 
@@ -574,7 +660,7 @@ function StrokeSettings() {
             </ChangeElement>
           </div>
           <StrokeWidthContainer>
-            <StrokeLabel>Stroke Width</StrokeLabel>
+            <StrokeLabel>Width</StrokeLabel>
             <ChangeElement>
               <Input
                 name='borderWidth'
@@ -584,14 +670,24 @@ function StrokeSettings() {
               />
             </ChangeElement>
           </StrokeWidthContainer>
+          <StrokeWidthContainer>
+            <StrokeLabel>Radius</StrokeLabel>
+            <ChangeElement>
+              <Input
+                name='borderRadius'
+                type='number'
+                defaultValue={borderRadius}
+                onChange={(event) => handleElementChange('borderRadius', event.target.value)}
+              />
+            </ChangeElement>
+          </StrokeWidthContainer>
           <StrokePosition>
             {BORDER_SIDES.map(({ side, icon }) => (
               <BorderButton
                 key={side}
-                onClick={() => toggleBorder(`border${side}`, `${borderWidth}px solid ${borderColor}`)}
-                $active={borders[`border${side}`] !== 'none' && borders[`border${side}`] !== undefined}
+                onClick={() => toggleBorder(side, `${borderWidth}px solid ${borderColor}`)}
+                $active={!borders[`border${side}`]?.includes('none') && borders[`border${side}`] !== undefined}
               >
-                <span>{side}</span>
                 <Icon icon={icon} size='sm' />
               </BorderButton>
             ))}
@@ -602,23 +698,74 @@ function StrokeSettings() {
   );
 }
 
-const getSynchronizedGridUpdates = (propName: string, selection: GridElement) => {
+function PageSettings() {
+  const { iframeConnection } = useIframeContext();
+  const backgroundColor = useAppSelector((state) => state.page.backgroundColor);
+
+  return (
+    <div>
+      <CollapsibleSection title='Page'>
+        <SubTitle>Background Color</SubTitle>
+        <div>
+          <div>
+            <ColorPicker
+              name='pageBackground'
+              defaultValue={backgroundColor}
+              onChange={(event) => {
+                iframeConnection.updatePage({ backgroundColor: event.target.value });
+              }}
+            />
+          </div>
+        </div>
+      </CollapsibleSection>
+    </div>
+  );
+}
+
+const getSynchronizedGridUpdates = (propName: string, selectedElement: GridElement, deviceType: DeviceType) => {
   const updates = {} as any;
 
   if (propName === 'columnWidth') {
-    updates.columns = selection.columns;
+    updates.columns = selectedElement.columns[deviceType];
   }
 
   if (propName === 'columns') {
-    updates.columnWidth = selection.columnWidth;
+    updates.columnWidth = selectedElement.columnWidth[deviceType];
   }
 
   if (propName === 'rowHeight') {
-    updates.rows = selection.rows;
+    updates.rows = selectedElement.rows[deviceType];
   }
 
   if (propName === 'rows') {
-    updates.rowHeight = selection.rowHeight;
+    updates.rowHeight = selectedElement.rowHeight[deviceType];
+  }
+
+  return updates;
+};
+
+const parseNumber = (value: number | string | undefined) => {
+  if (!value || typeof value === 'string') return value;
+
+  return Number(value.toFixed(0));
+};
+
+const getSynchronizedTransform = (name: string, selectedElement: PageElement, deviceType: DeviceType) => {
+  const updates: any = {};
+
+  if (name === 'left') {
+    updates.top = selectedElement.top[deviceType];
+    updates.rotate = selectedElement.rotate?.[deviceType] || 0;
+  }
+
+  if (name === 'top') {
+    updates.left = selectedElement.left[deviceType];
+    updates.rotate = selectedElement.rotate?.[deviceType] || 0;
+  }
+
+  if (name === 'rotate') {
+    updates.left = selectedElement.left[deviceType];
+    updates.top = selectedElement.top[deviceType];
   }
 
   return updates;
@@ -644,7 +791,7 @@ const SubTitle = styled.label`
 const StrokeWidthContainer = styled.div`
   position: relative;
 
-  Input {
+  input {
     padding-left: 1.2rem;
     width: 100%;
   }
@@ -674,7 +821,10 @@ const BorderButton = styled.div<{ $active?: boolean }>`
   align-items: center;
   cursor: pointer;
   font-size: 1.2rem;
-  color: ${({ $active }) => ($active ? 'var(--color-black-light)' : 'var(--color-gray)')};
+
+  svg {
+    color: ${({ $active }) => ($active ? 'var(--color-black-light)' : 'var(--color-gray)')};
+  }
 `;
 
 const SelectorContainer = styled.div`
@@ -819,13 +969,16 @@ const AlignButton = styled.button<{ $active?: boolean }>`
   background: none;
   border: none;
   cursor: pointer;
-  color: ${({ $active }) => ($active ? 'var(--color-primary)' : 'var(--color-gray)')};
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0.4rem;
   border-radius: 0.4rem;
   transition: background-color 0.2s;
+
+  svg {
+    color: ${({ $active }) => ($active ? 'var(--color-primary)' : 'var(--color-gray)')};
+  }
 
   &:hover {
     background-color: var(--color-white-dark);

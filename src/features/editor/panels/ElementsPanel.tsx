@@ -14,13 +14,19 @@ import { useImageUpload } from '../hooks/useImageUpload';
 import { addImage } from '../slices/editorSlice';
 
 /**
+ * Constants
+ */
+
+const ACCEPTED_FILE_TYPE = 'image/*';
+
+/**
  * Component definition
  */
 
 export default function ElementsPanel() {
   const dispatch = useDispatch();
-  const selection = useAppSelector((state) => state.selection.present.selectedElement);
   const { iframeConnection } = useIframeContext();
+  const selectedElement = useAppSelector((state) => state.selection.present.selectedElement);
 
   const handleImageUpload = useImageUpload(
     (result) => {
@@ -30,7 +36,7 @@ export default function ElementsPanel() {
     (message) => toast.error(message)
   );
 
-  const { input, openFilePicker } = useFilePicker({ accept: 'image/*', onSelect: handleImageUpload });
+  const { input, openFilePicker } = useFilePicker({ accept: ACCEPTED_FILE_TYPE, onSelect: handleImageUpload });
 
   const handleSearchElement = (event: InputChangeEvent) => {
     const id = event.target.value;
@@ -53,7 +59,7 @@ export default function ElementsPanel() {
       </div>
       <div>
         <CollapsibleSection title='Layout' open={true}>
-          <PanelList $disabled={selection.name === 'grid' || selection.name === 'list'}>
+          <PanelList $disabled={selectedElement.name === 'grid' || selectedElement.name === 'list'}>
             <LayoutItem data-grid-active>
               <PanelBox onClick={() => handleAddElement('section')}>
                 <span>&nbsp;</span>
@@ -84,7 +90,7 @@ export default function ElementsPanel() {
               </PanelBox>
               <span>List</span>
             </LayoutItem>
-            <LayoutItem $disabled={selection.name !== 'grid'} data-grid-active>
+            <LayoutItem $disabled={selectedElement.name !== 'grid'} data-grid-active>
               <PanelBox onClick={() => handleAddElement('gridItem')}>
                 <span>&nbsp;</span>
                 <span>&nbsp;</span>
@@ -93,7 +99,7 @@ export default function ElementsPanel() {
               </PanelBox>
               <span>Grid Item</span>
             </LayoutItem>
-            <LayoutItem $disabled={selection.name !== 'list'} data-list-active>
+            <LayoutItem $disabled={selectedElement.name !== 'list'} data-list-active>
               <PanelBox onClick={() => handleAddElement('listItem')}>
                 <span>&nbsp;</span>
                 <span>&nbsp;</span>
@@ -107,7 +113,7 @@ export default function ElementsPanel() {
 
       <div>
         <CollapsibleSection title='Text' open={true}>
-          <PanelList $disabled={selection.name === 'grid' || selection.name === 'list'}>
+          <PanelList $disabled={selectedElement.name === 'grid' || selectedElement.name === 'list'}>
             <TextItem onClick={() => handleAddElement('heading')}>
               <PanelBox>H</PanelBox>
               <span>Heading</span>
@@ -138,7 +144,7 @@ export default function ElementsPanel() {
 
       <div>
         <CollapsibleSection title='Media'>
-          <PanelList $disabled={selection.name === 'grid'}>
+          <PanelList $disabled={selectedElement.name === 'grid'}>
             <MediaItem>
               <PanelBox onClick={openFilePicker}>
                 <Icon icon={LuImage} />

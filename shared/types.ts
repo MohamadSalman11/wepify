@@ -1,18 +1,27 @@
 import type { ChangeEvent, InputHTMLAttributes } from 'react';
 
+export type DeviceType = 'monitor' | 'laptop' | 'tablet' | 'smartphone';
+
 export type InputChangeEvent = ChangeEvent<HTMLInputElement>;
+
+type Responsive<T> = Partial<{
+  monitor: T;
+  laptop: T;
+  tablet: T;
+  smartphone: T;
+}>;
 
 export interface BaseElement {
   id: string;
   tag: string;
   name: string;
-  width?: number | 'screen' | 'fill' | 'fit';
-  height?: number | 'screen' | 'fill' | 'fit';
-  left: number;
-  top: number;
+  width?: Responsive<number | 'fill' | 'fit'>;
+  height?: Responsive<number | 'fill' | 'fit'>;
+  left: Responsive<number>;
+  top: Responsive<number>;
   color: string;
   backgroundColor: string;
-  fontSize: number | 'Inherit';
+  fontSize: Responsive<number | 'Inherit'>;
   fontFamily: string;
   fontWeight:
     | 'Inherit'
@@ -25,20 +34,20 @@ export interface BaseElement {
     | 'Bold'
     | 'ExtraBold'
     | 'Black';
-  rotate?: number;
-  scaleY?: number;
-  scaleX?: number;
-  textAlign?: string;
-  justifyContent?: string;
-  alignItems?: string;
-  paddingTop?: number;
-  paddingRight?: number;
-  paddingBottom?: number;
-  paddingLeft?: number;
-  marginTop?: number;
-  marginRight?: number;
-  marginBottom?: number;
-  marginLeft?: number;
+  rotate?: Responsive<number>;
+  scaleY?: Responsive<number>;
+  scaleX?: Responsive<number>;
+  textAlign?: Responsive<string>;
+  justifyContent?: Responsive<string>;
+  alignItems?: Responsive<string>;
+  paddingTop?: Responsive<number>;
+  paddingRight?: Responsive<number>;
+  paddingBottom?: Responsive<number>;
+  paddingLeft?: Responsive<number>;
+  marginTop?: Responsive<number>;
+  marginRight?: Responsive<number>;
+  marginBottom?: Responsive<number>;
+  marginLeft?: Responsive<number>;
   content?: string;
   borderWidth?: number;
   borderColor?: string;
@@ -46,17 +55,19 @@ export interface BaseElement {
   borderRight?: string;
   borderBottom?: string;
   borderLeft?: string;
+  borderRadius?: number;
+  zIndex?: number;
   children?: BaseElement[];
 }
 
 export interface GridElement extends BaseElement {
   display: 'grid';
-  columnGap: number;
-  rowGap: number;
-  columnWidth: number | 'auto';
-  rowHeight: number | 'auto';
-  columns: number;
-  rows: number;
+  columnGap: Responsive<number>;
+  rowGap: Responsive<number>;
+  columnWidth: Responsive<number | 'auto'>;
+  rowHeight: Responsive<number | 'auto'>;
+  columns: Responsive<number>;
+  rows: Responsive<number>;
 }
 
 export interface LinkElement extends BaseElement {
@@ -104,7 +115,9 @@ export enum MessageFromIframe {
   ElementUpdated = 'ELEMENT_UPDATED',
   ElementInserted = 'ELEMENT_INSERTED',
   ElementDeleted = 'ELEMENT_DELETED',
-  SiteDownloaded = 'SITE_DOWNLOADED'
+  SiteDownloaded = 'SITE_DOWNLOADED',
+  BreakpointChanged = 'BREAKPOINT_CHANGED',
+  PageUpdated = 'PAGE_UPDATED'
 }
 
 export enum MessageToIframe {
@@ -114,14 +127,36 @@ export enum MessageToIframe {
   DeleteElement = 'DELETE_ELEMENT',
   ChangeSelection = 'CHANGE_SELECTION',
   SearchElement = 'SEARCH_ELEMENT',
-  ViewPortChanged = 'VIEW_PORT_CHANGED',
-  DownloadSite = 'DOWNLOAD_SITE'
+  DownloadSite = 'DOWNLOAD_SITE',
+  UpdatePage = 'UPDATE_PAGE'
 }
+
+export type MessageToIframePayloadMap = {
+  [MessageToIframe.RenderElements]: {
+    elements: PageElement[];
+    isPreview: boolean;
+    deviceType: DeviceType;
+    scaleFactor: number;
+    backgroundColor: string;
+  };
+  [MessageToIframe.UpdateElement]: { updates: Partial<PageElement> };
+  [MessageToIframe.UpdatePage]: { updates: { backgroundColor: string } };
+  [MessageToIframe.InsertElement]: { name: string; additionalProps?: Record<string, any> };
+  [MessageToIframe.DeleteElement]: undefined;
+  [MessageToIframe.ChangeSelection]: string;
+  [MessageToIframe.SearchElement]: string;
+  [MessageToIframe.DownloadSite]: { site: Site; shouldMinify: boolean };
+};
 
 export type MessageFromIframeData =
   | { type: MessageFromIframe.IframeReady }
-  | { type: MessageFromIframe.SelectionChanged; payload: PageElement }
-  | { type: MessageFromIframe.ElementUpdated; payload: { id: string; fields: Partial<PageElement> } }
-  | { type: MessageFromIframe.ElementInserted; payload: { parentId: string; element: PageElement } }
+  | { type: MessageFromIframe.SelectionChanged; payload: Partial<PageElement> }
+  | {
+      type: MessageFromIframe.ElementUpdated;
+      payload: { id: string; fields: Partial<PageElement> };
+    }
+  | { type: MessageFromIframe.ElementInserted; payload: { parentId: string; element: Partial<PageElement> } }
   | { type: MessageFromIframe.ElementDeleted; payload: { targetId: string; parentId: string } }
-  | { type: MessageFromIframe.SiteDownloaded };
+  | { type: MessageFromIframe.SiteDownloaded }
+  | { type: MessageFromIframe.BreakpointChanged; payload: { newDeviceType: DeviceType } }
+  | { type: MessageFromIframe.PageUpdated; payload: { updates: Record<string, any> } };

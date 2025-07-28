@@ -1,28 +1,39 @@
-import { ElementNames, Tags, TAGS_WITHOUT_CHILDREN } from '@shared/constants';
-import { MessageFromIframe, MessageToIframe, type PageElement, type Site } from '@shared/types';
-import JSZip from 'jszip';
-import Moveable, { type OnDrag, type OnResize } from 'moveable';
-import cssFile from '../style.css?raw';
+import { ElementsName, RESPONSIVE_PROPS, TAGS_WITHOUT_CHILDREN } from '@shared/constants';
+import {
+  DeviceType,
+  MessageFromIframe,
+  MessageToIframe,
+  MessageToIframePayloadMap,
+  Site,
+  type PageElement
+} from '@shared/types';
+import Moveable, { OnRotate, type OnDrag, type OnResize } from 'moveable';
 import { createDomTree } from './compiler/dom/createDomTree';
 import { domToPageElement } from './compiler/dom/domToPageElement';
 import { generateInlineStyles } from './compiler/dom/generateInlineStyles';
-import { minifyCSS } from './compiler/minifyCSS';
-import { cleanUpHTML, minifyHTML } from './compiler/minifyHTML';
 import { MOVEABLE_CONFIG } from './config';
 import { SELECTOR_TARGET } from './constants';
-import { changeTarget, getMoveableInstance, getTarget, state, updateElement } from './model';
+import { changeTarget, getMoveableInstance, getTarget, state } from './model';
+import SiteExporter from './SiteExporter';
 import { adjustGridColumnsIfNeeded } from './utils/adjustGridColumnsIfNeeded';
 import { createNewElement } from './utils/createNewElement';
-import { downloadBlob } from './utils/downloadBlob';
+import { extractTransform } from './utils/extractTransform';
+import { getScreenBreakpoint } from './utils/getScreenBreakpoint';
+import { getVerticalBorderSum } from './utils/getVerticalBorderSum';
 import { postMessageToApp } from './utils/postMessageToApp';
+import { wrapUpdatesWithBreakpoint } from './utils/wrapUpdatesWithBreakpoint';
 import {
   insertDragButton,
   insertElement,
   positionDragButton,
   renderElements,
-  SELECTION_DRAG_BUTTON,
+  SELECTOR_DRAG_BUTTON,
   updateTargetStyle
 } from './view';
+
+/**
+ * Constants
+ */
 
 const SELECTOR_SECTION = 'section';
 const SELECTOR_CLOSEST_SECTION = "[id^='section-']";
@@ -30,91 +41,64 @@ const SELECTOR_ACTIVE_ITEM = '[class*="select-item"]';
 const SELECTOR_ACTIVE_SECTION = '[class*="select-section"]';
 const ID_FIRST_SECTION = 'section-1';
 const SELECTOR_FIRST_SECTION = `#${ID_FIRST_SECTION}`;
+const SELECTOR_CONTEXT_MENU = '#context-menu';
 const CLASS_SELECTED_ITEM = 'select-item';
 const CLASS_SELECTED_SECTION = 'select-section';
 const NOT_MOVEABLE_ELEMENTS = new Set(['section', 'item']);
 const FOCUSABLE_ELEMENTS = new Set(['LI', 'SPAN', 'P', 'A', 'BUTTON', 'INPUT']);
-const SITE_JSON_WARNING = `⚠️ Do NOT modify any fields in this file manually, it will break the application. Upload it and edit in the app`;
 
-enum FileNames {
-  IndexPage = 'index.html',
-  StyleCSS = 'style.css',
-  SiteJson = 'site.json',
-  ZipDownload = 'website.zip'
+const CSS_FILE_MOVEABLE = 'moveable.css';
+
+enum ContextMenuActions {
+  Copy = 'copy',
+  Paste = 'paste',
+  BringToFront = 'bring-to-front',
+  SendToBack = 'send-to-back',
+  Delete = 'delete'
 }
 
-const iframeMessageHandlers: Record<MessageToIframe, (payload: any) => void> = {
-  [MessageToIframe.RenderElements]: (payload) => controlRenderElements(payload.elements, payload.isPreview),
+const iframeMessageHandlers: {
+  [K in MessageToIframe]: (payload: MessageToIframePayloadMap[K]) => void;
+} = {
+  [MessageToIframe.RenderElements]: (payload) =>
+    controlRenderElements(
+      payload.elements,
+      payload.isPreview,
+      payload.deviceType,
+      payload.scaleFactor,
+      payload.backgroundColor
+    ),
   [MessageToIframe.UpdateElement]: (payload) => controlUpdateElement(payload.updates),
-  [MessageToIframe.InsertElement]: (payload) => controlInsertElement(payload.name, payload.additionalProps),
+  [MessageToIframe.UpdatePage]: (payload) => controlUpdatePage(payload.updates),
+  [MessageToIframe.InsertElement]: (payload) =>
+    controlInsertElement({ name: payload.name, additionalProps: payload.additionalProps }),
   [MessageToIframe.DeleteElement]: () => controlDeleteElement(),
   [MessageToIframe.ChangeSelection]: (payload) => controlSelectionChanged(payload),
   [MessageToIframe.SearchElement]: (payload) => controlSearchElement(payload),
-  [MessageToIframe.ViewPortChanged]: (payload) => controlViewPortChanged(payload),
   [MessageToIframe.DownloadSite]: (payload) => controlDownloadZip(payload.site, payload.shouldMinify)
 };
 
-export async function controlDownloadZip(site: Site, shouldMinify: boolean) {
-  const zip = new JSZip();
-  let imageCount = 0;
+const contextMenu = document.querySelector(SELECTOR_CONTEXT_MENU) as HTMLUListElement;
 
-  zip.file(FileNames.StyleCSS, shouldMinify ? minifyCSS(cssFile) : cssFile);
+/**
+ * Controller functions
+ */
 
-  for (const page of site.pages) {
-    const doc = document.implementation.createHTMLDocument(page.name);
-    doc.head.innerHTML = document.head.innerHTML;
-    doc.title = page.title || page.name;
-
-    renderElements(page.elements, doc);
-
-    const images = doc.querySelectorAll('img[src^="data:image"]');
-    images.forEach((img) => {
-      const src = img.src;
-      const ext = src.substring(src.indexOf('/') + 1, src.indexOf(';'));
-      const base64 = src.split(',')[1];
-      const fileName = `image_${++imageCount}.${ext}`;
-      zip.file(`images/${fileName}`, base64, { base64: true });
-      img.src = `images/${fileName}`;
-    });
-
-    const html = shouldMinify
-      ? await minifyHTML(doc.documentElement.outerHTML)
-      : await cleanUpHTML(doc.documentElement.outerHTML);
-
-    const fileName = page.isIndex ? FileNames.IndexPage : `${page.name.toLowerCase().replace(/\s+/g, '_')}.html`;
-
-    zip.file(fileName, html);
-  }
-
-  zip.file(FileNames.SiteJson, JSON.stringify({ __WARNING__: SITE_JSON_WARNING, ...site }, null, 2));
-
-  const content = await zip.generateAsync({ type: 'blob' });
-  downloadBlob(content, FileNames.ZipDownload);
-
-  postMessageToApp({ type: MessageFromIframe.SiteDownloaded });
-}
-
-const controlViewPortChanged = (scaleFactor: number) => {
+const controlRenderElements = (
+  elements: PageElement[],
+  isPreview: boolean,
+  deviceType: DeviceType,
+  scaleFactor: number,
+  backgroundColor: string
+) => {
+  state.isSitePreviewMode = isPreview;
+  state.deviceType = deviceType;
   state.scaleFactor = scaleFactor;
 
-  getTarget().closest(SELECTOR_CLOSEST_SECTION)?.click();
-};
-
-const controlUpdateElement = (updates: Partial<PageElement>) => {
-  if (Object.keys(updates).length === 0) return;
-  const target = getTarget();
-
-  updateElement(updates, generateInlineStyles(updates));
-  getMoveableInstance().updateRect();
-  positionDragButton(getTarget().clientHeight, state.scaleFactor);
-
-  postMessageToApp({ type: MessageFromIframe.ElementUpdated, payload: { id: target.id, fields: updates } });
-};
-
-const controlRenderElements = (elements: PageElement[], isPreview: boolean) => {
   renderElements(elements);
+  controlUpdatePage({ backgroundColor });
 
-  const linkHref = './moveable.css';
+  const linkHref = `./${CSS_FILE_MOVEABLE}`;
   const existingLink = document.querySelector(`link[href="${linkHref}"]`);
 
   if (isPreview) {
@@ -125,7 +109,6 @@ const controlRenderElements = (elements: PageElement[], isPreview: boolean) => {
     link.href = linkHref;
     document.head.append(link);
   }
-  state.isSitePreviewMode = isPreview;
 
   if (state.moveable) {
     state.moveable.target = null;
@@ -135,18 +118,77 @@ const controlRenderElements = (elements: PageElement[], isPreview: boolean) => {
 
   const target = document.querySelector(SELECTOR_SECTION);
 
-  target?.classList.add(CLASS_SELECTED_SECTION);
-  changeTarget(target, ElementNames.Section);
-  initializeMoveable();
-  insertDragButton();
-  getMoveableInstance().dragTarget = document.querySelector(SELECTION_DRAG_BUTTON) as SVGAElement;
+  if (!target) return;
+
+  target.classList.add(CLASS_SELECTED_SECTION);
+  target.click();
+  changeTarget(target, ElementsName.Section);
+
+  if (state.initRender) {
+    initializeMoveable();
+    insertDragButton();
+    state.initRender = false;
+  } else {
+    maybeSetMoveableGuidelines();
+  }
+
+  getMoveableInstance().dragTarget = document.querySelector(SELECTOR_DRAG_BUTTON) as SVGAElement;
 };
 
-const controlInsertElement = (name: string, additionalProps?: Record<string, any>) => {
-  const newElement = createNewElement(name, additionalProps);
-  const elementNode = createDomTree(newElement);
+const controlUpdateElement = (updates: Partial<PageElement>) => {
+  if (Object.keys(updates).length === 0) return;
+
+  const target = getTarget();
+  const { link, type, placeholder } = updates as Record<string, any>;
+
+  const styles = generateInlineStyles(
+    RESPONSIVE_PROPS.has(Object.keys(updates)[0]) ? wrapUpdatesWithBreakpoint(updates) : updates,
+    true
+  );
+
+  if (link && target instanceof HTMLAnchorElement) target.href = link;
+  if (type && target instanceof HTMLInputElement) target.type = type;
+  if (placeholder && target instanceof HTMLInputElement) target.placeholder = placeholder;
+
+  Object.assign(target.style, styles);
+
+  getMoveableInstance().updateRect();
+  positionDragButton(target.clientHeight, state.scaleFactor, getVerticalBorderSum(target));
+
+  postMessageToApp({
+    type: MessageFromIframe.ElementUpdated,
+    payload: {
+      id: target.id,
+      fields: RESPONSIVE_PROPS.has(Object.keys(updates)[0]) ? wrapUpdatesWithBreakpoint(updates) : updates
+    }
+  });
+};
+
+const controlUpdatePage = (updates: { backgroundColor: string }) => {
+  const body = document.querySelector('body');
+
+  if (!body) {
+    return;
+  }
+
+  Object.assign(body.style, updates);
+
+  postMessageToApp({ type: MessageFromIframe.PageUpdated, payload: { updates } });
+};
+
+const controlInsertElement = ({
+  name,
+  additionalProps,
+  elNode
+}: {
+  name?: string;
+  additionalProps?: Record<string, any>;
+  elNode?: HTMLElement;
+}) => {
   const target = getTarget();
   const moveableInstance = getMoveableInstance();
+  const newElement = elNode ? domToPageElement(elNode) : createNewElement(name as string, additionalProps);
+  const elementNode = elNode || createDomTree(newElement as PageElement);
   const canHaveNotChildren = TAGS_WITHOUT_CHILDREN.has(target.tagName.toLowerCase());
 
   if (canHaveNotChildren) {
@@ -155,11 +197,11 @@ const controlInsertElement = (name: string, additionalProps?: Record<string, any
     insertElement(elementNode, target);
   }
 
-  if (state.targetName === ElementNames.Grid) {
+  if (state.targetName === ElementsName.Grid) {
     adjustGridColumnsIfNeeded(target);
   }
 
-  if (newElement.name !== ElementNames.Item && newElement.name !== ElementNames.Image) {
+  if (newElement.name !== ElementsName.Item && newElement.name !== ElementsName.Image) {
     positionDragButton(elementNode.clientHeight, state.scaleFactor);
   }
 
@@ -178,10 +220,10 @@ const controlInsertElement = (name: string, additionalProps?: Record<string, any
 };
 
 const controlDeleteElement = () => {
-  const section = document.querySelector(SELECTOR_CLOSEST_SECTION) as HTMLElementTagNameMap['section'];
   const target = getTarget();
-  const parentId = target.parentElement?.id;
   const targetId = target.id;
+  const parentId = target.parentElement?.id;
+  const section = document.querySelector(SELECTOR_CLOSEST_SECTION) as HTMLElementTagNameMap['section'];
 
   if (!section || !parentId || !targetId || target.id === ID_FIRST_SECTION) return;
 
@@ -200,7 +242,7 @@ const controlSelectionChanged = (id: string) => {
   if (elementNode) {
     elementNode.scrollIntoView({ block: 'center' });
     elementNode.click();
-    positionDragButton(getTarget().clientHeight, state.scaleFactor);
+    positionDragButton(elementNode.clientHeight, state.scaleFactor, getVerticalBorderSum(elementNode));
     postMessageToApp({ type: MessageFromIframe.SelectionChanged, payload: domToPageElement(elementNode) });
   }
 };
@@ -218,14 +260,180 @@ const controlSearchElement = (id: string) => {
   });
 };
 
+export const controlDownloadZip = async (site: Site, shouldMinify: boolean) => {
+  const exporter = new SiteExporter(shouldMinify);
+  await exporter.exportSite(site);
+
+  postMessageToApp({ type: MessageFromIframe.SiteDownloaded });
+};
+
+const controlContextMenuActions = (event: any) => {
+  const action = event.target.closest('li').dataset.action;
+  const target = getTarget();
+
+  if (action === ContextMenuActions.Copy) {
+    state.lastCopiedElId = target.id;
+  }
+
+  if (action === ContextMenuActions.Paste) {
+    handleElementPaste();
+  }
+
+  if (action === ContextMenuActions.BringToFront || action === ContextMenuActions.SendToBack) {
+    handleBringToFrontOrSendToBack(target, action);
+  }
+
+  if (action === ContextMenuActions.Delete) {
+    controlDeleteElement();
+  }
+};
+
+const handleElementPaste = () => {
+  const originalEl = document.querySelector(`#${state.lastCopiedElId}`) as HTMLElement;
+  if (!originalEl) return;
+
+  const clonedEl = originalEl.cloneNode(true) as HTMLElement;
+  const obj: Record<string, number> = {};
+
+  const updateIdsRecursively = (el: HTMLElement) => {
+    const baseName = el.dataset.name;
+    if (!baseName) return;
+
+    obj[baseName] = (obj[baseName] ?? document.querySelectorAll(`[id^="${baseName}-"]`).length) + 1;
+
+    const newId = `${baseName}-${obj[baseName]}`;
+    el.id = newId;
+
+    for (const child of el.children) {
+      updateIdsRecursively(child as HTMLElement);
+    }
+  };
+
+  updateIdsRecursively(clonedEl);
+  controlInsertElement({ elNode: clonedEl });
+};
+
+const handleBringToFrontOrSendToBack = (target: HTMLElement, action: string) => {
+  const parentEl = target.parentElement;
+  if (!parentEl) return;
+
+  let extremeZ = action === ContextMenuActions.BringToFront ? 0 : 0;
+
+  for (const child of parentEl.children) {
+    const z = Number.parseInt(globalThis.getComputedStyle(child).zIndex || '0', 10);
+    if (!Number.isNaN(z)) {
+      extremeZ = action === ContextMenuActions.BringToFront ? Math.max(extremeZ, z) : Math.min(extremeZ, z);
+    }
+  }
+
+  const newZ = action === ContextMenuActions.BringToFront ? extremeZ + 1 : extremeZ - 1;
+  controlUpdateElement({ zIndex: newZ });
+};
+
+const controlIframeMessage = (event: MessageEvent) => {
+  const { type, payload } = event.data;
+  const handler = iframeMessageHandlers[type as MessageToIframe];
+  if (handler) handler(payload as never);
+};
+
+const controlDrag = (event: OnDrag) => {
+  const { target, transform } = event;
+  const { left, top } = extractTransform(transform) || {};
+
+  updateTargetStyle([['transform', transform]]);
+
+  if (!left || !top) return;
+
+  postMessageToApp({
+    type: MessageFromIframe.ElementUpdated,
+    payload: { id: target.id, fields: wrapUpdatesWithBreakpoint({ left, top }) }
+  });
+};
+
+const controlResize = (event: OnResize) => {
+  const { target, width, height } = event;
+  const w = target.clientWidth !== width;
+  const h = target.clientHeight !== height;
+
+  if (w) updateTargetStyle([['width', `${width}px`]]);
+  if (h) updateTargetStyle([['height', `${height}px`]]);
+  if (h) positionDragButton(height, state.scaleFactor);
+
+  const updates: any = {};
+  if (w) updates.width = width;
+  if (h) updates.height = height;
+
+  positionDragButton(height, state.scaleFactor, getVerticalBorderSum(target as HTMLElement));
+
+  if (w || h) {
+    postMessageToApp({
+      type: MessageFromIframe.ElementUpdated,
+      payload: { id: target.id, fields: wrapUpdatesWithBreakpoint(updates) }
+    });
+  }
+};
+
+const controlRotate = (event: OnRotate) => {
+  const { target, transform } = event;
+  const { rotation } = extractTransform(transform) || {};
+
+  updateTargetStyle([['transform', transform]]);
+
+  if (!rotation) return;
+
+  postMessageToApp({
+    type: MessageFromIframe.ElementUpdated,
+    payload: {
+      id: target.id,
+      fields: wrapUpdatesWithBreakpoint({ rotate: rotation })
+    }
+  });
+};
+
+const controlWindowResize = () => {
+  const currentBreakpoint = getScreenBreakpoint();
+
+  if (state.deviceType !== currentBreakpoint) {
+    state.deviceType = getScreenBreakpoint();
+    postMessageToApp({ type: MessageFromIframe.BreakpointChanged, payload: { newDeviceType: currentBreakpoint } });
+  }
+};
+
+const controlContextMenu = (event: MouseEvent) => {
+  event.preventDefault();
+
+  const iframeRoot = (event.target as Element).closest(SELECTOR_CLOSEST_SECTION);
+
+  if (state.isSitePreviewMode || !contextMenu || !iframeRoot) return;
+
+  contextMenu.style.top = `${event.clientY}px`;
+  contextMenu.style.left = `${event.clientX}px`;
+  contextMenu.style.display = 'block';
+};
+
+const controlDOMContentLoaded = () => {
+  postMessageToApp({ type: MessageFromIframe.IframeReady });
+};
+
 const controlDocumentClick = (event: MouseEvent) => {
+  if (contextMenu) {
+    contextMenu.style.display = 'none';
+  }
+
+  if ((event.target as Element)?.closest(SELECTOR_CONTEXT_MENU)) {
+    controlContextMenuActions(event);
+  }
+
   const target = (event.target as HTMLElement)?.closest(SELECTOR_TARGET) as HTMLElement;
 
   if (!target || state.isSitePreviewMode) return;
 
+  const targetName = target.id.split('-')[0];
+
   event.stopPropagation();
-  changeTarget(target, target.id.split('-')[0]);
-  positionDragButton(target.clientHeight, state.scaleFactor);
+  changeTarget(target, targetName);
+  positionDragButton(target.clientHeight, state.scaleFactor, getVerticalBorderSum(target));
+
   postMessageToApp({ type: MessageFromIframe.SelectionChanged, payload: domToPageElement(target) });
 
   if (!NOT_MOVEABLE_ELEMENTS.has(state.targetName || '')) {
@@ -235,11 +443,11 @@ const controlDocumentClick = (event: MouseEvent) => {
   const previousSelected = document.querySelector(SELECTOR_ACTIVE_ITEM);
   previousSelected?.classList.remove(CLASS_SELECTED_ITEM);
 
-  if (state.target && state.targetName === ElementNames.Item) {
+  if (state.target && state.targetName === ElementsName.Item) {
     state.target.classList.add(CLASS_SELECTED_ITEM);
   }
 
-  if (state.target && state.targetName === ElementNames.Section) {
+  if (state.target && state.targetName === ElementsName.Section) {
     document.querySelector(SELECTOR_ACTIVE_SECTION)?.classList.remove(CLASS_SELECTED_SECTION);
     state.target.classList.add(CLASS_SELECTED_SECTION);
   }
@@ -249,66 +457,26 @@ const controlDocumentClick = (event: MouseEvent) => {
   }
 };
 
-const controlIframeMessage = (event: MessageEvent) => {
-  const { type, payload } = event.data;
-  const handler = iframeMessageHandlers[type as MessageToIframe];
-  if (handler) handler(payload);
+const maybeSetMoveableGuidelines = () => {
+  if (!state.moveable) return;
+
+  state.moveable.elementGuidelines = [...document.querySelectorAll(SELECTOR_TARGET)];
+  state.moveable.horizontalGuidelines = [0, document.body.clientWidth / 2, document.body.clientWidth];
+  state.moveable.verticalGuidelines = [0, document.body.clientHeight / 2, document.body.clientHeight];
 };
 
-const controlDrag = (event: OnDrag) => {
-  const { target, left, top } = event;
-
-  updateTargetStyle([
-    ['left', `${left}px`],
-    ['top', `${top}px`]
-  ]);
-
-  postMessageToApp({ type: MessageFromIframe.ElementUpdated, payload: { id: target.id, fields: { left, top } } });
-};
-
-const controlResize = (event: OnResize) => {
-  const { target, width, height } = event;
-
-  const w = `${width}px`;
-  const h = `${height}px`;
-
-  if (target.tagName === Tags.Ul) {
-    updateTargetStyle([
-      ['minWidth', w],
-      ['minHeight', h]
-    ]);
-  } else {
-    updateTargetStyle([
-      ['width', w],
-      ['height', h]
-    ]);
-  }
-
-  positionDragButton(height, state.scaleFactor);
-  postMessageToApp({ type: MessageFromIframe.ElementUpdated, payload: { id: target.id, fields: { width, height } } });
-};
-
-function initializeMoveable() {
+const initializeMoveable = () => {
   const container = document.body;
-  const targets = document.querySelectorAll(SELECTOR_TARGET);
 
-  const containerWidth = container.clientWidth;
-  const containerHeight = container.clientHeight;
+  state.moveable = new Moveable(container, { ...MOVEABLE_CONFIG });
 
-  state.moveable = new Moveable(container, {
-    ...MOVEABLE_CONFIG,
-    elementGuidelines: [...targets],
-    verticalGuidelines: [0, containerWidth / 2, containerWidth],
-    horizontalGuidelines: [0, containerHeight / 2, containerHeight]
-  });
+  maybeSetMoveableGuidelines();
 
-  state.moveable.on('drag', controlDrag).on('resize', controlResize);
-}
-
-const controlDOMContentLoaded = async () => {
-  postMessageToApp({ type: MessageFromIframe.IframeReady });
+  state.moveable.on('drag', controlDrag).on('resize', controlResize).on('rotate', controlRotate);
 };
 
 document.addEventListener('click', controlDocumentClick);
 window.addEventListener('message', controlIframeMessage);
+window.addEventListener('resize', controlWindowResize);
+globalThis.addEventListener('contextmenu', controlContextMenu);
 document.addEventListener('DOMContentLoaded', controlDOMContentLoaded);

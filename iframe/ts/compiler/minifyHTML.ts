@@ -82,7 +82,8 @@ export const cleanUpHTML = async (html: string) => {
     })
     .replace(REGEX.MOVEABLE_CSS_LINK, '')
     .replace(REGEX.CONTENTEDITABLE, '')
-    .replace(REGEX.STYLED_COMPONENT, '');
+    .replace(REGEX.STYLED_COMPONENT, '')
+    .replace(REGEX.STYLE_INLINE, '');
 
   const options = {
     parser: PRETTIER_PARSER,
@@ -92,7 +93,6 @@ export const cleanUpHTML = async (html: string) => {
 
   return await prettier.format(cleanedHTML, options);
 };
-
 export const minifyHTML = async (html: string) => {
   const cleaned = await cleanUpHTML(html);
 

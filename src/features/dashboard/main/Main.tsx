@@ -15,8 +15,8 @@ const SEARCHBOX_EXCLUDE_PATHS = new Set([DashboardPath.Recent, DashboardPath.Sta
  */
 
 export default function Main() {
-  const { filters } = useAppSelector((state) => state.dashboard);
   const { pathname } = useLocation();
+  const { filters } = useAppSelector((state) => state.dashboard);
   const hasActiveFilters = Object.keys(filters).length > 0;
   const lastPathSegment = pathname.split('/').findLast((segment) => segment.length > 0) ?? '';
   const hideSearch = SEARCHBOX_EXCLUDE_PATHS.has(lastPathSegment as DashboardPath);

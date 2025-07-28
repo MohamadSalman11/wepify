@@ -26,7 +26,7 @@ const loadingDuration = getRandomDuration(2.5, 3.5);
 
 export default function Dashboard() {
   const dispatch = useDispatch();
-  const storageKey = useMemo(() => ['sites', 'site'], []);
+  const storageKey = useMemo(() => ['sites', 'site'], []) as StorageKey[];
   const { sites, isLoading } = useAppSelector((state) => state.dashboard);
 
   const onLoaded = useCallback(
@@ -40,7 +40,12 @@ export default function Dashboard() {
 
       if (data.site) {
         const i = updatedSites.findIndex((s) => s.id === data.site!.id);
-        i >= 0 ? (updatedSites[i] = data.site) : updatedSites.push(data.site);
+
+        if (i === -1) {
+          updatedSites.push(data.site);
+        } else {
+          updatedSites[i] = data.site;
+        }
       }
 
       await AppStorage.setItem(StorageKey.Site, null);

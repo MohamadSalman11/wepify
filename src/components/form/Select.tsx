@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { LuChevronDown } from 'react-icons/lu';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import useOutsideClick from '../../hooks/useOutsideClick';
 import Icon from '../Icon';
 
@@ -20,6 +20,7 @@ interface SelectProps {
   editInputType?: 'number' | 'text';
   options: (string | number)[];
   defaultSelect?: string | number;
+  disabled?: boolean;
   onChange?: (event: { target: { value: string | number; name: string } }) => void;
 }
 
@@ -28,16 +29,21 @@ interface SelectProps {
  */
 
 export default function Select({
-  options,
-  onChange,
-  defaultSelect = '',
   name,
   editable,
-  editInputType = DEFAULT_EDIT_INPUT_TYPE
+  editInputType = DEFAULT_EDIT_INPUT_TYPE,
+  options,
+  defaultSelect = '',
+  disabled = false,
+  onChange
 }: SelectProps) {
   const [selected, setSelected] = useState<string | number>(defaultSelect);
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useOutsideClick<HTMLDivElement>(() => setIsOpen(false));
+
+  useEffect(() => {
+    setSelected(defaultSelect ?? '');
+  }, [defaultSelect]);
 
   const handleSelect = (option: string | number) => {
     setSelected(option);
@@ -45,14 +51,10 @@ export default function Select({
     onChange?.({ target: { value: option, name } });
   };
 
-  useEffect(() => {
-    setSelected(defaultSelect ?? '');
-  }, [defaultSelect]);
-
   const toggleDropdown = () => setIsOpen((prev) => !prev);
 
   return (
-    <Wrapper ref={wrapperRef}>
+    <Wrapper ref={wrapperRef} $disabled={disabled}>
       <SelectButton
         aria-haspopup='listbox'
         aria-expanded={isOpen}
@@ -92,9 +94,17 @@ export default function Select({
  * Styles
  */
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ $disabled: boolean }>`
   position: relative;
   width: 100%;
+
+  ${(props) =>
+    props.$disabled &&
+    css`
+      & * {
+        cursor: not-allowed;
+      }
+    `}
 `;
 
 const SelectButton = styled.div<{ $clickable: boolean }>`

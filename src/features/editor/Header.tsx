@@ -1,6 +1,5 @@
 import { SCREEN_SIZES } from '@shared/constants';
 import type { Site } from '@shared/types';
-import { Tooltip } from 'radix-ui';
 import { useState } from 'react';
 import type { IconType } from 'react-icons';
 import {
@@ -26,7 +25,7 @@ import { EditorPath, StorageKey } from '../../constant';
 import { useIframeContext } from '../../context/IframeContext';
 import { useAppSelector } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
-import { setIsDownloadingSite, setIsLoading } from './slices/editorSlice';
+import { setDeviceType, setIsDownloadingSite, setIsLoading } from './slices/editorSlice';
 import { setScale, setSize } from './slices/pageSlice';
 
 /**
@@ -58,6 +57,19 @@ export default function Header() {
     dispatch(setIsDownloadingSite(true));
     const site = await AppStorage.getItem<Site>(StorageKey.Site);
     iframeConnection.downloadSite(site, shouldMinify);
+  }
+
+  function handleSitePreview() {
+    dispatch(
+      setScale(
+        calculateScaleToFit(
+          { width: originWidth, height: originHeight },
+          { width: SCREEN_SIZES.tablet.width, height: SCREEN_SIZES.tablet.height }
+        )
+      )
+    );
+    dispatch(setIsLoading(true));
+    navigate(EditorPath.Preview);
   }
 
   return (
@@ -97,55 +109,10 @@ export default function Header() {
         />
       </DevicePreviewControls>
       <EditorActions>
-        <Tooltip.Root>
-          <Tooltip.Trigger asChild>
-            <Icon onClick={() => dispatch(ActionCreators.undo())} icon={LuUndo2} />
-          </Tooltip.Trigger>
-          <Tooltip.Portal>
-            <Tooltip.Content className='TooltipContent' sideOffset={20}>
-              Undo
-              <Tooltip.Arrow className='TooltipArrow' />
-            </Tooltip.Content>
-          </Tooltip.Portal>
-        </Tooltip.Root>
-        <Tooltip.Root>
-          <Tooltip.Trigger asChild>
-            <Icon onClick={() => dispatch(ActionCreators.redo())} icon={LuRedo2} />
-          </Tooltip.Trigger>
-          <Tooltip.Portal>
-            <Tooltip.Content className='TooltipContent' sideOffset={20}>
-              Redo
-              <Tooltip.Arrow className='TooltipArrow' />
-            </Tooltip.Content>
-          </Tooltip.Portal>
-        </Tooltip.Root>
+        <Icon icon={LuUndo2} onClick={() => dispatch(ActionCreators.undo())} />
+        <Icon icon={LuRedo2} onClick={() => dispatch(ActionCreators.redo())} />
         <Divider rotate={90} width={30} />
-        <Tooltip.Root>
-          <Tooltip.Trigger asChild>
-            <Icon
-              onClick={() => {
-                dispatch(
-                  setScale(
-                    calculateScaleToFit(
-                      { width: originWidth, height: originHeight },
-                      { width: SCREEN_SIZES.tablet.width, height: SCREEN_SIZES.tablet.height }
-                    )
-                  )
-                );
-                dispatch(setIsLoading(true));
-                navigate(EditorPath.Preview, { replace: true });
-              }}
-              icon={LuEye}
-              hover={true}
-            />
-          </Tooltip.Trigger>
-          <Tooltip.Portal>
-            <Tooltip.Content className='TooltipContent' sideOffset={20}>
-              Preview Site
-              <Tooltip.Arrow className='TooltipArrow' />
-            </Tooltip.Content>
-          </Tooltip.Portal>
-        </Tooltip.Root>
+        <Icon icon={LuEye} hover={true} tooltipLabel='Preview Site' onClick={handleSitePreview} />
         <Divider rotate={90} width={30} />
         <Dropdown>
           <Dropdown.Open>
@@ -186,11 +153,8 @@ function DevicePreviewButton({
 }) {
   const dispatch = useDispatch();
   const { originWidth, originHeight } = useAppSelector((state) => state.page);
-  const { iframeConnection } = useIframeContext();
 
   const setCanvasSize = (size: Size, scaleFactor: number = 100) => {
-    iframeConnection.handleViewportChanged(scaleFactor);
-
     dispatch(setSize({ width: size.width, height: size.height }));
     dispatch(setScale(scaleFactor));
   };
@@ -198,32 +162,28 @@ function DevicePreviewButton({
   const handleClick = () => {
     const scaleVal = calculateScaleToFit({ width: originWidth, height: originHeight }, screenSize);
     setCanvasSize(screenSize, scaleVal);
+    dispatch(setDeviceType(deviceType));
     setActiveDevice(deviceType);
   };
 
   return (
-    <Tooltip.Root>
-      <Tooltip.Trigger asChild>
-        <StyledDevicePreviewButton $active={isActive} onClick={handleClick}>
-          <Icon icon={icon} />
-        </StyledDevicePreviewButton>
-      </Tooltip.Trigger>
-      <Tooltip.Portal>
-        <Tooltip.Content className='TooltipContent' sideOffset={10}>
-          {getTooltipLabel(deviceType)}
-          <Tooltip.Arrow className='TooltipArrow' />
-        </Tooltip.Content>
-      </Tooltip.Portal>
-    </Tooltip.Root>
+    <Icon
+      hover
+      isActive={isActive}
+      borderRadius='md'
+      icon={icon}
+      tooltipLabel={getTooltipLabel(deviceType)}
+      tooltipSideOffset={10}
+      onClick={handleClick}
+    />
   );
 }
 
 function calculateScaleToFit(originSize: Size, screenSize: Size) {
   if (screenSize.width > originSize.width) {
     const scaleX = originSize.width / screenSize.width;
-    const scaleY = originSize.height / screenSize.height;
-    const scale = Math.floor(Math.min(scaleX, scaleY) * 100);
-    return Math.max(scale, 10);
+    const scale = Math.floor(scaleX * 100);
+    return Math.max(scale, 1);
   }
 
   return 100;
@@ -286,19 +246,5 @@ const DesignInfo = styled.div`
     margin-top: 0.8rem;
     color: var(--color-gray);
     font-size: 1.2rem;
-  }
-`;
-
-const StyledDevicePreviewButton = styled.button<{ $active?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--border-radius-md);
-  padding: 0.8rem;
-  transition: var(--transition-base);
-  background-color: ${({ $active }) => ($active ? 'var(--color-white-3)' : 'transparent')};
-
-  &:hover {
-    background-color: var(--color-white-3);
   }
 `;

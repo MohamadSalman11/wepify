@@ -15,6 +15,28 @@
     <script type="module" src="./ts/controller.ts"></script>
   </head>
   <body>
-    <div id="iframe-root"></div>
+    <div id="iframe-root" data-iframe-root></div>
+    <ul class="context-menu" id="context-menu">
+      <li data-action="copy">
+        <img src="/clipboard-copy.svg" alt="Copy" />
+        Copy
+      </li>
+      <li data-action="paste">
+        <img src="/clipboard-paste.svg" alt="Paste" />
+        Paste
+      </li>
+      <li data-action="bring-to-front">
+        <img src="/bring-to-front.svg" alt="Bring to Front" />
+        Bring to Front
+      </li>
+      <li data-action="send-to-back">
+        <img src="/send-to-back.svg" alt="Send to Back" />
+        Send to Back
+      </li>
+      <li data-action="delete">
+        <img src="/trash.svg" alt="Delete" />
+        Delete
+      </li>
+    </ul>
   </body>
 </html>

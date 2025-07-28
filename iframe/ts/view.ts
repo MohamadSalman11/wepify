@@ -4,13 +4,16 @@ import { createDomTree } from './compiler/dom/createDomTree';
 import { getTarget } from './model';
 import moveIcon from '/move.png';
 
-const SELECTION_ROOT = '#iframe-root';
-const SELECTION_MOVEABLE_CONTROL = '.moveable-control';
-const SELECTION_DRAG_BUTTON_ID = 'dragTargetButton';
-export const SELECTION_DRAG_BUTTON = `#${SELECTION_DRAG_BUTTON_ID}`;
+const DRAG_BUTTON_OFFSET_X = -2;
+const DRAG_BUTTON_OFFSET_Y = 16;
+
+const SELECTOR_MOVEABLE_CONTROL = '.moveable-control';
+const SELECTOR_DRAG_BUTTON_ID = 'dragTargetButton';
+export const SELECTOR_ROOT = '#iframe-root';
+export const SELECTOR_DRAG_BUTTON = `#${SELECTOR_DRAG_BUTTON_ID}`;
 
 export const insertElement = (element: HTMLElement, parentElement: HTMLElement | null) => {
-  const rootElement = document.querySelector(SELECTION_ROOT);
+  const rootElement = document.querySelector(SELECTOR_ROOT);
 
   if (!parentElement) return;
 
@@ -22,7 +25,7 @@ export const insertElement = (element: HTMLElement, parentElement: HTMLElement |
 };
 
 export const renderElements = (elements: PageElement[], doc?: Document) => {
-  const container = doc ? doc.body : document.querySelector(SELECTION_ROOT);
+  const container = doc ? doc.body : document.querySelector(SELECTOR_ROOT);
 
   if (!container) return;
 
@@ -36,17 +39,17 @@ export const renderElements = (elements: PageElement[], doc?: Document) => {
 
 export const insertDragButton = () => {
   const img = document.createElement('img');
-  img.id = SELECTION_DRAG_BUTTON_ID;
+  img.id = SELECTOR_DRAG_BUTTON_ID;
   img.src = moveIcon;
-  document.querySelector(SELECTION_MOVEABLE_CONTROL)?.append(img);
+  document.querySelector(SELECTOR_MOVEABLE_CONTROL)?.append(img);
 };
 
-export const positionDragButton = (elementHeight: number, scaleFactor: number) => {
-  const dragButton = document.querySelector(SELECTION_DRAG_BUTTON) as HTMLImageElement;
+export const positionDragButton = (elementHeight: number, scaleFactor: number = 100, borderWidth?: number) => {
+  const dragButton = document.querySelector(SELECTOR_DRAG_BUTTON) as HTMLImageElement;
 
   if (dragButton) {
     const scale = scaleFactor === 100 ? 1 : scaleFactor / 100;
-    dragButton.style.transform = `translateZ(0px) translate(-2px, ${elementHeight * scale + 16}px)`;
+    dragButton.style.transform = `translateZ(0px) translate(${DRAG_BUTTON_OFFSET_X}px, ${elementHeight * scale + DRAG_BUTTON_OFFSET_Y + (borderWidth || 0)}px)`;
   }
 };
 

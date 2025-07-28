@@ -16,15 +16,8 @@ body {
   list-style-position: inside;
 }
 
-ul,
-ol {
-  max-width: fit-content;
-  max-height: fit-content;
-}
-
 li {
   padding: 4px;
-
   &:focus {
     outline: 1px solid #0d1116;
     border-radius: 4px;
@@ -33,6 +26,10 @@ li {
 
 input {
   outline: none;
+}
+
+input::placeholder {
+  color: currentColor;
 }
 
 span,

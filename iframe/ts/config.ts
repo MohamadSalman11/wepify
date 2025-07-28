@@ -25,5 +25,6 @@ export const MOVEABLE_CONFIG: MoveableProps = {
     bottom: true,
     center: true,
     middle: true
-  }
+  },
+  snapRotationDegrees: [0, 45, 90, 135, 180, 225, 270, 315]
 };

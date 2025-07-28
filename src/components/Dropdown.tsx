@@ -16,6 +16,10 @@ import styled from 'styled-components';
 import useOutsideClick from '../hooks/useOutsideClick';
 import Icon from './Icon';
 
+/**
+ * Constants
+ */
+
 const DEFAULT_TRANSLATE_X = 0;
 const DEFAULT_TRANSLATE_Y = 0;
 
@@ -26,7 +30,14 @@ const DEFAULT_TRANSLATE_Y = 0;
 interface DropdownContextType {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
+  setPosition: (position: { top: number; left: number } | null) => void;
+  position: { top: number; left: number } | null;
   toggleRef: RefObject<HTMLElement | null>;
+}
+
+interface Position {
+  top: number;
+  left: number;
 }
 
 type ClickableElement = ReactElement<{ onClick?: MouseEventHandler; ref: RefObject<HTMLElement | null> }>;
@@ -50,7 +61,7 @@ const useDropdownContext = () => {
 export default function Dropdown({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const toggleRef = useRef<HTMLElement>(null);
-  const [position, setPosition] = useState(null);
+  const [position, setPosition] = useState<Position | null>(null);
 
   return (
     <DropdownContext.Provider value={{ setIsOpen, isOpen, toggleRef, position, setPosition }}>
@@ -62,17 +73,22 @@ export default function Dropdown({ children }: { children: ReactNode }) {
 function Open({ children }: { children: ClickableElement }) {
   const { setIsOpen, toggleRef, setPosition } = useDropdownContext();
 
+  function handleClick() {
+    const rect = toggleRef.current?.getBoundingClientRect();
+
+    if (!rect) return;
+
+    setPosition({
+      top: rect.bottom + window.scrollY,
+      left: rect.left + window.scrollX
+    });
+
+    setIsOpen(true);
+  }
+
   return cloneElement(children, {
     ref: toggleRef,
-    onClick: () => {
-      const rect = toggleRef.current?.getBoundingClientRect();
-      setPosition({
-        top: rect.bottom + window.scrollY,
-        left: rect.left + window.scrollX
-      });
-
-      setIsOpen(true);
-    }
+    onClick: handleClick
   });
 }
 
@@ -106,7 +122,7 @@ function Button({
 }: {
   children: ReactNode;
   icon: IconType;
-  onClick?: (event?: any) => void;
+  onClick?: (event?: MouseEventHandler) => void;
 }) {
   const { setIsOpen } = useDropdownContext();
 
@@ -132,13 +148,13 @@ Dropdown.Button = Button;
  */
 
 const StyledDropdown = styled.ul<{
-  $position: Record<string, any>;
+  $position: Position | null;
   $translateX?: number;
   $translateY?: number;
 }>`
   position: fixed;
-  top: ${(props) => props.$position.top}px;
-  left: ${(props) => props.$position.left}px;
+  top: ${(props) => props.$position?.top}px;
+  left: ${(props) => props.$position?.left}px;
   width: 20rem;
   font-size: 1.4rem;
   border-radius: var(--border-radius-sm);

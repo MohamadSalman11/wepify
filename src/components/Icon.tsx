@@ -1,3 +1,4 @@
+import * as Tooltip from '@radix-ui/react-tooltip';
 import type { IconType } from 'react-icons';
 import styled from 'styled-components';
 
@@ -24,9 +25,13 @@ type BorderRadius = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'full';
 interface IconProps {
   icon: IconType;
   size?: IconSize;
-  onClick?: () => void;
   hover?: boolean;
+  isActive?: boolean;
+  tooltipLabel?: string;
+  tooltipSide?: 'top' | 'right' | 'bottom' | 'left';
+  tooltipSideOffset?: number;
   borderRadius?: BorderRadius;
+  onClick?: () => void;
 }
 
 /**
@@ -36,19 +41,37 @@ interface IconProps {
 export default function Icon({
   icon: IconComponent,
   size = DEFAULT_ICON_SIZE,
-  onClick,
   hover,
+  isActive = false,
+  tooltipLabel,
+  tooltipSide = 'bottom',
+  tooltipSideOffset = 15,
   borderRadius = DEFAULT_BORDER_RADIUS,
+  onClick,
   ...props
 }: IconProps) {
   const iconElement = <IconComponent size={SIZE[size]} onClick={onClick} {...props} />;
 
-  if (!hover) return iconElement;
-
-  return (
-    <IconWrapper $borderRadius={borderRadius} onClick={onClick}>
+  const wrappedIcon = hover ? (
+    <IconWrapper $borderRadius={borderRadius} $isActive={isActive} onClick={onClick}>
       {iconElement}
     </IconWrapper>
+  ) : (
+    iconElement
+  );
+
+  if (!tooltipLabel) return wrappedIcon;
+
+  return (
+    <Tooltip.Root>
+      <Tooltip.Trigger asChild>{wrappedIcon}</Tooltip.Trigger>
+      <Tooltip.Portal>
+        <Tooltip.Content className='TooltipContent' side={tooltipSide} sideOffset={tooltipSideOffset}>
+          {tooltipLabel}
+          <Tooltip.Arrow className='TooltipArrow' />
+        </Tooltip.Content>
+      </Tooltip.Portal>
+    </Tooltip.Root>
   );
 }
 
@@ -56,7 +79,10 @@ export default function Icon({
  * Styles
  */
 
-const IconWrapper = styled.span<{ $borderRadius: BorderRadius }>`
+const IconWrapper = styled.span<{
+  $borderRadius: BorderRadius;
+  $isActive?: boolean;
+}>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -65,6 +91,8 @@ const IconWrapper = styled.span<{ $borderRadius: BorderRadius }>`
   border-radius: ${({ $borderRadius }) => `var(--border-radius-${$borderRadius})`};
   padding: 0.6rem;
   width: fit-content;
+
+  background-color: ${({ $isActive }) => ($isActive ? 'var(--color-white-2)' : 'transparent')};
 
   &:hover {
     background-color: var(--color-white-2);

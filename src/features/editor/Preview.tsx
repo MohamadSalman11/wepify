@@ -5,18 +5,20 @@ import Button from '../../components/Button';
 import { EditorPath } from '../../constant';
 import Canvas from './Canvas';
 import { setIsLoading } from './slices/editorSlice';
+import { setHasOriginSize } from './slices/pageSlice';
 
 /**
  * Component definition
  */
 
 export default function Preview() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useDispatch();
 
   const handleClose = () => {
     const newPath = location.pathname.replace(new RegExp(`${EditorPath.Preview}$`), EditorPath.Elements);
+    dispatch(setHasOriginSize(false));
     navigate(newPath);
     dispatch(setIsLoading(true));
   };

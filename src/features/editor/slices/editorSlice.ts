@@ -1,14 +1,17 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { ElementNames } from '@shared/constants';
-import type { PageElement, Site, SitePage } from '@shared/types';
+import { ElementsName } from '@shared/constants';
+import type { DeviceType, PageElement, Site, SitePage } from '@shared/types';
 import { findElementById } from '../../../utils/findElementById';
+
+type Image = { id: string; dataUrl: string };
 
 interface EditorState {
   site: Site;
   isLoading: boolean;
   isError: boolean;
   isDownloadingSite: boolean;
-  images: { id: string; dataUrl: string }[];
+  deviceType: DeviceType;
+  images: Image[];
 }
 
 const initialState: EditorState = {
@@ -24,6 +27,7 @@ const initialState: EditorState = {
   },
   isLoading: true,
   isError: false,
+  deviceType: 'tablet',
   isDownloadingSite: false,
   images: []
 };
@@ -38,7 +42,7 @@ const editorSlice = createSlice({
     addPage(state, action: PayloadAction<SitePage>) {
       state.site.pages.push(action.payload);
     },
-    updatePageInfo(state, action) {
+    updatePageInfo(state, action: PayloadAction<{ id: string; name: string; title: string }>) {
       const page = state.site.pages.find((page) => page.id === action.payload.id);
 
       if (page) {
@@ -46,30 +50,27 @@ const editorSlice = createSlice({
         page.title = action.payload.title;
       }
     },
-    deletePage(state, action) {
+    deletePage(state, action: PayloadAction<string>) {
       state.site.pages = state.site.pages.filter((page) => page.id !== action.payload);
     },
-    setIsIndexPage(state, action) {
-      state.site.pages.forEach((page) => {
+    setIsIndexPage(state, action: PayloadAction<string>) {
+      for (const page of state.site.pages) {
         page.isIndex = page.id === action.payload;
-      });
+      }
     },
     setIsLoading(state, action: PayloadAction<boolean>) {
       state.isLoading = action.payload;
     },
-    setIsError(state, action) {
+    setIsError(state, action: PayloadAction<boolean>) {
       state.isError = action.payload;
     },
-    setIsDownloadingSite(state, action) {
-      state.isDownloadingSite = action.payload;
-    },
-    setImages(state, action) {
+    setImages(state, action: PayloadAction<Image[]>) {
       state.images = action.payload;
     },
-    addImage(state, action) {
+    addImage(state, action: PayloadAction<Image>) {
       state.images.push(action.payload);
     },
-    deleteImage(state, action) {
+    deleteImage(state, action: PayloadAction<string>) {
       state.images = state.images.filter((image) => image.id !== action.payload);
     },
     addElement(
@@ -85,7 +86,7 @@ const editorSlice = createSlice({
       const page = state.site.pages.find((p) => p.id === pageId);
       if (!page) return;
 
-      if (newElement.name === ElementNames.Section) {
+      if (newElement.name === ElementsName.Section) {
         page.elements.push(newElement);
         return;
       }
@@ -101,9 +102,10 @@ const editorSlice = createSlice({
         pageId: string;
         elementId: string;
         updates: Partial<PageElement>;
+        shouldBeResponsive: boolean;
       }>
     ) {
-      const { pageId, elementId, updates } = action.payload;
+      const { pageId, elementId, updates, shouldBeResponsive } = action.payload;
 
       const page = state.site.pages.find((p) => p.id === pageId);
       if (!page) return;
@@ -111,7 +113,19 @@ const editorSlice = createSlice({
       const element = findElementById(elementId, page.elements);
       if (!element) return;
 
-      Object.assign(element, updates);
+      if (shouldBeResponsive) {
+        for (const key in updates) {
+          const k = key as keyof typeof element;
+
+          if (element[k]) {
+            Object.assign(element[k], updates[k]);
+          } else {
+            (element as any)[k] = updates[k];
+          }
+        }
+      } else {
+        Object.assign(element, updates);
+      }
     },
     deleteElementInSite(
       state,
@@ -136,6 +150,24 @@ const editorSlice = createSlice({
       if (!parentEl.children) return;
 
       parentEl.children = parentEl.children.filter((el) => el.id !== elementId);
+    },
+    updatePageInSite(state, action: PayloadAction<{ id: string; updates: Partial<SitePage> }>) {
+      const { id, updates } = action.payload;
+
+      const page = state.site.pages.find((p) => p.id === id);
+
+      if (page) {
+        Object.assign(page, updates);
+      }
+    },
+    setIsDownloadingSite(state, action: PayloadAction<boolean>) {
+      state.isDownloadingSite = action.payload;
+    },
+    setDeviceType(state, action: PayloadAction<DeviceType>) {
+      state.deviceType = action.payload;
+    },
+    clearSite() {
+      return initialState;
     }
   }
 });
@@ -154,7 +186,10 @@ export const {
   deleteElementInSite,
   deleteImage,
   addImage,
-  setIsDownloadingSite
+  updatePageInSite,
+  setIsDownloadingSite,
+  setDeviceType,
+  clearSite
 } = editorSlice.actions;
 
 export default editorSlice.reducer;

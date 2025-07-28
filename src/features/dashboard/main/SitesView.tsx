@@ -41,14 +41,20 @@ import {
 } from '../slices/dashboardSlice';
 
 /**
+ * Constants
+ */
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+/**
  * Component definition
  */
 
 export default function SitesView({ sites, title }: { sites?: Site[]; title?: string }) {
+  const dispatch = useDispatch();
   const { sites: fallbackSites, filters, filterLabel } = useAppSelector((state) => state.dashboard);
   const sitesToRender = sites ?? [...fallbackSites].sort((a, b) => b.createdAt - a.createdAt);
   const isFiltering = Boolean(filters.modifiedWithinDays || filters.pageRange || filters.sizeRange);
-  const dispatch = useDispatch();
 
   function handleClearFilter() {
     dispatch(setFilterLabel(''));
@@ -100,12 +106,15 @@ function TableBody({ sites, filters }: { sites: Site[]; filters: FilterCriteria 
     ? sites.filter((site) => {
         const sizeKB = calculateSiteSize(site, 'kb');
         const pageCount = site.pages.length;
-        const modifiedTime = new Date(site.lastModified).getTime();
+        const modifiedTime = site.lastModified;
+
         const sizeMatch = !filters.sizeRange || (sizeKB >= filters.sizeRange.min && sizeKB <= filters.sizeRange.max);
+
         const pageMatch =
           !filters.pageRange || (pageCount >= filters.pageRange.min && pageCount <= filters.pageRange.max);
+
         const modifiedMatch =
-          !filters.modifiedWithinDays || now - modifiedTime <= filters.modifiedWithinDays * 24 * 60 * 60 * 1000;
+          !filters.modifiedWithinDays || now - modifiedTime <= filters.modifiedWithinDays * MS_PER_DAY;
 
         return sizeMatch && pageMatch && modifiedMatch;
       })
@@ -134,7 +143,7 @@ function TableBody({ sites, filters }: { sites: Site[]; filters: FilterCriteria 
 
   return (
     <tbody>
-      {sites.map((site) => (
+      {filteredSites.map((site) => (
         <Modal key={site.id}>
           <TableRow site={site} />
         </Modal>
@@ -159,6 +168,7 @@ function TableRow({ site }: { site: Site }) {
 
   async function handleRowClick(event: MouseEvent<HTMLTableRowElement>) {
     const target = event.target as HTMLElement;
+
     if (!target.closest('svg') && !target.closest('li')) {
       dispatch(setIsLoading(true));
       await AppStorage.setItem(StorageKey.Site, site);

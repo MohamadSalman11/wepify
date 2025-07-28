@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import Button from '../components/Button';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
-import { Path } from '../constant';
+import { Breakpoint, Path } from '../constant';
 
 /**
  * Component definition
@@ -13,7 +13,7 @@ export default function Home() {
   const navigate = useNavigate();
 
   return (
-    <div>
+    <StyledHome>
       <Header />
       <Container>
         <Title>Build websites in minutes without writing any code</Title>
@@ -29,7 +29,7 @@ export default function Home() {
         <img src='/hero-img.png' />
       </ImageWrapper>
       <Footer />
-    </div>
+    </StyledHome>
   );
 }
 
@@ -37,20 +37,36 @@ export default function Home() {
  * Styles
  */
 
+const StyledHome = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100vh;
+`;
+
 const Container = styled.div`
+  margin: 0 6.4rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 6rem 2rem 2.4rem 2rem;
+  padding: 5.4rem 2.4rem 2.4rem 2.4rem;
   text-align: center;
-  width: 80rem;
+  max-width: 85rem;
   margin: 0 auto;
 `;
 
 const Title = styled.h1`
-  font-size: 6rem;
+  font-size: 6.2rem;
   margin-bottom: 1.6rem;
   font-weight: 400;
+
+  @media (max-width: ${Breakpoint.TabLand}em) {
+    font-size: 5.2rem;
+  }
+
+  @media (max-width: ${Breakpoint.Phone}em) {
+    font-size: 3.6rem;
+  }
 `;
 
 const Subtitle = styled.p`
@@ -58,6 +74,10 @@ const Subtitle = styled.p`
   color: var(--color-gray);
   margin-bottom: 3.2rem;
   max-width: 48rem;
+
+  @media (max-width: ${Breakpoint.Phone}em) {
+    font-size: 1.4rem;
+  }
 `;
 
 const ButtonGroup = styled.div`
@@ -69,5 +89,23 @@ const ButtonGroup = styled.div`
 
 const ImageWrapper = styled.div`
   margin: 0 auto;
+  margin-bottom: 6.4rem;
   width: fit-content;
+
+  img {
+    @media (max-width: ${Breakpoint.TabLand}em) {
+      width: 80rem;
+      height: 48.8rem;
+    }
+
+    @media (max-width: ${Breakpoint.TabPort}em) {
+      width: 60rem;
+      height: 36.6rem;
+    }
+
+    @media (max-width: ${Breakpoint.Phone}em) {
+      width: 32rem;
+      height: 19.5rem;
+    }
+  }
 `;

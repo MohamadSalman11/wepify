@@ -74,8 +74,6 @@ function LayerNode({
   const hasChildren = (element.children?.length ?? 0) > 0;
   const { iframeConnection } = useIframeContext();
 
-  console.log(elements);
-
   const handleClick = () => {
     if (!elements) return;
 

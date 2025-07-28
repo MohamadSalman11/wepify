@@ -1,3 +1,4 @@
+import { DeviceType } from '@shared/types';
 import type Moveable from 'moveable';
 
 export const state: {
@@ -7,13 +8,17 @@ export const state: {
   initRender: boolean;
   isSitePreviewMode: boolean;
   scaleFactor: number;
+  deviceType: DeviceType;
+  lastCopiedElId: string | null;
 } = {
   moveable: null,
   target: null,
   targetName: null,
-  initRender: false,
+  initRender: true,
   isSitePreviewMode: false,
-  scaleFactor: 100
+  scaleFactor: 100,
+  deviceType: 'tablet',
+  lastCopiedElId: null
 };
 
 export const getTarget = (): HTMLElement => {
@@ -24,21 +29,6 @@ export const getTarget = (): HTMLElement => {
 export const getMoveableInstance = (): Moveable => {
   if (!state.moveable) throw new Error('No Moveable instance set');
   return state.moveable;
-};
-
-export const updateElement = (
-  updates: { link?: string; type?: string; placeholder?: string },
-  styles: Partial<CSSStyleDeclaration>
-) => {
-  const { link, type, placeholder } = updates;
-  const currentTarget = getTarget();
-
-  if (link && currentTarget instanceof HTMLAnchorElement) currentTarget.href = link;
-  if (type && currentTarget instanceof HTMLInputElement) currentTarget.type = type;
-  if (placeholder && currentTarget instanceof HTMLInputElement) currentTarget.placeholder = placeholder;
-  if (link || type || placeholder) return;
-
-  Object.assign(currentTarget.style, styles);
 };
 
 export const changeTarget = (newTarget: HTMLElement, name: string) => {

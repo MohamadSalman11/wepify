@@ -1,6 +1,7 @@
 import { Tooltip } from 'radix-ui';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
+import RequireDesktop from './components/RequiredDesktop';
 import { DashboardPath, EditorPath, Path } from './constant';
 import RecentSites from './features/dashboard/main/RecentSites';
 import SitesView from './features/dashboard/main/SitesView';
@@ -21,12 +22,26 @@ function App() {
           <GlobalStyles />
           <Routes>
             <Route path={Path.Home} element={<Home />} />
-            <Route path={Path.Dashboard} element={<Dashboard />}>
+            <Route
+              path={Path.Dashboard}
+              element={
+                <RequireDesktop>
+                  <Dashboard />
+                </RequireDesktop>
+              }
+            >
               <Route index element={<SitesView />} />
               <Route path={DashboardPath.Recent} element={<RecentSites />} />
               <Route path={DashboardPath.Starred} element={<StarredSites />} />
             </Route>
-            <Route path={Path.Editor} element={<Editor />}>
+            <Route
+              path={Path.Editor}
+              element={
+                <RequireDesktop>
+                  <Editor />
+                </RequireDesktop>
+              }
+            >
               <Route index element={<Navigate replace to={EditorPath.Elements} />} />
               <Route path={EditorPath.Elements} element={<Panel panel={EditorPath.Elements} sectioned={true} />} />
               <Route path={EditorPath.Pages} element={<Panel panel={EditorPath.Pages} />} />

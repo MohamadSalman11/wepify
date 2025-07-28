@@ -7,13 +7,13 @@ import styled from 'styled-components';
 import LoadingScreen from '../../components/LoadingScreen';
 import { LoadingMessages, Path, StorageKey } from '../../constant';
 import { useIframeContext } from '../../context/IframeContext';
+import { useDeleteKeyHandler } from '../../hooks/useDeleteKeyHandler';
 import { useLoadFromStorage } from '../../hooks/useLoadFromStorage';
 import { useAppSelector } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
 import { getRandomDuration } from '../../utils/getRandomDuration';
-import { isTyping } from '../../utils/isTyping';
 import { setIsLoading as setDashboardIsLoading } from '../dashboard/slices/dashboardSlice';
-import { setIsError, setIsLoading, setSite } from './slices/editorSlice';
+import { clearSite, setIsError, setIsLoading, setSite } from './slices/editorSlice';
 import { setPage, setSize } from './slices/pageSlice';
 import { selectElement } from './slices/selectionSlice';
 
@@ -26,7 +26,6 @@ const IFRAME_SRC = '/iframe/iframe.html';
 const IFRAME_TITLE = 'Site Preview';
 const SIZE_FILL = '100%';
 const SIZE_SCREEN = '100vh';
-const DELETE_KEY = 'Backspace';
 
 /**
  * Component definition
@@ -38,14 +37,16 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const { pageId } = useParams();
   const { iframeConnection, iframeRef } = useIframeContext();
-  const { width, height, scale } = useAppSelector((state) => state.page);
-  const { images, site, isLoading, isError } = useAppSelector((state) => state.editor);
+  const { backgroundColor, width, height, scale } = useAppSelector((state) => state.page);
+  const { images, site, isLoading, isError, deviceType } = useAppSelector((state) => state.editor);
 
   const onLoaded = useCallback(
     (site: Site | null) => {
       if (!site) return dispatch(setIsError(true));
 
       const page = site?.pages.find((p) => p.id === pageId);
+
+      if (!iframeConnection.iframeReady) return;
 
       if (site && page && canvasRef.current) {
         dispatch(
@@ -65,7 +66,7 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
         dispatch(setIsError(true));
       }
     },
-    [canvasRef, dispatch, pageId]
+    [iframeConnection.iframeReady, canvasRef, dispatch, pageId]
   );
 
   useLoadFromStorage<Site>({
@@ -77,53 +78,45 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
   useEffect(() => {
     if (!site.id) return;
     AppStorage.setItem(StorageKey.Site, site);
-  }, [site]);
+  }, [site, isLoading]);
 
   useEffect(() => {
     AppStorage.setItem(StorageKey.Images, images);
   }, [images]);
 
   useEffect(() => {
+    return () => {
+      dispatch(clearSite());
+    };
+  }, [dispatch]);
+
+  useEffect(() => {
     if (iframeConnection.iframeReady && !isLoading) {
       const elements = site.pages.find((p) => p.id === pageId)?.elements;
 
-      iframeConnection.renderElements(elements, isPreview);
-    }
-  }, [iframeConnection, isLoading, isPreview, pageId]);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === DELETE_KEY && !isTyping(iframeRef)) {
-        iframeConnection.deleteElement();
+      if (!elements) {
+        dispatch(setIsError(true));
+        return;
       }
-    };
 
-    document.addEventListener('keydown', handleKeyDown);
-    const iframeDoc = iframeRef.current?.contentWindow;
-
-    iframeDoc?.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      iframeDoc?.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [iframeConnection, iframeRef]);
+      iframeConnection.renderElements(elements, isPreview, deviceType, scale, backgroundColor);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, iframeConnection, isLoading, isPreview, pageId, deviceType, scale, backgroundColor]);
 
   useEffect(() => {
     const iframeDoc = iframeRef.current?.contentDocument;
     const iframeRoot = iframeDoc?.querySelector<HTMLElement>('#iframe-root');
 
-    console.log(iframeRoot);
-
     if (!iframeRoot || isLoading) return;
-
-    console.log(width, height);
 
     iframeRoot.style.width = isPreview ? SIZE_FILL : `${width}px`;
     iframeRoot.style.height = isPreview ? SIZE_SCREEN : `${height}px`;
     iframeRoot.style.scale = `${isPreview ? 1 : scale / 100}`;
     iframeRoot.style.transformOrigin = 'top left';
   }, [isLoading, iframeRef, width, height, scale, isPreview]);
+
+  useDeleteKeyHandler({ iframeRef, onDelete: () => iframeConnection.deleteElement() });
 
   return (
     <StyledCanvas ref={canvasRef} $isPreview={isPreview}>

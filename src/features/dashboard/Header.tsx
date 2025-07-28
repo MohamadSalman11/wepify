@@ -20,7 +20,7 @@ export default function Header() {
         <span>Wepify</span>
       </LogoBox>
       <HeaderInfo>
-        <span>Sites: {sites.length}</span>
+        <SiteCountBadge>{sites.length}</SiteCountBadge>
         <Divider rotate={90} width={30} color='var(--color-gray-light-2)' />
         <span>Welcome back 👋</span>
       </HeaderInfo>
@@ -57,5 +57,15 @@ const HeaderInfo = styled.div`
   align-items: center;
   column-gap: 1.6rem;
   font-size: 1.4rem;
-  color: var(--color-gray-dark);
+`;
+
+const SiteCountBadge = styled.span`
+  border-radius: var(--border-radius-full);
+  background-color: var(--color-gray-light-2);
+  color: var(--color-white);
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;

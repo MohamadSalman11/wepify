@@ -1,6 +1,6 @@
 import type { Site } from '@shared/types';
 
-export const BYTES_IN_KB = 1024;
+const BYTES_IN_KB = 1024;
 
 type Unit = 'bytes' | 'kb' | 'mb' | 'gb' | 'tb';
 

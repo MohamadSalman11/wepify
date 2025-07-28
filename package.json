@@ -13,8 +13,10 @@
   "dependencies": {
     "@radix-ui/react-tooltip": "^1.2.7",
     "@reduxjs/toolkit": "^2.8.2",
+    "@tailwindcss/vite": "^4.1.11",
     "@uiw/react-color": "^2.5.5",
     "@uiw/react-color-sketch": "^2.5.5",
+    "clsx": "^2.1.1",
     "jszip": "^3.10.1",
     "localforage": "^1.10.0",
     "moveable": "^0.53.0",

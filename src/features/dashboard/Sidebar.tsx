@@ -1,5 +1,5 @@
 import { nanoid } from '@reduxjs/toolkit';
-import type { Site, SitePage } from '@shared/types';
+import type { PageElement, Site, SitePage } from '@shared/types';
 import toast from 'react-hot-toast';
 import { LuClock4, LuCloud, LuFilePlus, LuHouse, LuStar } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
@@ -14,7 +14,6 @@ import { AppStorage } from '../../utils/appStorage';
 import { buildPath } from '../../utils/buildPath';
 import { calculateSiteSize } from '../../utils/calculateSiteSize';
 import { createNewPage } from '../../utils/createNewPage';
-import { validateSiteJson } from '../../utils/validateSiteJson';
 import { setIsLoading } from '../editor/slices/editorSlice';
 import { addSite } from './slices/dashboardSlice';
 
@@ -25,16 +24,39 @@ import { addSite } from './slices/dashboardSlice';
 const DEFAULT_NAME = 'Untitled';
 const DEFAULT_DESCRIPTION = 'My modern clean site';
 const DEFAULT_PAGES_COUNT = 1;
+const ACCEPTED_FILE_TYPE = '.json';
+
+const SITE_SCHEMA = {
+  name: 'string',
+  description: 'string',
+  pagesCount: 'number',
+  pages: 'array',
+  createdAt: 'number',
+  lastModified: 'number',
+  isStarred: 'boolean'
+};
+
+const PAGE_SCHEMA = {
+  name: 'string',
+  title: 'string',
+  isIndex: 'boolean',
+  elements: 'array'
+};
+
+const ELEMENT_SCHEMA = {
+  id: 'string',
+  tag: 'string'
+};
 
 /**
  * Component definition
  */
 
 export default function Sidebar() {
-  const sites = useAppSelector((state) => state.dashboard.sites);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { input, openFilePicker } = useFilePicker({ accept: '.json', onSelect: handleUploadSiteJson });
+  const sites = useAppSelector((state) => state.dashboard.sites);
+  const { input, openFilePicker } = useFilePicker({ accept: ACCEPTED_FILE_TYPE, onSelect: handleUploadSiteJson });
 
   async function handleDesignNewSite() {
     const siteId = nanoid();
@@ -117,6 +139,27 @@ export default function Sidebar() {
     </StyledSidebar>
   );
 }
+
+const validate = (obj: Site | SitePage | PageElement, schema: Record<string, string>): boolean => {
+  if (typeof obj !== 'object' || obj === null) return false;
+
+  return Object.entries(schema).every(([key, type]) => {
+    const val = obj[key as keyof typeof obj];
+
+    if (type === 'array') return Array.isArray(val);
+    return typeof val === type && val !== null;
+  });
+};
+
+const validateSiteJson = (site: Site): boolean =>
+  validate(site, SITE_SCHEMA) &&
+  Array.isArray(site.pages) &&
+  site.pages.every(
+    (page: SitePage) =>
+      validate(page, PAGE_SCHEMA) &&
+      Array.isArray(page.elements) &&
+      page.elements.every((el) => validate(el, ELEMENT_SCHEMA))
+  );
 
 /**
  * Styles

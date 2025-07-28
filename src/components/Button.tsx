@@ -1,6 +1,7 @@
 import { type ButtonHTMLAttributes, type ReactNode } from 'react';
 import type { IconType } from 'react-icons';
 import styled, { css, type RuleSet } from 'styled-components';
+import { Breakpoint } from '../constant';
 import Icon from './Icon';
 
 /**
@@ -116,6 +117,11 @@ const sizes: Record<Size, RuleSet> = {
 
     font-size: var(--${prefix}-btn-font-size);
     padding: var(--${prefix}-btn-padding-y) var(--${prefix}-btn-padding-x);
+
+    @media(max-width: ${Breakpoint.TabPort}em){
+      font-size: var(--btn-font-size-sm);
+      padding: var(--btn-padding-y-sm) var(--btn-padding-x-sm);
+    }
   `}
   `
 };

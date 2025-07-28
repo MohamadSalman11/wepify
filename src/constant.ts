@@ -33,6 +33,13 @@ export enum StorageKey {
   Images = 'images'
 }
 
+export enum Breakpoint {
+  Desktop = 112.5,
+  TabLand = 75,
+  TabPort = 56.25,
+  Phone = 37.5
+}
+
 export const ToastMessages = {
   site: {
     addedStar: 'Site added to starred',
@@ -47,6 +54,8 @@ export const ToastMessages = {
     deleted: 'Site deleted successfully',
     renamed: 'Site name changed successfully',
     linkCopied: 'Page link copied',
-    linkCopyErr: 'Failed to copy page link'
+    linkCopyErr: 'Failed to copy page link',
+    emptyName: 'Page name cannot be empty',
+    duplicateName: 'A page with this name already exists. Please choose a different name.'
   }
 } as const;

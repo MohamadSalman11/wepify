@@ -1,150 +1,149 @@
-import { ElementNames, FONT_WEIGHT_NAMES, Tags } from '@shared/constants';
+import { DEFAULT_BORDER_COLOR, DEFAULT_BORDER_WIDTH, ElementsName, FONT_WEIGHT_NAMES } from '@shared/constants';
 import type { GridElement, InputElement, LinkElement, PageElement } from '@shared/types';
-import { CONTENT_EDITABLE_ELEMENTS, CSS_SIZES_NAME } from '../../constants';
+import { rgbToHex } from '@shared/utils';
+import { CSS_SIZES_NAME } from '../../constants';
 import { state } from '../../model';
+import { extractTransform } from '../../utils/extractTransform';
 import { parseGridRepeat } from '../../utils/parseGridRepeat';
-import { rgbToHex } from '../../utils/rgbToHex';
 
-export function domToPageElement(elementNode: HTMLElement): PageElement {
+const RESPONSIVE_NUMBER_KEYS = [
+  'paddingTop',
+  'paddingRight',
+  'paddingBottom',
+  'paddingLeft',
+  'marginTop',
+  'marginRight',
+  'marginBottom',
+  'marginLeft',
+  'justifyContent',
+  'alignItems',
+  'textAlign'
+] as const;
+
+export function domToPageElement(elementNode: HTMLElement) {
   const style = elementNode.style;
   const { id, tagName } = elementNode;
-  const fontFamily = style.fontFamily.replace(/^["']|["']$/g, '');
 
-  const element: PageElement = {
+  const element: Partial<PageElement> = {
     id,
     tag: tagName.toLowerCase(),
-    name: id.split('-').at(0) || '',
-    left: parseNumber(style.left),
-    top: parseNumber(style.top),
-    color: rgbToHex(style.color),
-    backgroundColor: rgbToHex(style.backgroundColor),
-    fontSize: style.fontSize === 'inherit' ? 'Inherit' : Number.parseFloat(style.fontSize),
-    fontFamily: fontFamily === 'inherit' ? 'Inherit' : fontFamily,
-    fontWeight: FONT_WEIGHT_NAMES[style.fontWeight as keyof typeof FONT_WEIGHT_NAMES],
-    padding: {
-      x: Number.parseFloat(style.paddingLeft),
-      y: Number.parseFloat(style.paddingTop)
-    },
-    marginTop: Number.parseFloat(style.marginTop || '0'),
-    marginRight: Number.parseFloat(style.marginRight || '0'),
-    marginBottom: Number.parseFloat(style.marginBottom || '0'),
-    marginLeft: Number.parseFloat(style.marginLeft || '0'),
-    paddingTop: Number.parseFloat(style.paddingTop || '0'),
-    paddingRight: Number.parseFloat(style.paddingRight || '0'),
-    paddingBottom: Number.parseFloat(style.paddingBottom || '0'),
-    paddingLeft: Number.parseFloat(style.paddingLeft || '0')
+    name: id.split('-').at(0) || ''
   };
 
+  for (const key of RESPONSIVE_NUMBER_KEYS) {
+    const value = style[key as keyof CSSStyleDeclaration] as string | undefined;
+
+    if (value) {
+      (element as any)[key] = toResponsiveValue(value);
+    }
+  }
+
+  if (style.transform) {
+    const { left = 0, top = 0, rotation } = extractTransform(style.transform) || {};
+    element.left = toResponsiveValue(left);
+    element.top = toResponsiveValue(top);
+    element.rotate = toResponsiveValue(rotation || 0);
+  }
+
+  if (style.color) element.color = rgbToHex(style.color);
+  if (style.backgroundColor) element.backgroundColor = rgbToHex(style.backgroundColor);
+  if (style.fontWeight) element.fontWeight = FONT_WEIGHT_NAMES[style.fontWeight as keyof typeof FONT_WEIGHT_NAMES];
+
+  if (style.fontFamily) {
+    const fontFamily = style.fontFamily.replace(/^["']|["']$/g, '');
+    element.fontFamily = fontFamily === 'inherit' ? 'Inherit' : fontFamily;
+  }
+
+  if (style.fontSize) {
+    element.fontSize = toResponsiveValue(style.fontSize === 'inherit' ? 'Inherit' : Number.parseFloat(style.fontSize));
+  }
+
   if (style.scale) {
-    element.scaleX = Number(style.scale.split(' ')[0]);
-    element.scaleY = Number(style.scale.split(' ')[1]);
+    element.scaleX = toResponsiveValue(Number(style.scale.split(' ')[0]));
+    element.scaleY = toResponsiveValue(Number(style.scale.split(' ')[1]));
   }
 
-  if (style.rotate) {
-    element.rotate = Number.parseFloat(style.rotate);
-  }
-
-  if (style.justifyContent) {
-    element.justifyContent = style.justifyContent;
-  }
-
-  if (style.alignItems) {
-    element.alignItems = style.alignItems;
-  }
-
-  if (style.textAlign) {
-    element.textAlign = style.textAlign;
-  }
-
-  if (style.width) {
-    element.width = CSS_SIZES_NAME[style.width as keyof typeof CSS_SIZES_NAME] || parseNumber(style.width);
-  }
-
-  if (style.height) {
-    element.height = CSS_SIZES_NAME[style.height as keyof typeof CSS_SIZES_NAME] || parseNumber(style.height);
-  }
-
-  if (CONTENT_EDITABLE_ELEMENTS.has(element.tag)) {
-    element.content = elementNode.textContent || '';
-  }
-
-  assignBorderStylesIfNeeded(elementNode, element, style);
-
-  if (state.targetName === ElementNames.Grid) {
-    assignGridStyles(style, element as GridElement);
-  }
-
-  if (elementNode.tagName === Tags.A && elementNode instanceof HTMLAnchorElement) {
-    (element as LinkElement).link = elementNode.getAttribute('href');
-  }
-
-  if (elementNode.tagName === Tags.Input && elementNode instanceof HTMLInputElement) {
-    assignInputStyles(elementNode, element as InputElement);
-  }
-
-  assignChildrenIfNeeded(elementNode, element);
+  maybeApplySizeProps(element, style);
+  maybeApplyBorderProps(element, style);
+  maybeApplyChildren(elementNode, element);
+  maybeApplyLinkProps(elementNode, element);
+  maybeApplyGridProps(style, element as GridElement);
+  maybeApplyInputProps(elementNode as HTMLInputElement, element as InputElement);
 
   return element;
 }
 
-const assignBorderStylesIfNeeded = (
-  elementNode: HTMLElement,
-  element: Partial<PageElement>,
-  style: Partial<CSSStyleDeclaration>
-) => {
-  const { borderTop, borderRight, borderBottom, borderLeft, borderColor } = style;
-  const strokeColor =
-    borderColor || (borderTop || borderRight || borderBottom || borderLeft)?.match(/rgb\([^)]+\)/)?.[0];
-
-  if (elementNode.dataset.borderColor) {
-    element.borderColor = elementNode.dataset.borderColor;
+const maybeApplySizeProps = (element: Partial<PageElement>, style: Partial<CSSStyleDeclaration>) => {
+  if (style.width) {
+    element.width = toResponsiveValue(
+      CSS_SIZES_NAME[style.width as keyof typeof CSS_SIZES_NAME] || Number.parseFloat(style.width)
+    );
   }
 
-  if (strokeColor) {
-    element.borderColor = rgbToHex(strokeColor);
-  }
-
-  if (borderTop) {
-    element.borderTop = borderTop;
-  }
-  if (borderRight) {
-    element.borderRight = borderRight;
-  }
-  if (borderBottom) {
-    element.borderBottom = borderBottom;
-  }
-  if (borderLeft) {
-    element.borderLeft = borderLeft;
+  if (style.height) {
+    element.height = toResponsiveValue(
+      CSS_SIZES_NAME[style.height as keyof typeof CSS_SIZES_NAME] || Number.parseFloat(style.height)
+    );
   }
 };
 
-const assignGridStyles = (style: CSSStyleDeclaration, gridElement: GridElement) => {
-  const { size: columnWidth, count: columns } = parseGridRepeat(style.gridTemplateColumns);
-  const { size: rowHeight, count: rows } = parseGridRepeat(style.gridTemplateRows);
+const maybeApplyBorderProps = (element: Partial<PageElement>, style: Partial<CSSStyleDeclaration>) => {
+  const { borderTop, borderRight, borderBottom, borderLeft, borderColor, borderWidth, borderRadius } = style;
 
-  gridElement.display = 'grid';
-  gridElement.columnGap = Number.parseFloat(style.columnGap);
-  gridElement.rowGap = Number.parseFloat(style.rowGap);
-  gridElement.columnWidth = columnWidth;
-  gridElement.rowHeight = rowHeight;
-  gridElement.columns = columns;
-  gridElement.rows = rows;
+  if (borderColor) {
+    element.borderColor = borderColor === 'initial' ? DEFAULT_BORDER_COLOR : rgbToHex(borderColor);
+  }
+
+  if (borderWidth) {
+    element.borderWidth = Number.parseFloat(borderWidth) || DEFAULT_BORDER_WIDTH;
+  }
+
+  if (borderTop) element.borderTop = borderTop;
+  if (borderRight) element.borderRight = borderRight;
+  if (borderBottom) element.borderBottom = borderBottom;
+  if (borderLeft) element.borderLeft = borderLeft;
+  if (borderRadius) element.borderRadius = Number.parseFloat(borderRadius);
 };
 
-const assignInputStyles = (elementNode: HTMLInputElement, inputElement: InputElement) => {
-  inputElement.type = elementNode.type || 'text';
-  inputElement.placeholder = elementNode.placeholder || '';
-};
+const maybeApplyChildren = (elementNode: HTMLElement, element: Partial<PageElement>) => {
+  const children = [...elementNode.children].map((child) => domToPageElement(child as HTMLElement)) as PageElement[];
 
-const assignChildrenIfNeeded = (elementNode: HTMLElement, element: PageElement) => {
-  const children = [...elementNode.children].map((child) => domToPageElement(child as HTMLElement));
-
-  if (children.length > 0) {
+  if (element.children && children.length > 0) {
     element.children = children;
   }
 };
 
-const parseNumber = (value: string): number => {
-  const parsed = Number.parseFloat(value);
-  return parsed % 1 === 0 || value.split('.')[1]?.length <= 1 ? parsed : Number(parsed.toFixed(1));
+const maybeApplyLinkProps = (elementNode: HTMLElement, element: Partial<PageElement>) => {
+  if (elementNode instanceof HTMLAnchorElement) {
+    (element as LinkElement).link = elementNode.getAttribute('href') || '';
+  }
 };
+
+const maybeApplyGridProps = (style: CSSStyleDeclaration, gridElement: GridElement) => {
+  const { size: columnWidth, count: columns } = parseGridRepeat(style.gridTemplateColumns);
+  const { size: rowHeight, count: rows } = parseGridRepeat(style.gridTemplateRows);
+
+  if (gridElement.name !== ElementsName.Grid) return;
+
+  if (style.columnGap) gridElement.columnGap = toResponsiveValue(style.columnGap);
+  if (style.rowGap) gridElement.columnGap = toResponsiveValue(style.rowGap);
+  if (columnWidth) gridElement.columnWidth = toResponsiveValue(columnWidth);
+  if (rowHeight) gridElement.rowHeight = toResponsiveValue(rowHeight);
+  if (columns) gridElement.columns = toResponsiveValue(columns);
+  if (rows) gridElement.rows = toResponsiveValue(rows);
+
+  gridElement.display = 'grid';
+};
+
+const maybeApplyInputProps = (elementNode: HTMLElement, inputElement: InputElement) => {
+  if (!(elementNode instanceof HTMLInputElement)) return;
+
+  if (elementNode.type) inputElement.type = elementNode.type;
+  if (elementNode.placeholder) inputElement.placeholder = elementNode.placeholder;
+};
+
+function toResponsiveValue(value: string | number) {
+  return typeof value === 'string'
+    ? { [state.deviceType]: Number.parseFloat(value) || value }
+    : { [state.deviceType]: value };
+}

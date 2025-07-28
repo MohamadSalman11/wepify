@@ -1,6 +1,8 @@
 import { Tags } from '@shared/constants';
 import { MessageFromIframe, type PageElement } from '@shared/types';
 import { CONTENT_EDITABLE_ELEMENTS, SELECTOR_TARGET } from '../../constants';
+import { state } from '../../model';
+import { getVerticalBorderSum } from '../../utils/getVerticalBorderSum';
 import { postMessageToApp } from '../../utils/postMessageToApp';
 import { positionDragButton } from '../../view';
 import { generateInlineStyles } from './generateInlineStyles';
@@ -9,7 +11,7 @@ const DEFAULT_INPUT_AUTOCOMPLETE = 'off';
 const HTML_ELEMENT_ROLE_HEADING = 'heading';
 
 export const createDomTree = (element: PageElement) => {
-  const { id, content, tag, children } = element;
+  const { id, content, tag, children, name } = element;
   const elementNode = document.createElement(tag);
   const isEditable = CONTENT_EDITABLE_ELEMENTS.has(tag);
   const isLinkElement = 'link' in element && elementNode instanceof HTMLAnchorElement;
@@ -17,8 +19,9 @@ export const createDomTree = (element: PageElement) => {
   const isInputElement = 'type' in element && 'placeholder' in element && elementNode instanceof HTMLInputElement;
 
   elementNode.id = id;
+  elementNode.dataset.name = name;
   elementNode.classList.add(SELECTOR_TARGET.replace('.', ''));
-  Object.assign(elementNode.style, generateInlineStyles(element));
+  Object.assign(elementNode.style, generateInlineStyles(element, true));
 
   if (content) {
     elementNode.textContent = content;
@@ -70,8 +73,12 @@ const handleEditableElement = (elementNode: HTMLElement) => {
 
     if (!id) return;
 
+    state.moveable?.updateRect();
+
+    positionDragButton(target.clientHeight, state.scaleFactor, getVerticalBorderSum(target));
+
     postMessageToApp({
-      type: MessageFromIframe.UpdateElement,
+      type: MessageFromIframe.ElementUpdated,
       payload: { id, fields: { content: (textContent || '').trim() } }
     });
   });

@@ -1,79 +1,80 @@
-import { ElementNames, FONT_WEIGHT_VALUES, Tags } from '@shared/constants';
-import type { GridElement, PageElement } from '@shared/types';
+import { FONT_WEIGHT_VALUES, RESPONSIVE_PROPS } from '@shared/constants';
+import type { DeviceType, GridElement, PageElement } from '@shared/types';
 import { CSS_SIZES } from '../../constants';
-import { state } from '../../model';
+import { getNextBreakpoint } from '../../utils/getNextBreakpoint';
+import { getScreenBreakpoint } from '../../utils/getScreenBreakpoint';
 
-export const generateInlineStyles = (element: Partial<PageElement>) => {
+const PIXEL_STYLE_KEYS = [
+  'paddingTop',
+  'paddingRight',
+  'paddingBottom',
+  'paddingLeft',
+  'marginTop',
+  'marginRight',
+  'marginBottom',
+  'marginLeft',
+  'borderWidth',
+  'borderRadius'
+];
+
+const PLAIN_STYLE_KEYS = [
+  'borderTop',
+  'borderRight',
+  'borderBottom',
+  'borderLeft',
+  'borderColor',
+  'backgroundColor',
+  'color',
+  'fontFamily',
+  'textAlign',
+  'zIndex'
+] as const;
+
+export const generateInlineStyles = (element: Partial<PageElement>, isResponsive: boolean = false) => {
   const style: Partial<CSSStyleDeclaration> = {};
+  const responsiveProps = extractResponsiveProps(element, isResponsive);
+  const { left, top, fontWeight, fontSize, rotate, scaleY, scaleX } = responsiveProps;
 
-  const {
-    left,
-    top,
-    backgroundColor,
-    color,
-    fontFamily,
-    fontWeight,
-    fontSize,
-    borderTop,
-    borderRight,
-    borderBottom,
-    borderLeft,
-    borderColor,
-    marginTop,
-    marginRight,
-    marginBottom,
-    marginLeft,
-    paddingTop,
-    paddingRight,
-    paddingBottom,
-    paddingLeft,
-    textAlign,
-    justifyContent,
-    alignItems,
-    rotate,
-    scaleY,
-    scaleX
-  } = element;
-
-  if (left !== undefined) style.left = `${left}px`;
-  if (top !== undefined) style.top = `${top}px`;
-  if (paddingTop) style.paddingTop = `${paddingTop}px`;
-  if (paddingRight) style.paddingRight = `${paddingRight}px`;
-  if (paddingBottom) style.paddingBottom = `${paddingBottom}px`;
-  if (paddingLeft) style.paddingLeft = `${paddingLeft}px`;
-  if (marginTop) style.marginTop = `${marginTop}px`;
-  if (marginRight) style.marginRight = `${marginRight}px`;
-  if (marginBottom) style.marginBottom = `${marginBottom}px`;
-  if (marginLeft) style.marginLeft = `${marginLeft}px`;
-  if (left !== undefined || top !== undefined) style.position = 'relative';
-  if (rotate !== undefined) style.rotate = `${rotate}deg`;
-  if (scaleX !== undefined) style.scale = `${scaleX} 1`;
-  if (scaleY !== undefined) style.scale = `1 ${scaleY}`;
-  if (textAlign) style.textAlign = textAlign;
-  if (justifyContent) style.justifyContent = justifyContent;
-  if (alignItems) style.alignItems = alignItems;
-  if (justifyContent || alignItems) style.display = 'flex';
-  if (backgroundColor) style.backgroundColor = backgroundColor;
-  if (color) style.color = color;
-  if (fontFamily) style.fontFamily = fontFamily;
-  if (fontWeight) style.fontWeight = FONT_WEIGHT_VALUES[fontWeight];
-  if (fontSize !== undefined) style.fontSize = fontSize === 'Inherit' ? fontSize : `${fontSize}px`;
-  if (borderTop) style.borderTop = borderTop;
-  if (borderRight) style.borderRight = borderRight;
-  if (borderBottom) style.borderBottom = borderBottom;
-  if (borderLeft) style.borderLeft = borderLeft;
-  
-  if ((element.name || state.targetName) === ElementNames.Grid) {
-    generateGridStyles(element as GridElement, style);
+  for (const key of PIXEL_STYLE_KEYS) {
+    const value = responsiveProps[key];
+    if (value !== undefined) {
+      style[key] = `${value}px`;
+    }
   }
 
-  generateSizeStyles(element, style);
+  for (const key of PLAIN_STYLE_KEYS) {
+    const value = responsiveProps[key];
+    if (value) {
+      style[key] = value;
+    }
+  }
+
+  if ((isDefined(left) && isDefined(top)) || isDefined(rotate)) {
+    style.transform = `translate(${left}px, ${top}px) rotate(${rotate || 0}deg)`;
+  }
+
+  if (isDefined(left) || isDefined(top)) style.position = 'relative';
+  if (isDefined(scaleX)) style.scale = `${scaleX} 1`;
+  if (isDefined(scaleY)) style.scale = `1 ${scaleY}`;
+  if (fontWeight) style.fontWeight = FONT_WEIGHT_VALUES[fontWeight as keyof typeof FONT_WEIGHT_VALUES];
+  if (isDefined(fontSize)) style.fontSize = fontSize === 'Inherit' ? fontSize : `${fontSize}px`;
+
+  maybeGenerateSizeStyles(element, style, isResponsive);
+  maybeGenerateFlexStyles(element, style, isResponsive);
+  maybeApplyGridStyles(element as GridElement, style, isResponsive);
 
   return style;
 };
 
-const generateGridStyles = (element: Partial<GridElement>, style: Partial<CSSStyleDeclaration>) => {
-  const { display, columns, columnWidth, rows, rowHeight, columnGap, rowGap } = element;
+const maybeApplyGridStyles = (
+  element: Partial<GridElement>,
+  style: Partial<CSSStyleDeclaration>,
+  isResponsive: boolean
+) => {
+  const { display, columns, columnWidth, rows, rowHeight, columnGap, rowGap } = extractResponsiveProps(
+    element,
+    isResponsive
+  );
 
   if (display) style.display = display;
   if (columns) style.gridTemplateColumns = `repeat(${columns}, ${columnWidth === 'auto' ? '1fr' : `${columnWidth}px`})`;
@@ -82,25 +83,66 @@ const generateGridStyles = (element: Partial<GridElement>, style: Partial<CSSSty
   if (rowGap) style.rowGap = `${rowGap}px`;
 };
 
-const generateSizeStyles = (element: Partial<PageElement>, style: Partial<CSSStyleDeclaration>) => {
-  const { tag, width, height } = element;
-  const tagIsUl = tag?.toUpperCase() === Tags.Ul;
+function maybeGenerateFlexStyles(
+  element: Partial<PageElement>,
+  style: Partial<CSSStyleDeclaration>,
+  isResponsive: boolean
+) {
+  const { justifyContent, alignItems } = extractResponsiveProps(element, isResponsive);
 
-  if (width !== undefined) {
-    const w = CSS_SIZES[width as keyof typeof CSS_SIZES]?.replace('vh', 'vw') || `${width}px`;
-    if (tagIsUl) {
-      style.minWidth = w;
-    } else {
-      style.width = w;
-    }
+  style.justifyContent = isNotDefault(justifyContent) ? justifyContent : '';
+  style.alignItems = isNotDefault(alignItems) ? alignItems : '';
+
+  if (justifyContent || alignItems) {
+    const isDefaultFlex = !isNotDefault(justifyContent) && !isNotDefault(alignItems);
+
+    style.display = isDefaultFlex ? '' : 'flex';
+    style.flexDirection = isDefaultFlex ? '' : 'column';
+  }
+}
+
+const maybeGenerateSizeStyles = (
+  element: Partial<PageElement>,
+  style: Partial<CSSStyleDeclaration>,
+  isResponsive: boolean
+) => {
+  const { width, height } = extractResponsiveProps(element, isResponsive);
+
+  if (isDefined(width)) {
+    style.width = CSS_SIZES[width as keyof typeof CSS_SIZES]?.replace('vh', 'vw') || `${width}px`;
   }
 
-  if (height !== undefined) {
-    const h = CSS_SIZES[height as keyof typeof CSS_SIZES] || `${height}px`;
-    if (tagIsUl) {
-      style.minHeight = h;
-    } else {
-      style.height = h;
-    }
+  if (isDefined(height)) {
+    style.height = CSS_SIZES[height as keyof typeof CSS_SIZES] || `${height}px`;
   }
 };
+
+const getResponsiveProp = <T>(propMap: Partial<Record<DeviceType, T>>): T | undefined => {
+  let bp: DeviceType | null = getScreenBreakpoint();
+
+  while (bp) {
+    const val = propMap[bp];
+    if (val !== undefined) return val;
+    bp = getNextBreakpoint(bp);
+  }
+};
+
+const extractResponsiveProps = (element: Partial<PageElement>, isResponsive: boolean) => {
+  const result: Partial<Record<string, any>> = { ...element };
+
+  for (const key in element) {
+    if (!RESPONSIVE_PROPS.has(key)) continue;
+
+    const prop = (element as any)[key];
+
+    result[key] = isResponsive ? prop[getScreenBreakpoint()] || getResponsiveProp(prop) : prop['monitor'];
+  }
+
+  return result;
+};
+
+function isDefined<T>(value: T | undefined): value is T {
+  return value !== undefined;
+}
+
+const isNotDefault = (value?: string) => value && value !== 'flex-start';

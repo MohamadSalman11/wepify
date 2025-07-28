@@ -26,6 +26,7 @@ export default tseslint.config(
       'unicorn/prevent-abbreviations': 'off',
       'unicorn/no-null': 'off',
       'unicorn/prefer-string-replace-all': 'off',
+      'unicorn/switch-case-braces': 'off',
 
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }]

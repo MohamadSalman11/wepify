@@ -2,6 +2,8 @@ import { createElTemplate } from './helpers';
 import type { PageElement } from './types';
 
 export const TAGS_WITHOUT_CHILDREN = new Set(['input', 'img', 'hr', 'br']);
+export const DEFAULT_BORDER_COLOR = '#4a90e2';
+export const DEFAULT_BORDER_WIDTH = 2;
 
 export enum Tags {
   Section = 'SECTION',
@@ -12,11 +14,14 @@ export enum Tags {
   A = 'A'
 }
 
-export enum ElementNames {
+export enum ElementsName {
   Grid = 'grid',
   Section = 'section',
   Item = 'item',
-  Image = 'image'
+  Image = 'image',
+  Input = 'input',
+  Link = 'link',
+  List = 'list'
 }
 
 export const OPTIONS_FONT = [
@@ -76,121 +81,162 @@ export const SCREEN_SIZES = {
   smartphone: { width: 375 + 120, height: 667 }
 } as const;
 
+export const RESPONSIVE_PROPS = new Set([
+  'width',
+  'height',
+  'left',
+  'top',
+  'fontSize',
+  'rotate',
+  'scaleY',
+  'scaleX',
+  'textAlign',
+  'justifyContent',
+  'alignItems',
+  'paddingTop',
+  'paddingRight',
+  'paddingBottom',
+  'paddingLeft',
+  'marginTop',
+  'marginRight',
+  'marginBottom',
+  'marginLeft',
+  'columns',
+  'columnWidth',
+  'columnGap',
+  'rows',
+  'rowHeight',
+  'rowGap'
+]);
+
 export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
   section: createElTemplate({
     tag: 'section',
     name: 'section',
-    left: 0,
-    top: 0,
-    width: 'fill',
-    height: 'screen',
+    left: { monitor: 0 },
+    top: { monitor: 0 },
+    width: { monitor: 'fill' },
+    height: { monitor: 'fill' },
     backgroundColor: '#fff'
   }),
   container: createElTemplate({
     tag: 'div',
     name: 'container',
-    width: 150,
-    height: 100,
+    width: { monitor: 150 },
+    height: { monitor: 100 },
     backgroundColor: '#313334'
   }),
   grid: createElTemplate({
     tag: 'div',
     name: 'grid',
-    width: 400,
-    height: 200,
+    width: { monitor: 500 },
+    height: { monitor: 250 },
     backgroundColor: '#343C44',
     display: 'grid',
-    columnGap: 12,
-    rowGap: 12,
-    columnWidth: 'auto',
-    rowHeight: 'auto',
-    columns: 2,
-    rows: 2,
-    paddingTop: 12,
-    paddingRight: 12,
-    paddingLeft: 12,
-    paddingBottom: 12
+    columnGap: { monitor: 12 },
+    rowGap: { monitor: 12 },
+    columnWidth: { monitor: 'auto' },
+    rowHeight: { monitor: 'auto' },
+    columns: { monitor: 2 },
+    rows: { monitor: 2 },
+    paddingTop: { monitor: 12 },
+    paddingRight: { monitor: 12 },
+    paddingBottom: { monitor: 12 },
+    paddingLeft: { monitor: 12 }
   }),
   gridItem: createElTemplate({
-    left: 0,
-    top: 0,
     tag: 'div',
     name: 'item',
     fontFamily: 'Inherit',
     fontWeight: 'Inherit',
-    fontSize: 'Inherit',
+    fontSize: { monitor: 'Inherit' },
     backgroundColor: '#b8e986'
   }),
   list: createElTemplate({
     tag: 'ul',
     name: 'list',
-    width: 150,
-    height: 110,
-    backgroundColor: '#b8e986',
-    paddingTop: 24,
-    paddingRight: 24,
-    paddingLeft: 24,
-    paddingBottom: 24
+    width: { monitor: 'fit' },
+    height: { monitor: 'fit' },
+    paddingTop: { monitor: 24 },
+    paddingRight: { monitor: 32 },
+    paddingLeft: { monitor: 32 },
+    paddingBottom: { monitor: 24 }
   }),
   listItem: createElTemplate({
-    left: 0,
-    top: 0,
     tag: 'li',
     name: 'item',
     fontFamily: 'Inherit',
     fontWeight: 'Inherit',
-    fontSize: 'Inherit',
+    fontSize: { monitor: 'Inherit' },
     content: 'li 1'
   }),
   heading: createElTemplate({
     tag: 'span',
     name: 'heading',
     fontWeight: 'Bold',
-    width: 'fit',
-    height: 'fit',
-    fontSize: 32,
+    width: { monitor: 'fit' },
+    height: { monitor: 'fit' },
+    fontSize: { monitor: 32 },
+    paddingTop: { monitor: 12 },
+    paddingRight: { monitor: 16 },
+    paddingLeft: { monitor: 16 },
+    paddingBottom: { monitor: 12 },
     content: 'First heading'
   }),
   text: createElTemplate({
     tag: 'p',
     name: 'text',
-    width: 215,
-    fontSize: 20,
-    content: ''
+    width: { monitor: 'fit' },
+    height: { monitor: 'fit' },
+    fontSize: { monitor: 18 },
+    paddingTop: { monitor: 12 },
+    paddingRight: { monitor: 16 },
+    paddingLeft: { monitor: 16 },
+    paddingBottom: { monitor: 12 },
+    content: 'Your description goes here'
   }),
   link: createElTemplate({
     tag: 'a',
     name: 'link',
     color: '#1352F1',
-    width: 150,
+    width: { monitor: 'fit' },
+    height: { monitor: 'fit' },
+    paddingTop: { monitor: 12 },
+    paddingRight: { monitor: 16 },
+    paddingLeft: { monitor: 16 },
+    paddingBottom: { monitor: 12 },
     link: '',
     content: 'Your text link'
   }),
   button: createElTemplate({
     tag: 'button',
     name: 'button',
-    width: 150,
+    width: { monitor: 150 },
     content: 'text',
     backgroundColor: '#f4f8f8',
-    paddingTop: 6,
-    paddingRight: 6,
-    paddingLeft: 6,
-    paddingBottom: 6
+    paddingTop: { monitor: 6 },
+    paddingRight: { monitor: 6 },
+    paddingLeft: { monitor: 6 },
+    paddingBottom: { monitor: 6 }
   }),
   input: createElTemplate({
     tag: 'input',
     name: 'input',
     type: 'text',
     placeholder: 'E-Mail',
-    width: 155,
-    fontSize: 14,
-    paddingTop: 6,
-    paddingRight: 6,
-    paddingLeft: 6,
-    paddingBottom: 6
+    width: { monitor: 150 },
+    fontSize: { monitor: 14 },
+    paddingTop: { monitor: 6 },
+    paddingRight: { monitor: 6 },
+    paddingLeft: { monitor: 6 },
+    paddingBottom: { monitor: 6 }
   }),
-  image: createElTemplate({
+  image: {
     tag: 'img',
-    name: 'image'
-  })
+    name: 'image',
+    width: { monitor: 'fit' },
+    height: { monitor: 'fit' },
+    left: { monitor: 0 },
+    top: { monitor: 0 }
+  }
 };

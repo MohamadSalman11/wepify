@@ -126,7 +126,7 @@ const maybeApplyGridProps = (style: CSSStyleDeclaration, gridElement: GridElemen
   if (gridElement.name !== ElementsName.Grid) return;
 
   if (style.columnGap) gridElement.columnGap = toResponsiveValue(style.columnGap);
-  if (style.rowGap) gridElement.columnGap = toResponsiveValue(style.rowGap);
+  if (style.rowGap) gridElement.rowGap = toResponsiveValue(style.rowGap);
   if (columnWidth) gridElement.columnWidth = toResponsiveValue(columnWidth);
   if (rowHeight) gridElement.rowHeight = toResponsiveValue(rowHeight);
   if (columns) gridElement.columns = toResponsiveValue(columns);

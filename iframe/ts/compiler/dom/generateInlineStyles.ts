@@ -91,18 +91,16 @@ function maybeGenerateFlexStyles(
   const { justifyContent, alignItems } = extractResponsiveProps(element, isResponsive);
 
   if (justifyContent) {
-    style.justifyContent = isNotDefault(justifyContent) ? justifyContent : '';
+    style.justifyContent = justifyContent;
   }
 
   if (alignItems) {
-    style.alignItems = isNotDefault(alignItems) ? alignItems : '';
+    style.alignItems = alignItems;
   }
 
   if (justifyContent || alignItems) {
-    const isDefaultFlex = isNotDefault(justifyContent) && isNotDefault(alignItems);
-
-    style.display = isDefaultFlex ? '' : 'flex';
-    style.flexDirection = isDefaultFlex ? '' : 'column';
+    style.display = 'flex';
+    style.flexDirection = 'column';
   }
 }
 
@@ -149,5 +147,3 @@ const extractResponsiveProps = (element: Partial<PageElement>, isResponsive: boo
 function isDefined<T>(value: T | undefined): value is T {
   return value !== undefined;
 }
-
-const isNotDefault = (value?: string) => value && value !== 'flex-start';

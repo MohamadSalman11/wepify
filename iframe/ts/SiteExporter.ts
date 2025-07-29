@@ -98,7 +98,7 @@ class SiteExporter {
       indexLink.after(responsiveLink);
     }
 
-    renderElements({ elements: page.elements, doc });
+    renderElements(page.elements, doc);
     this.processImages(doc);
 
     const html = this.shouldMinify

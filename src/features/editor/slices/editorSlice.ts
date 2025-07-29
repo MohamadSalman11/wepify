@@ -39,20 +39,25 @@ const editorSlice = createSlice({
       state.site = action.payload;
     },
     addPage(state, action: PayloadAction<SitePage>) {
+      state.site.lastModified = Date.now();
       state.site.pages.push(action.payload);
     },
     updatePageInfo(state, action: PayloadAction<{ id: string; name: string; title: string }>) {
       const page = state.site.pages.find((page) => page.id === action.payload.id);
 
       if (page) {
+        state.site.lastModified = Date.now();
         page.name = action.payload.name;
         page.title = action.payload.title;
       }
     },
     deletePage(state, action: PayloadAction<string>) {
+      state.site.lastModified = Date.now();
       state.site.pages = state.site.pages.filter((page) => page.id !== action.payload);
     },
     setIsIndexPage(state, action: PayloadAction<string>) {
+      state.site.lastModified = Date.now();
+
       for (const page of state.site.pages) {
         page.isIndex = page.id === action.payload;
       }
@@ -67,9 +72,11 @@ const editorSlice = createSlice({
       state.images = action.payload;
     },
     addImage(state, action: PayloadAction<Image>) {
+      state.site.lastModified = Date.now();
       state.images.push(action.payload);
     },
     deleteImage(state, action: PayloadAction<string>) {
+      state.site.lastModified = Date.now();
       state.images = state.images.filter((image) => image.id !== action.payload);
     },
     addElement(
@@ -80,6 +87,8 @@ const editorSlice = createSlice({
         newElement: PageElement;
       }>
     ) {
+      state.site.lastModified = Date.now();
+
       const { pageId, parentElementId, newElement } = action.payload;
 
       const page = state.site.pages.find((p) => p.id === pageId);
@@ -104,6 +113,8 @@ const editorSlice = createSlice({
         shouldBeResponsive: boolean;
       }>
     ) {
+      state.site.lastModified = Date.now();
+
       const { pageId, elementId, updates, shouldBeResponsive } = action.payload;
 
       const page = state.site.pages.find((p) => p.id === pageId);
@@ -134,6 +145,8 @@ const editorSlice = createSlice({
         elementId: string;
       }>
     ) {
+      state.site.lastModified = Date.now();
+
       const { pageId, parentElementId, elementId } = action.payload;
 
       const page = state.site.pages.find((p) => p.id === pageId);

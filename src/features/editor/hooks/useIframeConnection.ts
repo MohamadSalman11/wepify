@@ -116,7 +116,7 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [dispatch, navigate, iframeRef, pageId, site]);
+  }, [dispatch, navigate, iframeRef, pageId, site, location.pathname]);
 
   const renderElements = useCallback(
     (

@@ -66,8 +66,8 @@ export default function Sidebar() {
       id: siteId,
       name: DEFAULT_NAME,
       description: DEFAULT_DESCRIPTION,
-      createdAt: Date.now(),
-      lastModified: Date.now(),
+      createdAt: new Date('2025-07-27T00:00:00Z').getTime(),
+      lastModified: new Date('2025-07-27T00:00:00Z').getTime(),
       isStarred: false,
       pages: [page]
     };

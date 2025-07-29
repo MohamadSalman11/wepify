@@ -21,7 +21,7 @@ export const createDomTree = (element: PageElement, isSitePreviewMode: boolean) 
   elementNode.id = id;
   elementNode.dataset.name = name;
   elementNode.classList.add(SELECTOR_TARGET.replace('.', ''));
-  Object.assign(elementNode.style, generateInlineStyles(element, true));
+  Object.assign(elementNode.style, generateInlineStyles({ element, isResponsive: true }));
 
   if (content) {
     elementNode.textContent = content;

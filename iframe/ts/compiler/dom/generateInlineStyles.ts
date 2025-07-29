@@ -30,9 +30,17 @@ const PLAIN_STYLE_KEYS = [
   'zIndex'
 ] as const;
 
-export const generateInlineStyles = (element: Partial<PageElement>, isResponsive: boolean = false) => {
+export const generateInlineStyles = ({
+  element,
+  deviceType,
+  isResponsive = false
+}: {
+  element: Partial<PageElement>;
+  deviceType?: DeviceType;
+  isResponsive?: boolean;
+}) => {
   const style: Partial<CSSStyleDeclaration> = {};
-  const responsiveProps = extractResponsiveProps(element, isResponsive);
+  const responsiveProps = extractResponsiveProps(element, isResponsive, deviceType);
   const { left, top, fontWeight, fontSize, rotate, scaleY, scaleX } = responsiveProps;
 
   for (const key of PIXEL_STYLE_KEYS) {
@@ -59,8 +67,8 @@ export const generateInlineStyles = (element: Partial<PageElement>, isResponsive
   if (fontWeight) style.fontWeight = FONT_WEIGHT_VALUES[fontWeight as keyof typeof FONT_WEIGHT_VALUES];
   if (isDefined(fontSize)) style.fontSize = fontSize === 'Inherit' ? fontSize : `${fontSize}px`;
 
-  maybeGenerateSizeStyles(element, style, isResponsive);
-  maybeGenerateFlexStyles(element, style, isResponsive);
+  maybeGenerateSizeStyles(element, style, isResponsive, deviceType);
+  maybeGenerateFlexStyles(element, style, isResponsive, deviceType);
   maybeApplyGridStyles(element as GridElement, style, isResponsive);
 
   return style;
@@ -86,9 +94,10 @@ const maybeApplyGridStyles = (
 function maybeGenerateFlexStyles(
   element: Partial<PageElement>,
   style: Partial<CSSStyleDeclaration>,
-  isResponsive: boolean
+  isResponsive: boolean,
+  deviceType?: DeviceType
 ) {
-  const { justifyContent, alignItems } = extractResponsiveProps(element, isResponsive);
+  const { justifyContent, alignItems } = extractResponsiveProps(element, isResponsive, deviceType);
 
   if (justifyContent) {
     style.justifyContent = justifyContent;
@@ -107,9 +116,10 @@ function maybeGenerateFlexStyles(
 const maybeGenerateSizeStyles = (
   element: Partial<PageElement>,
   style: Partial<CSSStyleDeclaration>,
-  isResponsive: boolean
+  isResponsive: boolean,
+  deviceType?: DeviceType
 ) => {
-  const { width, height } = extractResponsiveProps(element, isResponsive);
+  const { width, height } = extractResponsiveProps(element, isResponsive, deviceType);
 
   if (isDefined(width)) {
     style.width = CSS_SIZES[width as keyof typeof CSS_SIZES]?.replace('vh', 'vw') || `${width}px`;
@@ -130,7 +140,7 @@ const getResponsiveProp = <T>(propMap: Partial<Record<DeviceType, T>>): T | unde
   }
 };
 
-const extractResponsiveProps = (element: Partial<PageElement>, isResponsive: boolean) => {
+const extractResponsiveProps = (element: Partial<PageElement>, isResponsive: boolean, deviceType?: DeviceType) => {
   const result: Partial<Record<string, any>> = { ...element };
 
   for (const key in element) {
@@ -138,7 +148,11 @@ const extractResponsiveProps = (element: Partial<PageElement>, isResponsive: boo
 
     const prop = (element as any)[key];
 
-    result[key] = isResponsive ? prop[getScreenBreakpoint()] || getResponsiveProp(prop) : prop['monitor'];
+    if (deviceType && prop[deviceType]) {
+      result[key] = prop[deviceType];
+    } else {
+      result[key] = isResponsive ? prop[getScreenBreakpoint()] || getResponsiveProp(prop) : prop['monitor'];
+    }
   }
 
   return result;

@@ -143,10 +143,10 @@ const controlUpdateElement = (updates: Partial<PageElement>) => {
   const section = target.closest(SELECTOR_CLOSEST_SECTION) as HTMLElement;
   const { link, type, placeholder } = updates as Record<string, any>;
 
-  const styles = generateInlineStyles(
-    RESPONSIVE_PROPS.has(Object.keys(updates)[0]) ? wrapUpdatesWithBreakpoint(updates) : updates,
-    true
-  );
+  const styles = generateInlineStyles({
+    element: RESPONSIVE_PROPS.has(Object.keys(updates)[0]) ? wrapUpdatesWithBreakpoint(updates) : updates,
+    isResponsive: true
+  });
 
   if (link && target instanceof HTMLAnchorElement) target.href = link;
   if (type && target instanceof HTMLInputElement) target.type = type;

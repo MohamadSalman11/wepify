@@ -53,15 +53,17 @@ class SiteExporter {
   }
 
   private addCssFiles(site: Site) {
-    this.zip.file(FileNames.StyleCSS, this.shouldMinify ? minifyCSS(cssFile) : cssFile);
+    const folder = this.zip.folder('src')!;
+
+    folder.file(FileNames.StyleCSS, this.shouldMinify ? minifyCSS(cssFile) : cssFile);
 
     const { indexCss, responsiveCss } = generateCssFiles(site);
 
     const indexCssFinal = this.shouldMinify ? minifyCSS(indexCss) : indexCss;
     const responsiveCssFinal = this.shouldMinify ? minifyCSS(responsiveCss) : responsiveCss;
 
-    this.zip.file(CSS_FILE_INDEX, indexCssFinal);
-    this.zip.file(CSS_FILE_RESPONSIVE, responsiveCssFinal);
+    folder.file(CSS_FILE_INDEX, indexCssFinal);
+    folder.file(CSS_FILE_RESPONSIVE, responsiveCssFinal);
   }
 
   private async addPage(page: SitePage) {
@@ -83,7 +85,6 @@ class SiteExporter {
     }
 
     renderElements(page.elements, doc);
-
     this.processImages(doc);
 
     const html = this.shouldMinify
@@ -92,11 +93,14 @@ class SiteExporter {
 
     const fileName = page.isIndex ? FileNames.IndexPage : `${page.name.toLowerCase().replace(/\s+/g, '_')}.html`;
 
-    this.zip.file(fileName, html);
+    const folder = this.zip.folder('src')!;
+    folder.file(fileName, html);
   }
 
   private processImages(doc: Document) {
     const images = doc.querySelectorAll(SELECTOR_DATA_IMAGE) as NodeListOf<HTMLImageElement>;
+
+    const imagesFolder = this.zip.folder('src/images')!;
 
     for (const img of images) {
       const src = img.src;
@@ -104,7 +108,7 @@ class SiteExporter {
       const base64 = src.split(',')[1];
       const fileName = `image_${++this.imageCount}.${ext}`;
 
-      this.zip.file(`images/${fileName}`, base64, { base64: true });
+      imagesFolder.file(fileName, base64, { base64: true });
       img.src = `images/${fileName}`;
     }
   }

@@ -6,6 +6,7 @@ import { minifyCSS } from './compiler/minifyCSS';
 import { cleanUpHTML, minifyHTML } from './compiler/minifyHTML';
 import { downloadBlob } from './utils/downloadBlob';
 import { renderElements } from './view';
+import favicon from '/favicon.ico';
 
 /**
  * Constants
@@ -22,7 +23,8 @@ enum FileNames {
   IndexPage = 'index.html',
   StyleCSS = 'style.css',
   SiteJson = 'site.json',
-  ZipDownload = 'website.zip'
+  ZipDownload = 'website.zip',
+  Favicon = 'favicon.ico'
 }
 
 /**
@@ -40,6 +42,13 @@ class SiteExporter {
   }
 
   async exportSite(site: Site) {
+    const srcFolder = this.zip.folder('src')!;
+
+    const faviconBlob = await fetch(favicon).then((res) => res.blob());
+    const faviconArrayBuffer = await faviconBlob.arrayBuffer();
+
+    srcFolder.file(FileNames.Favicon, faviconArrayBuffer);
+
     this.addCssFiles(site);
 
     for (const page of site.pages) {
@@ -70,6 +79,11 @@ class SiteExporter {
     const doc = document.implementation.createHTMLDocument(page.name);
     doc.head.innerHTML = document.head.innerHTML;
     doc.title = page.title || page.name;
+
+    const faviconLink = doc.createElement('link');
+    faviconLink.rel = 'icon';
+    faviconLink.href = './favicon.ico';
+    doc.head.append(faviconLink);
 
     const styleLink = doc.head.querySelector(SELECTOR_STYLE_LINK);
     if (styleLink) {

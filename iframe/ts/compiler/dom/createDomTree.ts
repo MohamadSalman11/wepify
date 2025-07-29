@@ -33,7 +33,9 @@ export const createDomTree = (element: PageElement) => {
 
     elementNode.addEventListener('click', (event) => {
       event.preventDefault();
-      postMessageToApp({ type: MessageFromIframe.NavigateToPage, payload: elementNode.getAttribute('href') || '' });
+      if (state.isSitePreviewMode) {
+        postMessageToApp({ type: MessageFromIframe.NavigateToPage, payload: elementNode.getAttribute('href') || '' });
+      }
     });
   } else if (isImgElement) {
     elementNode.src = element.src || '';

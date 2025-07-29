@@ -58,7 +58,7 @@ export default function Sidebar() {
       </nav>
       <LeaveButton>
         <Link to={Path.Dashboard}>
-          <Icon onClick={handleLogout} icon={LuLogOut} hover={true} />
+          <Icon onClick={handleLogout} color='var(--color-red)' icon={LuLogOut} hover={true} />
         </Link>
       </LeaveButton>
     </StyledSidebar>
@@ -128,9 +128,5 @@ const LeaveButton = styled.button`
     &:hover {
       background-color: var(--color-red-light);
     }
-  }
-
-  svg {
-    color: var(--color-red);
   }
 `;

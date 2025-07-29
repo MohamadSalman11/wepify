@@ -102,7 +102,7 @@ function PageItem({ page, index }: { page: SitePage; index: number }) {
                   Delete
                 </Dropdown.Button>
               </Modal.Open>
-              <Dropdown.Button icon={LuLink} onClick={() => handleCopyLink(page.name)}>
+              <Dropdown.Button icon={LuLink} onClick={() => handleCopyLink(page.isIndex ? 'index' : page.name)}>
                 Copy page link
               </Dropdown.Button>
               <Dropdown.Button

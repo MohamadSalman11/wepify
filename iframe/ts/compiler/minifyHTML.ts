@@ -23,7 +23,8 @@ const REGEX = {
   QUOTES_TRIM: /^['"]+|['"]+$/g,
   MULTIPLE_AMPERSANDS: /[&]{2,}/g,
   QUESTION_MARK_AMPERSAND: /\?&/,
-  TRAILING_AMPERSAND: /&$/
+  TRAILING_AMPERSAND: /&$/,
+  A_TAG_ATTRS_TO_REMOVE: /\s(?:target|spellcheck|data-name)(?:=["'][^"']*["'])?/g
 };
 
 const PRETTIER_PARSER = 'html';
@@ -83,7 +84,8 @@ export const cleanUpHTML = async (html: string) => {
     .replace(REGEX.MOVEABLE_CSS_LINK, '')
     .replace(REGEX.CONTENTEDITABLE, '')
     .replace(REGEX.STYLED_COMPONENT, '')
-    .replace(REGEX.STYLE_INLINE, '');
+    .replace(REGEX.STYLE_INLINE, '')
+    .replace(REGEX.A_TAG_ATTRS_TO_REMOVE, '');
 
   const options = {
     parser: PRETTIER_PARSER,
@@ -93,6 +95,7 @@ export const cleanUpHTML = async (html: string) => {
 
   return await prettier.format(cleanedHTML, options);
 };
+
 export const minifyHTML = async (html: string) => {
   const cleaned = await cleanUpHTML(html);
 

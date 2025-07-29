@@ -102,7 +102,6 @@ export interface Site {
   id: string;
   name: string;
   description: string;
-  pagesCount: number;
   createdAt: number;
   lastModified: number;
   isStarred: boolean;

@@ -13,7 +13,7 @@ import { useAppSelector } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
 import { getRandomDuration } from '../../utils/getRandomDuration';
 import { setIsLoading as setDashboardIsLoading } from '../dashboard/slices/dashboardSlice';
-import { clearSite, setIsError, setIsLoading, setSite } from './slices/editorSlice';
+import { clearSite, setDeviceType, setIsError, setIsLoading, setSite } from './slices/editorSlice';
 import { setPage, setScale, setSize } from './slices/pageSlice';
 import { selectElement } from './slices/selectionSlice';
 
@@ -61,7 +61,8 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
         dispatch(setSite(site));
         dispatch(setPage(page));
         dispatch(selectElement(page.elements[0]));
-        dispatch(setScale())
+        dispatch(setScale(100));
+        dispatch(setDeviceType('tablet'));
         setTimeout(() => dispatch(setIsLoading(false)), 100);
       } else {
         dispatch(setIsError(true));

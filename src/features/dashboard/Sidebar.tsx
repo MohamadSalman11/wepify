@@ -23,7 +23,6 @@ import { addSite } from './slices/dashboardSlice';
 
 const DEFAULT_NAME = 'Untitled';
 const DEFAULT_DESCRIPTION = 'My modern clean site';
-const DEFAULT_PAGES_COUNT = 1;
 const ACCEPTED_FILE_TYPE = '.json';
 
 const SITE_SCHEMA = {
@@ -67,7 +66,6 @@ export default function Sidebar() {
       id: siteId,
       name: DEFAULT_NAME,
       description: DEFAULT_DESCRIPTION,
-      pagesCount: DEFAULT_PAGES_COUNT,
       createdAt: Date.now(),
       lastModified: Date.now(),
       isStarred: false,

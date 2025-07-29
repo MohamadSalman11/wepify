@@ -1,6 +1,5 @@
 import { SCREEN_SIZES } from '@shared/constants';
 import type { Site } from '@shared/types';
-import { useState } from 'react';
 import type { IconType } from 'react-icons';
 import {
   LuEye,
@@ -49,8 +48,7 @@ export default function Header() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { iframeConnection } = useIframeContext();
-  const { site, isDownloadingSite } = useAppSelector((state) => state.editor);
-  const [activeDevice, setActiveDevice] = useState<DeviceType>('tablet');
+  const { site, isDownloadingSite, deviceType } = useAppSelector((state) => state.editor);
   const { originWidth, originHeight } = useAppSelector((state) => state.page);
 
   async function handleDownloadSite(shouldMinify: boolean) {
@@ -82,29 +80,29 @@ export default function Header() {
         <DevicePreviewButton
           icon={LuMonitor}
           deviceType='monitor'
-          isActive={activeDevice === 'monitor'}
-          setActiveDevice={setActiveDevice}
+          isActive={deviceType === 'monitor'}
+          setActiveDevice={() => dispatch(setDeviceType('monitor'))}
           screenSize={SCREEN_SIZES.monitor}
         />
         <DevicePreviewButton
           icon={LuLaptop}
           deviceType='laptop'
-          isActive={activeDevice === 'laptop'}
-          setActiveDevice={setActiveDevice}
+          isActive={deviceType === 'laptop'}
+          setActiveDevice={() => dispatch(setDeviceType('laptop'))}
           screenSize={SCREEN_SIZES.laptop}
         />
         <DevicePreviewButton
           icon={LuTablet}
           deviceType='tablet'
-          isActive={activeDevice === 'tablet'}
-          setActiveDevice={setActiveDevice}
+          isActive={deviceType === 'tablet'}
+          setActiveDevice={() => dispatch(setDeviceType('tablet'))}
           screenSize={SCREEN_SIZES.tablet}
         />
         <DevicePreviewButton
           icon={LuSmartphone}
           deviceType='smartphone'
-          isActive={activeDevice === 'smartphone'}
-          setActiveDevice={setActiveDevice}
+          isActive={deviceType === 'smartphone'}
+          setActiveDevice={() => dispatch(setDeviceType('smartphone'))}
           screenSize={SCREEN_SIZES.smartphone}
         />
       </DevicePreviewControls>

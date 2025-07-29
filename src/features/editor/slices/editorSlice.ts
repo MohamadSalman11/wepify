@@ -19,7 +19,6 @@ const initialState: EditorState = {
     id: '',
     name: '',
     description: '',
-    pagesCount: 0,
     createdAt: Date.now(),
     lastModified: Date.now(),
     isStarred: false,

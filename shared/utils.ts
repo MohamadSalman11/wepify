@@ -21,3 +21,13 @@ export const rgbaToHex = ({ r, g, b, a }: { r: number; g: number; b: number; a: 
 
   return `#${hex}${alphaHex}`;
 };
+
+export const generateFileNameFromPageName = (pageName: string): string => {
+  return (
+    pageName
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '_')
+      .replace(/[^\w_-]/g, '') + '.html'
+  );
+};

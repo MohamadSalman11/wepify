@@ -7,10 +7,12 @@ import {
   PageElement,
   Site
 } from '@shared/types';
+import { generateFileNameFromPageName } from '@shared/utils';
 import { useCallback, useEffect, useMemo, useState, type RefObject } from 'react';
 import { useDispatch } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { TARGET_ORIGIN } from '../../../constant';
+import { useAppSelector } from '../../../store';
 import {
   addElement,
   deleteElementInSite,
@@ -24,8 +26,11 @@ import { selectElement, updateSelectElement } from '../slices/selectionSlice';
 
 export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | null>) => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const { pageId } = useParams();
+  const navigate = useNavigate();
   const [iframeReady, setIframeReady] = useState(false);
+  const { site } = useAppSelector((state) => state.editor);
 
   const postMessageToIframe = useCallback(
     (message: Record<string, any>) => {
@@ -94,12 +99,24 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
           dispatch(setIsDownloadingSite(false));
           break;
         }
+        case MessageFromIframe.NavigateToPage: {
+          const pageFileName = data.payload;
+
+          for (const page of site.pages) {
+            if (generateFileNameFromPageName(page.isIndex ? 'index' : page.name) === pageFileName) {
+              const newPath = location.pathname.replace(/\/pages\/[^/]+/, `/pages/${page.id}`);
+              navigate(newPath);
+              break;
+            }
+          }
+          break;
+        }
       }
     };
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [dispatch, iframeRef, pageId]);
+  }, [dispatch, navigate, iframeRef, pageId, site]);
 
   const renderElements = useCallback(
     (

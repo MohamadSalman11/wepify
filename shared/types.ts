@@ -116,7 +116,8 @@ export enum MessageFromIframe {
   ElementDeleted = 'ELEMENT_DELETED',
   SiteDownloaded = 'SITE_DOWNLOADED',
   BreakpointChanged = 'BREAKPOINT_CHANGED',
-  PageUpdated = 'PAGE_UPDATED'
+  PageUpdated = 'PAGE_UPDATED',
+  NavigateToPage = 'NAVIGATE_TO_PAGE'
 }
 
 export enum MessageToIframe {
@@ -158,4 +159,5 @@ export type MessageFromIframeData =
   | { type: MessageFromIframe.ElementDeleted; payload: { targetId: string; parentId: string } }
   | { type: MessageFromIframe.SiteDownloaded }
   | { type: MessageFromIframe.BreakpointChanged; payload: { newDeviceType: DeviceType } }
-  | { type: MessageFromIframe.PageUpdated; payload: { updates: Record<string, any> } };
+  | { type: MessageFromIframe.PageUpdated; payload: { updates: Record<string, any> } }
+  | { type: MessageFromIframe.NavigateToPage; payload: string };

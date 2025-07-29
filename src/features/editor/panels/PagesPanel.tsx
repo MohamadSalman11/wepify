@@ -1,5 +1,6 @@
 import { nanoid } from '@reduxjs/toolkit';
 import type { SitePage } from '@shared/types';
+import { generateFileNameFromPageName } from '@shared/utils';
 import { useState, type MouseEvent } from 'react';
 import toast from 'react-hot-toast';
 import { LuCopy, LuEllipsis, LuHouse, LuLink, LuPencil, LuSquareMenu, LuTrash2 } from 'react-icons/lu';
@@ -236,12 +237,7 @@ function DeleteDialog({
 }
 
 const handleCopyLink = (pageName: string) => {
-  const fileName =
-    pageName
-      .toLocaleLowerCase()
-      .trim()
-      .replace(/\s+/g, '_')
-      .replace(/[^\w_-]/g, '') + '.html';
+  const fileName = generateFileNameFromPageName(pageName);
 
   navigator.clipboard
     .writeText(fileName)

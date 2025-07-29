@@ -29,7 +29,6 @@ const ACCEPTED_FILE_TYPE = '.json';
 const SITE_SCHEMA = {
   name: 'string',
   description: 'string',
-  pagesCount: 'number',
   pages: 'array',
   createdAt: 'number',
   lastModified: 'number',

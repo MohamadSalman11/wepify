@@ -157,7 +157,7 @@ function TableRow({ site }: { site: Site }) {
   const dispatch = useDispatch();
   const { open } = useModalContext();
 
-  const { id, name, description, pagesCount, pages, createdAt, lastModified, isStarred } = site;
+  const { id, name, description, pages, createdAt, lastModified, isStarred } = site;
 
   const toggleStar = () => {
     dispatch(toggleSiteStarred(id));
@@ -195,7 +195,7 @@ function TableRow({ site }: { site: Site }) {
       </td>
       <td>{description}</td>
       <td>{calculateSiteSize(site)}</td>
-      <td>{pagesCount}</td>
+      <td>{pages.length}</td>
       <td>{formatDate(createdAt)}</td>
       <td>{formatDate(lastModified)}</td>
       <td>

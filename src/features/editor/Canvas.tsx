@@ -123,6 +123,15 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
 
   return (
     <StyledCanvas ref={canvasRef} $isPreview={isPreview}>
+      <title>
+        {isLoading
+          ? isPreview
+            ? 'Loading preview — Wepify Website Builder'
+            : 'Opening editor — Wepify Website Builder'
+          : isPreview
+            ? `Previewing ${site.name} — Wepify Website Builder`
+            : `Editing ${site.name} — Wepify Website Builder`}
+      </title>
       <iframe ref={iframeRef} src={IFRAME_SRC} title={IFRAME_TITLE} />
       {isLoading && (
         <LoadingScreen

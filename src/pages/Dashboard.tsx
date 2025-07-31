@@ -66,11 +66,17 @@ export default function Dashboard() {
   }, [sites]);
 
   if (isLoading) {
-    return <LoadingScreen duration={loadingDuration} />;
+    return (
+      <>
+        <title>{'Wepify Dashboard — Loading Your Sites...'}</title>
+        <LoadingScreen duration={loadingDuration} />;
+      </>
+    );
   }
 
   return (
     <StyledDashboard>
+      <title>Wepify Dashboard — Manage Your Websites</title>
       <Toaster position='bottom-left' />
       <Header />
       <DashboardLayout>

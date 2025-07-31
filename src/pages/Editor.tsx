@@ -56,6 +56,7 @@ export default function Editor() {
   return (
     <IframeContext.Provider value={{ iframeRef, iframeConnection }}>
       <StyledEditor>
+        <title>{isPreview ? 'Wepify — Preview your website' : 'Wepify — Create and edit websites'}</title>
         <Toaster position='top-center' reverseOrder={false} />
         <Sidebar />
         <Header />

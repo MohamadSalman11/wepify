@@ -14,6 +14,7 @@ export default function Home() {
 
   return (
     <StyledHome>
+      <title>Wepify - Build websites in minutes without coding</title>
       <Header />
       <Container>
         <Title>Build websites in minutes without writing any code</Title>

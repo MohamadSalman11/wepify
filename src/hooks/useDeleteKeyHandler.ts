@@ -1,7 +1,7 @@
 import { RefObject, useEffect } from 'react';
 import { isTyping } from '../utils/isTyping';
 
-const DELETE_KEY = 'Backspace';
+const KEY_DELETE_ELEMENT = 'Backspace';
 
 interface UseDeleteKeyHandlerParams {
   iframeRef?: RefObject<HTMLIFrameElement | null>;
@@ -11,7 +11,7 @@ interface UseDeleteKeyHandlerParams {
 export const useDeleteKeyHandler = ({ iframeRef, onDelete }: UseDeleteKeyHandlerParams) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === DELETE_KEY && (iframeRef ? !isTyping(iframeRef) : true)) {
+      if (event.key === KEY_DELETE_ELEMENT && (iframeRef ? !isTyping(iframeRef) : true)) {
         onDelete();
       }
     };

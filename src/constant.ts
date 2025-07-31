@@ -57,5 +57,9 @@ export const ToastMessages = {
     linkCopyErr: 'Failed to copy page link',
     emptyName: 'Page name cannot be empty',
     duplicateName: 'A page with this name already exists. Please choose a different name.'
+  },
+  network: {
+    offline: 'You are currently offline. Some features may be unavailable.',
+    online: 'You are back online. All features are now available.'
   }
 } as const;

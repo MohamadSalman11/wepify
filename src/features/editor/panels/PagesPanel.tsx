@@ -33,7 +33,7 @@ const PAGE_NAME_MAX_LENGTH = 7;
 
 export default function PagesPanel() {
   const dispatch = useDispatch();
-  const { site } = useAppSelector((state) => state.editor);
+  const site = useAppSelector((state) => state.editor.site);
 
   const handleAddNewPage = () => {
     const newPage = createNewPage();
@@ -135,7 +135,7 @@ function EditDialog({ page, onCloseModal }: { page: SitePage; onCloseModal?: OnC
   const dispatch = useDispatch();
   const [newName, setNewName] = useState(page.name || '');
   const [newTitle, setNewTitle] = useState(page.title || page.name || '');
-  const { site } = useAppSelector((state) => state.editor);
+  const site = useAppSelector((state) => state.editor.site);
 
   const handleSave = () => {
     const trimmedName = newName.trim();
@@ -195,7 +195,7 @@ function DeleteDialog({
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { pageId } = useParams();
-  const { site } = useAppSelector((state) => state.editor);
+  const site = useAppSelector((state) => state.editor.site);
 
   const handleDelete = async () => {
     const isDeletingCurrentPage = pageId === page.id;

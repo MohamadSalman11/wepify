@@ -114,8 +114,7 @@ interface SettingsContextType {
 
 export default function SettingsPanel() {
   const { iframeConnection } = useIframeContext();
-  const selectedElement = useAppSelector((state) => state.selection.present.selectedElement);
-  const deviceType = useAppSelector((state) => state.editor.deviceType);
+  const { selectedElement, deviceType } = useAppSelector((state) => state.editor);
 
   const handleElementChange = (name: string, value: string | number) => {
     const updates = { [name]: value };
@@ -166,9 +165,8 @@ function ChangeElement({
 
 function SelectorSettings() {
   const { pageId } = useParams();
-  const pages = useAppSelector((state) => state.editor.site.pages);
-  const page = pages.find((p) => p.id === pageId);
-  const selection = useAppSelector((state) => state.selection.present.selectedElement);
+  const { site, selectedElement } = useAppSelector((state) => state.editor);
+  const page = site.pages.find((p) => p.id === pageId);
   const { iframeConnection } = useIframeContext();
 
   const sortedElementIds = flattenElements(page?.elements || [])
@@ -193,7 +191,7 @@ function SelectorSettings() {
           <Select
             name='selector'
             options={sortedElementIds}
-            defaultSelect={selection.id}
+            defaultSelect={selectedElement.id}
             onChange={(event) => handleSelection(event.target.value as string)}
           />
         </SelectorContainer>
@@ -204,8 +202,7 @@ function SelectorSettings() {
 
 function SizeSettings() {
   const { handleElementChange } = useSettingsContext();
-  const selectedElement = useAppSelector((state) => state.selection.present.selectedElement);
-  const deviceType = useAppSelector((state) => state.editor.deviceType);
+  const { selectedElement, deviceType } = useAppSelector((state) => state.editor);
   const disableInput = isElementName(selectedElement.name, ElementsName.Item, ElementsName.Section);
 
   const handleRotate = () => {
@@ -242,7 +239,7 @@ function SizeSettings() {
                 name='left'
                 disabled={disableInput}
                 type='number'
-                value={disableInput ? '' : parseNumber(getResponsiveValue(selectedElement.left || 0, deviceType) ?? 0)}
+                value={disableInput ? '' : parseNumber(getResponsiveValue(selectedElement.left, deviceType))}
               />
             </ChangeElement>
           </SizeRow>
@@ -253,7 +250,7 @@ function SizeSettings() {
                 name='top'
                 disabled={disableInput}
                 type='number'
-                value={disableInput ? '' : (parseNumber(getResponsiveValue(selectedElement.top, deviceType)) ?? 0)}
+                value={disableInput ? '' : parseNumber(getResponsiveValue(selectedElement.top, deviceType))}
               />
             </ChangeElement>
           </SizeRow>
@@ -305,9 +302,8 @@ function SizeSettings() {
 }
 
 function AlignmentSettings() {
-  const selectedElement = useAppSelector((state) => state.selection.present.selectedElement);
+  const { selectedElement, deviceType } = useAppSelector((state) => state.editor);
   const { handleElementChange } = useSettingsContext();
-  const deviceType = useAppSelector((state) => state.editor.deviceType);
   const justifyContent = getResponsiveValue(selectedElement.justifyContent, deviceType) || 'flex-start';
   const alignItems = getResponsiveValue(selectedElement.alignItems, deviceType) || 'flex-start';
 
@@ -365,7 +361,7 @@ function AlignmentSettings() {
 }
 
 function SpacingSettings() {
-  const deviceType = useAppSelector((state) => state.editor.deviceType);
+  const { selectedElement, deviceType } = useAppSelector((state) => state.editor);
   const {
     name,
     marginTop,
@@ -376,7 +372,7 @@ function SpacingSettings() {
     paddingRight,
     paddingBottom,
     paddingLeft
-  } = useAppSelector((state) => state.selection.present.selectedElement);
+  } = selectedElement;
 
   if (isElementName(name, ElementsName.Image)) {
     return null;
@@ -436,10 +432,8 @@ function SpacingSettings() {
 }
 
 function GridSettings() {
-  const deviceType = useAppSelector((state) => state.editor.deviceType);
-  const { columns, rows, columnWidth, rowHeight, columnGap, rowGap } = useAppSelector(
-    (state) => state.selection.present.selectedElement
-  ) as GridElement;
+  const { selectedElement, deviceType } = useAppSelector((state) => state.editor);
+  const { columns, rows, columnWidth, rowHeight, columnGap, rowGap } = selectedElement as GridElement;
 
   return (
     <div>
@@ -517,7 +511,7 @@ function GridSettings() {
 }
 
 function LinkSettings() {
-  const selectedElement = useAppSelector((state) => state.selection.present.selectedElement) as LinkElement;
+  const selectedElement = useAppSelector((state) => state.editor.selectedElement) as LinkElement;
 
   return (
     <div>
@@ -533,7 +527,7 @@ function LinkSettings() {
 }
 
 function InputSettings() {
-  const { type, placeholder } = useAppSelector((state) => state.selection.present.selectedElement) as InputElement;
+  const { type, placeholder } = useAppSelector((state) => state.editor.selectedElement) as InputElement;
 
   return (
     <div>
@@ -558,8 +552,7 @@ function InputSettings() {
 }
 
 function TypographySettings() {
-  const selectedElement = useAppSelector((state) => state.selection.present.selectedElement);
-  const deviceType = useAppSelector((state) => state.editor.deviceType);
+  const { selectedElement, deviceType } = useAppSelector((state) => state.editor);
   const { handleElementChange } = useSettingsContext();
   const textAlign = getResponsiveValue(selectedElement.textAlign, deviceType);
 
@@ -653,7 +646,7 @@ function StrokeSettings() {
     borderRadius = DEFAULT_BORDER_RADIUS,
     borderColor = DEFAULT_BORDER_COLOR,
     borderWidth = DEFAULT_BORDER_WIDTH
-  } = useAppSelector((state) => state.selection.present.selectedElement);
+  } = useAppSelector((state) => state.editor.selectedElement);
   const { handleElementChange } = useSettingsContext();
 
   const borders = { borderTop, borderRight, borderBottom, borderLeft };

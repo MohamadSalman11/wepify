@@ -13,9 +13,8 @@ import { useAppSelector } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
 import { getRandomDuration } from '../../utils/getRandomDuration';
 import { setIsLoading as setDashboardIsLoading } from '../dashboard/slices/dashboardSlice';
-import { clearSite, setDeviceType, setIsError, setIsLoading, setSite } from './slices/editorSlice';
+import { clearSite, selectElement, setDeviceType, setIsError, setIsLoading, setSite } from './slices/editorSlice';
 import { setPage, setScale, setSize } from './slices/pageSlice';
-import { selectElement } from './slices/selectionSlice';
 
 /**
  * Constants
@@ -39,7 +38,7 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
   const { pageId } = useParams();
   const { iframeConnection, iframeRef } = useIframeContext();
   const { backgroundColor, width, height, scale } = useAppSelector((state) => state.page);
-  const { images, site, isLoading, isError, deviceType } = useAppSelector((state) => state.editor);
+  const { site, images, isLoading, isError, deviceType } = useAppSelector((state) => state.editor);
 
   const onLoaded = useCallback(
     (site: Site | null) => {

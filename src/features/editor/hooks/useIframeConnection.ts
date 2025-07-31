@@ -16,13 +16,14 @@ import { useAppSelector } from '../../../store';
 import {
   addElement,
   deleteElementInSite,
+  selectElement,
   setDeviceType,
   setIsDownloadingSite,
   updateElementInSite,
-  updatePageInSite
+  updatePageInSite,
+  updateSelectElement
 } from '../slices/editorSlice';
 import { setBackground } from '../slices/pageSlice';
-import { selectElement, updateSelectElement } from '../slices/selectionSlice';
 
 const PAGE_NAME_INDEX = 'index';
 const PAGE_PATH_SEGMENT_REGEX = new RegExp(`${EditorPath.Pages}[^/]+`);
@@ -33,7 +34,7 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
   const { pageId } = useParams();
   const navigate = useNavigate();
   const [iframeReady, setIframeReady] = useState(false);
-  const { site } = useAppSelector((state) => state.editor);
+  const site = useAppSelector((state) => state.editor.site);
 
   const postMessageToIframe = useCallback(
     (message: Record<string, any>) => {

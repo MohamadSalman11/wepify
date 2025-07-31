@@ -1,9 +1,10 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { ElementsName } from '@shared/constants';
+import { ELEMENTS_TEMPLATE, ElementsName } from '@shared/constants';
 import { DeviceType, Image, PageElement, Site, SitePage } from '@shared/typing';
 import { findElementById } from '../../../utils/findElementById';
 
 interface EditorState {
+  selectedElement: PageElement;
   site: Site;
   isLoading: boolean;
   isError: boolean;
@@ -13,6 +14,7 @@ interface EditorState {
 }
 
 const initialState: EditorState = {
+  selectedElement: ELEMENTS_TEMPLATE.section as PageElement,
   site: {
     id: '',
     name: '',
@@ -33,6 +35,12 @@ const editorSlice = createSlice({
   name: 'editor',
   initialState,
   reducers: {
+    selectElement: (state, action: PayloadAction<PageElement>) => {
+      state.selectedElement = action.payload;
+    },
+    updateSelectElement(state, action: PayloadAction<Partial<PageElement>>) {
+      Object.assign(state.selectedElement, action.payload);
+    },
     setSite(state, action: PayloadAction<Site>) {
       state.site = action.payload;
     },
@@ -192,6 +200,8 @@ export const {
   setIsError,
   setImages,
   addElement,
+  selectElement,
+  updateSelectElement,
   updateElementInSite,
   deleteElementInSite,
   deleteImage,

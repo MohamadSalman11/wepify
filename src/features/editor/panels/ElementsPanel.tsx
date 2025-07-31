@@ -28,7 +28,7 @@ const ACCEPTED_FILE_TYPE = 'image/*';
 export default function ElementsPanel() {
   const dispatch = useDispatch();
   const { iframeConnection } = useIframeContext();
-  const selectedElement = useAppSelector((state) => state.selection.present.selectedElement);
+  const selectedElement = useAppSelector((state) => state.editor.selectedElement);
 
   const handleImageUpload = useImageUpload(
     (result) => {

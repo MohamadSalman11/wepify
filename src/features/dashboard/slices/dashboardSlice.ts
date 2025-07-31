@@ -13,7 +13,7 @@ export interface FilterCriteria {
   modifiedWithinDays?: number;
 }
 
-export interface DashboardState {
+interface DashboardState {
   sites: Site[];
   filters: FilterCriteria;
   filterLabel: string;

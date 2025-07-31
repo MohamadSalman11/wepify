@@ -38,9 +38,8 @@ const ICON_MAP: Record<string, IconType> = {
 
 export default function LayersPanel() {
   const { pageId } = useParams();
-  const pages = useAppSelector((state) => state.editor.site.pages);
-  const page = pages.find((p) => p.id === pageId);
-  const selectedElementId = useAppSelector((state) => state.selection.present.selectedElement.id);
+  const { site, selectedElement } = useAppSelector((state) => state.editor);
+  const page = site.pages.find((p) => p.id === pageId);
 
   return (
     <>
@@ -51,7 +50,7 @@ export default function LayersPanel() {
             key={element.id}
             elements={page.elements}
             element={element}
-            selectedElementId={selectedElementId}
+            selectedElementId={selectedElement.id}
           />
         ))}
       </LayerList>

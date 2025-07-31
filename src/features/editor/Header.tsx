@@ -1,20 +1,9 @@
 import { PAGE_PADDING_X, SCREEN_SIZES } from '@shared/constants';
 import type { Site } from '@shared/typing';
 import type { IconType } from 'react-icons';
-import {
-  LuEye,
-  LuFileCode2,
-  LuFileMinus,
-  LuLaptop,
-  LuMonitor,
-  LuRedo2,
-  LuSmartphone,
-  LuTablet,
-  LuUndo2
-} from 'react-icons/lu';
+import { LuEye, LuFileCode2, LuFileMinus, LuLaptop, LuMonitor, LuSmartphone, LuTablet } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { ActionCreators } from 'redux-undo';
 import styled from 'styled-components';
 import Button from '../../components/Button';
 import Divider from '../../components/divider';
@@ -108,9 +97,6 @@ export default function Header() {
         ))}
       </DevicePreviewControls>
       <EditorActions>
-        <Icon icon={LuUndo2} onClick={() => dispatch(ActionCreators.undo())} />
-        <Icon icon={LuRedo2} onClick={() => dispatch(ActionCreators.redo())} />
-        <Divider rotate={90} width={30} />
         <Icon icon={LuEye} hover={true} tooltipLabel='Preview Site' onClick={handleSitePreview} />
         <Divider rotate={90} width={30} />
         <Dropdown>
@@ -217,8 +203,12 @@ const StyledHeader = styled.header`
   background-color: var(--color-white);
 
   & > div {
-    flex-grow: 1;
+    flex-basis: 40rem;
     justify-content: end;
+
+    &:nth-child(2) {
+      justify-content: center;
+    }
   }
 `;
 

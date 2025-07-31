@@ -7,7 +7,6 @@ import Icon from '../../components/Icon';
 import Logo from '../../components/Logo';
 import { EditorPath, Path } from '../../constant';
 import { setIsLoading } from '../dashboard/slices/dashboardSlice';
-import { clearSelection } from './slices/selectionSlice';
 
 /**
  * Constants
@@ -30,7 +29,6 @@ export default function Sidebar() {
 
   const handleLogout = () => {
     dispatch(setIsLoading(true));
-    dispatch(clearSelection());
     navigate(Path.Dashboard);
   };
 

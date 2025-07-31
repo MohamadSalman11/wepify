@@ -31,3 +31,6 @@ export const generateFileNameFromPageName = (pageName: string): string => {
       .replace(/[^\w_-]/g, '') + '.html'
   );
 };
+
+export const isElementName = (name: string | undefined | null, ...names: string[]): boolean =>
+  !!name && names.includes(name);

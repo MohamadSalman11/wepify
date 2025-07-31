@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { ELEMENTS_TEMPLATE } from '@shared/constants';
-import type { PageElement } from '@shared/types';
+import type { PageElement } from '@shared/typing';
 import undoable from 'redux-undo';
 
 interface SelectionState {

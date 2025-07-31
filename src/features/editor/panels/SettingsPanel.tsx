@@ -5,7 +5,8 @@ import {
   FONT_WEIGHT_VALUES,
   OPTIONS_FONT
 } from '@shared/constants';
-import type { DeviceType, GridElement, InputElement, LinkElement, PageElement } from '@shared/types';
+import type { DeviceType, GridElement, InputElement, LinkElement, PageElement } from '@shared/typing';
+import { isElementName } from '@shared/utils';
 import { cloneElement, createContext, useContext, type ChangeEvent, type ReactElement } from 'react';
 import {
   LuAlignCenter,
@@ -52,6 +53,8 @@ const OPTIONS_ROW = OPTIONS_COLUMN;
 const OPTIONS_FONT_SIZE = ['Inherit', 10, 11, 12, 13, 14, 15, 16, 20, 24, 32, 36, 40, 48, 64, 96, 128];
 const OPTIONS_SIZE = ['fill', 'auto', 50, 100, 150, 250, 500];
 const DEFAULT_BORDER_RADIUS = 0;
+
+const REGEX_TRAILING_NUMBER_SPLIT = /-(\d+)$/;
 
 const BORDER_SIDES = [
   { side: 'Top', icon: LuPanelTop },
@@ -109,7 +112,7 @@ interface SettingsContextType {
  * Component definition
  */
 
-export function SettingsPanel() {
+export default function SettingsPanel() {
   const { iframeConnection } = useIframeContext();
   const selectedElement = useAppSelector((state) => state.selection.present.selectedElement);
   const deviceType = useAppSelector((state) => state.editor.deviceType);
@@ -130,13 +133,13 @@ export function SettingsPanel() {
     <SettingsContext.Provider value={{ handleElementChange }}>
       <SelectorSettings />
       <AlignmentSettings />
-      {selectedElement.name !== ElementsName.Grid || <GridSettings />}
-      {selectedElement.name === ElementsName.Link && <LinkSettings />}
-      {selectedElement.name === ElementsName.Input && <InputSettings />}
+      {!isElementName(selectedElement.name, ElementsName.Grid) || <GridSettings />}
+      {isElementName(selectedElement.name, ElementsName.Link) && <LinkSettings />}
+      {isElementName(selectedElement.name, ElementsName.Input) && <InputSettings />}
       <SizeSettings />
       <SpacingSettings />
       <TypographySettings />
-      {selectedElement.name === ElementsName.Section || <StrokeSettings />}
+      {isElementName(selectedElement.name, ElementsName.Section) || <StrokeSettings />}
       <PageSettings />
     </SettingsContext.Provider>
   );
@@ -168,6 +171,16 @@ function SelectorSettings() {
   const selection = useAppSelector((state) => state.selection.present.selectedElement);
   const { iframeConnection } = useIframeContext();
 
+  const sortedElementIds = flattenElements(page?.elements || [])
+    .map((el) => el.id)
+    .sort((a, b) => {
+      const [aBase, aNum] = a.split(REGEX_TRAILING_NUMBER_SPLIT);
+      const [bBase, bNum] = b.split(REGEX_TRAILING_NUMBER_SPLIT);
+
+      if (aBase !== bBase) return aBase.localeCompare(bBase);
+      return Number(aNum) - Number(bNum);
+    });
+
   const handleSelection = (id: string) => {
     iframeConnection.handleSelectionChange(id);
   };
@@ -179,15 +192,7 @@ function SelectorSettings() {
           <Icon icon={LuMonitor} />
           <Select
             name='selector'
-            options={flattenElements(page?.elements || [])
-              .map((el) => el.id)
-              .sort((a, b) => {
-                const [aBase, aNum] = a.split(/-(\d+)$/);
-                const [bBase, bNum] = b.split(/-(\d+)$/);
-
-                if (aBase !== bBase) return aBase.localeCompare(bBase);
-                return Number(aNum) - Number(bNum);
-              })}
+            options={sortedElementIds}
             defaultSelect={selection.id}
             onChange={(event) => handleSelection(event.target.value as string)}
           />
@@ -201,7 +206,7 @@ function SizeSettings() {
   const { handleElementChange } = useSettingsContext();
   const selectedElement = useAppSelector((state) => state.selection.present.selectedElement);
   const deviceType = useAppSelector((state) => state.editor.deviceType);
-  const disableInput = selectedElement.name === ElementsName.Item || selectedElement.name === ElementsName.Section;
+  const disableInput = isElementName(selectedElement.name, ElementsName.Item, ElementsName.Section);
 
   const handleRotate = () => {
     const current = getResponsiveValue(selectedElement.rotate, deviceType) ?? 0;
@@ -222,7 +227,7 @@ function SizeSettings() {
     handleElementChange('scaleY', newScaleY);
   };
 
-  if (selectedElement.name === ElementsName.Item) {
+  if (isElementName(selectedElement.name, ElementsName.Item)) {
     return null;
   }
 
@@ -237,7 +242,7 @@ function SizeSettings() {
                 name='left'
                 disabled={disableInput}
                 type='number'
-                value={disableInput ? '' : parseNumber(getResponsiveValue(selectedElement.left, deviceType))}
+                value={disableInput ? '' : parseNumber(getResponsiveValue(selectedElement.left || 0, deviceType) ?? 0)}
               />
             </ChangeElement>
           </SizeRow>
@@ -248,7 +253,7 @@ function SizeSettings() {
                 name='top'
                 disabled={disableInput}
                 type='number'
-                value={disableInput ? '' : parseNumber(getResponsiveValue(selectedElement.top, deviceType))}
+                value={disableInput ? '' : (parseNumber(getResponsiveValue(selectedElement.top, deviceType)) ?? 0)}
               />
             </ChangeElement>
           </SizeRow>
@@ -307,11 +312,14 @@ function AlignmentSettings() {
   const alignItems = getResponsiveValue(selectedElement.alignItems, deviceType) || 'flex-start';
 
   if (
-    selectedElement.name === ElementsName.Grid ||
-    selectedElement.name === ElementsName.List ||
-    selectedElement.name === ElementsName.Link ||
-    selectedElement.name === ElementsName.Image ||
-    selectedElement.name === ElementsName.Input
+    isElementName(
+      selectedElement.name,
+      ElementsName.Grid,
+      ElementsName.List,
+      ElementsName.Link,
+      ElementsName.Image,
+      ElementsName.Input
+    )
   ) {
     return null;
   }
@@ -356,7 +364,7 @@ function AlignmentSettings() {
   );
 }
 
-export function SpacingSettings() {
+function SpacingSettings() {
   const deviceType = useAppSelector((state) => state.editor.deviceType);
   const {
     name,
@@ -370,7 +378,7 @@ export function SpacingSettings() {
     paddingLeft
   } = useAppSelector((state) => state.selection.present.selectedElement);
 
-  if (name === ElementsName.Image) {
+  if (isElementName(name, ElementsName.Image)) {
     return null;
   }
 
@@ -555,7 +563,7 @@ function TypographySettings() {
   const { handleElementChange } = useSettingsContext();
   const textAlign = getResponsiveValue(selectedElement.textAlign, deviceType);
 
-  if (selectedElement.name === ElementsName.Image) {
+  if (isElementName(selectedElement.name, ElementsName.Image)) {
     return null;
   }
 
@@ -650,7 +658,7 @@ function StrokeSettings() {
 
   const borders = { borderTop, borderRight, borderBottom, borderLeft };
 
-  function toggleBorder(side: 'Top' | 'Right' | 'Bottom' | 'Left', value: string) {
+  const toggleBorder = (side: 'Top' | 'Right' | 'Bottom' | 'Left', value: string) => {
     const border = `border${side}`;
     const currentBorderValue = borders[border as keyof typeof borders];
 
@@ -659,7 +667,7 @@ function StrokeSettings() {
     } else {
       handleElementChange(border, 'none');
     }
-  }
+  };
 
   return (
     <div>
@@ -856,7 +864,7 @@ const SpacingBox = styled.div`
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(5, 1fr);
   border-radius: var(--border-radius-lg);
-  border: 1px dashed var(--color-gray-light-3);
+  border: 1px dashed var(--color-gray-light-4);
   background-color: var(--color-white-3);
   position: relative;
 
@@ -908,7 +916,7 @@ const PaddingBox = styled.div`
   grid-column: 2 / 8;
   border: 2px solid var(--color-primary-light);
   border-radius: var(--border-radius-lg);
-  background-color: var(--color-gray-light-3);
+  background-color: var(--color-gray-light-4);
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(6, 1fr);
@@ -974,10 +982,6 @@ const TextAlignContainer = styled.div`
   border-radius: var(--border-radius-sm);
   background-color: var(--color-white-3);
   padding: 1.2rem;
-
-  svg {
-    cursor: pointer;
-  }
 `;
 
 const RotationContainer = styled.div`

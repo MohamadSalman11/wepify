@@ -74,6 +74,7 @@ section:not(.select-section) {
 }
 
 section {
+  position: relative;
   counter-increment: section-counter;
 }
 

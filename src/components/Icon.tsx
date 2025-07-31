@@ -6,14 +6,15 @@ import styled from 'styled-components';
  * Constants
  */
 
+const DEFAULT_ICON_SIZE = 'lg';
+const DEFAULT_BORDER_RADIUS = 'full';
+const DEFAULT_TOOLTIP_SIDE = 'bottom';
+
 const SIZE: Record<IconSize, string> = {
   sm: '1rem',
   md: '1.5rem',
   lg: '2rem'
 };
-
-const DEFAULT_ICON_SIZE = 'lg';
-const DEFAULT_BORDER_RADIUS = 'full';
 
 /**
  * Types
@@ -30,6 +31,7 @@ interface IconProps {
   isSelected?: boolean;
   disabled?: boolean;
   color?: string;
+  fill?: boolean;
   tooltipLabel?: string;
   tooltipSide?: 'top' | 'right' | 'bottom' | 'left';
   tooltipSideOffset?: number;
@@ -49,23 +51,27 @@ export default function Icon({
   isSelected = false,
   disabled = false,
   color,
+  fill = false,
   tooltipLabel,
-  tooltipSide = 'bottom',
+  tooltipSide = DEFAULT_TOOLTIP_SIDE,
   tooltipSideOffset = 15,
   borderRadius = DEFAULT_BORDER_RADIUS,
   onClick,
   ...props
 }: IconProps) {
+  const computedColor = disabled
+    ? 'var(--color-gray-light-2)'
+    : isSelected
+      ? 'var(--color-primary)'
+      : color || 'var(--color-gray)';
+
+  const cursorStyle = disabled ? 'not-allowed' : onClick ? 'pointer' : '';
+
   const iconElement = (
     <IconComponent
-      style={{
-        color:
-          (disabled && 'var(--color-gray-light-2)') ||
-          color ||
-          (isSelected && 'var(--color-primary)') ||
-          'var(--color-gray)',
-        cursor: (disabled && 'auto') || 'pointer'
-      }}
+      color={computedColor}
+      cursor={cursorStyle}
+      fill={fill ? 'currentcolor' : 'none'}
       size={SIZE[size]}
       onClick={disabled ? undefined : onClick}
       {...props}

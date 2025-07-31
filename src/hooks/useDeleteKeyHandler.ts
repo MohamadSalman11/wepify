@@ -8,7 +8,7 @@ interface UseDeleteKeyHandlerParams {
   onDelete: () => void;
 }
 
-export function useDeleteKeyHandler({ iframeRef, onDelete }: UseDeleteKeyHandlerParams) {
+export const useDeleteKeyHandler = ({ iframeRef, onDelete }: UseDeleteKeyHandlerParams) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === DELETE_KEY && (iframeRef ? !isTyping(iframeRef) : true)) {
@@ -30,4 +30,4 @@ export function useDeleteKeyHandler({ iframeRef, onDelete }: UseDeleteKeyHandler
       }
     };
   }, [onDelete, iframeRef]);
-}
+};

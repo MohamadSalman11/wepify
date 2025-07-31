@@ -1,4 +1,5 @@
-import type { InputChangeEvent } from '@shared/types';
+import { ElementsName } from '@shared/constants';
+import type { InputChangeEvent } from '@shared/typing';
 import { createElement, useRef } from 'react';
 
 type Options = {
@@ -6,14 +7,14 @@ type Options = {
   onSelect: (file: File) => void;
 };
 
-export function useFilePicker({ accept = '*', onSelect }: Options) {
+export const useFilePicker = ({ accept = '*', onSelect }: Options) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const openFilePicker = () => {
     inputRef.current?.click();
   };
 
-  const input = createElement('input', {
+  const input = createElement(ElementsName.Input, {
     type: 'file',
     accept,
     ref: inputRef,
@@ -26,4 +27,4 @@ export function useFilePicker({ accept = '*', onSelect }: Options) {
   });
 
   return { input, openFilePicker };
-}
+};

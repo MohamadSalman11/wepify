@@ -49,6 +49,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  row-gap: 2.4rem;
   padding: 5.4rem 2.4rem 2.4rem 2.4rem;
   text-align: center;
   max-width: 85rem;
@@ -57,7 +58,6 @@ const Container = styled.div`
 
 const Title = styled.h1`
   font-size: 6.2rem;
-  margin-bottom: 1.6rem;
   font-weight: 400;
 
   @media (max-width: ${Breakpoint.TabLand}em) {
@@ -71,8 +71,6 @@ const Title = styled.h1`
 
 const Subtitle = styled.p`
   font-size: 1.6rem;
-  color: var(--color-gray);
-  margin-bottom: 3.2rem;
   max-width: 48rem;
 
   @media (max-width: ${Breakpoint.Phone}em) {
@@ -85,6 +83,7 @@ const ButtonGroup = styled.div`
   gap: 1.6rem;
   flex-wrap: wrap;
   justify-content: center;
+  margin-top: 1.2rem;
 `;
 
 const ImageWrapper = styled.div`
@@ -95,17 +94,14 @@ const ImageWrapper = styled.div`
   img {
     @media (max-width: ${Breakpoint.TabLand}em) {
       width: 80rem;
-      height: 48.8rem;
     }
 
     @media (max-width: ${Breakpoint.TabPort}em) {
       width: 60rem;
-      height: 36.6rem;
     }
 
     @media (max-width: ${Breakpoint.Phone}em) {
       width: 32rem;
-      height: 19.5rem;
     }
   }
 `;

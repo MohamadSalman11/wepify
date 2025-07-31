@@ -75,7 +75,11 @@ const StyledInput = styled.input<{ $size: Size; $fullWidth: boolean; $pill: bool
       background-color: var(--color-white-2);
       ${$fullWidth && 'width: 100%;'}
 
-      &:disabled{
+      &::placeholder {
+        color: var(--color-gray);
+      }
+
+      &:disabled {
         cursor: not-allowed;
         background-color: var(--color-white-3);
         opacity: 0.9;

@@ -1,5 +1,5 @@
 import { nanoid } from '@reduxjs/toolkit';
-import type { Site } from '@shared/types';
+import type { Site } from '@shared/typing';
 import { useState, type MouseEvent } from 'react';
 import toast from 'react-hot-toast';
 import {
@@ -56,10 +56,10 @@ export default function SitesView({ sites, title }: { sites?: Site[]; title?: st
   const sitesToRender = sites ?? [...fallbackSites].sort((a, b) => b.createdAt - a.createdAt);
   const isFiltering = Boolean(filters.modifiedWithinDays || filters.pageRange || filters.sizeRange);
 
-  function handleClearFilter() {
+  const handleClearFilter = () => {
     dispatch(setFilterLabel(''));
     dispatch(setFilters({}));
-  }
+  };
 
   return (
     <StyledSiteView $isFiltering={isFiltering}>
@@ -166,7 +166,7 @@ function TableRow({ site }: { site: Site }) {
     toast.success(message, { duration: TOAST_DURATION });
   };
 
-  async function handleRowClick(event: MouseEvent<HTMLTableRowElement>) {
+  const handleRowClick = async (event: MouseEvent<HTMLTableRowElement>) => {
     const target = event.target as HTMLElement;
 
     if (!target.closest('svg') && !target.closest('li')) {
@@ -174,17 +174,17 @@ function TableRow({ site }: { site: Site }) {
       await AppStorage.setItem(StorageKey.Site, site);
       navigate(buildPath(Path.Editor, { siteId: id, pageId: pages[0].id }));
     }
-  }
+  };
 
-  async function handlePreviewSite() {
+  const handlePreviewSite = async () => {
     dispatch(setIsLoading(true));
     await AppStorage.setItem(StorageKey.Site, site);
     navigate(`${buildPath(Path.Editor, { siteId: id, pageId: pages[0].id })}/${EditorPath.Preview}`);
-  }
+  };
 
-  async function handleDownloadSite(shouldMinify: boolean) {
+  const handleDownloadSite = async (shouldMinify: boolean) => {
     await controlDownloadZip(site, shouldMinify);
-  }
+  };
 
   return (
     <StyledTableRow onClick={handleRowClick}>
@@ -208,7 +208,7 @@ function TableRow({ site }: { site: Site }) {
               <EditDialog site={site} />
             </Modal.Dialog>
           </Modal.Window>
-          <StarIcon onClick={toggleStar} $isStarred={isStarred} />
+          <Icon icon={LuStar} fill={isStarred} size='md' onClick={toggleStar} />
           <Dropdown>
             <Dropdown.Open>
               <Icon icon={LuEllipsis} size='md' />
@@ -252,11 +252,11 @@ function EditDialog({ site, onCloseModal }: { site: Site; onCloseModal?: OnClose
   const [name, setName] = useState(site.name);
   const [description, setDescription] = useState(site.description);
 
-  function handleSiteUpdate() {
+  const handleSiteUpdate = () => {
     dispatch(updateSiteDetails({ id: site.id, name, description }));
     onCloseModal?.();
     toast.success(ToastMessages.site.updated, { duration: TOAST_DURATION });
-  }
+  };
 
   return (
     <>
@@ -282,11 +282,11 @@ function EditDialog({ site, onCloseModal }: { site: Site; onCloseModal?: OnClose
 function DeleteDialog({ site, onCloseModal }: { site: Site; onCloseModal?: OnCloseModal }) {
   const dispatch = useDispatch();
 
-  function handleDelete() {
+  const handleDelete = () => {
     dispatch(deleteSite(site.id));
     onCloseModal?.();
     toast.success(ToastMessages.site.deleted);
-  }
+  };
 
   return (
     <>
@@ -319,6 +319,7 @@ const StyledSiteView = styled.div<{ $isFiltering: boolean }>`
     background-color: var(--color-white);
     padding: 1.2rem;
     width: 100%;
+    font-weight: 400;
     font-size: 2rem;
   }
 `;
@@ -332,6 +333,7 @@ const FilterHeader = styled.div`
 const NoResultsWrapper = styled.div`
   text-align: center;
   margin-top: 3.2rem;
+  color: var(--color-gray);
 `;
 
 const NoResultsMessage = styled.span`
@@ -340,34 +342,39 @@ const NoResultsMessage = styled.span`
 `;
 
 const NoResultsInfo = styled.p`
-  color: var(--color-gray);
   font-size: 1.2rem;
   margin-top: 1.2rem;
 `;
 
 const Table = styled.table`
   width: 100%;
-  margin-top: 2.4rem;
+  margin-top: 1.6rem;
   border-collapse: collapse;
   font-size: 1.4rem;
   margin-bottom: 20rem;
 
   th,
   td {
+    transition: var(--transition-base);
     cursor: default;
     padding: 1.2rem;
     width: 1%;
     text-align: left;
     white-space: nowrap;
+
+    svg:hover {
+      color: var(--color-gray-light) !important;
+    }
   }
 
   th {
     color: var(--color-gray);
+    font-weight: 400;
   }
 `;
 
 const StyledTbody = styled.tbody`
-  border-top: 1px solid var(--color-gray-light-3);
+  border-top: 1px solid var(--color-gray-light-4);
 `;
 
 const StyledTableRow = styled.tr`
@@ -386,10 +393,14 @@ const StyledTableRow = styled.tr`
 
     div > svg:not(svg:nth-child(5)) {
       opacity: 0;
+
+      @media (pointer: coarse) {
+        opacity: 1;
+      }
     }
 
     svg {
-      cursor: pointer;
+      cursor: pointer !important;
       margin-left: 1.6rem;
       font-size: 1.6rem;
 
@@ -404,7 +415,7 @@ const StyledTableRow = styled.tr`
   }
 
   &:hover {
-    background-color: var(--color-gray-light-3);
+    background-color: var(--color-gray-light-4);
 
     svg {
       opacity: 1 !important;
@@ -418,9 +429,4 @@ const DialogActions = styled.div`
   justify-content: flex-end;
   column-gap: 0.8rem;
   margin-top: 1.2rem;
-`;
-
-const StarIcon = styled(LuStar)<{ $isStarred: boolean }>`
-  fill: ${(props) => props.$isStarred && 'var(--color-gray)'};
-  stroke: ${(props) => props.$isStarred && 'var(--color-gray)'};
 `;

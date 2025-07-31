@@ -108,6 +108,11 @@ export interface Site {
   pages: SitePage[];
 }
 
+export interface Image {
+  id: string;
+  dataUrl: string;
+}
+
 export enum MessageFromIframe {
   IframeReady = 'IFRAME_READY',
   SelectionChanged = 'SELECTION_CHANGED',
@@ -150,12 +155,12 @@ export type MessageToIframePayloadMap = {
 
 export type MessageFromIframeData =
   | { type: MessageFromIframe.IframeReady }
-  | { type: MessageFromIframe.SelectionChanged; payload: Partial<PageElement> }
+  | { type: MessageFromIframe.SelectionChanged; payload: PageElement }
   | {
       type: MessageFromIframe.ElementUpdated;
       payload: { id: string; fields: Partial<PageElement> };
     }
-  | { type: MessageFromIframe.ElementInserted; payload: { parentId: string; element: Partial<PageElement> } }
+  | { type: MessageFromIframe.ElementInserted; payload: { parentId: string; element: PageElement } }
   | { type: MessageFromIframe.ElementDeleted; payload: { targetId: string; parentId: string } }
   | { type: MessageFromIframe.SiteDownloaded }
   | { type: MessageFromIframe.BreakpointChanged; payload: { newDeviceType: DeviceType } }

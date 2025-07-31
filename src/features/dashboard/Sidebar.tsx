@@ -1,7 +1,7 @@
 import { nanoid } from '@reduxjs/toolkit';
-import type { PageElement, Site, SitePage } from '@shared/types';
+import type { PageElement, Site, SitePage } from '@shared/typing';
 import toast from 'react-hot-toast';
-import { LuClock4, LuCloud, LuFilePlus, LuHouse, LuStar } from 'react-icons/lu';
+import { LuClock4, LuCloud, LuFileDown, LuFilePlus, LuHouse, LuStar } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -105,10 +105,10 @@ export default function Sidebar() {
   return (
     <StyledSidebar>
       {input}
-      <Button fullWidth icon={LuFilePlus} onClick={handleDesignNewSite}>
+      <Button fullWidth icon={LuFilePlus} iconColor='var(--color-white)' onClick={handleDesignNewSite}>
         Design New Site
       </Button>
-      <Button variation='secondary' fullWidth icon={LuFilePlus} onClick={openFilePicker}>
+      <Button variation='secondary' fullWidth icon={LuFileDown} iconColor='var(--color-white)' onClick={openFilePicker}>
         Import Saved Site
       </Button>
       <nav>
@@ -168,10 +168,10 @@ const StyledSidebar = styled.aside`
 
   button:nth-of-type(1) {
     margin-bottom: 1.2rem;
-  }
 
-  svg {
-    color: var(--color-black-light-2);
+    svg {
+      margin-left: -0.88rem;
+    }
   }
 `;
 
@@ -194,10 +194,19 @@ const NavItem = styled.li`
     &:hover {
       background-color: var(--color-gray-light-2);
     }
-  }
 
-  a.active {
-    background-color: var(--color-primary-light-2);
+    &.active {
+      background-color: var(--color-primary-light-2);
+    }
+
+    &:hover,
+    &.active {
+      color: var(--color-white);
+
+      svg {
+        color: currentColor !important;
+      }
+    }
   }
 `;
 

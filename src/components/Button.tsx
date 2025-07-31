@@ -10,8 +10,6 @@ import Icon from './Icon';
 
 const DEFAULT_VARIATION = 'primary';
 const DEFAULT_SIZE = 'md';
-const ELEMENT_LINK = 'a';
-const ELEMENT_BUTTON = 'button';
 
 /**
  * Types
@@ -23,6 +21,7 @@ type Size = 'md' | 'sm';
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   icon?: IconType;
+  iconColor?: string;
   variation?: Variation;
   size?: Size;
   fullWidth?: boolean;
@@ -39,6 +38,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export default function Button({
   children,
   icon,
+  iconColor,
   variation = DEFAULT_VARIATION,
   size = DEFAULT_SIZE,
   fullWidth = false,
@@ -48,7 +48,7 @@ export default function Button({
 }: ButtonProps) {
   return (
     <StyledButton
-      as={asLink ? ELEMENT_LINK : ELEMENT_BUTTON}
+      as={asLink ? 'a' : 'button'}
       $variation={variation}
       $size={size}
       $fullWidth={fullWidth}
@@ -56,7 +56,7 @@ export default function Button({
       $hasIcon={!!icon}
       {...props}
     >
-      {icon && <Icon icon={icon} />} {children}
+      {icon && <Icon icon={icon} color={iconColor} />} {children}
     </StyledButton>
   );
 }
@@ -87,7 +87,7 @@ const variations = {
   outline: css`
     border: 2px solid var(--color-primary);
     background-color: transparent;
-    color: var(--color-black-light);
+    color: var(--color-primary);
 
     &:hover {
       scale: 1.05;
@@ -136,17 +136,15 @@ const StyledButton = styled.button<{
   ${({ theme: { prefix }, $variation, $size, $fullWidth, $pill, $hasIcon }) => css`
   --${prefix}-btn-transition: var(--btn-transition);
   --${prefix}-btn-border-radius: var(--btn-border-radius);
-  --${prefix}-btn-font-weight: var(--btn-font-weight);
   --${prefix}-btn-white-space: var(--btn-white-space);
   --${prefix}-btn-color: var(--color-white);
 
   color: var(--${prefix}-btn-color);
   transition: var(--${prefix}-btn-transition);
-  font-weight: var(--${prefix}-btn-font-weight);
   white-space: var(--${prefix}-btn-white-space);
   border-radius: ${$pill ? 'var(--border-radius-full)' : `var(--${prefix}-btn-border-radius)`};
   text-decoration: none;
-  ${$fullWidth && 'width: 100%;'}
+  width: ${$fullWidth ? '100%' : 'fit-content'};
 
   svg{
     color: currentColor;

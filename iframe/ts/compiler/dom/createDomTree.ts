@@ -1,5 +1,5 @@
 import { Tags } from '@shared/constants';
-import { MessageFromIframe, type PageElement } from '@shared/types';
+import { MessageFromIframe, type PageElement } from '@shared/typing';
 import { CONTENT_EDITABLE_ELEMENTS, SELECTOR_TARGET } from '../../constants';
 import { state } from '../../model';
 import { getVerticalBorderSum } from '../../utils/getVerticalBorderSum';

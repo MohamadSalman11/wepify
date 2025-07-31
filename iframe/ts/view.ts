@@ -1,16 +1,13 @@
-import { Tags } from '@shared/constants';
-import type { PageElement } from '@shared/types';
+import { DEFAULT_SCALE_FACTOR, Tags } from '@shared/constants';
+import type { PageElement } from '@shared/typing';
 import { createDomTree } from './compiler/dom/createDomTree';
+import { SELECTOR_DRAG_BUTTON, SELECTOR_DRAG_BUTTON_ID, SELECTOR_ROOT } from './constants';
 import { getTarget } from './model';
 import moveIcon from '/move.png';
 
 const DRAG_BUTTON_OFFSET_X = -2;
 const DRAG_BUTTON_OFFSET_Y = 16;
-
 const SELECTOR_MOVEABLE_CONTROL = '.moveable-control';
-const SELECTOR_DRAG_BUTTON_ID = 'dragTargetButton';
-export const SELECTOR_ROOT = '#iframe-root';
-export const SELECTOR_DRAG_BUTTON = `#${SELECTOR_DRAG_BUTTON_ID}`;
 
 export const insertElement = (element: HTMLElement, parentElement: HTMLElement | null) => {
   const rootElement = document.querySelector(SELECTOR_ROOT);
@@ -44,11 +41,15 @@ export const insertDragButton = () => {
   document.querySelector(SELECTOR_MOVEABLE_CONTROL)?.append(img);
 };
 
-export const positionDragButton = (elementHeight: number, scaleFactor: number = 100, borderWidth?: number) => {
+export const positionDragButton = (
+  elementHeight: number,
+  scaleFactor: number = DEFAULT_SCALE_FACTOR,
+  borderWidth?: number
+) => {
   const dragButton = document.querySelector(SELECTOR_DRAG_BUTTON) as HTMLImageElement;
 
   if (dragButton) {
-    const scale = scaleFactor === 100 ? 1 : scaleFactor / 100;
+    const scale = scaleFactor === DEFAULT_SCALE_FACTOR ? 1 : scaleFactor / DEFAULT_SCALE_FACTOR;
     dragButton.style.transform = `translateZ(0px) translate(${DRAG_BUTTON_OFFSET_X}px, ${elementHeight * scale + DRAG_BUTTON_OFFSET_Y + (borderWidth || 0)}px)`;
   }
 };

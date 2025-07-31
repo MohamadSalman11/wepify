@@ -1,5 +1,5 @@
-import { SCREEN_SIZES } from '@shared/constants';
-import type { Site } from '@shared/types';
+import { PAGE_PADDING_X, SCREEN_SIZES } from '@shared/constants';
+import type { Site } from '@shared/typing';
 import type { IconType } from 'react-icons';
 import {
   LuEye,
@@ -33,6 +33,25 @@ import { setScale, setSize } from './slices/pageSlice';
 
 const PUBLISH_LINK = 'https://app.netlify.com/drop';
 
+const DEVICES = [
+  {
+    icon: LuMonitor,
+    type: 'monitor'
+  },
+  {
+    icon: LuLaptop,
+    type: 'laptop'
+  },
+  {
+    icon: LuTablet,
+    type: 'tablet'
+  },
+  {
+    icon: LuSmartphone,
+    type: 'smartphone'
+  }
+] as const;
+
 /**
  * Types
  */
@@ -51,24 +70,24 @@ export default function Header() {
   const { site, isDownloadingSite, deviceType } = useAppSelector((state) => state.editor);
   const { originWidth, originHeight } = useAppSelector((state) => state.page);
 
-  async function handleDownloadSite(shouldMinify: boolean) {
+  const handleDownloadSite = async (shouldMinify: boolean) => {
     dispatch(setIsDownloadingSite(true));
     const site = await AppStorage.getItem<Site>(StorageKey.Site);
     iframeConnection.downloadSite(site, shouldMinify);
-  }
+  };
 
-  function handleSitePreview() {
+  const handleSitePreview = () => {
     dispatch(
       setScale(
         calculateScaleToFit(
           { width: originWidth, height: originHeight },
-          { width: SCREEN_SIZES.tablet.width, height: SCREEN_SIZES.tablet.height }
+          { width: SCREEN_SIZES.tablet.width + PAGE_PADDING_X, height: SCREEN_SIZES.tablet.height }
         )
       )
     );
     dispatch(setIsLoading(true));
     navigate(EditorPath.Preview);
-  }
+  };
 
   return (
     <StyledHeader>
@@ -77,34 +96,16 @@ export default function Header() {
         <p>{site.description}</p>
       </DesignInfo>
       <DevicePreviewControls>
-        <DevicePreviewButton
-          icon={LuMonitor}
-          deviceType='monitor'
-          isActive={deviceType === 'monitor'}
-          setActiveDevice={() => dispatch(setDeviceType('monitor'))}
-          screenSize={SCREEN_SIZES.monitor}
-        />
-        <DevicePreviewButton
-          icon={LuLaptop}
-          deviceType='laptop'
-          isActive={deviceType === 'laptop'}
-          setActiveDevice={() => dispatch(setDeviceType('laptop'))}
-          screenSize={SCREEN_SIZES.laptop}
-        />
-        <DevicePreviewButton
-          icon={LuTablet}
-          deviceType='tablet'
-          isActive={deviceType === 'tablet'}
-          setActiveDevice={() => dispatch(setDeviceType('tablet'))}
-          screenSize={SCREEN_SIZES.tablet}
-        />
-        <DevicePreviewButton
-          icon={LuSmartphone}
-          deviceType='smartphone'
-          isActive={deviceType === 'smartphone'}
-          setActiveDevice={() => dispatch(setDeviceType('smartphone'))}
-          screenSize={SCREEN_SIZES.smartphone}
-        />
+        {DEVICES.map(({ icon, type }) => (
+          <DevicePreviewButton
+            key={type}
+            icon={icon}
+            deviceType={type}
+            isActive={deviceType === type}
+            setActiveDevice={() => dispatch(setDeviceType(type))}
+            screenSize={SCREEN_SIZES[type]}
+          />
+        ))}
       </DevicePreviewControls>
       <EditorActions>
         <Icon icon={LuUndo2} onClick={() => dispatch(ActionCreators.undo())} />
@@ -177,7 +178,7 @@ function DevicePreviewButton({
   );
 }
 
-function calculateScaleToFit(originSize: Size, screenSize: Size) {
+const calculateScaleToFit = (originSize: Size, screenSize: Size) => {
   if (screenSize.width > originSize.width) {
     const scaleX = originSize.width / screenSize.width;
     const scale = Math.floor(scaleX * 100);
@@ -185,9 +186,9 @@ function calculateScaleToFit(originSize: Size, screenSize: Size) {
   }
 
   return 100;
-}
+};
 
-function getTooltipLabel(deviceType: DeviceType) {
+const getTooltipLabel = (deviceType: DeviceType) => {
   switch (deviceType) {
     case 'monitor':
       return 'Edit for Desktop version';
@@ -200,7 +201,7 @@ function getTooltipLabel(deviceType: DeviceType) {
     default:
       return 'Edit view';
   }
-}
+};
 
 /**
  * Styles

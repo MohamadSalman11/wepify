@@ -28,18 +28,18 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  function handleLogout() {
+  const handleLogout = () => {
     dispatch(setIsLoading(true));
     dispatch(clearSelection());
     navigate(Path.Dashboard);
-  }
+  };
 
   return (
     <StyledSidebar>
       <Logo />
       <Divider />
       <nav>
-        <ul>
+        <NavList>
           {NAV_ITEMS.map(({ to, icon }, i) => (
             <li key={i}>
               <NavLink to={to}>
@@ -54,7 +54,7 @@ export default function Sidebar() {
               </NavLink>
             </li>
           ))}
-        </ul>
+        </NavList>
       </nav>
       <LeaveButton>
         <Link to={Path.Dashboard}>
@@ -65,7 +65,7 @@ export default function Sidebar() {
   );
 }
 
-function getTooltipLabel(to: string) {
+const getTooltipLabel = (to: string) => {
   switch (to) {
     case EditorPath.Elements:
       return 'Elements';
@@ -78,7 +78,7 @@ function getTooltipLabel(to: string) {
     default:
       return '';
   }
-}
+};
 
 /**
  * Styles
@@ -93,27 +93,31 @@ const StyledSidebar = styled.aside`
   grid-row: 1 / 3;
   padding: 1.6rem 1.2rem 4.8rem 1.2rem;
 
-  ul {
-    display: flex;
-    row-gap: 3.2rem;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 2.4rem;
-    list-style: none;
+  img {
+    margin-bottom: 2rem;
+  }
+`;
 
-    li a {
-      display: inline-block;
-      border-radius: var(--border-radius-md);
+const NavList = styled.ul`
+  display: flex;
+  row-gap: 3.2rem;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2.4rem;
+  list-style: none;
 
-      span {
-        width: 4rem;
-        height: 4rem;
-      }
+  li a {
+    display: inline-block;
+    border-radius: var(--border-radius-md);
+
+    span {
+      width: 4rem;
+      height: 4rem;
     }
+  }
 
-    .active {
-      background-color: var(--color-white-3);
-    }
+  .active {
+    background-color: var(--color-white-2);
   }
 `;
 

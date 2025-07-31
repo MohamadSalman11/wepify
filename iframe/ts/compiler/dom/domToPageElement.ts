@@ -1,5 +1,5 @@
 import { DEFAULT_BORDER_COLOR, DEFAULT_BORDER_WIDTH, ElementsName, FONT_WEIGHT_NAMES } from '@shared/constants';
-import type { GridElement, InputElement, LinkElement, PageElement } from '@shared/types';
+import type { GridElement, InputElement, LinkElement, PageElement } from '@shared/typing';
 import { rgbToHex } from '@shared/utils';
 import { CSS_SIZES_NAME } from '../../constants';
 import { state } from '../../model';
@@ -20,7 +20,7 @@ const RESPONSIVE_NUMBER_KEYS = [
   'textAlign'
 ] as const;
 
-export function domToPageElement(elementNode: HTMLElement) {
+export const domToPageElement = (elementNode: HTMLElement) => {
   const style = elementNode.style;
   const { id, tagName } = elementNode;
 
@@ -71,7 +71,7 @@ export function domToPageElement(elementNode: HTMLElement) {
   maybeApplyInputProps(elementNode as HTMLInputElement, element as InputElement);
 
   return element;
-}
+};
 
 const maybeApplySizeProps = (element: Partial<PageElement>, style: Partial<CSSStyleDeclaration>) => {
   if (style.width) {

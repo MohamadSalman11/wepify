@@ -3,6 +3,7 @@ import {
   createContext,
   MouseEvent,
   useContext,
+  useLayoutEffect,
   useRef,
   useState,
   type MouseEventHandler,
@@ -27,11 +28,11 @@ const DEFAULT_TRANSLATE_Y = 0;
  * Types
  */
 
+type ClickableElement = ReactElement<{ onClick?: MouseEventHandler; ref: RefObject<HTMLElement | null> }>;
+
 interface DropdownContextType {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  setPosition: (position: { top: number; left: number } | null) => void;
-  position: { top: number; left: number } | null;
   toggleRef: RefObject<HTMLElement | null>;
 }
 
@@ -39,8 +40,6 @@ interface Position {
   top: number;
   left: number;
 }
-
-type ClickableElement = ReactElement<{ onClick?: MouseEventHandler; ref: RefObject<HTMLElement | null> }>;
 
 /**
  * Context
@@ -61,34 +60,16 @@ const useDropdownContext = () => {
 export default function Dropdown({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const toggleRef = useRef<HTMLElement>(null);
-  const [position, setPosition] = useState<Position | null>(null);
 
-  return (
-    <DropdownContext.Provider value={{ setIsOpen, isOpen, toggleRef, position, setPosition }}>
-      {children}
-    </DropdownContext.Provider>
-  );
+  return <DropdownContext.Provider value={{ setIsOpen, isOpen, toggleRef }}>{children}</DropdownContext.Provider>;
 }
 
 function Open({ children }: { children: ClickableElement }) {
-  const { setIsOpen, toggleRef, setPosition } = useDropdownContext();
-
-  function handleClick() {
-    const rect = toggleRef.current?.getBoundingClientRect();
-
-    if (!rect) return;
-
-    setPosition({
-      top: rect.bottom + window.scrollY,
-      left: rect.left + window.scrollX
-    });
-
-    setIsOpen(true);
-  }
+  const { setIsOpen, toggleRef } = useDropdownContext();
 
   return cloneElement(children, {
     ref: toggleRef,
-    onClick: handleClick
+    onClick: () => setIsOpen(true)
   });
 }
 
@@ -101,8 +82,27 @@ function Drop({
   translateX?: number;
   translateY?: number;
 }) {
-  const { isOpen, setIsOpen, toggleRef, position } = useDropdownContext();
+  const { isOpen, setIsOpen, toggleRef } = useDropdownContext();
+  const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
   const dropdownRef = useOutsideClick<HTMLUListElement>(() => setIsOpen(false), undefined, toggleRef);
+
+  useLayoutEffect(() => {
+    if (!isOpen || !dropdownRef.current) return;
+
+    const toggleRect = toggleRef.current?.getBoundingClientRect();
+    const dropdownRect = dropdownRef.current?.getBoundingClientRect();
+    if (!toggleRect || !dropdownRect) return;
+
+    const dropdownHeight = dropdownRect.height;
+    const bottomSpace = window.innerHeight - toggleRect.bottom;
+
+    const top =
+      bottomSpace < dropdownHeight
+        ? toggleRect.top + window.scrollY - (dropdownHeight - bottomSpace)
+        : toggleRect.bottom + window.scrollY;
+
+    setPosition({ top, left: toggleRect.left + window.scrollX });
+  }, [isOpen, dropdownRef, toggleRef]);
 
   if (!isOpen) return null;
 
@@ -126,11 +126,11 @@ function Button({
 }) {
   const { setIsOpen } = useDropdownContext();
 
-  function handleClick(event: MouseEvent<HTMLLIElement>) {
+  const handleClick = (event: MouseEvent<HTMLLIElement>) => {
     event.stopPropagation();
     onClick?.();
     setIsOpen(false);
-  }
+  };
 
   return (
     <li onClick={handleClick} {...props}>
@@ -173,11 +173,11 @@ const StyledDropdown = styled.ul<{
     width: 100%;
 
     &:hover {
-      background-color: var(--color-gray-light-3);
+      background-color: var(--color-gray-light-4);
     }
 
     svg {
-      font-size: 1.7rem;
+      font-size: 1.8rem;
     }
   }
 `;

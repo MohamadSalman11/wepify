@@ -1,4 +1,4 @@
-import { DeviceType } from '@shared/types';
+import { DeviceType } from '@shared/typing';
 import type Moveable from 'moveable';
 
 export const state: {

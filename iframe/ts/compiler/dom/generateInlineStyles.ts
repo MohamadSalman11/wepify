@@ -1,5 +1,5 @@
 import { FONT_WEIGHT_VALUES, RESPONSIVE_PROPS } from '@shared/constants';
-import type { DeviceType, GridElement, PageElement } from '@shared/types';
+import type { DeviceType, GridElement, PageElement } from '@shared/typing';
 import { CSS_SIZES } from '../../constants';
 import { getNextBreakpoint } from '../../utils/getNextBreakpoint';
 import { getScreenBreakpoint } from '../../utils/getScreenBreakpoint';
@@ -42,11 +42,12 @@ export const generateInlineStyles = ({
   const style: Partial<CSSStyleDeclaration> = {};
   const responsiveProps = extractResponsiveProps(element, isResponsive, deviceType);
   const { left, top, fontWeight, fontSize, rotate, scaleY, scaleX } = responsiveProps;
+  const shouldTransform = (left && top) || rotate;
 
   for (const key of PIXEL_STYLE_KEYS) {
     const value = responsiveProps[key];
     if (value !== undefined) {
-      style[key] = `${value}px`;
+      style[key as any] = `${value}px`;
     }
   }
 
@@ -57,11 +58,8 @@ export const generateInlineStyles = ({
     }
   }
 
-  if ((isDefined(left) && isDefined(top)) || isDefined(rotate)) {
-    style.transform = `translate(${left}px, ${top}px) rotate(${rotate || 0}deg)`;
-  }
+  style.transform = shouldTransform ? `translate(${left}px, ${top}px) rotate(${rotate || 0}deg)` : '';
 
-  if (isDefined(left) || isDefined(top)) style.position = 'relative';
   if (isDefined(scaleX)) style.scale = `${scaleX} 1`;
   if (isDefined(scaleY)) style.scale = `1 ${scaleY}`;
   if (fontWeight) style.fontWeight = FONT_WEIGHT_VALUES[fontWeight as keyof typeof FONT_WEIGHT_VALUES];
@@ -91,12 +89,12 @@ const maybeApplyGridStyles = (
   if (rowGap) style.rowGap = `${rowGap}px`;
 };
 
-function maybeGenerateFlexStyles(
+const maybeGenerateFlexStyles = (
   element: Partial<PageElement>,
   style: Partial<CSSStyleDeclaration>,
   isResponsive: boolean,
   deviceType?: DeviceType
-) {
+) => {
   const { justifyContent, alignItems } = extractResponsiveProps(element, isResponsive, deviceType);
 
   if (justifyContent) {
@@ -111,7 +109,7 @@ function maybeGenerateFlexStyles(
     style.display = 'flex';
     style.flexDirection = 'column';
   }
-}
+};
 
 const maybeGenerateSizeStyles = (
   element: Partial<PageElement>,
@@ -158,6 +156,6 @@ const extractResponsiveProps = (element: Partial<PageElement>, isResponsive: boo
   return result;
 };
 
-function isDefined<T>(value: T | undefined): value is T {
+const isDefined = <T>(value: T | undefined): value is T => {
   return value !== undefined;
-}
+};

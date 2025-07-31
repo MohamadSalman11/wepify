@@ -44,6 +44,7 @@ const baseStyles = css`
   textarea,
   select,
   a {
+    outline: none;
     line-height: inherit;
     font-family: inherit;
     letter-spacing: inherit;
@@ -81,35 +82,20 @@ const baseStyles = css`
   }
 
   .TooltipContent {
-    animation-duration: 400ms;
+    animation-duration: 0.2s;
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
     will-change: transform, opacity;
-    box-shadow:
-      hsl(206 22% 7% / 35%) 0px 10px 38px -10px,
-      hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
-    border-radius: 4px;
-    background-color: white;
-    padding: 10px 15px;
-    color: var(--violet-11);
-    font-size: 15px;
-    line-height: 1;
+    box-shadow: var(--box-shadow);
+    border-radius: var(--border-radius-md);
+    background-color: var(--color-primary-light);
+    padding: 1rem 1.2rem;
+    color: var(--color-white);
+    font-size: 1.4rem;
     user-select: none;
-  }
-  .TooltipContent[data-state='delayed-open'][data-side='top'] {
-    animation-name: slideDownAndFade;
-  }
-  .TooltipContent[data-state='delayed-open'][data-side='right'] {
-    animation-name: slideLeftAndFade;
-  }
-  .TooltipContent[data-state='delayed-open'][data-side='bottom'] {
-    animation-name: slideUpAndFade;
-  }
-  .TooltipContent[data-state='delayed-open'][data-side='left'] {
-    animation-name: slideRightAndFade;
   }
 
   .TooltipArrow {
-    fill: white;
+    fill: var(--color-primary-light);
   }
 `;
 

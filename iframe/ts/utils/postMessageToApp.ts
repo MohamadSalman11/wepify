@@ -1,5 +1,5 @@
-import type { MessageFromIframeData } from '@shared/types';
+import type { MessageFromIframeData } from '@shared/typing';
 
-export function postMessageToApp(message: MessageFromIframeData) {
+export const postMessageToApp = (message: MessageFromIframeData) => {
   window.parent.postMessage(message, '*');
-}
+};

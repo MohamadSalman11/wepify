@@ -19,6 +19,5 @@ const StyledFooter = styled.footer`
   background-color: var(--color-white);
   text-align: center;
   font-size: 1.4rem;
-  box-shadow: var(--box-shadow);
-  border-top: 1px solid var(--color-gray-light);
+  border-top: 1px solid var(--color-gray-light-3);
 `;

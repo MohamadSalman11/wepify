@@ -10,11 +10,11 @@ type UseLoadFromStorage<T> = {
   onLoaded: (data: T | null) => void;
 };
 
-export function useLoadFromStorage<T>({
+export const useLoadFromStorage = <T>({
   storageKey,
   loadingDuration = DEFAULT_LOADING_DURATION,
   onLoaded
-}: UseLoadFromStorage<T>) {
+}: UseLoadFromStorage<T>) => {
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
@@ -43,4 +43,4 @@ export function useLoadFromStorage<T>({
       if (timeoutId) clearTimeout(timeoutId);
     };
   }, [onLoaded, storageKey, loadingDuration]);
-}
+};

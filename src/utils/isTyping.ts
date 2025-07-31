@@ -1,7 +1,8 @@
+import { Tags } from '@shared/constants';
 import type { RefObject } from 'react';
 
 const editable = (el: Element | null | undefined) =>
-  !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || (el as HTMLElement).isContentEditable);
+  !!el && (el.tagName === Tags.Input || (el as HTMLElement).isContentEditable);
 
 export const isTyping = (iframeRef: RefObject<HTMLIFrameElement | null>): boolean => {
   const doc = iframeRef.current?.contentDocument || iframeRef.current?.contentWindow?.document;

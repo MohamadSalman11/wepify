@@ -1,6 +1,6 @@
-import type { PageElement } from '@shared/types';
+import type { PageElement } from '@shared/typing';
 
-export function flattenElements(elements: PageElement[]): PageElement[] {
+export const flattenElements = (elements: PageElement[]): PageElement[] => {
   const result: PageElement[] = [];
 
   for (const el of elements) {
@@ -12,4 +12,4 @@ export function flattenElements(elements: PageElement[]): PageElement[] {
   }
 
   return result;
-}
+};

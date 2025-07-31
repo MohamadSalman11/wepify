@@ -1,9 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { ElementsName } from '@shared/constants';
-import type { DeviceType, PageElement, Site, SitePage } from '@shared/types';
+import { DeviceType, Image, PageElement, Site, SitePage } from '@shared/typing';
 import { findElementById } from '../../../utils/findElementById';
-
-type Image = { id: string; dataUrl: string };
 
 interface EditorState {
   site: Site;

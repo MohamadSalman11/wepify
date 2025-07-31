@@ -1,4 +1,4 @@
-import { ElementsName, RESPONSIVE_PROPS, TAGS_WITHOUT_CHILDREN } from '@shared/constants';
+import { ElementsName, PAGE_PADDING, PAGE_PADDING_X, RESPONSIVE_PROPS, TAGS_WITHOUT_CHILDREN } from '@shared/constants';
 import {
   DeviceType,
   MessageFromIframe,
@@ -6,13 +6,13 @@ import {
   MessageToIframePayloadMap,
   Site,
   type PageElement
-} from '@shared/types';
+} from '@shared/typing';
 import Moveable, { OnRotate, type OnDrag, type OnResize } from 'moveable';
 import { createDomTree } from './compiler/dom/createDomTree';
 import { domToPageElement } from './compiler/dom/domToPageElement';
 import { generateInlineStyles } from './compiler/dom/generateInlineStyles';
 import { MOVEABLE_CONFIG } from './config';
-import { SELECTOR_TARGET } from './constants';
+import { SELECTOR_DRAG_BUTTON, SELECTOR_ROOT, SELECTOR_TARGET } from './constants';
 import { changeTarget, getMoveableInstance, getTarget, state } from './model';
 import SiteExporter from './SiteExporter';
 import { adjustGridColumnsIfNeeded } from './utils/adjustGridColumnsIfNeeded';
@@ -22,15 +22,7 @@ import { getScreenBreakpoint } from './utils/getScreenBreakpoint';
 import { getVerticalBorderSum } from './utils/getVerticalBorderSum';
 import { postMessageToApp } from './utils/postMessageToApp';
 import { wrapUpdatesWithBreakpoint } from './utils/wrapUpdatesWithBreakpoint';
-import {
-  insertDragButton,
-  insertElement,
-  positionDragButton,
-  renderElements,
-  SELECTOR_DRAG_BUTTON,
-  SELECTOR_ROOT,
-  updateTargetStyle
-} from './view';
+import { insertDragButton, insertElement, positionDragButton, renderElements, updateTargetStyle } from './view';
 
 /**
  * Constants
@@ -105,7 +97,7 @@ const controlRenderElements = (
   if (isPreview) {
     existingLink?.remove();
   } else if (!existingLink) {
-    const link = document.createElement('link');
+    const link = document.createElement(ElementsName.Link);
     link.rel = 'stylesheet';
     link.href = linkHref;
     document.head.append(link);
@@ -217,7 +209,7 @@ const controlInsertElement = ({
       parentId: canHaveNotChildren
         ? (target.parentElement || target.closest(SELECTOR_CLOSEST_SECTION) || { id: SELECTOR_FIRST_SECTION }).id
         : target.id,
-      element: newElement
+      element: newElement as PageElement
     }
   });
 
@@ -249,7 +241,10 @@ const controlSelectionChanged = (id: string) => {
     elementNode.scrollIntoView({ block: 'center' });
     elementNode.click();
     positionDragButton(elementNode.clientHeight, state.scaleFactor, getVerticalBorderSum(elementNode));
-    postMessageToApp({ type: MessageFromIframe.SelectionChanged, payload: domToPageElement(elementNode) });
+    postMessageToApp({
+      type: MessageFromIframe.SelectionChanged,
+      payload: domToPageElement(elementNode) as PageElement
+    });
   }
 };
 
@@ -262,7 +257,7 @@ const controlSearchElement = (id: string) => {
 
   postMessageToApp({
     type: MessageFromIframe.SelectionChanged,
-    payload: domToPageElement(element)
+    payload: domToPageElement(element) as PageElement
   });
 };
 
@@ -360,14 +355,17 @@ const controlResize = (event: OnResize) => {
   const { target, width, height } = event;
   const w = target.clientWidth !== width;
   const h = target.clientHeight !== height;
+  const sectionEl = document.querySelector(SELECTOR_ROOT);
+
+  if (!sectionEl) return;
 
   if (w) updateTargetStyle([['width', `${width}px`]]);
   if (h) updateTargetStyle([['height', `${height}px`]]);
   if (h) positionDragButton(height, state.scaleFactor);
 
   const updates: any = {};
-  if (w) updates.width = width === document.querySelector(SELECTOR_ROOT)?.clientWidth - 120 ? 'fill' : width;
-  if (h) updates.height = height === document.querySelector(SELECTOR_ROOT)?.clientHeight - 60 ? 'fill' : height;
+  if (w) updates.width = width === sectionEl.clientWidth - PAGE_PADDING_X ? 'fill' : width;
+  if (h) updates.height = height === sectionEl.clientHeight - PAGE_PADDING ? 'fill' : height;
 
   positionDragButton(height, state.scaleFactor, getVerticalBorderSum(target as HTMLElement));
 
@@ -440,7 +438,7 @@ const controlDocumentClick = (event: MouseEvent) => {
   changeTarget(target, targetName);
   positionDragButton(target.clientHeight, state.scaleFactor, getVerticalBorderSum(target));
 
-  postMessageToApp({ type: MessageFromIframe.SelectionChanged, payload: domToPageElement(target) });
+  postMessageToApp({ type: MessageFromIframe.SelectionChanged, payload: domToPageElement(target) as PageElement });
 
   if (!NOT_MOVEABLE_ELEMENTS.has(state.targetName || '')) {
     getMoveableInstance().target = target;
@@ -481,8 +479,21 @@ const initializeMoveable = () => {
   state.moveable.on('drag', controlDrag).on('resize', controlResize).on('rotate', controlRotate);
 };
 
+const controlKeydown = (e: KeyboardEvent) => {
+  const isF12 = e.key === 'F12';
+  const isCtrlShiftI = e.ctrlKey && e.shiftKey && e.key === 'I';
+  const isCmdOptI = e.metaKey && e.altKey && e.key === 'I';
+  const isDevToolsKey = isF12 || isCtrlShiftI || isCmdOptI;
+
+  if (isDevToolsKey) {
+    const sectionEl = document.querySelector(SELECTOR_CLOSEST_SECTION) as HTMLElement;
+    sectionEl?.click();
+  }
+};
+
 document.addEventListener('click', controlDocumentClick);
 window.addEventListener('message', controlIframeMessage);
 window.addEventListener('resize', controlWindowResize);
 globalThis.addEventListener('contextmenu', controlContextMenu);
+document.addEventListener('keydown', controlKeydown);
 document.addEventListener('DOMContentLoaded', controlDOMContentLoaded);

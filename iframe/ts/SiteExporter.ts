@@ -1,4 +1,5 @@
-import { Site, SitePage } from '@shared/types';
+import { ElementsName } from '@shared/constants';
+import { Site, SitePage } from '@shared/typing';
 import JSZip from 'jszip';
 import cssFile from '../style.css?raw';
 import { generateCssFiles } from './compiler/generateCSSFile';
@@ -18,6 +19,7 @@ const SITE_JSON_WARNING = `⚠️ Do NOT modify any fields in this file manually
 
 const CSS_FILE_INDEX = 'index.css';
 const CSS_FILE_RESPONSIVE = 'responsive.css';
+const DEFAULT_IMAGES_COUNT = 0;
 
 enum FileNames {
   IndexPage = 'index.html',
@@ -27,13 +29,18 @@ enum FileNames {
   Favicon = 'favicon.ico'
 }
 
+enum Folders {
+  Root = 'src',
+  Images = 'src/images'
+}
+
 /**
  * Class definition
  */
 
 class SiteExporter {
   private zip: JSZip;
-  private imageCount = 0;
+  private imageCount = DEFAULT_IMAGES_COUNT;
   private shouldMinify: boolean;
 
   constructor(shouldMinify: boolean) {
@@ -42,7 +49,7 @@ class SiteExporter {
   }
 
   async exportSite(site: Site) {
-    const srcFolder = this.zip.folder('src')!;
+    const srcFolder = this.zip.folder(Folders.Root)!;
 
     const faviconBlob = await fetch(favicon).then((res) => res.blob());
     const faviconArrayBuffer = await faviconBlob.arrayBuffer();
@@ -62,7 +69,7 @@ class SiteExporter {
   }
 
   private addCssFiles(site: Site) {
-    const folder = this.zip.folder('src')!;
+    const folder = this.zip.folder(Folders.Root)!;
 
     folder.file(FileNames.StyleCSS, this.shouldMinify ? minifyCSS(cssFile) : cssFile);
 
@@ -80,19 +87,19 @@ class SiteExporter {
     doc.head.innerHTML = document.head.innerHTML;
     doc.title = page.title || page.name;
 
-    const faviconLink = doc.createElement('link');
+    const faviconLink = doc.createElement(ElementsName.Link);
     faviconLink.rel = 'icon';
     faviconLink.href = './favicon.ico';
     doc.head.append(faviconLink);
 
     const styleLink = doc.head.querySelector(SELECTOR_STYLE_LINK);
     if (styleLink) {
-      const indexLink = doc.createElement('link');
+      const indexLink = doc.createElement(ElementsName.Link);
       indexLink.rel = 'stylesheet';
       indexLink.href = `./${CSS_FILE_INDEX}`;
       styleLink.after(indexLink);
 
-      const responsiveLink = doc.createElement('link');
+      const responsiveLink = doc.createElement(ElementsName.Link);
       responsiveLink.rel = 'stylesheet';
       responsiveLink.href = `./${CSS_FILE_RESPONSIVE}`;
       indexLink.after(responsiveLink);
@@ -107,14 +114,13 @@ class SiteExporter {
 
     const fileName = page.isIndex ? FileNames.IndexPage : `${page.name.toLowerCase().replace(/\s+/g, '_')}.html`;
 
-    const folder = this.zip.folder('src')!;
+    const folder = this.zip.folder(Folders.Root)!;
     folder.file(fileName, html);
   }
 
   private processImages(doc: Document) {
     const images = doc.querySelectorAll(SELECTOR_DATA_IMAGE) as NodeListOf<HTMLImageElement>;
-
-    const imagesFolder = this.zip.folder('src/images')!;
+    const imagesFolder = this.zip.folder(Folders.Images)!;
 
     for (const img of images) {
       const src = img.src;

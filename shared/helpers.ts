@@ -1,12 +1,9 @@
 import { TAGS_WITHOUT_CHILDREN } from './constants';
-import type { PageElement } from './types';
+import type { PageElement } from './typing';
 
 const BASE_PROPS = {
   fontSize: { monitor: 20 },
-  left: { monitor: 0 },
-  top: { monitor: 0 },
   fontFamily: 'Inter',
-  fontWeight: 'Regular',
   color: '#000000',
   children: []
 };

@@ -64,21 +64,20 @@ const StyledLoadingScreen = styled.div`
   top: 0;
   height: 100vh;
   width: 100vw;
-  background: var(--color-white-2);
+  background-color: var(--color-white-2);
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  gap: 24px;
+  row-gap: 2.4rem;
   z-index: var(--zindex-loading-screen);
 `;
 
 const LogoWrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
+  column-gap: 1.2rem;
   font-size: 3rem;
-  font-weight: 700;
   color: var(--color-primary);
 
   img {
@@ -93,8 +92,8 @@ const fillAnimation = keyframes`
 
 const LoadingBarWrapper = styled.div`
   width: 35rem;
-  height: 8px;
-  background: var(--color-gray-light-2);
+  height: 0.8rem;
+  background-color: var(--color-gray-light-2);
   border-radius: var(--border-radius-lg);
   overflow: hidden;
 `;

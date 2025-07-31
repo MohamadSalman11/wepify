@@ -1,13 +1,37 @@
-import { RESPONSIVE_PROPS } from '@shared/constants';
-import { Site } from '@shared/types';
+import { RESPONSIVE_PROPS, SCREEN_SIZES } from '@shared/constants';
+import { Site } from '@shared/typing';
 import { generateInlineStyles } from './dom/generateInlineStyles';
 import { mergeStyles } from './mergeStyle';
 
-function toCssProp(prop: string): string {
-  return prop.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
-}
+export const generateCssFiles = (site: Site) => {
+  const baseStyles: Record<string, Partial<Record<string, string | number>>> = {};
+  const laptopStyles: Record<string, Partial<Record<string, string | number>>> = {};
+  const tabletStyles: Record<string, Partial<Record<string, string | number>>> = {};
+  const phoneStyles: Record<string, Partial<Record<string, string | number>>> = {};
 
-function styleObjectToCssDeclarations(styleObj: Partial<Record<string, string | number>>): string[] {
+  for (const page of site.pages) {
+    for (const elem of page.elements) {
+      processElement(elem, baseStyles, laptopStyles, tabletStyles, phoneStyles);
+    }
+  }
+
+  const indexCss = buildCss(baseStyles);
+  const responsiveCss = [
+    buildMediaQuery(SCREEN_SIZES.laptop.width, laptopStyles),
+    buildMediaQuery(SCREEN_SIZES.tablet.width, tabletStyles),
+    buildMediaQuery(SCREEN_SIZES.smartphone.width, phoneStyles)
+  ]
+    .filter(Boolean)
+    .join('\n\n');
+
+  return { indexCss, responsiveCss };
+};
+
+const toCssProp = (prop: string) => {
+  return prop.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
+};
+
+const styleObjectToCssDeclarations = (styleObj: Partial<Record<string, string | number>>) => {
   return Object.entries(styleObj)
     .map(([key, value]) => {
       if (value === undefined || value === null) return '';
@@ -15,9 +39,9 @@ function styleObjectToCssDeclarations(styleObj: Partial<Record<string, string | 
       return `${cssKey}: ${value};`;
     })
     .filter(Boolean);
-}
+};
 
-function buildCss(selectorsStyles: Record<string, Partial<Record<string, string | number>>>) {
+const buildCss = (selectorsStyles: Record<string, Partial<Record<string, string | number>>>) => {
   return Object.entries(selectorsStyles)
     .map(([selector, styles]) => {
       const decls = styleObjectToCssDeclarations(styles);
@@ -26,21 +50,24 @@ function buildCss(selectorsStyles: Record<string, Partial<Record<string, string 
     })
     .filter(Boolean)
     .join('\n\n');
-}
+};
 
-function buildMediaQuery(maxWidth: number, selectorsStyles: Record<string, Partial<Record<string, string | number>>>) {
+const buildMediaQuery = (
+  maxWidth: number,
+  selectorsStyles: Record<string, Partial<Record<string, string | number>>>
+) => {
   const css = buildCss(selectorsStyles);
   if (!css) return '';
   return `@media (max-width: ${maxWidth}px) {\n${css.replace(/^/gm, '  ')}\n}`;
-}
+};
 
-function processElement(
+const processElement = (
   element: any,
   baseStyles: Record<string, Partial<Record<string, string | number>>>,
   laptopStyles: Record<string, Partial<Record<string, string | number>>>,
   tabletStyles: Record<string, Partial<Record<string, string | number>>>,
   phoneStyles: Record<string, Partial<Record<string, string | number>>>
-) {
+) => {
   if (!element.id) return;
   const id = `#${element.id}`;
   const baseStyle = mergeStyles(generateInlineStyles({ element, deviceType: 'monitor' }));
@@ -73,28 +100,4 @@ function processElement(
       processElement(child, baseStyles, laptopStyles, tabletStyles, phoneStyles);
     }
   }
-}
-
-export const generateCssFiles = (site: Site) => {
-  const baseStyles: Record<string, Partial<Record<string, string | number>>> = {};
-  const laptopStyles: Record<string, Partial<Record<string, string | number>>> = {};
-  const tabletStyles: Record<string, Partial<Record<string, string | number>>> = {};
-  const phoneStyles: Record<string, Partial<Record<string, string | number>>> = {};
-
-  for (const page of site.pages) {
-    for (const elem of page.elements) {
-      processElement(elem, baseStyles, laptopStyles, tabletStyles, phoneStyles);
-    }
-  }
-
-  const indexCss = buildCss(baseStyles);
-  const responsiveCss = [
-    buildMediaQuery(1280, laptopStyles),
-    buildMediaQuery(768, tabletStyles),
-    buildMediaQuery(375, phoneStyles)
-  ]
-    .filter(Boolean)
-    .join('\n\n');
-
-  return { indexCss, responsiveCss };
 };

@@ -1,4 +1,4 @@
-import type { Site } from '@shared/types';
+import type { Site } from '@shared/typing';
 import { useCallback, useEffect, useMemo } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { useDispatch } from 'react-redux';

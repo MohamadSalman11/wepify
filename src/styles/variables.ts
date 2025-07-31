@@ -8,12 +8,13 @@ const COLOR_PRIMARY = '#3e7df5';
 const COLOR_PRIMARY_LIGHT = '#6597f7';
 const COLOR_PRIMARY_LIGHT_2 = '#a3c1fa';
 
-const COLOR_BLACK_LIGHT = '#343c44';
+const COLOR_BLACK_LIGHT = '#3f4954';
 
 const COLOR_GRAY = '#94a3b7';
 const COLOR_GRAY_LIGHT = '#aebbcb';
 const COLOR_GRAY_LIGHT_2 = '#bec9d5';
-const COLOR_GRAY_LIGHT_3 = '#f2f4f7';
+const COLOR_GRAY_LIGHT_3 = '#e5e9ee';
+const COLOR_GRAY_LIGHT_4 = '#f2f4f7';
 
 const COLOR_RED = '#f45a65';
 const COLOR_RED_LIGHT = 'rgba(244, 90, 100, 0.1)';
@@ -39,6 +40,7 @@ const variables = css`
     --color-gray-light: ${COLOR_GRAY_LIGHT};
     --color-gray-light-2: ${COLOR_GRAY_LIGHT_2};
     --color-gray-light-3: ${COLOR_GRAY_LIGHT_3};
+    --color-gray-light-4: ${COLOR_GRAY_LIGHT_4};
 
     --color-red: ${COLOR_RED};
     --color-red-light: ${COLOR_RED_LIGHT};
@@ -47,7 +49,8 @@ const variables = css`
     --color-white-2: ${COLOR_WHITE_2};
     --color-white-3: ${COLOR_WHITE_3};
 
-    --box-shadow: rgba(52, 60, 68, 0.24) 0px 3px 8px;
+    --box-shadow: rgba(63, 73, 84, 0.18) 0px 2px 4px;
+    --box-shadow-2: rgba(63, 73, 84, 0.2) 0px 2px 8px 0px;
 
     /* Body */
     --body-font-size: var(--font-size);
@@ -82,6 +85,7 @@ const variables = css`
     --zindex-panel: 200;
     --zindex-modal: 1000;
     --zindex-loading-screen: 1200;
+    --zindex-required-desktop: 1200;
     --transition-base: all 0.2s linear;
 
     /* Buttons */
@@ -96,7 +100,6 @@ const variables = css`
 
     --btn-border-radius: var(--border-radius-md);
 
-    --btn-font-weight: var(--font-weight-semibold);
     --btn-transition: var(--transition-base);
 
     /* Forms */

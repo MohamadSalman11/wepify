@@ -1,9 +1,12 @@
 import { createElTemplate } from './helpers';
-import type { PageElement } from './types';
+import type { PageElement } from './typing';
 
 export const TAGS_WITHOUT_CHILDREN = new Set(['input', 'img', 'hr', 'br']);
 export const DEFAULT_BORDER_COLOR = '#4a90e2';
 export const DEFAULT_BORDER_WIDTH = 2;
+export const DEFAULT_SCALE_FACTOR = 100;
+export const PAGE_PADDING = 60;
+export const PAGE_PADDING_X = PAGE_PADDING * 2;
 
 export enum Tags {
   Section = 'SECTION',
@@ -16,12 +19,19 @@ export enum Tags {
 
 export enum ElementsName {
   Grid = 'grid',
+  GridItem = 'gridItem',
   Section = 'section',
+  Container = 'container',
   Item = 'item',
   Image = 'image',
   Input = 'input',
   Link = 'link',
-  List = 'list'
+  A = 'a',
+  List = 'list',
+  ListItem = 'listItem',
+  Heading = 'heading',
+  Text = 'text',
+  Button = 'button'
 }
 
 export const OPTIONS_FONT = [
@@ -75,10 +85,10 @@ export const FONT_WEIGHT_NAMES = {
 } as const;
 
 export const SCREEN_SIZES = {
-  monitor: { width: 1920 + 120, height: 1080 },
-  laptop: { width: 1280 + 120, height: 800 },
-  tablet: { width: 768 + 120, height: 1024 },
-  smartphone: { width: 375 + 120, height: 667 }
+  monitor: { width: 1920, height: 1080 },
+  laptop: { width: 1280, height: 800 },
+  tablet: { width: 768, height: 1024 },
+  smartphone: { width: 375, height: 667 }
 } as const;
 
 export const RESPONSIVE_PROPS = new Set([
@@ -109,7 +119,7 @@ export const RESPONSIVE_PROPS = new Set([
   'rowGap'
 ]);
 
-export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
+export const ELEMENTS_TEMPLATE: Record<string, Partial<PageElement>> = {
   section: createElTemplate({
     tag: 'section',
     name: 'section',

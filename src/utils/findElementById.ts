@@ -1,6 +1,6 @@
-import type { PageElement } from '@shared/types';
+import type { PageElement } from '@shared/typing';
 
-export function findElementById(id: string, elements: PageElement[]): PageElement | null {
+export const findElementById = (id: string, elements: PageElement[]): PageElement | null => {
   for (const el of elements) {
     if (el.id === id) return el;
     if (el.children?.length) {
@@ -9,4 +9,4 @@ export function findElementById(id: string, elements: PageElement[]): PageElemen
     }
   }
   return null;
-}
+};

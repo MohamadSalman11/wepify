@@ -1,5 +1,5 @@
-import { SCREEN_SIZES } from '@shared/constants';
-import { Site } from '@shared/types';
+import { DEFAULT_SCALE_FACTOR, PAGE_PADDING_X, SCREEN_SIZES } from '@shared/constants';
+import { Site } from '@shared/typing';
 import { useCallback, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -26,6 +26,7 @@ const IFRAME_SRC = '/iframe/iframe.html';
 const IFRAME_TITLE = 'Site Preview';
 const SIZE_FILL = '100%';
 const SIZE_SCREEN = '100vh';
+const DEFAULT_DEVICE_TYPE = 'tablet';
 
 /**
  * Component definition
@@ -49,9 +50,10 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
       if (!iframeConnection.iframeReady) return;
 
       if (site && page && canvasRef.current) {
+        console.log(page);
         dispatch(
           setSize({
-            width: SCREEN_SIZES.tablet.width,
+            width: SCREEN_SIZES.tablet.width + PAGE_PADDING_X,
             height: SCREEN_SIZES.tablet.height,
             originWidth: canvasRef.current.clientWidth,
             originHeight: canvasRef.current.clientHeight
@@ -61,8 +63,8 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
         dispatch(setSite(site));
         dispatch(setPage(page));
         dispatch(selectElement(page.elements[0]));
-        dispatch(setScale(100));
-        dispatch(setDeviceType('tablet'));
+        dispatch(setScale(DEFAULT_SCALE_FACTOR));
+        dispatch(setDeviceType(DEFAULT_DEVICE_TYPE));
         setTimeout(() => dispatch(setIsLoading(false)), 100);
       } else {
         dispatch(setIsError(true));
@@ -114,7 +116,7 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
 
     iframeRoot.style.width = isPreview ? SIZE_FILL : `${width}px`;
     iframeRoot.style.height = isPreview ? SIZE_SCREEN : `${height}px`;
-    iframeRoot.style.scale = `${isPreview ? 1 : scale / 100}`;
+    iframeRoot.style.scale = `${isPreview ? 1 : scale / DEFAULT_SCALE_FACTOR}`;
     iframeRoot.style.transformOrigin = 'top left';
   }, [isLoading, iframeRef, width, height, scale, isPreview]);
 

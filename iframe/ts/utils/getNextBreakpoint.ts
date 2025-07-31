@@ -1,4 +1,4 @@
-import { DeviceType } from '@shared/types';
+import { DeviceType } from '@shared/typing';
 
 const breakpoints: DeviceType[] = ['smartphone', 'tablet', 'laptop', 'monitor'];
 

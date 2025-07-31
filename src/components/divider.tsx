@@ -30,7 +30,7 @@ export default function Divider({
 
 const StyledDivider = styled.span<{ $rotate: number; $width: number; $color: string }>`
   width: ${(props) => props.$width}px;
-  height: 1px;
+  height: 0.1rem;
   background-color: ${(props) => props.$color};
   display: inline-block;
   transform: rotate(${(props) => props.$rotate}deg);

@@ -1,6 +1,6 @@
 import { nanoid } from '@reduxjs/toolkit';
 import { ELEMENTS_TEMPLATE } from '@shared/constants';
-import type { SitePage } from '@shared/types';
+import type { SitePage } from '@shared/typing';
 
 const DEFAULT_NAME = 'Untitled';
 const FIRST_SECTION_ID = 'section-1';

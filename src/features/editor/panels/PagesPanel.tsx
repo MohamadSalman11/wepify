@@ -1,5 +1,5 @@
 import { nanoid } from '@reduxjs/toolkit';
-import type { SitePage } from '@shared/types';
+import type { SitePage } from '@shared/typing';
 import { generateFileNameFromPageName } from '@shared/utils';
 import { useState, type MouseEvent } from 'react';
 import toast from 'react-hot-toast';
@@ -35,10 +35,10 @@ export default function PagesPanel() {
   const dispatch = useDispatch();
   const { site } = useAppSelector((state) => state.editor);
 
-  async function handleAddNewPage() {
+  const handleAddNewPage = () => {
     const newPage = createNewPage();
     dispatch(addPage(newPage));
-  }
+  };
 
   return (
     <>
@@ -63,7 +63,7 @@ function PageItem({ page, index }: { page: SitePage; index: number }) {
   const { open } = useModalContext();
   const { iframeRef } = useIframeContext();
 
-  function handleOpenEditor(event: MouseEvent<HTMLLIElement>, page: SitePage) {
+  const handleOpenEditor = (event: MouseEvent<HTMLLIElement>, page: SitePage) => {
     const target = event.target as HTMLElement;
 
     if (page.id === pageId) return;
@@ -73,12 +73,12 @@ function PageItem({ page, index }: { page: SitePage; index: number }) {
       iframeRef.current?.contentWindow?.location.reload();
       navigate(buildPath(Path.Editor, { siteId, pageId: page.id }));
     }
-  }
+  };
 
   return (
     <StyledPageItem $active={page.id === pageId} onClick={(event) => handleOpenEditor(event, page)}>
       <div>
-        <Icon icon={LuSquareMenu} />
+        <Icon icon={LuSquareMenu} color={page.isIndex ? 'var(--color-white)' : 'var(--color-gray)'} />
         <span>
           {page.name.length > PAGE_NAME_MAX_LENGTH ? `${page.name.slice(0, PAGE_NAME_MAX_LENGTH)}...` : page.name}
         </span>
@@ -137,7 +137,7 @@ function EditDialog({ page, onCloseModal }: { page: SitePage; onCloseModal?: OnC
   const [newTitle, setNewTitle] = useState(page.title || page.name || '');
   const { site } = useAppSelector((state) => state.editor);
 
-  function handleSave() {
+  const handleSave = () => {
     const trimmedName = newName.trim();
 
     if (!trimmedName) {
@@ -155,7 +155,7 @@ function EditDialog({ page, onCloseModal }: { page: SitePage; onCloseModal?: OnC
     dispatch(updatePageInfo({ id: page.id, name: newName, title: newTitle }));
     onCloseModal?.();
     toast.success(ToastMessages.page.renamed);
-  }
+  };
 
   return (
     <>
@@ -197,7 +197,7 @@ function DeleteDialog({
   const { pageId } = useParams();
   const { site } = useAppSelector((state) => state.editor);
 
-  async function handleDelete() {
+  const handleDelete = async () => {
     const isDeletingCurrentPage = pageId === page.id;
     const availablePageId = (site.pages[currentIndex - 1] || site.pages[currentIndex + 1])?.id;
 
@@ -219,7 +219,7 @@ function DeleteDialog({
       dispatch(setIsLoading(true));
       navigate(buildPath(Path.Editor, { siteId: site.id, pageId: availablePageId }));
     }
-  }
+  };
 
   return (
     <>
@@ -292,13 +292,10 @@ const StyledPageItem = styled.li<{ $active: boolean }>`
       width: 90%;
 
       span {
+        box-shadow: var(--box-shadow);
         border-radius: var(--border-radius-sm);
-        background-color: var(--color-gray-light-2);
+        background-color: var(--color-white);
         padding: 0.2rem 0.2rem 0 0.2rem;
-
-        svg {
-          color: var(--color-white);
-        }
       }
 
       @media (pointer: coarse) {
@@ -327,11 +324,10 @@ const IndexBadge = styled.span`
   transform: translateY(-50%);
   background-color: var(--color-white);
   font-size: 1rem;
-  font-weight: var(--font-weight-semibold);
   padding: 0.2rem 0.6rem;
   border-radius: var(--border-radius-full);
   text-transform: uppercase;
-  box-shadow: var(--box-shadow);
+  box-shadow: var(--box-shadow-2);
   z-index: var(--zindex-base);
   pointer-events: none;
   user-select: none;

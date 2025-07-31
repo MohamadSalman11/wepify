@@ -1,4 +1,4 @@
-import type { Site } from '@shared/types';
+import type { Site } from '@shared/typing';
 
 const BYTES_IN_KB = 1024;
 

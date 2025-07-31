@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { SitePage } from '@shared/types';
+import { SitePage } from '@shared/typing';
 
 interface PageState {
   width: number;

@@ -6,12 +6,12 @@ import {
   MessageToIframe,
   PageElement,
   Site
-} from '@shared/types';
+} from '@shared/typing';
 import { generateFileNameFromPageName } from '@shared/utils';
 import { useCallback, useEffect, useMemo, useState, type RefObject } from 'react';
 import { useDispatch } from 'react-redux';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { TARGET_ORIGIN } from '../../../constant';
+import { EditorPath, TARGET_ORIGIN } from '../../../constant';
 import { useAppSelector } from '../../../store';
 import {
   addElement,
@@ -23,6 +23,9 @@ import {
 } from '../slices/editorSlice';
 import { setBackground } from '../slices/pageSlice';
 import { selectElement, updateSelectElement } from '../slices/selectionSlice';
+
+const PAGE_NAME_INDEX = 'index';
+const PAGE_PATH_SEGMENT_REGEX = new RegExp(`${EditorPath.Pages}[^/]+`);
 
 export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | null>) => {
   const dispatch = useDispatch();
@@ -103,9 +106,13 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
           const pageFileName = data.payload;
 
           for (const page of site.pages) {
-            if (generateFileNameFromPageName(page.isIndex ? 'index' : page.name) === pageFileName) {
-              const newPath = location.pathname.replace(/\/pages\/[^/]+/, `/pages/${page.id}`);
-              navigate(newPath);
+            const pageName = page.isIndex ? PAGE_NAME_INDEX : page.name;
+            const generatedFileName = generateFileNameFromPageName(pageName);
+
+            if (generatedFileName === pageFileName) {
+              const currentPath = location.pathname;
+              const updatedPath = currentPath.replace(PAGE_PATH_SEGMENT_REGEX, `/${EditorPath.Pages}/${page.id}`);
+              navigate(updatedPath);
               break;
             }
           }

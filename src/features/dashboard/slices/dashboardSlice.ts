@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { Site } from '@shared/types';
+import type { Site } from '@shared/typing';
 
 export interface FilterCriteria {
   sizeRange?: {
@@ -13,7 +13,7 @@ export interface FilterCriteria {
   modifiedWithinDays?: number;
 }
 
-interface DashboardState {
+export interface DashboardState {
   sites: Site[];
   filters: FilterCriteria;
   filterLabel: string;

@@ -15,10 +15,7 @@ export default function Header() {
 
   return (
     <StyledHeader>
-      <LogoBox onClick={() => navigate(Path.Home)}>
-        <Logo />
-        <span>Wepify</span>
-      </LogoBox>
+      <Logo withText onClick={() => navigate(Path.Home)} />
       <HeaderInfo>
         <SiteCountBadge>{sites.length}</SiteCountBadge>
         <Divider rotate={90} width={30} color='var(--color-gray-light-2)' />
@@ -36,20 +33,7 @@ const StyledHeader = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 2.4rem;
-  height: 5.6rem;
-`;
-
-const LogoBox = styled.div`
-  display: flex;
-  align-items: center;
-  column-gap: 1.2rem;
-  font-size: 2rem;
-  cursor: pointer;
-
-  img {
-    margin-bottom: 0.4rem;
-  }
+  padding: 0.6rem 2.4rem;
 `;
 
 const HeaderInfo = styled.div`

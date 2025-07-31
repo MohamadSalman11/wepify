@@ -1,4 +1,4 @@
-import type { InputChangeEvent, Site } from '@shared/types';
+import type { InputChangeEvent, Site } from '@shared/typing';
 import { useRef, useState, type ReactNode } from 'react';
 import type { IconType } from 'react-icons';
 import { LuCalendar, LuChevronDown, LuFileStack, LuHardDrive, LuLayoutTemplate, LuSearch, LuX } from 'react-icons/lu';
@@ -54,7 +54,7 @@ export default function SearchBox() {
   const inputRef = useRef<HTMLInputElement>(null);
   const isSearchResultVisible = isSearching;
 
-  function handleSearch(event: InputChangeEvent) {
+  const handleSearch = (event: InputChangeEvent) => {
     const search = event.target.value.toLowerCase();
     const matchSites = search
       ? sites.filter(
@@ -64,19 +64,19 @@ export default function SearchBox() {
 
     setMatchedSites(matchSites);
     setIsSearching(!!search);
-  }
+  };
 
-  function clearSearch() {
+  const clearSearch = () => {
     if (inputRef.current) inputRef.current.value = '';
     setMatchedSites([]);
     setIsSearching(false);
-  }
+  };
 
   return (
     <StyledSearchBox>
       <h1>Welcome to Wepify</h1>
       <Searchbar $isSearchResult={isSearchResultVisible}>
-        <SearchIcon />
+        <Icon icon={LuSearch} />
         <Input
           size='lg'
           pill={true}
@@ -85,7 +85,7 @@ export default function SearchBox() {
           placeholder='Search in Wepify'
           onChange={handleSearch}
         />
-        {isSearching && <ClearIcon onClick={clearSearch} />}
+        {isSearching && <Icon icon={LuX} onClick={clearSearch} />}
       </Searchbar>
       {isSearchResultVisible && <SearchResults matchedSites={matchedSites} />}
       <FilterList />
@@ -97,10 +97,10 @@ function SearchResults({ matchedSites }: { matchedSites: Site[] }) {
   const navigate = useNavigate();
   const isNoResult = matchedSites.length === 0;
 
-  async function handleOpenEditor(site: Site) {
+  const handleOpenEditor = async (site: Site) => {
     await AppStorage.setItem(StorageKey.Site, site);
     navigate(buildPath(Path.Editor, { siteId: site.id, pageId: site.pages[0].id }));
-  }
+  };
 
   return (
     <StyledSearchContainer>
@@ -190,7 +190,7 @@ const StyledSearchBox = styled.div`
 
   h1 {
     font-weight: 400;
-    font-size: 2.2rem;
+    font-size: 2rem;
   }
 `;
 
@@ -214,12 +214,12 @@ const FilterButton = styled.span`
   transition: var(--transition-base);
   cursor: pointer;
   border-radius: var(--border-radius-full);
-  background-color: var(--color-gray-light-3);
+  background-color: var(--color-gray-light-4);
   padding: 0.8rem 1.2rem;
   font-size: 1.2rem;
 
   &:hover {
-    background-color: var(--color-gray-light-2);
+    background-color: var(--color-gray-light-3);
   }
 
   svg:nth-child(1) {
@@ -250,16 +250,15 @@ const Searchbar = styled.div<{ $isSearchResult: boolean }>`
   svg {
     position: absolute;
     font-size: 2rem;
+
+    &:first-child {
+      left: 3%;
+    }
+
+    &:last-child {
+      right: 3%;
+    }
   }
-`;
-
-const SearchIcon = styled(LuSearch)`
-  left: 3%;
-`;
-
-const ClearIcon = styled(LuX)`
-  right: 2%;
-  cursor: pointer;
 `;
 
 const StyledSearchContainer = styled.ul`
@@ -280,6 +279,7 @@ const StyledSearchContainer = styled.ul`
 
 const NoResultsText = styled.p`
   margin: 1.6rem;
+  color: var(--color-gray);
 `;
 
 const SearchResultList = styled.ul`
@@ -296,10 +296,12 @@ const SearchResultItem = styled.li`
   transition: var(--transition-base);
   cursor: pointer;
   border-radius: var(--border-radius-xl);
+  color: var(--color-gray);
   padding: 1.2rem;
 
   &:hover {
-    background-color: var(--color-gray-light);
+    box-shadow: var(--box-shadow-2);
+    background-color: var(--color-gray-light-4);
   }
 `;
 

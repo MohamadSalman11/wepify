@@ -1,4 +1,6 @@
 import { nanoid } from '@reduxjs/toolkit';
+import { ElementsName } from '@shared/constants';
+import { Image } from '@shared/typing';
 import { useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { LuTrash2 } from 'react-icons/lu';
@@ -32,8 +34,9 @@ export default function UploadsPanel() {
 
   const handleImageUpload = useImageUpload(
     (result) => {
-      iframeConnection.insertElement('image', { src: result });
-      dispatch(addImage({ id: nanoid(), dataUrl: result }));
+      iframeConnection.insertElement(ElementsName.Image, { src: result });
+      if (!result) return;
+      dispatch(addImage({ id: nanoid(), dataUrl: result as string }));
     },
     (message) => toast.error(message)
   );
@@ -41,7 +44,7 @@ export default function UploadsPanel() {
   const { input, openFilePicker } = useFilePicker({ accept: ACCEPTED_FILE_TYPE, onSelect: handleImageUpload });
 
   const onLoaded = useCallback(
-    (images: string[] | null) => {
+    (images: Image[] | null) => {
       if (images) {
         dispatch(setImages(images));
       }
@@ -49,7 +52,7 @@ export default function UploadsPanel() {
     [dispatch]
   );
 
-  useLoadFromStorage<string[]>({
+  useLoadFromStorage<Image[]>({
     storageKey: StorageKey.Images,
     loadingDuration: 0,
     onLoaded
@@ -65,14 +68,14 @@ export default function UploadsPanel() {
       <MasonryGrid breakpointCols={2} className='masonry-grid' columnClassName='masonry-grid_column'>
         {images?.map((img, i) => (
           <MediaItem key={img.id} onClick={() => iframeConnection.insertElement('image', { src: img.dataUrl })}>
-            <img src={img.dataUrl} alt={`uploaded image ${i + 1}`} loading='lazy' />
+            <img src={img.dataUrl || ''} alt={`uploaded image ${i + 1}`} loading='lazy' />
             <span
               onClick={(event) => {
                 event.stopPropagation();
                 dispatch(deleteImage(img.id));
               }}
             >
-              <Icon icon={LuTrash2} />
+              <Icon icon={LuTrash2} color='var(--color-white)' />
             </span>
           </MediaItem>
         ))}
@@ -97,12 +100,12 @@ const MasonryGrid = styled(Masonry)`
   }
 
   & > div > div {
-    margin-bottom: 12px;
+    margin-bottom: 1.2rem;
     background:
-      linear-gradient(45deg, var(--color-gray-light-3) 25%, transparent 25%),
-      linear-gradient(-45deg, var(--color-gray-light-3) 25%, transparent 25%),
-      linear-gradient(45deg, transparent 75%, var(--color-gray-light-3) 75%),
-      linear-gradient(-45deg, transparent 75%, var(--color-gray-light-3) 75%);
+      linear-gradient(45deg, var(--color-gray-light-4) 25%, transparent 25%),
+      linear-gradient(-45deg, var(--color-gray-light-4) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, var(--color-gray-light-4) 75%),
+      linear-gradient(-45deg, transparent 75%, var(--color-gray-light-4) 75%);
     background-position:
       0 0,
       0 10px,
@@ -132,8 +135,6 @@ const MediaItem = styled.div`
     right: 8px;
     transform: translateY(-4rem);
     transition: transform 0.2s ease-in-out;
-    cursor: pointer;
-    color: var(--color-white);
   }
 
   &:hover svg {

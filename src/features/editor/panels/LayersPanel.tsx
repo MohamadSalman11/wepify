@@ -1,4 +1,4 @@
-import type { PageElement } from '@shared/types';
+import type { PageElement } from '@shared/typing';
 import { useState } from 'react';
 import type { IconType } from 'react-icons';
 import {
@@ -93,8 +93,8 @@ function LayerNode({
     <LayerItem>
       <LayerHeader onClick={handleClick}>
         <LayerBox $nested={nested} $selected={selectedElementId === element.id}>
-          {hasChildren && <ChevronIcon $expanded={expanded} />}
-          <Icon icon={ICON_MAP[element.name] || LuSquare} />
+          {hasChildren && <ChevronIcon icon={LuChevronRight} size='md' $expanded={expanded} />}
+          <Icon icon={ICON_MAP[element.name] || LuSquare} color='var(--color-white)' />
           <span>{element.id}</span>
         </LayerBox>
       </LayerHeader>
@@ -121,8 +121,7 @@ function LayerNode({
  */
 
 const Title = styled.span`
-  font-size: 1.6rem;
-  font-weight: 500;
+  font-size: 1.4rem;
 `;
 
 const LayerList = styled.ul`
@@ -149,11 +148,6 @@ const LayerBox = styled.div<{ $nested?: boolean; $selected?: boolean }>`
   margin-left: ${({ $nested }) => ($nested ? 'auto' : '0')};
   width: ${({ $nested }) => ($nested ? '90%' : '100%')};
 
-  svg {
-    color: var(--color-white);
-    font-size: 1.6rem;
-  }
-
   span {
     color: var(--color-white);
     font-size: 1.4rem;
@@ -174,9 +168,6 @@ const LayerHeader = styled.div`
   position: relative;
 `;
 
-const ChevronIcon = styled(LuChevronRight)<{ $expanded: boolean }>`
-  cursor: pointer;
-  font-size: 1.6rem;
-  color: var(--color-gray) !important;
+const ChevronIcon = styled(Icon)<{ $expanded: boolean }>`
   transform: translateX(-3.1rem) rotate(${({ $expanded }) => ($expanded ? '90deg' : '0deg')});
 `;

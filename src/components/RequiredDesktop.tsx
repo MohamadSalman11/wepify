@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react';
-import UnsupportedDevice from './UnsupportedDevice';
+import { createPortal } from 'react-dom';
+import styled from 'styled-components';
+import { Breakpoint, Path } from '../constant';
+import Button from './Button';
+
+/**
+ * Constants
+ */
+
+const DEFAULT_MIN_WIDTH = 1280;
 
 /**
  * Types
@@ -14,7 +23,7 @@ interface RequireDesktopProps {
  * Component definition
  */
 
-export default function RequireDesktop({ children, minWidth = 1280 }: RequireDesktopProps) {
+export default function RequireDesktop({ children, minWidth = DEFAULT_MIN_WIDTH }: RequireDesktopProps) {
   const [isSupported, setIsSupported] = useState(window.innerWidth >= minWidth);
 
   useEffect(() => {
@@ -26,6 +35,65 @@ export default function RequireDesktop({ children, minWidth = 1280 }: RequireDes
     return () => window.removeEventListener('resize', handleResize);
   }, [minWidth]);
 
-  if (!isSupported) return <UnsupportedDevice />;
+  if (!isSupported)
+    return createPortal(
+      <StyledUnsupportedDevice>
+        <Content>
+          <Headline>Device Not Supported</Headline>
+          <Message>Please visit Wepify from a desktop device to experience the full power of creation.</Message>
+          <Button asLink href={Path.Home}>
+            Back to home
+          </Button>
+        </Content>
+      </StyledUnsupportedDevice>,
+      document.body
+    );
+
   return <>{children}</>;
 }
+
+/**
+ * Styles
+ */
+
+const StyledUnsupportedDevice = styled.div`
+  position: fixed;
+  inset: 0;
+  background: var(--color-white-2);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1.6rem;
+  z-index: var(--zindex-required-desktop);
+  text-align: center;
+`;
+
+const Content = styled.div`
+  max-width: 60rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  row-gap: 2.4rem;
+
+  button {
+    margin-top: 2.4rem;
+  }
+`;
+
+const Headline = styled.h1`
+  font-size: 5.2rem;
+  font-weight: 400;
+
+  @media (max-width: ${Breakpoint.Phone}em) {
+    font-size: 4.4rem;
+  }
+`;
+
+const Message = styled.p`
+  font-size: 1.6rem;
+
+  @media (max-width: ${Breakpoint.Phone}em) {
+    font-size: 1.4rem;
+  }
+`;

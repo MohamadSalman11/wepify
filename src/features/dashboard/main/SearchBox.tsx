@@ -74,9 +74,9 @@ export default function SearchBox() {
   };
 
   return (
-    <StyledSearchBox ref={useOutsideClick<HTMLDivElement>(clearSearch)}>
+    <StyledSearchBox>
       <h1>Welcome to Wepify</h1>
-      <Searchbar $isSearchResult={isSearchResultVisible}>
+      <Searchbar ref={useOutsideClick<HTMLDivElement>(clearSearch)} $isSearchResult={isSearchResultVisible}>
         <Icon icon={LuSearch} />
         <Input
           size='lg'

@@ -68,7 +68,7 @@ export default function Dashboard() {
   if (isLoading) {
     return (
       <>
-        <title>{'Wepify Dashboard — Loading Your Sites...'}</title>
+        <title>{'Loading Sites... - Wepify Dashboard'}</title>
         <LoadingScreen duration={loadingDuration} />;
       </>
     );

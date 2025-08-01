@@ -1,6 +1,6 @@
 import { DEFAULT_SCALE_FACTOR, PAGE_PADDING_X, SCREEN_SIZES } from '@shared/constants';
 import { Site } from '@shared/typing';
-import { RefObject, useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -33,7 +33,7 @@ const DEFAULT_DEVICE_TYPE = 'tablet';
  * Component definition
  */
 
-export default function Canvas({ isPreview }: { isPreview: boolean; canvasRef: RefObject<HTMLDivElement | null> }) {
+export default function Canvas({ isPreview }: { isPreview: boolean }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLDivElement>(null);

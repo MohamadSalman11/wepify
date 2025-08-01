@@ -15,7 +15,6 @@ type Size = 'sm' | 'md' | 'lg';
 
 interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
   size?: Size;
-  fullWidth?: boolean;
   pill?: boolean;
 }
 
@@ -23,11 +22,9 @@ interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>
  * Component definition
  */
 
-const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ size = DEFAULT_SIZE, fullWidth = true, pill = false, ...props }, ref) => {
-    return <StyledInput ref={ref} $size={size} $fullWidth={fullWidth} $pill={pill} autoComplete='off' {...props} />;
-  }
-);
+const Input = forwardRef<HTMLInputElement, InputProps>(({ size = DEFAULT_SIZE, pill = false, ...props }, ref) => {
+  return <StyledInput ref={ref} $size={size} $pill={pill} autoComplete='off' {...props} />;
+});
 
 /**
  * Styles
@@ -66,14 +63,14 @@ const sizes: Record<Size, RuleSet> = {
   `
 };
 
-const StyledInput = styled.input<{ $size: Size; $fullWidth: boolean; $pill: boolean }>`
-  ${({ theme: { prefix }, $size, $fullWidth, $pill }) => css`
+const StyledInput = styled.input<{ $size: Size; $pill: boolean }>`
+  ${({ theme: { prefix }, $size, $pill }) => css`
     --${prefix}-input-border-radius: var(--input-border-radius);
 
       color: var(--color-black-light);
       border-radius: ${$pill ? 'var(--border-radius-full)' : `var(--${prefix}-input-border-radius)`};
       background-color: var(--color-white-2);
-      ${$fullWidth && 'width: 100%;'}
+      width: 100%;
 
       &::placeholder {
         color: var(--color-gray);

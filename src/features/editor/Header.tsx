@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import Button from '../../components/Button';
 import Divider from '../../components/divider';
 import Dropdown from '../../components/Dropdown';
+import Input from '../../components/form/Input';
 import Icon from '../../components/Icon';
 import { EditorPath, StorageKey } from '../../constant';
 import { useIframeContext } from '../../context/IframeContext';
@@ -96,7 +97,18 @@ export default function Header() {
             screenSize={SCREEN_SIZES[type]}
           />
         ))}
+        <SizeInputs>
+          <div>
+            <label htmlFor='preview-input-width'>W</label>
+            <Input id='preview-input-width' placeholder={`${SCREEN_SIZES[deviceType].width}px`} disabled />
+          </div>
+          <div>
+            <label htmlFor='preview-input-height'>H</label>
+            <Input id='preview-input-height' placeholder={`${SCREEN_SIZES[deviceType].height}px`} disabled />
+          </div>
+        </SizeInputs>
       </DevicePreviewControls>
+
       <EditorActions>
         <Icon icon={LuEye} hover={true} tooltipLabel='Preview Site' onClick={handleSitePreview} />
         <Divider rotate={90} width={30} />
@@ -194,19 +206,44 @@ const StyledHeader = styled.header`
   background-color: var(--color-white);
 
   & > div {
-    flex-basis: 40rem;
     justify-content: end;
+
+    &:not(:nth-child(2)) {
+      width: 50rem;
+    }
 
     &:nth-child(2) {
       justify-content: center;
+      min-width: 54rem;
+      max-width: 54rem;
     }
   }
 `;
 
 const DevicePreviewControls = styled.div`
   display: flex;
-  column-gap: 4.8rem;
+  column-gap: 4.4rem;
   align-items: center;
+`;
+
+const SizeInputs = styled.div`
+  display: flex;
+  align-items: center;
+  column-gap: 1.6rem;
+  color: var(--color-gray-light);
+
+  & > div {
+    display: flex;
+    column-gap: 0.8rem;
+    align-items: center;
+  }
+
+  input {
+    cursor: default !important;
+    padding-right: 1.2rem;
+    padding-left: 1.2rem;
+    text-align: center;
+  }
 `;
 
 const EditorActions = styled.div`

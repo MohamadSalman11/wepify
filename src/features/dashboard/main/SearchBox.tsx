@@ -9,6 +9,7 @@ import Dropdown from '../../../components/Dropdown';
 import Input from '../../../components/form/Input';
 import Icon from '../../../components/Icon';
 import { Path, StorageKey } from '../../../constant';
+import useOutsideClick from '../../../hooks/useOutsideClick';
 import { useAppSelector } from '../../../store';
 import { AppStorage } from '../../../utils/appStorage';
 import { buildPath } from '../../../utils/buildPath';
@@ -73,7 +74,7 @@ export default function SearchBox() {
   };
 
   return (
-    <StyledSearchBox>
+    <StyledSearchBox ref={useOutsideClick<HTMLDivElement>(clearSearch)}>
       <h1>Welcome to Wepify</h1>
       <Searchbar $isSearchResult={isSearchResultVisible}>
         <Icon icon={LuSearch} />

@@ -311,7 +311,12 @@ const StyledSiteView = styled.div<{ $isFiltering: boolean }>`
   width: 100%;
   height: 100%;
   overflow-y: auto;
+  scrollbar-width: none;
   margin-top: ${({ $isFiltering }) => ($isFiltering ? '0' : '5.2rem')};
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   h2 {
     position: sticky;

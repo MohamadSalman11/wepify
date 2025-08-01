@@ -262,7 +262,7 @@ const Searchbar = styled.div<{ $isSearchResult: boolean }>`
   }
 `;
 
-const StyledSearchContainer = styled.ul`
+const StyledSearchContainer = styled.div`
   position: absolute;
   top: 10rem;
   left: 0;

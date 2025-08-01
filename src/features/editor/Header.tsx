@@ -245,7 +245,6 @@ const SizeInputs = styled.div`
   }
 
   label {
-    opacity: 0.8;
     color: var(--color-gray-light);
   }
 `;

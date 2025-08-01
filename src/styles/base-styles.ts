@@ -81,6 +81,15 @@ const baseStyles = css`
     -moz-appearance: textfield;
   }
 
+  ::-webkit-scrollbar {
+    width: 0.8rem;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: var(--border-radius-md);
+    background-color: var(--color-gray-light-2);
+  }
+
   .TooltipContent {
     animation-duration: 0.2s;
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);

@@ -59,11 +59,6 @@ html {
   overflow-x: hidden;
 }
 
-html::-webkit-scrollbar,
-#iframe-root::-webkit-scrollbar {
-  display: none;
-}
-
 section:not(.select-section) {
   transition: background-color 0.2s;
   cursor: pointer;

@@ -7,6 +7,7 @@ import Icon from '../../components/Icon';
 import Logo from '../../components/Logo';
 import { EditorPath, Path } from '../../constant';
 import { setIsLoading } from '../dashboard/slices/dashboardSlice';
+import { usePanel } from './context/PanelContext';
 
 /**
  * Constants
@@ -26,6 +27,7 @@ const NAV_ITEMS = [
 export default function Sidebar() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { leftPanelOpen, setLeftPanelOpen } = usePanel();
 
   const handleLogout = () => {
     dispatch(setIsLoading(true));
@@ -37,7 +39,7 @@ export default function Sidebar() {
       <Logo />
       <Divider />
       <nav>
-        <NavList>
+        <NavList $leftPanelOpen={leftPanelOpen}>
           {NAV_ITEMS.map(({ to, icon }, i) => (
             <li key={i}>
               <NavLink to={to}>
@@ -48,6 +50,7 @@ export default function Sidebar() {
                   tooltipLabel={getTooltipLabel(to)}
                   tooltipSide='right'
                   tooltipSideOffset={10}
+                  onClick={() => setLeftPanelOpen(true)}
                 />
               </NavLink>
             </li>
@@ -96,7 +99,7 @@ const StyledSidebar = styled.aside`
   }
 `;
 
-const NavList = styled.ul`
+const NavList = styled.ul<{ $leftPanelOpen: boolean }>`
   display: flex;
   row-gap: 3.2rem;
   flex-direction: column;
@@ -115,7 +118,7 @@ const NavList = styled.ul`
   }
 
   .active {
-    background-color: var(--color-white-2);
+    background-color: ${(props) => props.$leftPanelOpen && 'var(--color-white-2)'};
   }
 `;
 

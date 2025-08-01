@@ -13,6 +13,7 @@ import { EditorPath, StorageKey } from '../../constant';
 import { useIframeContext } from '../../context/IframeContext';
 import { useAppSelector } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
+import { calculateScaleToFit } from '../../utils/calculateScaleToFit';
 import { setDeviceType, setIsDownloadingSite, setIsLoading } from './slices/editorSlice';
 import { setScale, setSize } from './slices/pageSlice';
 
@@ -163,16 +164,6 @@ function DevicePreviewButton({
     />
   );
 }
-
-const calculateScaleToFit = (originSize: Size, screenSize: Size) => {
-  if (screenSize.width > originSize.width) {
-    const scaleX = originSize.width / screenSize.width;
-    const scale = Math.floor(scaleX * 100);
-    return Math.max(scale, 1);
-  }
-
-  return 100;
-};
 
 const getTooltipLabel = (deviceType: DeviceType) => {
   switch (deviceType) {

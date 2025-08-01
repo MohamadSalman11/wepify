@@ -1,6 +1,6 @@
 import { DEFAULT_SCALE_FACTOR, PAGE_PADDING_X, SCREEN_SIZES } from '@shared/constants';
 import { Site } from '@shared/typing';
-import { useCallback, useEffect, useRef } from 'react';
+import { RefObject, useCallback, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -11,10 +11,12 @@ import { useDeleteKeyHandler } from '../../hooks/useDeleteKeyHandler';
 import { useLoadFromStorage } from '../../hooks/useLoadFromStorage';
 import { useAppSelector } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
+import { calculateScaleToFit } from '../../utils/calculateScaleToFit';
 import { getRandomDuration } from '../../utils/getRandomDuration';
 import { setIsLoading as setDashboardIsLoading } from '../dashboard/slices/dashboardSlice';
+import { usePanel } from './context/PanelContext';
 import { clearSite, selectElement, setDeviceType, setIsError, setIsLoading, setSite } from './slices/editorSlice';
-import { setPage, setScale, setSize } from './slices/pageSlice';
+import { setHasOriginSize, setPage, setScale, setSize } from './slices/pageSlice';
 
 /**
  * Constants
@@ -31,13 +33,14 @@ const DEFAULT_DEVICE_TYPE = 'tablet';
  * Component definition
  */
 
-export default function Canvas({ isPreview }: { isPreview: boolean }) {
+export default function Canvas({ isPreview }: { isPreview: boolean; canvasRef: RefObject<HTMLDivElement | null> }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLDivElement>(null);
   const { pageId } = useParams();
+  const { leftPanelOpen } = usePanel();
   const { iframeConnection, iframeRef } = useIframeContext();
-  const { backgroundColor, width, height, scale } = useAppSelector((state) => state.page);
+  const { hasSetOriginSize, backgroundColor, width, height, scale } = useAppSelector((state) => state.page);
   const { site, images, isLoading, isError, deviceType } = useAppSelector((state) => state.editor);
 
   const onLoaded = useCallback(
@@ -49,10 +52,9 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
       if (!iframeConnection.iframeReady) return;
 
       if (site && page && canvasRef.current) {
-        console.log(page);
         dispatch(
           setSize({
-            width: SCREEN_SIZES.tablet.width + PAGE_PADDING_X,
+            width: SCREEN_SIZES.tablet.width,
             height: SCREEN_SIZES.tablet.height,
             originWidth: canvasRef.current.clientWidth,
             originHeight: canvasRef.current.clientHeight
@@ -77,6 +79,22 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
     loadingDuration,
     onLoaded
   });
+
+  useEffect(() => {
+    if (!hasSetOriginSize || !canvasRef?.current) return;
+
+    const canvas = canvasRef.current;
+    const screenSize = SCREEN_SIZES[deviceType];
+    const originWidth = canvas.clientWidth;
+    const originHeight = canvas.clientHeight;
+
+    dispatch(setHasOriginSize(false));
+    dispatch(setSize({ ...screenSize, originWidth, originHeight }));
+
+    const scaleFactor = calculateScaleToFit({ width: originWidth, height: originHeight }, screenSize);
+
+    dispatch(setScale(scaleFactor));
+  }, [dispatch, canvasRef, deviceType, hasSetOriginSize, leftPanelOpen]);
 
   useEffect(() => {
     if (!site.id) return;
@@ -113,7 +131,7 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
 
     if (!iframeRoot || isLoading) return;
 
-    iframeRoot.style.width = isPreview ? SIZE_FILL : `${width}px`;
+    iframeRoot.style.width = isPreview ? SIZE_FILL : `${width + PAGE_PADDING_X}px`;
     iframeRoot.style.height = isPreview ? SIZE_SCREEN : `${height}px`;
     iframeRoot.style.scale = `${isPreview ? 1 : scale / DEFAULT_SCALE_FACTOR}`;
     iframeRoot.style.transformOrigin = 'top left';
@@ -122,7 +140,7 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
   useDeleteKeyHandler({ iframeRef, onDelete: () => iframeConnection.deleteElement() });
 
   return (
-    <StyledCanvas ref={canvasRef} $isPreview={isPreview}>
+    <StyledCanvas ref={canvasRef} $isPreview={isPreview} id='canvas'>
       <title>
         {isLoading
           ? isPreview

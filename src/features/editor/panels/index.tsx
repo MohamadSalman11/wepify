@@ -1,4 +1,7 @@
+import { LuChevronLeft } from 'react-icons/lu';
 import styled, { css } from 'styled-components';
+import Icon from '../../../components/Icon';
+import { usePanel } from '../context/PanelContext';
 import ElementsPanel from './ElementsPanel';
 import LayersPanel from './LayersPanel';
 import PagesPanel from './PagesPanel';
@@ -38,11 +41,23 @@ interface PanelProps {
 
 export default function Panel({ panel, sectioned = false, borderDir = DEFAULT_BORDER_DIRECTION }: PanelProps) {
   const PanelComponent = PANEL_COMPONENTS[panel];
+  const { leftPanelOpen, setLeftPanelOpen } = usePanel();
 
   return (
-    <PanelContainer $sectioned={sectioned} $borderDir={borderDir}>
-      <PanelComponent />
-    </PanelContainer>
+    <StyledPanel $sectioned={sectioned} $borderDir={borderDir}>
+      {panel === 'settings' || (
+        <StyledButton
+          onClick={() => {
+            setLeftPanelOpen(!leftPanelOpen);
+          }}
+        >
+          <Icon icon={LuChevronLeft} size='md' />
+        </StyledButton>
+      )}
+      <PanelContainer $sectioned={sectioned}>
+        <PanelComponent />
+      </PanelContainer>
+    </StyledPanel>
   );
 }
 
@@ -50,11 +65,20 @@ export default function Panel({ panel, sectioned = false, borderDir = DEFAULT_BO
  * Styles
  */
 
-const PanelContainer = styled.div<{ $sectioned: boolean; $borderDir: BorderDirection }>`
+const StyledPanel = styled.div<{ $sectioned: boolean; $borderDir: BorderDirection }>`
+  position: relative;
   background-color: var(--color-white);
-  overflow-y: auto;
+  z-index: var(--zindex-panel);
+
   padding: ${({ $sectioned }) => ($sectioned ? '0' : '3.2rem 2.4rem')};
   ${({ $borderDir }) => css`border-${$borderDir}: var(--border-base);`}
+`;
+
+const PanelContainer = styled.div<{ $sectioned: boolean }>`
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  max-height: 100%;
 
   &::-webkit-scrollbar {
     display: none;
@@ -71,4 +95,20 @@ const PanelContainer = styled.div<{ $sectioned: boolean; $borderDir: BorderDirec
         width: 100%;
       }
     `}
+`;
+
+const StyledButton = styled.button`
+  position: absolute;
+  right: 0;
+  top: 52%;
+  transform: translate(50%, -50%);
+  background-color: var(--color-white);
+  padding: 0.6rem 0.2rem;
+  box-shadow: var(--box-shadow);
+  border-radius: var(--border-radius-lg);
+
+  svg {
+    margin-top: 0.15rem;
+    margin-left: 0.1rem;
+  }
 `;

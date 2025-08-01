@@ -142,10 +142,20 @@ const validate = (obj: Site | SitePage | PageElement, schema: Record<string, str
 
   return Object.entries(schema).every(([key, type]) => {
     const val = obj[key as keyof typeof obj];
-
     if (type === 'array') return Array.isArray(val);
     return typeof val === type && val !== null;
   });
+};
+
+const isValidElement = (el: PageElement): boolean => {
+  if (!validate(el, ELEMENT_SCHEMA)) return false;
+
+  if ('children' in el) {
+    if (!Array.isArray(el.children)) return false;
+    return el.children.every((child) => isValidElement(child));
+  }
+
+  return true;
 };
 
 const validateSiteJson = (site: Site): boolean =>
@@ -153,9 +163,7 @@ const validateSiteJson = (site: Site): boolean =>
   Array.isArray(site.pages) &&
   site.pages.every(
     (page: SitePage) =>
-      validate(page, PAGE_SCHEMA) &&
-      Array.isArray(page.elements) &&
-      page.elements.every((el) => validate(el, ELEMENT_SCHEMA))
+      validate(page, PAGE_SCHEMA) && Array.isArray(page.elements) && page.elements.every((el) => isValidElement(el))
   );
 
 /**

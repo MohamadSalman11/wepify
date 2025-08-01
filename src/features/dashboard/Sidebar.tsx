@@ -223,5 +223,5 @@ const TotalSize = styled.span`
   column-gap: 1.2rem;
   align-items: center;
   margin-top: 1.2rem;
-  padding: 0.8rem 2.4rem;
+  padding: 0.8rem 0 0.8rem 2.4rem;
 `;

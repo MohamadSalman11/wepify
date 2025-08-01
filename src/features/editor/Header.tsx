@@ -230,7 +230,6 @@ const SizeInputs = styled.div`
   display: flex;
   align-items: center;
   column-gap: 1.6rem;
-  color: var(--color-gray-light);
 
   & > div {
     display: flex;
@@ -243,6 +242,11 @@ const SizeInputs = styled.div`
     padding-right: 1.2rem;
     padding-left: 1.2rem;
     text-align: center;
+  }
+
+  label {
+    opacity: 0.8;
+    color: var(--color-gray-light);
   }
 `;
 

@@ -80,6 +80,10 @@ const StyledInput = styled.input<{ $size: Size; $pill: boolean }>`
         cursor: not-allowed;
         background-color: var(--color-white-3);
         opacity: 0.9;
+
+        &::placeholder {
+         color:var(--color-gray-light);
+        }
       }
 
       ${sizes[$size]}

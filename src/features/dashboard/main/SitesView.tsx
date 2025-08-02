@@ -1,6 +1,6 @@
 import { nanoid } from '@reduxjs/toolkit';
 import type { Site } from '@shared/typing';
-import { useState, type MouseEvent } from 'react';
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import toast from 'react-hot-toast';
 import {
   LuArrowLeft,
@@ -40,15 +40,8 @@ import {
   updateSiteDetails
 } from '../slices/dashboardSlice';
 
-/**
- * Constants
- */
-
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
-
-/**
- * Component definition
- */
+const BODY_SCROLL_OFFSET = 75;
 
 export default function SitesView({ sites, title }: { sites?: Site[]; title?: string }) {
   const dispatch = useDispatch();
@@ -75,32 +68,47 @@ export default function SitesView({ sites, title }: { sites?: Site[]; title?: st
           title || 'Sites'
         )}
       </h2>
-      <Table>
+      <SiteSection>
         <TableHead />
         <TableBody sites={sitesToRender} filters={filters} />
-      </Table>
+      </SiteSection>
     </StyledSiteView>
   );
 }
 
 function TableHead() {
   return (
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Description</th>
-        <th>Size</th>
-        <th>Pages</th>
-        <th>Created</th>
-        <th>Last Modified</th>
-      </tr>
-    </thead>
+    <header>
+      <StyledTableHead>
+        <h3>Name</h3>
+        <h3>Description</h3>
+        <h3>Size</h3>
+        <h3>Pages</h3>
+        <h3>Created</h3>
+        <h3>Last Modified</h3>
+      </StyledTableHead>
+    </header>
   );
 }
 
 function TableBody({ sites, filters }: { sites: Site[]; filters: FilterCriteria }) {
   const now = Date.now();
   const isFiltering = Boolean(filters.modifiedWithinDays || filters.pageRange || filters.sizeRange);
+  const [top, setTop] = useState(0);
+  const tableBodyRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const updateTop = () => {
+      if (tableBodyRef.current) {
+        const { top } = tableBodyRef.current.getBoundingClientRect();
+        setTop(top);
+      }
+    };
+
+    updateTop();
+    window.addEventListener('resize', updateTop);
+    return () => window.removeEventListener('resize', updateTop);
+  }, []);
 
   const filteredSites = isFiltering
     ? sites.filter((site) => {
@@ -109,10 +117,8 @@ function TableBody({ sites, filters }: { sites: Site[]; filters: FilterCriteria 
         const modifiedTime = site.lastModified;
 
         const sizeMatch = !filters.sizeRange || (sizeKB >= filters.sizeRange.min && sizeKB <= filters.sizeRange.max);
-
         const pageMatch =
           !filters.pageRange || (pageCount >= filters.pageRange.min && pageCount <= filters.pageRange.max);
-
         const modifiedMatch =
           !filters.modifiedWithinDays || now - modifiedTime <= filters.modifiedWithinDays * MS_PER_DAY;
 
@@ -124,9 +130,9 @@ function TableBody({ sites, filters }: { sites: Site[]; filters: FilterCriteria 
 
   if (noSitesToDisplay) {
     return (
-      <StyledTbody>
-        <tr>
-          <td colSpan={7}>
+      <StyledBodySection ref={tableBodyRef} $top={top}>
+        <article>
+          <div>
             <NoResultsWrapper>
               <NoResultsMessage>{isFiltering ? 'No matching result' : 'No sites available'}</NoResultsMessage>
               <NoResultsInfo>
@@ -135,20 +141,20 @@ function TableBody({ sites, filters }: { sites: Site[]; filters: FilterCriteria 
                   : 'Ready to build your website? Add a new site to get started.'}
               </NoResultsInfo>
             </NoResultsWrapper>
-          </td>
-        </tr>
-      </StyledTbody>
+          </div>
+        </article>
+      </StyledBodySection>
     );
   }
 
   return (
-    <tbody>
+    <StyledBodySection ref={tableBodyRef} $top={top}>
       {filteredSites.map((site) => (
         <Modal key={site.id}>
           <TableRow site={site} />
         </Modal>
       ))}
-    </tbody>
+    </StyledBodySection>
   );
 }
 
@@ -156,19 +162,16 @@ function TableRow({ site }: { site: Site }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { open } = useModalContext();
-
   const { id, name, description, pages, createdAt, lastModified, isStarred } = site;
 
   const toggleStar = () => {
     dispatch(toggleSiteStarred(id));
-
     const message = isStarred ? ToastMessages.site.removedStar : ToastMessages.site.addedStar;
     toast.success(message, { duration: TOAST_DURATION });
   };
 
-  const handleRowClick = async (event: MouseEvent<HTMLTableRowElement>) => {
+  const handleRowClick = async (event: MouseEvent<HTMLElement>) => {
     const target = event.target as HTMLElement;
-
     if (!target.closest('svg') && !target.closest('li')) {
       dispatch(setIsLoading(true));
       await AppStorage.setItem(StorageKey.Site, site);
@@ -187,62 +190,58 @@ function TableRow({ site }: { site: Site }) {
   };
 
   return (
-    <StyledTableRow onClick={handleRowClick}>
-      <td>
-        <div>
-          <Icon icon={LuLayoutTemplate} /> {name}
-        </div>
-      </td>
-      <td>{description}</td>
-      <td>{calculateSiteSize(site)}</td>
-      <td>{pages.length}</td>
-      <td>{formatDate(createdAt)}</td>
-      <td>{formatDate(lastModified)}</td>
-      <td>
-        <div>
-          <Icon icon={LuEye} size='md' onClick={handlePreviewSite} />
-          <Icon icon={LuDownload} size='md' onClick={() => handleDownloadSite(true)} />
-          <Icon icon={LuPencilLine} size='md' onClick={() => open('edit')} />
-          <Modal.Window name='edit'>
-            <Modal.Dialog title='Edit Site'>
-              <EditDialog site={site} />
-            </Modal.Dialog>
-          </Modal.Window>
-          <Icon icon={LuStar} fill={isStarred} size='md' onClick={toggleStar} />
-          <Dropdown>
-            <Dropdown.Open>
-              <Icon icon={LuEllipsis} size='md' />
-            </Dropdown.Open>
-            <Dropdown.Drop translateX={-80} translateY={-10}>
-              <Dropdown.Button onClick={handlePreviewSite} icon={LuEye}>
-                Preview
-              </Dropdown.Button>
-              <Dropdown.Button icon={LuDownload} onClick={() => handleDownloadSite(true)}>
-                Download
-              </Dropdown.Button>
-              <Dropdown.Button icon={LuPencilLine} onClick={() => open('edit')}>
-                Edit
-              </Dropdown.Button>
-              <Dropdown.Button icon={LuCopy} onClick={() => dispatch(duplicateSite({ id, newId: nanoid() }))}>
-                Duplicate
-              </Dropdown.Button>
-              <Dropdown.Button icon={LuTrash2} onClick={() => open('delete')}>
-                Delete
-              </Dropdown.Button>
-            </Dropdown.Drop>
-          </Dropdown>
-          <Modal.Window name='edit'>
-            <Modal.Dialog title='Edit Site'>
-              <EditDialog site={site} />
-            </Modal.Dialog>
-          </Modal.Window>
-          <Modal.Window name='delete'>
-            <Modal.Dialog title='Delete Site'>
-              <DeleteDialog site={site} />
-            </Modal.Dialog>
-          </Modal.Window>
-        </div>
-      </td>
+    <StyledTableRow as='article' onClick={handleRowClick}>
+      <div>
+        <Icon icon={LuLayoutTemplate} /> {name}
+      </div>
+      <p>{description}</p>
+      <p>{calculateSiteSize(site)}</p>
+      <p>{pages.length}</p>
+      <p>{formatDate(createdAt)}</p>
+      <p>{formatDate(lastModified)}</p>
+      <div>
+        <Icon icon={LuEye} size='md' onClick={handlePreviewSite} />
+        <Icon icon={LuDownload} size='md' onClick={() => handleDownloadSite(true)} />
+        <Icon icon={LuPencilLine} size='md' onClick={() => open('edit')} />
+        <Modal.Window name='edit'>
+          <Modal.Dialog title='Edit Site'>
+            <EditDialog site={site} />
+          </Modal.Dialog>
+        </Modal.Window>
+        <Icon icon={LuStar} fill={isStarred} size='md' onClick={toggleStar} />
+        <Dropdown>
+          <Dropdown.Open>
+            <Icon icon={LuEllipsis} size='md' />
+          </Dropdown.Open>
+          <Dropdown.Drop translateX={-80} translateY={-10}>
+            <Dropdown.Button onClick={handlePreviewSite} icon={LuEye}>
+              Preview
+            </Dropdown.Button>
+            <Dropdown.Button icon={LuDownload} onClick={() => handleDownloadSite(true)}>
+              Download
+            </Dropdown.Button>
+            <Dropdown.Button icon={LuPencilLine} onClick={() => open('edit')}>
+              Edit
+            </Dropdown.Button>
+            <Dropdown.Button icon={LuCopy} onClick={() => dispatch(duplicateSite({ id, newId: nanoid() }))}>
+              Duplicate
+            </Dropdown.Button>
+            <Dropdown.Button icon={LuTrash2} onClick={() => open('delete')}>
+              Delete
+            </Dropdown.Button>
+          </Dropdown.Drop>
+        </Dropdown>
+        <Modal.Window name='edit'>
+          <Modal.Dialog title='Edit Site'>
+            <EditDialog site={site} />
+          </Modal.Dialog>
+        </Modal.Window>
+        <Modal.Window name='delete'>
+          <Modal.Dialog title='Delete Site'>
+            <DeleteDialog site={site} />
+          </Modal.Dialog>
+        </Modal.Window>
+      </div>
     </StyledTableRow>
   );
 }
@@ -303,20 +302,9 @@ function DeleteDialog({ site, onCloseModal }: { site: Site; onCloseModal?: OnClo
   );
 }
 
-/**
- * Styles
- */
-
 const StyledSiteView = styled.div<{ $isFiltering: boolean }>`
   width: 100%;
-  height: 100%;
-  overflow-y: auto;
-  scrollbar-width: none;
   margin-top: ${({ $isFiltering }) => ($isFiltering ? '0' : '5.2rem')};
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
 
   h2 {
     position: sticky;
@@ -335,6 +323,95 @@ const FilterHeader = styled.div`
   row-gap: 2.4rem;
 `;
 
+const SiteSection = styled.section`
+  width: 100%;
+  margin-top: 1.6rem;
+  font-size: 1.4rem;
+  margin-bottom: 20rem;
+`;
+
+const StyledBodySection = styled.section<{ $top: number }>`
+  border-top: 1px solid var(--color-gray-light-4);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  overflow-y: auto;
+  scrollbar-width: none;
+  height: ${({ $top }) => `calc(88vh - ${$top - 75}px)`};
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const StyledTableHead = styled.article`
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 1.2rem;
+  padding: 1.2rem;
+  font-size: 1.2rem;
+  border-bottom: 1px solid var(--color-gray-light-4);
+
+  h3 {
+    color: var(--color-gray);
+    font-weight: 400;
+  }
+`;
+
+const StyledTableRow = styled.article`
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1.2rem;
+  transition: var(--transition-base);
+  cursor: default;
+
+  &:hover {
+    background-color: var(--color-gray-light-4);
+
+    svg {
+      opacity: 1 !important;
+    }
+  }
+
+  > div:nth-child(1) {
+    display: flex;
+    column-gap: 0.8rem;
+    align-items: center;
+  }
+
+  > div:last-child {
+    position: relative;
+    text-align: right;
+
+    > svg:not(svg:nth-child(5)) {
+      opacity: 0;
+      @media (pointer: coarse) {
+        opacity: 1;
+      }
+    }
+
+    svg {
+      cursor: pointer !important;
+      margin-left: 1.6rem;
+      font-size: 1.6rem;
+
+      &:hover {
+        color: var(--color-gray-light) !important;
+      }
+    }
+  }
+`;
+
+const DialogActions = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  column-gap: 0.8rem;
+  margin-top: 1.2rem;
+`;
+
 const NoResultsWrapper = styled.div`
   text-align: center;
   margin-top: 3.2rem;
@@ -348,90 +425,5 @@ const NoResultsMessage = styled.span`
 
 const NoResultsInfo = styled.p`
   font-size: 1.2rem;
-  margin-top: 1.2rem;
-`;
-
-const Table = styled.table`
-  width: 100%;
-  margin-top: 1.6rem;
-  border-collapse: collapse;
-  font-size: 1.4rem;
-  margin-bottom: 20rem;
-
-  th,
-  td {
-    transition: var(--transition-base);
-    cursor: default;
-    padding: 1.2rem;
-    width: 1%;
-    text-align: left;
-    white-space: nowrap;
-
-    svg:hover {
-      color: var(--color-gray-light) !important;
-    }
-  }
-
-  th {
-    color: var(--color-gray);
-    font-weight: 400;
-  }
-`;
-
-const StyledTbody = styled.tbody`
-  border-top: 1px solid var(--color-gray-light-4);
-`;
-
-const StyledTableRow = styled.tr`
-  td:nth-child(1) div {
-    display: flex;
-    column-gap: 0.8rem;
-    align-items: center;
-  }
-
-  td:nth-child(7) {
-    text-align: right;
-
-    div {
-      position: relative;
-    }
-
-    div > svg:not(svg:nth-child(5)) {
-      opacity: 0;
-
-      @media (pointer: coarse) {
-        opacity: 1;
-      }
-    }
-
-    svg {
-      cursor: pointer !important;
-      margin-left: 1.6rem;
-      font-size: 1.6rem;
-
-      &:hover {
-        color: var(--color-gray-light-2);
-      }
-    }
-  }
-
-  td[colspan='7'] {
-    pointer-events: none;
-  }
-
-  &:hover {
-    background-color: var(--color-gray-light-4);
-
-    svg {
-      opacity: 1 !important;
-    }
-  }
-`;
-
-const DialogActions = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  column-gap: 0.8rem;
   margin-top: 1.2rem;
 `;

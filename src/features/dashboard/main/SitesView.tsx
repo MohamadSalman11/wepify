@@ -337,7 +337,7 @@ const StyledBodySection = styled.section<{ $top: number }>`
   gap: 0.4rem;
   overflow-y: auto;
   scrollbar-width: none;
-  height: ${({ $top }) => `calc(88vh - ${$top - 75}px)`};
+  height: ${({ $top }) => `calc(88vh - ${$top - BODY_SCROLL_OFFSET}px)`};
 
   &::-webkit-scrollbar {
     display: none;

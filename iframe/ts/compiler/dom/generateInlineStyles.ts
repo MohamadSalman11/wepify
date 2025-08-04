@@ -43,7 +43,7 @@ export const generateInlineStyles = ({
   const style: Partial<CSSStyleDeclaration> = {};
   const responsiveProps = extractResponsiveProps(element, isResponsive, deviceType);
   const { left, top, fontWeight, fontSize, rotate, scaleY, scaleX } = responsiveProps;
-  const shouldTransform = (left && top) || rotate;
+  const shouldTransform = (isDefined(left) && isDefined(top)) || isDefined(rotate);
 
   for (const key of PIXEL_STYLE_KEYS) {
     const value = responsiveProps[key];

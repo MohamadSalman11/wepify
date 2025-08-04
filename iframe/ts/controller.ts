@@ -90,7 +90,10 @@ const controlRenderElements = (
   state.scaleFactor = scaleFactor;
 
   renderElements(elements);
-  controlUpdatePage({ backgroundColor });
+
+  if (state.initRender) {
+    controlUpdatePage({ backgroundColor });
+  }
 
   const linkHref = `./${CSS_FILE_MOVEABLE}`;
   const existingLink = document.querySelector(`link[href="${linkHref}"]`);

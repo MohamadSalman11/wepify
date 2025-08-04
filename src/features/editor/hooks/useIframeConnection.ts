@@ -71,6 +71,7 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
 
           dispatch(setIsStoring(true));
           dispatch(updateSelectElement(fields));
+
           dispatch(
             updateElementInSite({
               pageId,

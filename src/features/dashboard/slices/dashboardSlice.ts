@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { Site } from '@shared/typing';
+import type { SiteMetadata } from '@shared/typing';
 
 export interface FilterCriteria {
   sizeRange?: {
@@ -14,41 +14,43 @@ export interface FilterCriteria {
 }
 
 interface DashboardState {
-  sites: Site[];
+  sitesMetadata: SiteMetadata[];
   filters: FilterCriteria;
   filterLabel: string;
   isLoading: boolean;
+  isProcessing: boolean;
 }
 
 const initialState: DashboardState = {
-  sites: [],
+  sitesMetadata: [],
   filters: {},
   filterLabel: '',
-  isLoading: true
+  isLoading: true,
+  isProcessing: false
 };
 
 const dashboardSlice = createSlice({
   name: 'dashboard',
   initialState,
   reducers: {
-    setSites(state, action: PayloadAction<Site[]>) {
-      state.sites = action.payload;
+    setSites(state, action: PayloadAction<SiteMetadata[]>) {
+      state.sitesMetadata = action.payload;
     },
-    addSite(state, action: PayloadAction<Site>) {
-      state.sites.push(action.payload);
+    addSite(state, action: PayloadAction<SiteMetadata>) {
+      state.sitesMetadata.push(action.payload);
     },
     deleteSite(state, action: PayloadAction<string>) {
-      state.sites = state.sites.filter((site) => site.id !== action.payload);
+      state.sitesMetadata = state.sitesMetadata.filter((site) => site.id !== action.payload);
     },
     duplicateSite(state, action: PayloadAction<{ id: string; newId: string }>) {
-      const site = state.sites.find((site) => site.id === action.payload.id);
+      const site = state.sitesMetadata.find((site) => site.id === action.payload.id);
 
       if (site) {
-        state.sites.push({ ...site, id: action.payload.newId });
+        state.sitesMetadata.push({ ...site, id: action.payload.newId });
       }
     },
     updateSiteDetails(state, action: PayloadAction<{ id: string; name: string; description: string }>) {
-      const site = state.sites.find((site) => site.id === action.payload.id);
+      const site = state.sitesMetadata.find((site) => site.id === action.payload.id);
 
       if (site) {
         site.name = action.payload.name;
@@ -62,7 +64,7 @@ const dashboardSlice = createSlice({
       state.filterLabel = action.payload;
     },
     toggleSiteStarred(state, action: PayloadAction<string>) {
-      const site = state.sites.find((site) => site.id === action.payload);
+      const site = state.sitesMetadata.find((site) => site.id === action.payload);
 
       if (site) {
         site.isStarred = !site.isStarred;
@@ -70,6 +72,9 @@ const dashboardSlice = createSlice({
     },
     setIsLoading(state, action: PayloadAction<boolean>) {
       state.isLoading = action.payload;
+    },
+    setIsProcessing(state, action: PayloadAction<boolean>) {
+      state.isProcessing = action.payload;
     }
   }
 });
@@ -83,7 +88,8 @@ export const {
   setFilters,
   setFilterLabel,
   toggleSiteStarred,
-  setIsLoading
+  setIsLoading,
+  setIsProcessing
 } = dashboardSlice.actions;
 
 export default dashboardSlice.reducer;

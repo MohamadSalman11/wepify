@@ -6,8 +6,8 @@ import SitesView from './SitesView';
  */
 
 export default function RecentSites() {
-  const sites = useAppSelector((state) => state.dashboard.sites);
-  const recentSites = [...sites].sort((a, b) => b.lastModified - a.lastModified);
+  const sitesMetadata = useAppSelector((state) => state.dashboard.sitesMetadata);
+  const recentSites = [...sitesMetadata].sort((a, b) => b.lastModified - a.lastModified);
 
-  return <SitesView sites={recentSites} title='Recent' />;
+  return <SitesView sitesMetadata={recentSites} title='Recent' />;
 }

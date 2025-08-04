@@ -11,13 +11,13 @@ import { useAppSelector } from '../../store';
 
 export default function Header() {
   const navigate = useNavigate();
-  const sites = useAppSelector((state) => state.dashboard.sites);
+  const sitesMetadata = useAppSelector((state) => state.dashboard.sitesMetadata);
 
   return (
     <StyledHeader>
       <Logo withText onClick={() => navigate(Path.Home)} />
       <HeaderInfo>
-        <SiteCountBadge>{sites.length}</SiteCountBadge>
+        <SiteCountBadge>{sitesMetadata.length}</SiteCountBadge>
         <Divider rotate={90} width={30} color='var(--color-gray-light-2)' />
         <span>Welcome back 👋</span>
       </HeaderInfo>

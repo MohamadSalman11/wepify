@@ -44,10 +44,10 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
   const { site, images, isLoading, isError, deviceType } = useAppSelector((state) => state.editor);
 
   const onLoaded = useCallback(
-    (site: Site | null) => {
+    async (site: Site | null) => {
       if (!site) return dispatch(setIsError(true));
 
-      const page = site?.pages.find((p) => p.id === pageId);
+      const page = site.pages.find((p) => p.id === pageId);
 
       if (!iframeConnection.iframeReady) return;
 
@@ -66,6 +66,7 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
         dispatch(selectElement(page.elements[0]));
         dispatch(setScale(DEFAULT_SCALE_FACTOR));
         dispatch(setDeviceType(DEFAULT_DEVICE_TYPE));
+
         setTimeout(() => dispatch(setIsLoading(false)), 100);
       } else {
         dispatch(setIsError(true));
@@ -74,7 +75,7 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
     [iframeConnection.iframeReady, canvasRef, dispatch, pageId]
   );
 
-  useLoadFromStorage<Site>({
+  useLoadFromStorage<Site | null>({
     storageKey: StorageKey.Site,
     loadingDuration,
     onLoaded

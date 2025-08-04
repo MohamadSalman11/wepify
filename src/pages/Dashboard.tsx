@@ -1,8 +1,8 @@
-import type { Site } from '@shared/typing';
+import type { Site, SiteMetadata } from '@shared/typing';
 import { useCallback, useEffect, useMemo } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import LoadingScreen from '../components/LoadingScreen';
 import { StorageKey } from '../constant';
 import Header from '../features/dashboard/Header';
@@ -12,6 +12,7 @@ import { setIsLoading, setSites } from '../features/dashboard/slices/dashboardSl
 import { useLoadFromStorage } from '../hooks/useLoadFromStorage';
 import { useAppSelector } from '../store';
 import { AppStorage } from '../utils/appStorage';
+import { calculateSiteSize } from '../utils/calculateSiteSize';
 import { getRandomDuration } from '../utils/getRandomDuration';
 
 /**
@@ -21,31 +22,51 @@ import { getRandomDuration } from '../utils/getRandomDuration';
 const loadingDuration = getRandomDuration(2.5, 3.5);
 
 /**
+ * Constants
+ */
+
+interface StorageData {
+  sitesMetadata: SiteMetadata[] | null;
+  site: Site | null;
+}
+
+/**
  * Component definition
  */
 
 export default function Dashboard() {
   const dispatch = useDispatch();
-  const storageKey = useMemo(() => ['sites', 'site'], []) as StorageKey[];
-  const { sites, isLoading } = useAppSelector((state) => state.dashboard);
+  const storageKey = useMemo(() => [StorageKey.SitesMetaData, StorageKey.Site], []) as StorageKey[];
+  const { sitesMetadata, isLoading, isProcessing } = useAppSelector((state) => state.dashboard);
 
   const onLoaded = useCallback(
-    async (data: { sites: Site[] | null; site: Site | null } | null) => {
-      if (!data) {
-        dispatch(setIsLoading(false));
-        return;
-      }
+    async (data: StorageData | null) => {
+      if (!data) return dispatch(setIsLoading(false));
 
-      const updatedSites = data.sites ?? [];
+      const { sitesMetadata, site } = data;
+      const updatedSites = sitesMetadata ?? [];
 
-      if (data.site) {
-        const i = updatedSites.findIndex((s) => s.id === data.site!.id);
+      if (site) {
+        const sites: Site[] = (await AppStorage.getItem(StorageKey.Sites)) ?? [];
+        const siteMetadata = toSiteMetadata(site);
+        const siteMetadataIndex = updatedSites.findIndex((s) => s.id === site.id);
+        const isSiteMetadataExist = siteMetadataIndex !== -1;
+        const siteIndex = sites.findIndex((s: Site) => s.id === site.id);
+        const isSiteExist = siteIndex !== -1;
 
-        if (i === -1) {
-          updatedSites.push(data.site);
+        if (isSiteMetadataExist) {
+          updatedSites[siteMetadataIndex] = siteMetadata;
         } else {
-          updatedSites[i] = data.site;
+          updatedSites.push(siteMetadata);
         }
+
+        if (isSiteExist) {
+          sites[siteIndex] = site;
+        } else {
+          sites.push(site);
+        }
+
+        await AppStorage.setItem(StorageKey.Sites, sites);
       }
 
       await AppStorage.setItem(StorageKey.Site, null);
@@ -55,15 +76,15 @@ export default function Dashboard() {
     [dispatch]
   );
 
-  useLoadFromStorage<{ sites: Site[] | null; site: Site | null }>({
+  useLoadFromStorage<StorageData>({
     storageKey,
     loadingDuration,
     onLoaded
   });
 
   useEffect(() => {
-    AppStorage.setItem(StorageKey.Sites, sites);
-  }, [sites]);
+    AppStorage.setItem(StorageKey.SitesMetaData, sitesMetadata);
+  }, [sitesMetadata]);
 
   if (isLoading) {
     return (
@@ -75,25 +96,49 @@ export default function Dashboard() {
   }
 
   return (
-    <StyledDashboard>
-      <title>Wepify Dashboard — Manage Your Websites</title>
-      <Toaster position='bottom-left' />
-      <Header />
-      <DashboardLayout>
-        <Sidebar />
-        <Main />
-      </DashboardLayout>
-    </StyledDashboard>
+    <>
+      <Toaster position='top-center' />
+      <StyledDashboard $isProcessing={isProcessing}>
+        <title>Wepify Dashboard — Manage Your Websites</title>
+        <Header />
+        <DashboardLayout>
+          <Sidebar />
+          <Main />
+        </DashboardLayout>
+      </StyledDashboard>
+    </>
   );
 }
+
+const toSiteMetadata = (site: Site) => {
+  return {
+    id: site.id,
+    name: site.name,
+    description: site.description,
+    createdAt: site.createdAt,
+    lastModified: site.lastModified,
+    isStarred: site.isStarred,
+    sizeKb: calculateSiteSize(site, 'kb'),
+    pagesCount: site.pages.length,
+    firstPageId: site.pages[0].id
+  };
+};
 
 /**
  * Styles
  */
 
-const StyledDashboard = styled.div`
+const StyledDashboard = styled.div<{ $isProcessing: boolean }>`
   padding: 1.2rem 2.4rem;
   user-select: none;
+
+  ${(props) =>
+    props.$isProcessing &&
+    css`
+      opacity: 0.8;
+      filter: blur(2px);
+      pointer-events: none;
+    `}
 
   & > div:nth-of-type(2) {
     margin-top: 1.2rem;

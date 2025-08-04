@@ -108,6 +108,12 @@ export interface Site {
   pages: SitePage[];
 }
 
+export type SiteMetadata = Omit<Site, 'pages'> & {
+  sizeKb: number;
+  pagesCount: number;
+  firstPageId: string;
+};
+
 export interface Image {
   id: string;
   dataUrl: string;

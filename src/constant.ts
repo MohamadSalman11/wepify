@@ -29,6 +29,7 @@ export enum LoadingMessages {
 
 export enum StorageKey {
   Sites = 'sites',
+  SitesMetaData = 'sitesMetadata',
   Site = 'site',
   Images = 'images'
 }
@@ -42,20 +43,27 @@ export enum Breakpoint {
 
 export const ToastMessages = {
   site: {
-    addedStar: 'Site added to starred',
-    removedStar: 'Site removed from starred',
-    updated: 'Site updated successfully',
-    deleted: 'Site deleted successfully',
-    imported: 'Site imported successfully',
-    importFailed: 'Failed to import the site',
-    importInvalid: 'Invalid site JSON. Please upload a valid file.'
+    generating: 'Generating site...',
+    duplicating: 'Duplicating site...',
+    updating: 'Updating site...',
+    deleting: 'Deleting site...',
+    generated: 'Site generated! Download should appear shortly in your browser.',
+    addedStar: 'Site added to starred.',
+    removedStar: 'Site removed from starred.',
+    updated: 'Site updated successfully.',
+    deleted: 'Site deleted successfully.',
+    duplicated: 'Site duplicated successfully.',
+    imported: 'Site imported successfully.',
+    importFailed: 'Failed to import the site.',
+    importInvalid: 'Invalid site JSON. Please upload a valid file.',
+    downloadFailed: 'Site could not be downloaded. Please try again.'
   },
   page: {
-    deleted: 'Site deleted successfully',
-    renamed: 'Site name changed successfully',
-    linkCopied: 'Page link copied',
-    linkCopyErr: 'Failed to copy page link',
-    emptyName: 'Page name cannot be empty',
+    renamed: 'Page name changed successfully.',
+    deleted: 'Page deleted successfully.',
+    linkCopied: 'Page link copied.',
+    linkCopyErr: 'Failed to copy page link.',
+    emptyName: 'Page name cannot be empty.',
     duplicateName: 'A page with this name already exists. Please choose a different name.'
   },
   network: {

@@ -1,7 +1,7 @@
 import { nanoid } from '@reduxjs/toolkit';
-import type { Site } from '@shared/typing';
+import type { Site, SiteMetadata } from '@shared/typing';
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
-import toast from 'react-hot-toast';
+import toast, { Renderable } from 'react-hot-toast';
 import {
   LuArrowLeft,
   LuCopy,
@@ -9,13 +9,14 @@ import {
   LuEllipsis,
   LuEye,
   LuLayoutTemplate,
+  LuLoader,
   LuPencilLine,
   LuStar,
   LuTrash2
 } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { controlDownloadZip } from '../../../../iframe/ts/controller';
 import Button from '../../../components/Button';
 import Dropdown from '../../../components/Dropdown';
@@ -27,8 +28,8 @@ import { useModalContext } from '../../../context/ModalContext';
 import { useAppSelector } from '../../../store';
 import { AppStorage } from '../../../utils/appStorage';
 import { buildPath } from '../../../utils/buildPath';
-import { calculateSiteSize } from '../../../utils/calculateSiteSize';
 import { formatDate } from '../../../utils/formatDate';
+import { formatSize } from '../../../utils/formatSize';
 import { setIsLoading } from '../../editor/slices/editorSlice';
 import {
   deleteSite,
@@ -36,17 +37,26 @@ import {
   FilterCriteria,
   setFilterLabel,
   setFilters,
+  setIsProcessing,
   toggleSiteStarred,
   updateSiteDetails
 } from '../slices/dashboardSlice';
 
+/**
+ * Constants
+ */
+
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const BODY_SCROLL_OFFSET = 75;
 
-export default function SitesView({ sites, title }: { sites?: Site[]; title?: string }) {
+/**
+ * Component definition
+ */
+
+export default function SitesView({ sitesMetadata, title }: { sitesMetadata?: SiteMetadata[]; title?: string }) {
   const dispatch = useDispatch();
-  const { sites: fallbackSites, filters, filterLabel } = useAppSelector((state) => state.dashboard);
-  const sitesToRender = sites ?? [...fallbackSites].sort((a, b) => b.createdAt - a.createdAt);
+  const { sitesMetadata: fallbackSites, filters, filterLabel } = useAppSelector((state) => state.dashboard);
+  const sitesToRender = sitesMetadata ?? [...fallbackSites].sort((a, b) => b.createdAt - a.createdAt);
   const isFiltering = Boolean(filters.modifiedWithinDays || filters.pageRange || filters.sizeRange);
 
   const handleClearFilter = () => {
@@ -70,7 +80,7 @@ export default function SitesView({ sites, title }: { sites?: Site[]; title?: st
       </h2>
       <SiteSection>
         <TableHead />
-        <TableBody sites={sitesToRender} filters={filters} />
+        <TableBody sitesMetadata={sitesToRender} filters={filters} />
       </SiteSection>
     </StyledSiteView>
   );
@@ -91,7 +101,7 @@ function TableHead() {
   );
 }
 
-function TableBody({ sites, filters }: { sites: Site[]; filters: FilterCriteria }) {
+function TableBody({ sitesMetadata, filters }: { sitesMetadata: SiteMetadata[]; filters: FilterCriteria }) {
   const now = Date.now();
   const isFiltering = Boolean(filters.modifiedWithinDays || filters.pageRange || filters.sizeRange);
   const [top, setTop] = useState(0);
@@ -111,20 +121,18 @@ function TableBody({ sites, filters }: { sites: Site[]; filters: FilterCriteria 
   }, []);
 
   const filteredSites = isFiltering
-    ? sites.filter((site) => {
-        const sizeKB = calculateSiteSize(site, 'kb');
-        const pageCount = site.pages.length;
-        const modifiedTime = site.lastModified;
+    ? sitesMetadata.filter((site) => {
+        const { sizeKb, pagesCount, lastModified } = site;
 
-        const sizeMatch = !filters.sizeRange || (sizeKB >= filters.sizeRange.min && sizeKB <= filters.sizeRange.max);
+        const sizeMatch = !filters.sizeRange || (sizeKb >= filters.sizeRange.min && sizeKb <= filters.sizeRange.max);
         const pageMatch =
-          !filters.pageRange || (pageCount >= filters.pageRange.min && pageCount <= filters.pageRange.max);
+          !filters.pageRange || (pagesCount >= filters.pageRange.min && pagesCount <= filters.pageRange.max);
         const modifiedMatch =
-          !filters.modifiedWithinDays || now - modifiedTime <= filters.modifiedWithinDays * MS_PER_DAY;
+          !filters.modifiedWithinDays || now - lastModified <= filters.modifiedWithinDays * MS_PER_DAY;
 
         return sizeMatch && pageMatch && modifiedMatch;
       })
-    : sites;
+    : sitesMetadata;
 
   const noSitesToDisplay = filteredSites.length === 0;
 
@@ -151,18 +159,18 @@ function TableBody({ sites, filters }: { sites: Site[]; filters: FilterCriteria 
     <StyledBodySection ref={tableBodyRef} $top={top}>
       {filteredSites.map((site) => (
         <Modal key={site.id}>
-          <TableRow site={site} />
+          <TableRow siteMetadata={site} />
         </Modal>
       ))}
     </StyledBodySection>
   );
 }
 
-function TableRow({ site }: { site: Site }) {
+function TableRow({ siteMetadata }: { siteMetadata: SiteMetadata }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { open } = useModalContext();
-  const { id, name, description, pages, createdAt, lastModified, isStarred } = site;
+  const { id, name, description, sizeKb, pagesCount, firstPageId, createdAt, lastModified, isStarred } = siteMetadata;
 
   const toggleStar = () => {
     dispatch(toggleSiteStarred(id));
@@ -170,23 +178,65 @@ function TableRow({ site }: { site: Site }) {
     toast.success(message, { duration: TOAST_DURATION });
   };
 
+  const handleDuplicateSite = () => {
+    runWithToast({
+      startMessage: ToastMessages.site.duplicating,
+      successMessage: ToastMessages.site.duplicated,
+      icon: <StyledLoader icon={LuLoader} color='var(--color-primary)' size='md' />,
+      delay: 1000,
+      onExecute: async () => {
+        const newId = nanoid();
+        dispatch(setIsProcessing(true));
+
+        await updateInSitesStorage((sites) => {
+          const existing = sites.find((s) => s.id === id);
+          return existing ? [...sites, { ...existing, id: newId }] : sites;
+        });
+
+        return newId;
+      },
+      onSuccess: (newId) => dispatch(duplicateSite({ id, newId })),
+      onFinally: () => dispatch(setIsProcessing(false))
+    });
+  };
+
   const handleRowClick = async (event: MouseEvent<HTMLElement>) => {
     const target = event.target as HTMLElement;
     if (!target.closest('svg') && !target.closest('li')) {
       dispatch(setIsLoading(true));
+      const sites = (await AppStorage.getItem(StorageKey.Sites)) as Site[];
+      const site = sites.find((s) => s.id === id);
       await AppStorage.setItem(StorageKey.Site, site);
-      navigate(buildPath(Path.Editor, { siteId: id, pageId: pages[0].id }));
+      navigate(buildPath(Path.Editor, { siteId: id, pageId: firstPageId }));
     }
   };
 
   const handlePreviewSite = async () => {
     dispatch(setIsLoading(true));
+    const sites = (await AppStorage.getItem(StorageKey.Sites)) as Site[];
+    const site = sites.find((s) => s.id === id);
     await AppStorage.setItem(StorageKey.Site, site);
-    navigate(`${buildPath(Path.Editor, { siteId: id, pageId: pages[0].id })}/${EditorPath.Preview}`);
+    navigate(`${buildPath(Path.Editor, { siteId: id, pageId: firstPageId })}/${EditorPath.Preview}`);
   };
 
-  const handleDownloadSite = async (shouldMinify: boolean) => {
-    await controlDownloadZip(site, shouldMinify);
+  const handleDownloadSite = (shouldMinify: boolean) => {
+    runWithToast({
+      startMessage: ToastMessages.site.generating,
+      successMessage: ToastMessages.site.generated,
+      icon: <StyledLoader icon={LuLoader} color='var(--color-primary)' size='md' />,
+      onExecute: async () => {
+        dispatch(setIsProcessing(true));
+        const sites = (await AppStorage.getItem(StorageKey.Sites)) as Site[];
+        const site = sites.find((s) => s.id === id);
+
+        if (!site) {
+          throw new Error(ToastMessages.site.downloadFailed);
+        }
+
+        await controlDownloadZip(site, shouldMinify);
+      },
+      onFinally: () => dispatch(setIsProcessing(false))
+    });
   };
 
   return (
@@ -195,8 +245,8 @@ function TableRow({ site }: { site: Site }) {
         <Icon icon={LuLayoutTemplate} /> {name}
       </div>
       <p>{description}</p>
-      <p>{calculateSiteSize(site)}</p>
-      <p>{pages.length}</p>
+      <p>{formatSize(sizeKb)}</p>
+      <p>{pagesCount}</p>
       <p>{formatDate(createdAt)}</p>
       <p>{formatDate(lastModified)}</p>
       <div>
@@ -205,7 +255,7 @@ function TableRow({ site }: { site: Site }) {
         <Icon icon={LuPencilLine} size='md' onClick={() => open('edit')} />
         <Modal.Window name='edit'>
           <Modal.Dialog title='Edit Site'>
-            <EditDialog site={site} />
+            <EditDialog siteMetadata={siteMetadata} />
           </Modal.Dialog>
         </Modal.Window>
         <Icon icon={LuStar} fill={isStarred} size='md' onClick={toggleStar} />
@@ -223,7 +273,7 @@ function TableRow({ site }: { site: Site }) {
             <Dropdown.Button icon={LuPencilLine} onClick={() => open('edit')}>
               Edit
             </Dropdown.Button>
-            <Dropdown.Button icon={LuCopy} onClick={() => dispatch(duplicateSite({ id, newId: nanoid() }))}>
+            <Dropdown.Button icon={LuCopy} onClick={handleDuplicateSite}>
               Duplicate
             </Dropdown.Button>
             <Dropdown.Button icon={LuTrash2} onClick={() => open('delete')}>
@@ -233,12 +283,12 @@ function TableRow({ site }: { site: Site }) {
         </Dropdown>
         <Modal.Window name='edit'>
           <Modal.Dialog title='Edit Site'>
-            <EditDialog site={site} />
+            <EditDialog siteMetadata={siteMetadata} />
           </Modal.Dialog>
         </Modal.Window>
         <Modal.Window name='delete'>
           <Modal.Dialog title='Delete Site'>
-            <DeleteDialog site={site} />
+            <DeleteDialog siteMetadata={siteMetadata} />
           </Modal.Dialog>
         </Modal.Window>
       </div>
@@ -246,26 +296,33 @@ function TableRow({ site }: { site: Site }) {
   );
 }
 
-function EditDialog({ site, onCloseModal }: { site: Site; onCloseModal?: OnCloseModal }) {
+function EditDialog({ siteMetadata, onCloseModal }: { siteMetadata: SiteMetadata; onCloseModal?: OnCloseModal }) {
   const dispatch = useDispatch();
-  const [name, setName] = useState(site.name);
-  const [description, setDescription] = useState(site.description);
+  const { id, name, description } = siteMetadata;
+  const [n, setN] = useState(name);
+  const [d, setD] = useState(description);
 
-  const handleSiteUpdate = () => {
-    dispatch(updateSiteDetails({ id: site.id, name, description }));
-    onCloseModal?.();
-    toast.success(ToastMessages.site.updated, { duration: TOAST_DURATION });
+  const handleSiteUpdate = async () => {
+    runWithToast({
+      startMessage: ToastMessages.site.updating,
+      successMessage: ToastMessages.site.updated,
+      icon: <StyledLoader icon={LuLoader} color='var(--color-primary)' size='md' />,
+      delay: 1000,
+      onExecute: async () => {
+        dispatch(setIsProcessing(true));
+        onCloseModal?.();
+        await updateInSitesStorage((sites) => sites.map((s) => (s.id === id ? { ...s, name: n, description: d } : s)));
+        return { id, name: n, description: d };
+      },
+      onSuccess: ({ id, name, description }) => dispatch(updateSiteDetails({ id, name, description })),
+      onFinally: () => dispatch(setIsProcessing(false))
+    });
   };
 
   return (
     <>
-      <Input type='text' value={name} placeholder='Name' onChange={(event) => setName(event.target.value)} />
-      <Input
-        type='text'
-        value={description}
-        placeholder='Description'
-        onChange={(event) => setDescription(event.target.value)}
-      />
+      <Input type='text' value={n} placeholder='Name' onChange={(event) => setN(event.target.value)} />
+      <Input type='text' value={d} placeholder='Description' onChange={(event) => setD(event.target.value)} />
       <DialogActions>
         <Button size='sm' pill={true} onClick={handleSiteUpdate}>
           OK
@@ -278,18 +335,32 @@ function EditDialog({ site, onCloseModal }: { site: Site; onCloseModal?: OnClose
   );
 }
 
-function DeleteDialog({ site, onCloseModal }: { site: Site; onCloseModal?: OnCloseModal }) {
+function DeleteDialog({ siteMetadata, onCloseModal }: { siteMetadata: SiteMetadata; onCloseModal?: OnCloseModal }) {
   const dispatch = useDispatch();
+  const { id, name } = siteMetadata;
 
   const handleDelete = () => {
-    dispatch(deleteSite(site.id));
-    onCloseModal?.();
-    toast.success(ToastMessages.site.deleted);
+    runWithToast({
+      startMessage: ToastMessages.site.deleting,
+      successMessage: ToastMessages.site.deleted,
+      icon: <StyledLoader icon={LuLoader} color='var(--color-red)' size='md' />,
+      delay: 1000,
+      onExecute: async () => {
+        dispatch(setIsProcessing(true));
+        onCloseModal?.();
+        await updateInSitesStorage((sites) => sites.filter((s) => s.id !== id));
+        return id;
+      },
+      onSuccess: (deletedId) => dispatch(deleteSite(deletedId)),
+      onFinally: () => {
+        dispatch(setIsProcessing(false));
+      }
+    });
   };
 
   return (
     <>
-      <p>Are you sure you want to delete "{site.name}"? This action cannot be undone.</p>
+      <p>Are you sure you want to delete "{name}"? This action cannot be undone.</p>
       <DialogActions>
         <Button size='sm' variation='danger' pill={true} onClick={handleDelete}>
           Delete Forever
@@ -301,6 +372,60 @@ function DeleteDialog({ site, onCloseModal }: { site: Site; onCloseModal?: OnClo
     </>
   );
 }
+
+const updateInSitesStorage = async (handler: (sites: Site[]) => void) => {
+  const sites: Site[] = (await AppStorage.getItem(StorageKey.Sites)) ?? [];
+  const updatedSites = handler(sites);
+  await AppStorage.setItem(StorageKey.Sites, updatedSites);
+};
+
+type RunWithToastParams<T> = {
+  startMessage: string;
+  successMessage: string;
+  errorMessage?: string;
+  icon?: Renderable;
+  delay?: number;
+  onExecute: () => Promise<T>;
+  onSuccess?: (result: T) => void;
+  onFinally?: () => void;
+};
+
+const runWithToast = async <T,>({
+  startMessage,
+  successMessage,
+  errorMessage = 'Something went wrong',
+  icon,
+  delay = 0,
+  onExecute,
+  onSuccess,
+  onFinally
+}: RunWithToastParams<T>): Promise<void> => {
+  const toastId = toast(startMessage, {
+    icon,
+    duration: Infinity
+  });
+
+  try {
+    const result = await onExecute();
+    setTimeout(() => {
+      toast.success(successMessage);
+      onSuccess?.(result);
+    }, delay);
+  } catch {
+    setTimeout(() => {
+      toast.error(errorMessage);
+    }, delay);
+  } finally {
+    setTimeout(() => {
+      toast.dismiss(toastId);
+      onFinally?.();
+    }, delay);
+  }
+};
+
+/**
+ * Styles
+ */
 
 const StyledSiteView = styled.div<{ $isFiltering: boolean }>`
   width: 100%;
@@ -426,4 +551,14 @@ const NoResultsMessage = styled.span`
 const NoResultsInfo = styled.p`
   font-size: 1.2rem;
   margin-top: 1.2rem;
+`;
+
+const spin = keyframes`
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const StyledLoader = styled(Icon)`
+  animation: ${spin} 1.5s linear infinite;
 `;

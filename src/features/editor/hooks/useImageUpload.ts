@@ -1,8 +1,8 @@
 import toast from 'react-hot-toast';
 import { TOAST_DURATION } from '../../../constant';
 
-const MAX_SIZE_IN_BYTES = 2 * 1024 * 1024;
-const MESSAGE_SIZE_EXCEED = 'Image size should not exceed 2MB';
+const MAX_SIZE_IN_BYTES = 1 * 1024 * 1024;
+const MESSAGE_SIZE_EXCEED = 'Image size should not exceed 1MB';
 const MESSAGE_FAILED = 'Failed to read image file';
 
 export const useImageUpload = (

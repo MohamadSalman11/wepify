@@ -1,4 +1,4 @@
-import type { InputChangeEvent, Site } from '@shared/typing';
+import type { InputChangeEvent, SiteMetadata } from '@shared/typing';
 import { useRef, useState, type ReactNode } from 'react';
 import type { IconType } from 'react-icons';
 import { LuCalendar, LuChevronDown, LuFileStack, LuHardDrive, LuLayoutTemplate, LuSearch, LuX } from 'react-icons/lu';
@@ -49,8 +49,8 @@ const OPTIONS_MODIFIED = [
  */
 
 export default function SearchBox() {
-  const sites = useAppSelector((state) => state.dashboard.sites);
-  const [matchedSites, setMatchedSites] = useState<Site[]>([]);
+  const sitesMetadata = useAppSelector((state) => state.dashboard.sitesMetadata);
+  const [matchedSites, setMatchedSites] = useState<SiteMetadata[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const isSearchResultVisible = isSearching;
@@ -58,7 +58,7 @@ export default function SearchBox() {
   const handleSearch = (event: InputChangeEvent) => {
     const search = event.target.value.toLowerCase();
     const matchSites = search
-      ? sites.filter(
+      ? sitesMetadata.filter(
           (site) => site.name.toLowerCase().includes(search) || site.description.toLowerCase().includes(search)
         )
       : [];
@@ -94,11 +94,11 @@ export default function SearchBox() {
   );
 }
 
-function SearchResults({ matchedSites }: { matchedSites: Site[] }) {
+function SearchResults({ matchedSites }: { matchedSites: SiteMetadata[] }) {
   const navigate = useNavigate();
   const isNoResult = matchedSites.length === 0;
 
-  const handleOpenEditor = async (site: Site) => {
+  const handleOpenEditor = async (site: SiteMetadata) => {
     await AppStorage.setItem(StorageKey.Site, site);
     navigate(buildPath(Path.Editor, { siteId: site.id, pageId: site.pages[0].id }));
   };

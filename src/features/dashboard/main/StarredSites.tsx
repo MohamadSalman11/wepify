@@ -6,8 +6,8 @@ import SitesView from './SitesView';
  */
 
 export default function StarredSites() {
-  const sites = useAppSelector((state) => state.dashboard.sites);
-  const starredSites = sites.filter((site) => site.isStarred);
+  const sitesMetadata = useAppSelector((state) => state.dashboard.sitesMetadata);
+  const starredSites = sitesMetadata.filter((site) => site.isStarred);
 
-  return <SitesView sites={starredSites} title='Starred' />;
+  return <SitesView sitesMetadata={starredSites} title='Starred' />;
 }

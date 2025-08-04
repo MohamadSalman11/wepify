@@ -1,15 +1,10 @@
-export const extractTransform = (transform: string): { left: number; top: number; rotation: number | null } | null => {
-  const translateRegex = /translate\(\s*(-?\d+)px\s*,\s*(-?\d+)px\s*\)/;
-  const rotateRegex = /rotate\(\s*(-?\d+(?:\.\d+)?)deg\s*\)/;
-
-  const translateMatch = transform.match(translateRegex);
-  if (!translateMatch) return null;
-
-  const rotateMatch = transform.match(rotateRegex);
+export const extractTransform = (transform: string) => {
+  const translateMatch = transform.match(/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/);
+  const rotateMatch = transform.match(/rotate\(([-\d.]+)deg\)/);
 
   return {
-    left: Number.parseInt(translateMatch[1], 10),
-    top: Number.parseInt(translateMatch[2], 10),
-    rotation: rotateMatch ? Number(Number.parseFloat(rotateMatch[1])) : null
+    left: translateMatch ? Number.parseFloat(translateMatch[1]) : null,
+    top: translateMatch ? Number.parseFloat(translateMatch[2]) : null,
+    rotate: rotateMatch ? Number.parseFloat(rotateMatch[1]) : null
   };
 };

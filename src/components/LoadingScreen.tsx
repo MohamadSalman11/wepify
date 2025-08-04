@@ -5,19 +5,11 @@ import Button from './Button';
 import Logo from './Logo';
 
 /**
- * Constants
- */
-
-const DEFAULT_DURATION = 2000;
-const MS_TO_SECONDS = 1000;
-
-/**
  * Types
  */
 
 interface LoadingScreenProps {
   text?: string;
-  duration?: number;
   buttonText?: string;
   handler?: () => void;
 }
@@ -26,14 +18,7 @@ interface LoadingScreenProps {
  * Component definition
  */
 
-export default function LoadingScreen({
-  text = LoadingMessages.Dashboard,
-  duration,
-  buttonText,
-  handler
-}: LoadingScreenProps) {
-  const randomDuration = `${(duration ?? DEFAULT_DURATION) / MS_TO_SECONDS}s`;
-
+export default function LoadingScreen({ text = LoadingMessages.Dashboard, buttonText, handler }: LoadingScreenProps) {
   return createPortal(
     <StyledLoadingScreen>
       <LogoWrapper>
@@ -41,7 +26,7 @@ export default function LoadingScreen({
         Wepify
       </LogoWrapper>
       <LoadingBarWrapper>
-        <LoadingBar $duration={randomDuration} />
+        <LoadingBar />
       </LoadingBarWrapper>
       <LoadingText>{text}</LoadingText>
       {buttonText && (
@@ -85,12 +70,23 @@ const LogoWrapper = styled.div`
   }
 `;
 
-const fillAnimation = keyframes`
-  0% { width: 0; }
-  100% { width: 100%; }
+const indeterminate = keyframes`
+  0% {
+    left: -40%;
+    right: 100%;
+  }
+  50% {
+    left: 25%;
+    right: 0%;
+  }
+  100% {
+    left: 100%;
+    right: -40%;
+  }
 `;
 
 const LoadingBarWrapper = styled.div`
+  position: relative;
   width: 35rem;
   height: 0.8rem;
   background-color: var(--color-gray-light-2);
@@ -98,11 +94,12 @@ const LoadingBarWrapper = styled.div`
   overflow: hidden;
 `;
 
-const LoadingBar = styled.div<{ $duration: string }>`
-  height: 100%;
+const LoadingBar = styled.div`
+  position: absolute;
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  height: 100%;
   border-radius: var(--border-radius-lg);
-  animation: ${fillAnimation} ${({ $duration }) => $duration} ease-in-out;
+  animation: ${indeterminate} 1.5s infinite linear;
 `;
 
 const LoadingText = styled.p`

@@ -54,7 +54,6 @@ export default function UploadsPanel() {
 
   useLoadFromStorage<Image[]>({
     storageKey: StorageKey.Images,
-    loadingDuration: 0,
     onLoaded
   });
 

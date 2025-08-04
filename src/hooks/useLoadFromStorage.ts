@@ -2,21 +2,17 @@ import { useEffect } from 'react';
 import type { StorageKey } from '../constant';
 import { AppStorage } from '../utils/appStorage';
 
-const DEFAULT_LOADING_DURATION = 0;
+const DEFAULT_DELAY = 1000;
 
 type UseLoadFromStorage<T> = {
   storageKey: StorageKey | StorageKey[];
-  loadingDuration?: number;
+  delay?: number;
   onLoaded: (data: T | null) => void;
 };
 
-export const useLoadFromStorage = <T>({
-  storageKey,
-  loadingDuration = DEFAULT_LOADING_DURATION,
-  onLoaded
-}: UseLoadFromStorage<T>) => {
+export const useLoadFromStorage = <T>({ storageKey, delay = DEFAULT_DELAY, onLoaded }: UseLoadFromStorage<T>) => {
   useEffect(() => {
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let timeoutId: ReturnType<typeof setTimeout>;
 
     async function load() {
       let data: T | null = null;
@@ -30,17 +26,15 @@ export const useLoadFromStorage = <T>({
         data = (await AppStorage.getItem<T>(storageKey)) as T | null;
       }
 
-      if (loadingDuration > DEFAULT_LOADING_DURATION) {
-        timeoutId = setTimeout(() => onLoaded(data), loadingDuration);
-      } else {
+      timeoutId = setTimeout(() => {
         onLoaded(data);
-      }
+      }, delay);
     }
 
     load();
 
     return () => {
-      if (timeoutId) clearTimeout(timeoutId);
+      clearTimeout(timeoutId);
     };
-  }, [onLoaded, storageKey, loadingDuration]);
+  }, [onLoaded, storageKey, delay]);
 };

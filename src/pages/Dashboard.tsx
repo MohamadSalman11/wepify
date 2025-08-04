@@ -13,13 +13,6 @@ import { useLoadFromStorage } from '../hooks/useLoadFromStorage';
 import { useAppSelector } from '../store';
 import { AppStorage } from '../utils/appStorage';
 import { calculateSiteSize } from '../utils/calculateSiteSize';
-import { getRandomDuration } from '../utils/getRandomDuration';
-
-/**
- * Constants
- */
-
-const loadingDuration = getRandomDuration(2.5, 3.5);
 
 /**
  * Constants
@@ -78,7 +71,6 @@ export default function Dashboard() {
 
   useLoadFromStorage<StorageData>({
     storageKey,
-    loadingDuration,
     onLoaded
   });
 
@@ -90,7 +82,7 @@ export default function Dashboard() {
     return (
       <>
         <title>{'Loading Sites... - Wepify Dashboard'}</title>
-        <LoadingScreen duration={loadingDuration} />;
+        <LoadingScreen />;
       </>
     );
   }

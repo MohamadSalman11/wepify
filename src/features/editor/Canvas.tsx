@@ -12,7 +12,6 @@ import { useLoadFromStorage } from '../../hooks/useLoadFromStorage';
 import { useAppSelector } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
 import { calculateScaleToFit } from '../../utils/calculateScaleToFit';
-import { getRandomDuration } from '../../utils/getRandomDuration';
 import { setIsLoading as setDashboardIsLoading } from '../dashboard/slices/dashboardSlice';
 import { usePanel } from './context/PanelContext';
 import { clearSite, selectElement, setDeviceType, setIsError, setIsLoading, setSite } from './slices/editorSlice';
@@ -22,7 +21,6 @@ import { setHasOriginSize, setPage, setScale, setSize } from './slices/pageSlice
  * Constants
  */
 
-const loadingDuration = getRandomDuration(1.5, 3.5);
 const IFRAME_SRC = '/iframe/iframe.html';
 const IFRAME_TITLE = 'Site Preview';
 const SIZE_FILL = '100%';
@@ -77,7 +75,6 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
 
   useLoadFromStorage<Site | null>({
     storageKey: StorageKey.Site,
-    loadingDuration,
     onLoaded
   });
 

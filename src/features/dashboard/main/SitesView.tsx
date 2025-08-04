@@ -391,7 +391,7 @@ function DeleteDialog({ siteMetadata, onCloseModal }: { siteMetadata: SiteMetada
       startMessage: ToastMessages.site.deleting,
       successMessage: ToastMessages.site.deleted,
       icon: <StyledLoader icon={LuLoader} color='var(--color-red)' size='md' />,
-      delay: TOAST_DELAY_MS1000,
+      delay: TOAST_DELAY_MS,
       onExecute: async () => {
         dispatch(setIsProcessing(true));
         onCloseModal?.();

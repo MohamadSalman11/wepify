@@ -20,6 +20,7 @@ import { createNewElement } from './utils/createNewElement';
 import { extractTransform } from './utils/extractTransform';
 import { getScreenBreakpoint } from './utils/getScreenBreakpoint';
 import { getVerticalBorderSum } from './utils/getVerticalBorderSum';
+import { isDefined } from './utils/isDefined';
 import { postMessageToApp } from './utils/postMessageToApp';
 import { wrapUpdatesWithBreakpoint } from './utils/wrapUpdatesWithBreakpoint';
 import { insertDragButton, insertElement, positionDragButton, renderElements, updateTargetStyle } from './view';
@@ -343,7 +344,7 @@ const controlDrag = (event: OnDrag) => {
 
   updateTargetStyle([['transform', transform]]);
 
-  if (!left || !top) return;
+  if (!isDefined(left) || !isDefined(top)) return;
 
   postMessageToApp({
     type: MessageFromIframe.ElementUpdated,
@@ -369,27 +370,27 @@ const controlResize = (event: OnResize) => {
 
   positionDragButton(height, state.scaleFactor, getVerticalBorderSum(target as HTMLElement));
 
-  if (w || h) {
-    postMessageToApp({
-      type: MessageFromIframe.ElementUpdated,
-      payload: { id: target.id, fields: wrapUpdatesWithBreakpoint(updates) }
-    });
-  }
+  if (!isDefined(w) || !isDefined(h)) return;
+
+  postMessageToApp({
+    type: MessageFromIframe.ElementUpdated,
+    payload: { id: target.id, fields: wrapUpdatesWithBreakpoint(updates) }
+  });
 };
 
 const controlRotate = (event: OnRotate) => {
   const { target, transform } = event;
-  const { rotation } = extractTransform(transform) || {};
+  const { rotate } = extractTransform(transform) || {};
 
   updateTargetStyle([['transform', transform]]);
 
-  if (!rotation) return;
+  if (!isDefined(rotate)) return;
 
   postMessageToApp({
     type: MessageFromIframe.ElementUpdated,
     payload: {
       id: target.id,
-      fields: wrapUpdatesWithBreakpoint({ rotate: rotation })
+      fields: wrapUpdatesWithBreakpoint({ rotate })
     }
   });
 };

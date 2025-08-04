@@ -3,6 +3,7 @@ import type { DeviceType, GridElement, PageElement } from '@shared/typing';
 import { CSS_SIZES } from '../../constants';
 import { getNextBreakpoint } from '../../utils/getNextBreakpoint';
 import { getScreenBreakpoint } from '../../utils/getScreenBreakpoint';
+import { isDefined } from '../../utils/isDefined';
 
 const PIXEL_STYLE_KEYS = [
   'paddingTop',
@@ -154,8 +155,4 @@ const extractResponsiveProps = (element: Partial<PageElement>, isResponsive: boo
   }
 
   return result;
-};
-
-const isDefined = <T>(value: T | undefined): value is T => {
-  return value !== undefined;
 };

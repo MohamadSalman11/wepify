@@ -34,7 +34,7 @@ const IFRAME_TITLE = 'Site Preview';
 const SIZE_FILL = '100%';
 const SIZE_SCREEN = '100vh';
 const DEFAULT_DEVICE_TYPE = 'tablet';
-const STORE_DELAY_TIMEOUT_MS = 800;
+const STORE_DELAY_TIMEOUT_MS = 1000;
 
 /**
  * Component definition

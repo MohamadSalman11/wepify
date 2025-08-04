@@ -280,7 +280,7 @@ function SizeSettings() {
             </ChangeElement>
           </SizeRow>
           <SizeRow>
-            <label htmlFor='rotation'>R</label>
+            <label htmlFor='rotate'>R</label>
             <ChangeElement>
               <Input
                 name='rotate'

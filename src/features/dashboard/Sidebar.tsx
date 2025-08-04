@@ -1,7 +1,7 @@
 import { nanoid } from '@reduxjs/toolkit';
 import type { PageElement, Site, SitePage } from '@shared/typing';
 import toast from 'react-hot-toast';
-import { LuClock4, LuFileDown, LuFilePlus, LuHouse, LuStar } from 'react-icons/lu';
+import { LuClock4, LuCloud, LuFileDown, LuFilePlus, LuHouse, LuStar } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -9,9 +9,11 @@ import Button from '../../components/Button';
 import Icon from '../../components/Icon';
 import { DashboardPath, Path, StorageKey, TOAST_DURATION, ToastMessages } from '../../constant';
 import { useFilePicker } from '../../hooks/useFilePicker';
+import { useAppSelector } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
 import { buildPath } from '../../utils/buildPath';
 import { createNewPage } from '../../utils/createNewPage';
+import { formatSize } from '../../utils/formatSize';
 import { setIsLoading } from '../editor/slices/editorSlice';
 import { addSite } from './slices/dashboardSlice';
 
@@ -51,6 +53,8 @@ const ELEMENT_SCHEMA = {
 export default function Sidebar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const sitesMetadata = useAppSelector((state) => state.dashboard.sitesMetadata);
+  const totalSize = formatSize(sitesMetadata.reduce((acc, curr) => acc + curr.sizeKb, 0));
   const { input, openFilePicker } = useFilePicker({ accept: ACCEPTED_FILE_TYPE, onSelect: handleUploadSiteJson });
 
   async function handleDesignNewSite() {
@@ -128,7 +132,7 @@ export default function Sidebar() {
         </NavList>
       </nav>
       <TotalSize>
-        {/* <Icon icon={LuCloud} /> Total size: {sites.length > 0 ? calculateSiteSize(sites) : '0 KB'} */}
+        <Icon icon={LuCloud} /> Total size: {sitesMetadata.length > 0 ? totalSize : '0 KB'}
       </TotalSize>
     </StyledSidebar>
   );

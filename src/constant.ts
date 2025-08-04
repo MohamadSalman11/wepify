@@ -1,5 +1,6 @@
 export const TARGET_ORIGIN = '*';
 export const TOAST_DURATION = 5000;
+export const TOAST_DELAY_MS = 1000;
 
 export enum Path {
   Home = '/',
@@ -47,6 +48,7 @@ export const ToastMessages = {
     duplicating: 'Duplicating site...',
     updating: 'Updating site...',
     deleting: 'Deleting site...',
+    importing: 'Importing site...',
     generated: 'Site generated! Download should appear shortly in your browser.',
     addedStar: 'Site added to starred.',
     removedStar: 'Site removed from starred.',

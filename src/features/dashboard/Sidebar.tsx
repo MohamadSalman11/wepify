@@ -1,21 +1,24 @@
 import { nanoid } from '@reduxjs/toolkit';
 import type { PageElement, Site, SitePage } from '@shared/typing';
-import toast from 'react-hot-toast';
-import { LuClock4, LuCloud, LuFileDown, LuFilePlus, LuHouse, LuStar } from 'react-icons/lu';
+import { LuClock4, LuCloud, LuFileDown, LuFilePlus, LuHouse, LuLoader, LuStar } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from '../../components/Button';
 import Icon from '../../components/Icon';
-import { DashboardPath, Path, StorageKey, TOAST_DURATION, ToastMessages } from '../../constant';
+import { DashboardPath, Path, StorageKey, TOAST_DELAY_MS, ToastMessages } from '../../constant';
 import { useFilePicker } from '../../hooks/useFilePicker';
 import { useAppSelector } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
 import { buildPath } from '../../utils/buildPath';
 import { createNewPage } from '../../utils/createNewPage';
 import { formatSize } from '../../utils/formatSize';
+import { runWithToast } from '../../utils/runWithToast';
+import { toSiteMetadata } from '../../utils/toSiteMetadata';
+import { updateInSitesStorage } from '../../utils/updateSitesInStorage';
 import { setIsLoading } from '../editor/slices/editorSlice';
-import { addSite } from './slices/dashboardSlice';
+import { StyledLoader } from './main/SitesView';
+import { addSite, setIsProcessing } from './slices/dashboardSlice';
 
 /**
  * Constants
@@ -79,28 +82,38 @@ export default function Sidebar() {
   }
 
   async function handleUploadSiteJson(file: File) {
-    try {
-      const text = await file.text();
-      const parsedSite: Site & { __WARNING__?: string } = JSON.parse(text);
+    runWithToast({
+      startMessage: ToastMessages.site.importing,
+      successMessage: ToastMessages.site.imported,
+      errorMessage: ToastMessages.site.importFailed,
+      icon: <StyledLoader icon={LuLoader} color='var(--color-primary)' size='md' />,
+      delay: TOAST_DELAY_MS,
+      onExecute: async () => {
+        dispatch(setIsProcessing(true));
 
-      if (!validateSiteJson(parsedSite)) {
-        toast.error(ToastMessages.site.importInvalid, { duration: TOAST_DURATION });
-        return;
-      }
+        const text = await file.text();
+        const parsedSite: Site & { __WARNING__?: string } = JSON.parse(text);
 
-      delete parsedSite.__WARNING__;
+        if (!validateSiteJson(parsedSite)) {
+          throw new Error(ToastMessages.site.importInvalid);
+        }
 
-      const importedSite = {
-        ...parsedSite,
-        id: nanoid(),
-        pages: parsedSite.pages.map((page: SitePage) => ({ ...page, id: nanoid() }))
-      };
+        delete parsedSite.__WARNING__;
 
-      dispatch(addSite(importedSite));
-      toast.success(ToastMessages.site.imported);
-    } catch {
-      toast.error(ToastMessages.site.importFailed);
-    }
+        const importedSite = {
+          ...parsedSite,
+          id: nanoid(),
+          pages: parsedSite.pages.map((page: SitePage) => ({ ...page, id: nanoid() }))
+        };
+
+        await updateInSitesStorage((sites) => [...sites, importedSite]);
+
+        dispatch(addSite(toSiteMetadata(importedSite)));
+
+        return importedSite;
+      },
+      onFinally: () => dispatch(setIsProcessing(false))
+    });
   }
 
   return (

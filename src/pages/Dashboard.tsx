@@ -12,7 +12,7 @@ import { setIsLoading, setSites } from '../features/dashboard/slices/dashboardSl
 import { useLoadFromStorage } from '../hooks/useLoadFromStorage';
 import { useAppSelector } from '../store';
 import { AppStorage } from '../utils/appStorage';
-import { calculateSiteSize } from '../utils/calculateSiteSize';
+import { toSiteMetadata } from '../utils/toSiteMetadata';
 
 /**
  * Constants
@@ -101,20 +101,6 @@ export default function Dashboard() {
     </>
   );
 }
-
-const toSiteMetadata = (site: Site) => {
-  return {
-    id: site.id,
-    name: site.name,
-    description: site.description,
-    createdAt: site.createdAt,
-    lastModified: site.lastModified,
-    isStarred: site.isStarred,
-    sizeKb: calculateSiteSize(site, 'kb'),
-    pagesCount: site.pages.length,
-    firstPageId: site.pages[0].id
-  };
-};
 
 /**
  * Styles

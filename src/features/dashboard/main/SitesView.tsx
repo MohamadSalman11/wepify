@@ -2,7 +2,7 @@ import { nanoid } from '@reduxjs/toolkit';
 import type { Site, SiteMetadata } from '@shared/typing';
 import { validateFields } from '@shared/utils';
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
-import toast, { Renderable } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import {
   LuArrowLeft,
   LuCopy,
@@ -24,13 +24,15 @@ import Dropdown from '../../../components/Dropdown';
 import Input from '../../../components/form/Input';
 import Icon from '../../../components/Icon';
 import Modal, { type OnCloseModal } from '../../../components/Modal';
-import { EditorPath, Path, StorageKey, TOAST_DURATION, ToastMessages } from '../../../constant';
+import { EditorPath, Path, StorageKey, TOAST_DELAY_MS, TOAST_DURATION, ToastMessages } from '../../../constant';
 import { useModalContext } from '../../../context/ModalContext';
 import { useAppSelector } from '../../../store';
 import { AppStorage } from '../../../utils/appStorage';
 import { buildPath } from '../../../utils/buildPath';
 import { formatDate } from '../../../utils/formatDate';
 import { formatSize } from '../../../utils/formatSize';
+import { runWithToast } from '../../../utils/runWithToast';
+import { updateInSitesStorage } from '../../../utils/updateSitesInStorage';
 import { setIsLoading } from '../../editor/slices/editorSlice';
 import {
   deleteSite,
@@ -49,25 +51,9 @@ import {
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const BODY_SCROLL_OFFSET = 75;
-const TOAST_DELAY_MS = 1000;
 
 const MAX_SITE_NAME_LENGTH = 12;
 const MAX_SITE_DESCRIPTION_LENGTH = 20;
-
-/**
- * Types
- */
-
-type RunWithToastParams<T> = {
-  startMessage: string;
-  successMessage: string;
-  errorMessage?: string;
-  icon?: Renderable;
-  delay?: number;
-  onExecute: () => Promise<T>;
-  onSuccess?: (result: T) => void;
-  onFinally?: () => void;
-};
 
 /**
  * Component definition
@@ -420,45 +406,6 @@ function DeleteDialog({ siteMetadata, onCloseModal }: { siteMetadata: SiteMetada
   );
 }
 
-const updateInSitesStorage = async (handler: (sites: Site[]) => void) => {
-  const sites: Site[] = (await AppStorage.getItem(StorageKey.Sites)) ?? [];
-  const updatedSites = handler(sites);
-  await AppStorage.setItem(StorageKey.Sites, updatedSites);
-};
-
-const runWithToast = async <T,>({
-  startMessage,
-  successMessage,
-  errorMessage = ToastMessages.error,
-  icon,
-  delay = 0,
-  onExecute,
-  onSuccess,
-  onFinally
-}: RunWithToastParams<T>): Promise<void> => {
-  const toastId = toast(startMessage, {
-    icon,
-    duration: Infinity
-  });
-
-  try {
-    const result = await onExecute();
-    setTimeout(() => {
-      toast.success(successMessage);
-      onSuccess?.(result);
-    }, delay);
-  } catch {
-    setTimeout(() => {
-      toast.error(errorMessage);
-    }, delay);
-  } finally {
-    setTimeout(() => {
-      toast.dismiss(toastId);
-      onFinally?.();
-    }, delay);
-  }
-};
-
 /**
  * Styles
  */
@@ -595,6 +542,6 @@ const spin = keyframes`
   }
 `;
 
-const StyledLoader = styled(Icon)`
+export const StyledLoader = styled(Icon)`
   animation: ${spin} 1.5s linear infinite;
 `;

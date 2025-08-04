@@ -59,7 +59,9 @@ export const generateInlineStyles = ({
     }
   }
 
-  style.transform = shouldTransform ? `translate(${left}px, ${top}px) rotate(${rotate || 0}deg)` : '';
+  if (shouldTransform) {
+    style.transform = `translate(${left}px, ${top}px) rotate(${rotate || 0}deg)`;
+  }
 
   if (isDefined(scaleX)) style.scale = `${scaleX} 1`;
   if (isDefined(scaleY)) style.scale = `1 ${scaleY}`;

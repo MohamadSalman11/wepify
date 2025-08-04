@@ -1,6 +1,6 @@
 import { nanoid } from '@reduxjs/toolkit';
 import type { SitePage } from '@shared/typing';
-import { generateFileNameFromPageName } from '@shared/utils';
+import { generateFileNameFromPageName, validateFields } from '@shared/utils';
 import { useState, type MouseEvent } from 'react';
 import toast from 'react-hot-toast';
 import { LuCopy, LuEllipsis, LuHouse, LuLink, LuPencil, LuSquareMenu, LuTrash2 } from 'react-icons/lu';
@@ -25,7 +25,7 @@ import { addPage, deletePage, setIsIndexPage, setIsLoading, updatePageInfo } fro
  * Constants
  */
 
-const PAGE_NAME_MAX_LENGTH = 7;
+const MAX_PAGE_NAME_LENGTH = 7;
 
 /**
  * Component definition
@@ -80,7 +80,7 @@ function PageItem({ page, index }: { page: SitePage; index: number }) {
       <div>
         <Icon icon={LuSquareMenu} color={page.isIndex ? 'var(--color-white)' : 'var(--color-gray)'} />
         <span>
-          {page.name.length > PAGE_NAME_MAX_LENGTH ? `${page.name.slice(0, PAGE_NAME_MAX_LENGTH)}...` : page.name}
+          {page.name.length > MAX_PAGE_NAME_LENGTH ? `${page.name.slice(0, MAX_PAGE_NAME_LENGTH)}...` : page.name}
         </span>
         <div>
           <Dropdown>
@@ -139,11 +139,16 @@ function EditDialog({ page, onCloseModal }: { page: SitePage; onCloseModal?: OnC
 
   const handleSave = () => {
     const trimmedName = newName.trim();
+    const trimmedTitle = newTitle.trim();
 
-    if (!trimmedName) {
-      toast.error(ToastMessages.page.emptyName);
-      return;
-    }
+    const isValid = validateFields([
+      {
+        value: trimmedName,
+        emptyMessage: ToastMessages.page.emptyName
+      }
+    ]);
+
+    if (!isValid) return;
 
     const nameExists = site.pages.some((p) => p.name.toLowerCase() === trimmedName.toLowerCase() && p.id !== page.id);
 
@@ -152,7 +157,7 @@ function EditDialog({ page, onCloseModal }: { page: SitePage; onCloseModal?: OnC
       return;
     }
 
-    dispatch(updatePageInfo({ id: page.id, name: newName, title: newTitle }));
+    dispatch(updatePageInfo({ id: page.id, name: trimmedName, title: trimmedTitle }));
     onCloseModal?.();
     toast.success(ToastMessages.page.renamed);
   };

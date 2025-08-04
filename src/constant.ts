@@ -56,7 +56,11 @@ export const ToastMessages = {
     imported: 'Site imported successfully.',
     importFailed: 'Failed to import the site.',
     importInvalid: 'Invalid site JSON. Please upload a valid file.',
-    downloadFailed: 'Site could not be downloaded. Please try again.'
+    downloadFailed: 'Site could not be downloaded. Please try again.',
+    emptyName: 'Site name cannot be empty.',
+    emptyDescription: 'Site description cannot be empty.',
+    nameTooLong: 'Site name cannot exceed 12 characters.',
+    descriptionTooLong: 'Site description cannot exceed 20 characters.'
   },
   page: {
     renamed: 'Page name changed successfully.',
@@ -69,5 +73,6 @@ export const ToastMessages = {
   network: {
     offline: 'You are currently offline. Some features may be unavailable.',
     online: 'You are back online. All features are now available.'
-  }
+  },
+  error: 'Something went wrong.'
 } as const;

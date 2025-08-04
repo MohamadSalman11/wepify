@@ -1,5 +1,6 @@
 import { nanoid } from '@reduxjs/toolkit';
 import type { Site, SiteMetadata } from '@shared/typing';
+import { validateFields } from '@shared/utils';
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import toast, { Renderable } from 'react-hot-toast';
 import {
@@ -48,6 +49,25 @@ import {
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const BODY_SCROLL_OFFSET = 75;
+const TOAST_DELAY_MS = 1000;
+
+const MAX_SITE_NAME_LENGTH = 12;
+const MAX_SITE_DESCRIPTION_LENGTH = 20;
+
+/**
+ * Types
+ */
+
+type RunWithToastParams<T> = {
+  startMessage: string;
+  successMessage: string;
+  errorMessage?: string;
+  icon?: Renderable;
+  delay?: number;
+  onExecute: () => Promise<T>;
+  onSuccess?: (result: T) => void;
+  onFinally?: () => void;
+};
 
 /**
  * Component definition
@@ -183,7 +203,7 @@ function TableRow({ siteMetadata }: { siteMetadata: SiteMetadata }) {
       startMessage: ToastMessages.site.duplicating,
       successMessage: ToastMessages.site.duplicated,
       icon: <StyledLoader icon={LuLoader} color='var(--color-primary)' size='md' />,
-      delay: 1000,
+      delay: TOAST_DELAY_MS,
       onExecute: async () => {
         const newId = nanoid();
         dispatch(setIsProcessing(true));
@@ -299,20 +319,42 @@ function TableRow({ siteMetadata }: { siteMetadata: SiteMetadata }) {
 function EditDialog({ siteMetadata, onCloseModal }: { siteMetadata: SiteMetadata; onCloseModal?: OnCloseModal }) {
   const dispatch = useDispatch();
   const { id, name, description } = siteMetadata;
-  const [n, setN] = useState(name);
-  const [d, setD] = useState(description);
+  const [newName, setNewName] = useState(name);
+  const [newDescription, setNewDescription] = useState(description);
 
   const handleSiteUpdate = async () => {
+    const trimmedName = newName.trim();
+    const trimmedDescription = newDescription.trim();
+
+    const isValid = validateFields([
+      {
+        value: trimmedName,
+        emptyMessage: ToastMessages.site.emptyName,
+        maxLength: MAX_SITE_NAME_LENGTH,
+        maxLengthMessage: ToastMessages.site.nameTooLong
+      },
+      {
+        value: trimmedDescription,
+        emptyMessage: ToastMessages.site.emptyDescription,
+        maxLength: MAX_SITE_DESCRIPTION_LENGTH,
+        maxLengthMessage: ToastMessages.site.descriptionTooLong
+      }
+    ]);
+
+    if (!isValid) return;
+
     runWithToast({
       startMessage: ToastMessages.site.updating,
       successMessage: ToastMessages.site.updated,
       icon: <StyledLoader icon={LuLoader} color='var(--color-primary)' size='md' />,
-      delay: 1000,
+      delay: TOAST_DELAY_MS,
       onExecute: async () => {
         dispatch(setIsProcessing(true));
         onCloseModal?.();
-        await updateInSitesStorage((sites) => sites.map((s) => (s.id === id ? { ...s, name: n, description: d } : s)));
-        return { id, name: n, description: d };
+        await updateInSitesStorage((sites) =>
+          sites.map((s) => (s.id === id ? { ...s, name: trimmedName, description: trimmedDescription } : s))
+        );
+        return { id, name: trimmedName, description: trimmedDescription };
       },
       onSuccess: ({ id, name, description }) => dispatch(updateSiteDetails({ id, name, description })),
       onFinally: () => dispatch(setIsProcessing(false))
@@ -321,8 +363,13 @@ function EditDialog({ siteMetadata, onCloseModal }: { siteMetadata: SiteMetadata
 
   return (
     <>
-      <Input type='text' value={n} placeholder='Name' onChange={(event) => setN(event.target.value)} />
-      <Input type='text' value={d} placeholder='Description' onChange={(event) => setD(event.target.value)} />
+      <Input type='text' value={newName} placeholder='Name' onChange={(event) => setNewName(event.target.value)} />
+      <Input
+        type='text'
+        value={newDescription}
+        placeholder='Description'
+        onChange={(event) => setNewDescription(event.target.value)}
+      />
       <DialogActions>
         <Button size='sm' pill={true} onClick={handleSiteUpdate}>
           OK
@@ -344,7 +391,7 @@ function DeleteDialog({ siteMetadata, onCloseModal }: { siteMetadata: SiteMetada
       startMessage: ToastMessages.site.deleting,
       successMessage: ToastMessages.site.deleted,
       icon: <StyledLoader icon={LuLoader} color='var(--color-red)' size='md' />,
-      delay: 1000,
+      delay: TOAST_DELAY_MS1000,
       onExecute: async () => {
         dispatch(setIsProcessing(true));
         onCloseModal?.();
@@ -379,21 +426,10 @@ const updateInSitesStorage = async (handler: (sites: Site[]) => void) => {
   await AppStorage.setItem(StorageKey.Sites, updatedSites);
 };
 
-type RunWithToastParams<T> = {
-  startMessage: string;
-  successMessage: string;
-  errorMessage?: string;
-  icon?: Renderable;
-  delay?: number;
-  onExecute: () => Promise<T>;
-  onSuccess?: (result: T) => void;
-  onFinally?: () => void;
-};
-
 const runWithToast = async <T,>({
   startMessage,
   successMessage,
-  errorMessage = 'Something went wrong',
+  errorMessage = ToastMessages.error,
   icon,
   delay = 0,
   onExecute,

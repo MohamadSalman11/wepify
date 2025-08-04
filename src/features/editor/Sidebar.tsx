@@ -1,7 +1,8 @@
 import { LuFile, LuImage, LuLayers3, LuLogOut, LuPlus } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { ConfirmNavigation } from '../../components/ConfirmNavigationButton';
 import Divider from '../../components/divider';
 import Icon from '../../components/Icon';
 import Logo from '../../components/Logo';
@@ -57,11 +58,11 @@ export default function Sidebar() {
           ))}
         </NavList>
       </nav>
-      <LeaveButton>
-        <Link to={Path.Dashboard}>
-          <Icon onClick={handleLogout} color='var(--color-red)' icon={LuLogOut} hover={true} />
-        </Link>
-      </LeaveButton>
+      <ConfirmNavigation onConfirmed={handleLogout}>
+        <LeaveButton>
+          <Icon color='var(--color-red)' icon={LuLogOut} hover={true} />
+        </LeaveButton>
+      </ConfirmNavigation>
     </StyledSidebar>
   );
 }

@@ -1,6 +1,7 @@
+import { UNSAVED_CHANGES_MESSAGE } from '@shared/constants';
 import { useEffect, useRef } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useBeforeUnload, useLocation } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 import { TOAST_DURATION, ToastMessages } from '../constant';
 import { IframeContext } from '../context/IframeContext';
@@ -10,6 +11,7 @@ import Header from '../features/editor/Header';
 import { useIframeConnection } from '../features/editor/hooks/useIframeConnection';
 import Panel from '../features/editor/panels';
 import Sidebar from '../features/editor/Sidebar';
+import { useAppSelector } from '../store';
 
 /**
  * Component definition
@@ -21,6 +23,14 @@ export default function Editor() {
   const isPreview = location.pathname.endsWith('/preview');
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const iframeConnection = useIframeConnection(iframeRef);
+  const isStoring = useAppSelector((state) => state.editor.isStoring);
+
+  useBeforeUnload((event) => {
+    if (isStoring) {
+      event.preventDefault();
+      event.returnValue = UNSAVED_CHANGES_MESSAGE;
+    }
+  });
 
   useEffect(() => {
     const handleOffline = () => {

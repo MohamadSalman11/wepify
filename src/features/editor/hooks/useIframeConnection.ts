@@ -19,6 +19,7 @@ import {
   selectElement,
   setDeviceType,
   setIsDownloadingSite,
+  setIsStoring,
   updateElementInSite,
   updatePageInSite,
   updateSelectElement
@@ -68,6 +69,7 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
         case MessageFromIframe.ElementUpdated: {
           const { id, fields } = data.payload;
 
+          dispatch(setIsStoring(true));
           dispatch(updateSelectElement(fields));
           dispatch(
             updateElementInSite({
@@ -82,6 +84,8 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
         case MessageFromIframe.PageUpdated: {
           const { updates } = data.payload;
 
+          dispatch(setIsStoring(true));
+
           if (updates.backgroundColor) {
             dispatch(setBackground(updates.backgroundColor));
           }
@@ -91,11 +95,13 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
         }
         case MessageFromIframe.ElementInserted: {
           const { parentId, element } = data.payload;
+          dispatch(setIsStoring(true));
           dispatch(addElement({ pageId, parentElementId: parentId, newElement: element }));
           break;
         }
         case MessageFromIframe.ElementDeleted: {
           const { targetId, parentId } = data.payload;
+          dispatch(setIsStoring(true));
           dispatch(deleteElementInSite({ pageId, parentElementId: parentId, elementId: targetId }));
           break;
         }

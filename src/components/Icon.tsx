@@ -105,7 +105,7 @@ export default function Icon({
  * Styles
  */
 
-const IconWrapper = styled.span<{
+const IconWrapper = styled.button<{
   $borderRadius: BorderRadius;
   $isActive?: boolean;
   $disabled?: boolean;

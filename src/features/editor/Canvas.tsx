@@ -14,7 +14,15 @@ import { AppStorage } from '../../utils/appStorage';
 import { calculateScaleToFit } from '../../utils/calculateScaleToFit';
 import { setIsLoading as setDashboardIsLoading } from '../dashboard/slices/dashboardSlice';
 import { usePanel } from './context/PanelContext';
-import { clearSite, selectElement, setDeviceType, setIsError, setIsLoading, setSite } from './slices/editorSlice';
+import {
+  clearSite,
+  selectElement,
+  setDeviceType,
+  setIsError,
+  setIsLoading,
+  setIsStoring,
+  setSite
+} from './slices/editorSlice';
 import { setHasOriginSize, setPage, setScale, setSize } from './slices/pageSlice';
 
 /**
@@ -26,6 +34,7 @@ const IFRAME_TITLE = 'Site Preview';
 const SIZE_FILL = '100%';
 const SIZE_SCREEN = '100vh';
 const DEFAULT_DEVICE_TYPE = 'tablet';
+const STORE_DELAY_TIMEOUT_MS = 800;
 
 /**
  * Component definition
@@ -96,8 +105,17 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
 
   useEffect(() => {
     if (!site.id) return;
-    AppStorage.setItem(StorageKey.Site, site);
-  }, [site, isLoading]);
+
+    const saveInStorage = async () => {
+      await AppStorage.setItem(StorageKey.Site, site);
+
+      setTimeout(() => {
+        dispatch(setIsStoring(false));
+      }, STORE_DELAY_TIMEOUT_MS);
+    };
+
+    saveInStorage();
+  }, [dispatch, site, isLoading]);
 
   useEffect(() => {
     AppStorage.setItem(StorageKey.Images, images);

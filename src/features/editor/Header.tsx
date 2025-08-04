@@ -1,11 +1,22 @@
 import { PAGE_PADDING_X, SCREEN_SIZES } from '@shared/constants';
 import type { Site } from '@shared/typing';
 import type { IconType } from 'react-icons';
-import { LuEye, LuFileCode2, LuFileMinus, LuLaptop, LuMonitor, LuSmartphone, LuTablet } from 'react-icons/lu';
+import { BsCloudCheck } from 'react-icons/bs';
+import {
+  LuEye,
+  LuFileCode2,
+  LuFileMinus,
+  LuLaptop,
+  LuMonitor,
+  LuRefreshCw,
+  LuSmartphone,
+  LuTablet
+} from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import Button from '../../components/Button';
+import { ConfirmNavigation } from '../../components/ConfirmNavigationButton';
 import Divider from '../../components/divider';
 import Dropdown from '../../components/Dropdown';
 import Input from '../../components/form/Input';
@@ -58,7 +69,7 @@ export default function Header() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { iframeConnection } = useIframeContext();
-  const { site, isDownloadingSite, deviceType } = useAppSelector((state) => state.editor);
+  const { site, isDownloadingSite, isStoring, deviceType } = useAppSelector((state) => state.editor);
   const { originWidth, originHeight } = useAppSelector((state) => state.page);
 
   const handleDownloadSite = async (shouldMinify: boolean) => {
@@ -110,7 +121,12 @@ export default function Header() {
       </DevicePreviewControls>
 
       <EditorActions>
-        <Icon icon={LuEye} hover={true} tooltipLabel='Preview Site' onClick={handleSitePreview} />
+        {isStoring ? <StyledRefreshIcon icon={LuRefreshCw} /> : <StyledCloudIcon icon={BsCloudCheck} fill />}
+
+        <Divider rotate={90} width={30} />
+        <ConfirmNavigation onConfirmed={handleSitePreview}>
+          <Icon icon={LuEye} hover={true} tooltipLabel='Preview Site' />
+        </ConfirmNavigation>
         <Divider rotate={90} width={30} />
         <Dropdown>
           <Dropdown.Open>
@@ -267,4 +283,18 @@ const DesignInfo = styled.div`
     color: var(--color-gray);
     font-size: 1.2rem;
   }
+`;
+
+const spin = keyframes`
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const StyledRefreshIcon = styled(Icon)`
+  animation: ${spin} 1.5s linear infinite;
+`;
+
+const StyledCloudIcon = styled(Icon)`
+  stroke-width: 0.03rem;
 `;

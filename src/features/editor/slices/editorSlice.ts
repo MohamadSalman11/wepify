@@ -9,6 +9,7 @@ interface EditorState {
   isLoading: boolean;
   isError: boolean;
   isDownloadingSite: boolean;
+  isStoring: boolean;
   deviceType: DeviceType;
   images: Image[];
 }
@@ -28,6 +29,7 @@ const initialState: EditorState = {
   isError: false,
   deviceType: 'tablet',
   isDownloadingSite: false,
+  isStoring: false,
   images: []
 };
 
@@ -73,6 +75,9 @@ const editorSlice = createSlice({
     },
     setIsError(state, action: PayloadAction<boolean>) {
       state.isError = action.payload;
+    },
+    setIsStoring(state, action: PayloadAction<boolean>) {
+      state.isStoring = action.payload;
     },
     setImages(state, action: PayloadAction<Image[]>) {
       state.images = action.payload;
@@ -198,6 +203,7 @@ export const {
   setIsIndexPage,
   setIsLoading,
   setIsError,
+  setIsStoring,
   setImages,
   addElement,
   selectElement,

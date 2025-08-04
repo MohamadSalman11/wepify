@@ -34,7 +34,7 @@ const IFRAME_TITLE = 'Site Preview';
 const SIZE_FILL = '100%';
 const SIZE_SCREEN = '100vh';
 const DEFAULT_DEVICE_TYPE = 'tablet';
-const STORE_DELAY_TIMEOUT_MS = 1000;
+const STORE_DELAY_TIMEOUT_MS = 2000;
 
 /**
  * Component definition
@@ -49,6 +49,7 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
   const { iframeConnection, iframeRef } = useIframeContext();
   const { hasSetOriginSize, backgroundColor, width, height, scale } = useAppSelector((state) => state.page);
   const { site, images, isLoading, isError, deviceType } = useAppSelector((state) => state.editor);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const onLoaded = useCallback(
     async (site: Site | null) => {
@@ -107,14 +108,26 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
     if (!site.id) return;
 
     const saveInStorage = async () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
       await AppStorage.setItem(StorageKey.Site, site);
 
-      setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         dispatch(setIsStoring(false));
+        timeoutRef.current = null;
       }, STORE_DELAY_TIMEOUT_MS);
     };
 
     saveInStorage();
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
   }, [dispatch, site, isLoading]);
 
   useEffect(() => {

@@ -163,6 +163,7 @@ const StyledDropdown = styled.ul<{
   z-index: var(--zindex-base);
   background-color: var(--color-white);
   transform: translate(${(props) => props.$translateX ?? 0}%, ${(props) => props.$translateY ?? 0}%);
+  z-index: var(--zindex-dropdown);
 
   li {
     display: flex;

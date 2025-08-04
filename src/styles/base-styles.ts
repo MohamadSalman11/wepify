@@ -91,6 +91,7 @@ const baseStyles = css`
   }
 
   .TooltipContent {
+    z-index: 100;
     animation-duration: 0.2s;
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
     will-change: transform, opacity;
@@ -104,7 +105,9 @@ const baseStyles = css`
   }
 
   .TooltipArrow {
+    z-index: var(--zindex-tooltip);
     fill: var(--color-primary-light);
+    z-index: 100;
   }
 `;
 

@@ -81,8 +81,10 @@ const variables = css`
     --border-base: 1px solid var(--color-white-3);
 
     --zindex-base: 10;
+    --zindex-panel: 20;
     --zindex-preview-close-button: 100;
-    --zindex-panel: 200;
+    --z-index-tooltip: 500;
+    --zindex-dropdown: 800;
     --zindex-modal: 1000;
     --zindex-loading-screen: 1200;
     --zindex-required-desktop: 1200;

@@ -1,4 +1,5 @@
 import * as Tooltip from '@radix-ui/react-tooltip';
+import { forwardRef, Ref } from 'react';
 import type { IconType } from 'react-icons';
 import styled from 'styled-components';
 
@@ -31,84 +32,106 @@ interface IconProps {
   isSelected?: boolean;
   disabled?: boolean;
   color?: string;
+  hoverColor?: string;
   fill?: boolean;
   tooltipLabel?: string;
   tooltipSide?: 'top' | 'right' | 'bottom' | 'left';
   tooltipSideOffset?: number;
   borderRadius?: BorderRadius;
   onClick?: () => void;
+  className?: string;
 }
 
 /**
  * Component definition
  */
 
-export default function Icon({
-  icon: IconComponent,
-  size = DEFAULT_ICON_SIZE,
-  hover,
-  isActive = false,
-  isSelected = false,
-  disabled = false,
-  color,
-  fill = false,
-  tooltipLabel,
-  tooltipSide = DEFAULT_TOOLTIP_SIDE,
-  tooltipSideOffset = 15,
-  borderRadius = DEFAULT_BORDER_RADIUS,
-  onClick,
-  ...props
-}: IconProps) {
-  const computedColor = disabled
-    ? 'var(--color-gray-light-2)'
-    : isSelected
-      ? 'var(--color-primary)'
-      : color || 'var(--color-gray)';
+const Icon = forwardRef<HTMLButtonElement | SVGElement, IconProps>(
+  (
+    {
+      icon: IconComponent,
+      size = DEFAULT_ICON_SIZE,
+      hover,
+      isActive = false,
+      isSelected = false,
+      disabled = false,
+      color,
+      hoverColor = 'var(--color-white-2)',
+      fill = false,
+      tooltipLabel,
+      tooltipSide = DEFAULT_TOOLTIP_SIDE,
+      tooltipSideOffset = 15,
+      borderRadius = DEFAULT_BORDER_RADIUS,
+      className,
+      onClick,
+      ...props
+    },
+    ref
+  ) => {
+    const computedColor = disabled
+      ? 'var(--color-gray-light-2)'
+      : isSelected
+        ? 'var(--color-primary)'
+        : color || 'var(--color-gray)';
 
-  const cursorStyle = disabled ? 'not-allowed' : onClick ? 'pointer' : '';
+    const cursorStyle = disabled ? 'not-allowed' : onClick ? 'pointer' : '';
 
-  const iconElement = (
-    <IconComponent
-      color={computedColor}
-      cursor={cursorStyle}
-      fill={fill ? 'currentcolor' : 'none'}
-      size={SIZE[size]}
-      onClick={disabled ? undefined : onClick}
-      {...props}
-    />
-  );
+    const iconElement = (
+      <IconComponent
+        color={computedColor}
+        cursor={cursorStyle}
+        fill={fill ? 'currentcolor' : 'none'}
+        size={SIZE[size]}
+        onClick={disabled ? undefined : onClick}
+        {...props}
+      />
+    );
 
-  const wrappedIcon = hover ? (
-    <IconWrapper $borderRadius={borderRadius} $isActive={isActive} $disabled={disabled} onClick={onClick}>
-      {iconElement}
-    </IconWrapper>
-  ) : (
-    iconElement
-  );
+    const wrappedIcon = hover ? (
+      <Button
+        ref={ref as Ref<HTMLButtonElement>}
+        className={className}
+        $borderRadius={borderRadius}
+        $isActive={isActive}
+        $disabled={disabled}
+        $hoverColor={hoverColor}
+        onClick={onClick}
+      >
+        {iconElement}
+      </Button>
+    ) : (
+      <Span className={className} ref={ref as Ref<HTMLSpanElement>}>
+        {iconElement}
+      </Span>
+    );
 
-  if (!tooltipLabel) return wrappedIcon;
+    if (!tooltipLabel) return wrappedIcon;
 
-  return (
-    <Tooltip.Root>
-      <Tooltip.Trigger asChild>{wrappedIcon}</Tooltip.Trigger>
-      <Tooltip.Portal>
-        <Tooltip.Content className='TooltipContent' side={tooltipSide} sideOffset={tooltipSideOffset}>
-          {tooltipLabel}
-          <Tooltip.Arrow className='TooltipArrow' />
-        </Tooltip.Content>
-      </Tooltip.Portal>
-    </Tooltip.Root>
-  );
-}
+    return (
+      <Tooltip.Root>
+        <Tooltip.Trigger asChild>{wrappedIcon}</Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Content className='TooltipContent' side={tooltipSide} sideOffset={tooltipSideOffset}>
+            {tooltipLabel}
+            <Tooltip.Arrow className='TooltipArrow' />
+          </Tooltip.Content>
+        </Tooltip.Portal>
+      </Tooltip.Root>
+    );
+  }
+);
+
+export default Icon;
 
 /**
  * Styles
  */
 
-const IconWrapper = styled.button<{
+const Button = styled.button<{
   $borderRadius: BorderRadius;
   $isActive?: boolean;
   $disabled?: boolean;
+  $hoverColor: string;
 }>`
   display: flex;
   justify-content: center;
@@ -121,6 +144,12 @@ const IconWrapper = styled.button<{
   background-color: ${({ $isActive }) => ($isActive ? 'var(--color-white-2)' : 'transparent')};
 
   &:hover {
-    background-color: var(--color-white-2);
+    background-color: ${(props) => props.$hoverColor};
   }
+`;
+
+const Span = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;

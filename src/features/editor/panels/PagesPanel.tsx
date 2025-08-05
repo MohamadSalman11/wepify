@@ -48,7 +48,7 @@ export default function PagesPanel() {
       <StyledPagesList>
         {site.pages?.map((page, i) => (
           <Modal>
-            <PageItem page={page} index={i} />
+            <PageItem key={page.id} page={page} index={i} />
           </Modal>
         ))}
       </StyledPagesList>

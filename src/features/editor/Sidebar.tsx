@@ -59,9 +59,7 @@ export default function Sidebar() {
         </NavList>
       </nav>
       <ConfirmNavigation onConfirmed={handleLogout}>
-        <LeaveButton>
-          <Icon color='var(--color-red)' icon={LuLogOut} hover={true} />
-        </LeaveButton>
+        <StyledLeaveIcon icon={LuLogOut} color='var(--color-red)' hoverColor='var(--color-red-light)' hover />
       </ConfirmNavigation>
     </StyledSidebar>
   );
@@ -112,7 +110,7 @@ const NavList = styled.ul<{ $leftPanelOpen: boolean }>`
     display: inline-block;
     border-radius: var(--border-radius-md);
 
-    span {
+    button {
       width: 4rem;
       height: 4rem;
     }
@@ -123,16 +121,8 @@ const NavList = styled.ul<{ $leftPanelOpen: boolean }>`
   }
 `;
 
-const LeaveButton = styled.button`
+const StyledLeaveIcon = styled(Icon)`
   margin-top: auto;
-  background-color: transparent;
-
-  span {
-    width: 4rem;
-    height: 4rem;
-
-    &:hover {
-      background-color: var(--color-red-light);
-    }
-  }
+  width: 4rem;
+  height: 4rem;
 `;

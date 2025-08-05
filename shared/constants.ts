@@ -4,6 +4,7 @@ import type { PageElement } from './typing';
 export const TARGET_ORIGIN = '*';
 export const DEFAULT_BORDER_WIDTH = 2;
 export const DEFAULT_BORDER_COLOR = '#4a90e2';
+export const DEFAULT_PAGE_BACKGROUND_COLOR = '#343c44';
 export const DEFAULT_SCALE_FACTOR = 100;
 export const PAGE_PADDING = 60;
 export const PAGE_PADDING_X = PAGE_PADDING * 2;

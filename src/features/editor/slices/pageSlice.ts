@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { DEFAULT_PAGE_BACKGROUND_COLOR, DEFAULT_SCALE_FACTOR } from '@shared/constants';
 import { SitePage } from '@shared/typing';
 
 interface PageState {
@@ -17,10 +18,10 @@ const initialState: PageState = {
   height: window.innerHeight,
   originWidth: window.innerWidth,
   originHeight: window.innerHeight,
-  scale: 100,
+  scale: DEFAULT_SCALE_FACTOR,
   hasSetOriginSize: false,
   iframe: undefined,
-  backgroundColor: '#343c44'
+  backgroundColor: DEFAULT_PAGE_BACKGROUND_COLOR
 };
 
 const pageSlice = createSlice({

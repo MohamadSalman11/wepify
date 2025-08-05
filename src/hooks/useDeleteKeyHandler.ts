@@ -11,20 +11,22 @@ interface UseDeleteKeyHandlerParams {
 export const useDeleteKeyHandler = ({ iframeRef, onDelete }: UseDeleteKeyHandlerParams) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === KEY_DELETE_ELEMENT && (iframeRef ? !isTyping(iframeRef) : true)) {
-        onDelete();
-      }
+      const canDelete = iframeRef ? !isTyping(iframeRef) : true;
+
+      if (event.key === KEY_DELETE_ELEMENT && canDelete) onDelete();
     };
 
     document.addEventListener('keydown', handleKeyDown);
 
     const iframeDoc = iframeRef?.current?.contentWindow;
+
     if (iframeDoc) {
       iframeDoc.addEventListener('keydown', handleKeyDown);
     }
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
+
       if (iframeDoc) {
         iframeDoc.removeEventListener('keydown', handleKeyDown);
       }

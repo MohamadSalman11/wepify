@@ -107,7 +107,6 @@ const baseStyles = css`
   .TooltipArrow {
     z-index: var(--zindex-tooltip);
     fill: var(--color-primary-light);
-    z-index: 100;
   }
 `;
 

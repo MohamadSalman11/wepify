@@ -82,12 +82,12 @@ const variables = css`
 
     --zindex-base: 10;
     --zindex-panel: 20;
-    --zindex-preview-close-button: 100;
-    --z-index-tooltip: 500;
-    --zindex-dropdown: 800;
-    --zindex-modal: 1000;
-    --zindex-loading-screen: 1200;
-    --zindex-required-desktop: 1200;
+    --zindex-tooltip: 30;
+    --zindex-preview-close-button: 30;
+    --zindex-dropdown: 40;
+    --zindex-modal: 50;
+    --zindex-loading-screen: 60;
+    --zindex-required-desktop: 60;
     --transition-base: all 0.2s linear;
 
     /* Buttons */

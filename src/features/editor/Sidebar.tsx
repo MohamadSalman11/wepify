@@ -2,7 +2,7 @@ import { LuFile, LuImage, LuLayers3, LuLogOut, LuPlus } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import {  } from '../../components/ConfirmNavigation';
+import ConfirmNavigation from '../../components/ConfirmNavigation';
 import Divider from '../../components/divider';
 import Icon from '../../components/Icon';
 import Logo from '../../components/Logo';

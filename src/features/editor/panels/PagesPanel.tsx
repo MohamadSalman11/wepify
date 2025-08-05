@@ -47,8 +47,8 @@ export default function PagesPanel() {
       </Button>
       <StyledPagesList>
         {pagesMetadata?.map((page, i) => (
-          <Modal>
-            <PageItem key={page.id} page={page} index={i} />
+          <Modal key={page.id}>
+            <PageItem page={page} index={i} />
           </Modal>
         ))}
       </StyledPagesList>
@@ -172,7 +172,7 @@ function EditDialog({ page, onCloseModal }: { page: PageMetadata; onCloseModal?:
       />
       <Input
         type='text'
-        placeholder='Page Tittle'
+        placeholder='Page Title'
         defaultValue={page.title}
         onChange={(event) => setNewTitle(event.target.value)}
       />

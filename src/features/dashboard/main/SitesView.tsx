@@ -56,10 +56,27 @@ const MAX_SITE_NAME_LENGTH = 12;
 const MAX_SITE_DESCRIPTION_LENGTH = 20;
 
 /**
+ * Types
+ */
+
+interface EmptyStateMessages {
+  noSitesTitle: string;
+  noSitesInfo: string;
+}
+
+/**
  * Component definition
  */
 
-export default function SitesView({ sitesMetadata, title }: { sitesMetadata?: SiteMetadata[]; title?: string }) {
+export default function SitesView({
+  sitesMetadata,
+  title,
+  emptyStateMessages
+}: {
+  sitesMetadata?: SiteMetadata[];
+  title?: string;
+  emptyStateMessages?: EmptyStateMessages;
+}) {
   const dispatch = useDispatch();
   const { sitesMetadata: fallbackSites, filters, filterLabel } = useAppSelector((state) => state.dashboard);
   const sitesToRender = sitesMetadata ?? [...fallbackSites].sort((a, b) => b.createdAt - a.createdAt);
@@ -86,7 +103,7 @@ export default function SitesView({ sitesMetadata, title }: { sitesMetadata?: Si
       </h2>
       <SiteSection>
         <TableHead />
-        <TableBody sitesMetadata={sitesToRender} filters={filters} />
+        <TableBody sitesMetadata={sitesToRender} filters={filters} emptyStateMessages={emptyStateMessages} />
       </SiteSection>
     </StyledSiteView>
   );
@@ -107,7 +124,15 @@ function TableHead() {
   );
 }
 
-function TableBody({ sitesMetadata, filters }: { sitesMetadata: SiteMetadata[]; filters: FilterCriteria }) {
+function TableBody({
+  sitesMetadata,
+  filters,
+  emptyStateMessages
+}: {
+  sitesMetadata: SiteMetadata[];
+  filters: FilterCriteria;
+  emptyStateMessages?: EmptyStateMessages;
+}) {
   const now = Date.now();
   const isFiltering = Boolean(filters.modifiedWithinDays || filters.pageRange || filters.sizeRange);
   const [top, setTop] = useState(0);
@@ -148,11 +173,13 @@ function TableBody({ sitesMetadata, filters }: { sitesMetadata: SiteMetadata[]; 
         <article>
           <div>
             <NoResultsWrapper>
-              <NoResultsMessage>{isFiltering ? 'No matching result' : 'No sites available'}</NoResultsMessage>
+              <NoResultsMessage>
+                {isFiltering ? 'No matching result' : emptyStateMessages?.noSitesTitle || 'No sites available'}
+              </NoResultsMessage>
               <NoResultsInfo>
                 {isFiltering
                   ? 'Try adjusting or clearing your filters to find sites.'
-                  : 'Ready to build your website? Add a new site to get started.'}
+                  : emptyStateMessages?.noSitesInfo || 'Ready to build your website? Add a new site to get started.'}
               </NoResultsInfo>
             </NoResultsWrapper>
           </div>

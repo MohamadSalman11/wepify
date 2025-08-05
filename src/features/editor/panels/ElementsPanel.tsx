@@ -32,8 +32,8 @@ export default function ElementsPanel() {
 
   const handleImageUpload = useImageUpload(
     (result) => {
-      iframeConnection.insertElement(ElementsName.Image, { src: result });
       if (!result) return;
+      iframeConnection.insertElement(ElementsName.Image, { src: result });
       dispatch(addImage({ id: nanoid(), dataUrl: result as string }));
     },
     (message) => toast.error(message)

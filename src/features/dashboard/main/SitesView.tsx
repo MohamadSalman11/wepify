@@ -517,9 +517,6 @@ const RowActions = styled.div`
   display: flex;
   justify-content: flex-end;
   align-items: center;
-
-  span {
-  }
 `;
 
 const DialogActions = styled.div`

@@ -54,19 +54,19 @@ export default function ColorPicker({ name, defaultValue, onChange }: ColorPicke
     setHex(defaultValue || DEFAULT_COLOR);
   }, [defaultValue]);
 
-  function handleHexInputChange(event: InputChangeEvent) {
+  const handleHexInputChange = (event: InputChangeEvent) => {
     const value = event.target.value.trim();
     const hex = value.startsWith('#') ? value : `#${value}`;
     setHex(hex);
     onChange?.({ target: { value: hex, name } });
-  }
+  };
 
-  function handleSketchColorChange(color: Record<string, any>) {
+  const handleSketchColorChange = (color: Record<string, any>) => {
     const { r, g, b } = color.rgb;
     const hex = color.rgba.a === 1 ? rgbToHex(`rgb(${r}, ${g}, ${b})`) : rgbaToHex(color.rgba);
     setHex(hex);
     onChange?.({ target: { value: hex, name } });
-  }
+  };
 
   return (
     <div ref={colorPickerRef}>

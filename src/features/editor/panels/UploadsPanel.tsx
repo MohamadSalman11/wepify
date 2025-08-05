@@ -34,8 +34,8 @@ export default function UploadsPanel() {
 
   const handleImageUpload = useImageUpload(
     (result) => {
-      iframeConnection.insertElement(ElementsName.Image, { src: result });
       if (!result) return;
+      iframeConnection.insertElement(ElementsName.Image, { src: result });
       dispatch(addImage({ id: nanoid(), dataUrl: result as string }));
     },
     (message) => toast.error(message)
@@ -58,8 +58,8 @@ export default function UploadsPanel() {
   });
 
   const handleDeleteImage = (event: MouseEvent<HTMLSpanElement>, img: Image) => {
-    dispatch(setIsStoring(true));
     event.stopPropagation();
+    dispatch(setIsStoring(true));
     dispatch(deleteImage(img.id));
   };
 

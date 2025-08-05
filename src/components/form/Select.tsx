@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { LuChevronDown } from 'react-icons/lu';
 import styled, { css } from 'styled-components';
 import useOutsideClick from '../../hooks/useOutsideClick';
@@ -51,6 +51,12 @@ export default function Select({
     onChange?.({ target: { value: option, name } });
   };
 
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setSelected(value);
+    onChange?.({ target: { value, name } });
+  };
+
   const toggleDropdown = () => setIsOpen((prev) => !prev);
 
   return (
@@ -63,15 +69,7 @@ export default function Select({
         onClick={editable ? undefined : toggleDropdown}
       >
         {editable ? (
-          <LabelInput
-            type={editInputType}
-            value={selected}
-            onChange={(event) => {
-              const value = event.target.value;
-              setSelected(value);
-              onChange?.({ target: { value, name } });
-            }}
-          />
+          <LabelInput type={editInputType} value={selected} onChange={handleInputChange} />
         ) : (
           <LabelEditable>{selected || 'Select...'}</LabelEditable>
         )}

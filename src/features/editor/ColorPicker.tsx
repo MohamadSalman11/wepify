@@ -1,4 +1,4 @@
-import type { InputChangeEvent } from '';
+import { InputChangeEvent } from '@shared/typing';
 import { rgbaToHex, rgbToHex } from '@shared/utils';
 import Sketch from '@uiw/react-color-sketch';
 import { useEffect, useState } from 'react';

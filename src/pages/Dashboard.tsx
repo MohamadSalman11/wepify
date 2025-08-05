@@ -82,7 +82,7 @@ export default function Dashboard() {
     return (
       <>
         <title>{'Loading Sites... - Wepify Dashboard'}</title>
-        <LoadingScreen />;
+        <LoadingScreen />
       </>
     );
   }

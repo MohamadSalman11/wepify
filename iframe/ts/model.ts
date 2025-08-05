@@ -10,6 +10,7 @@ export const state: {
   scaleFactor: number;
   deviceType: DeviceType;
   lastCopiedElId: string | null;
+  longPressTimer: ReturnType<typeof setTimeout> | null;
 } = {
   moveable: null,
   target: null,
@@ -18,7 +19,8 @@ export const state: {
   isSitePreviewMode: false,
   scaleFactor: 100,
   deviceType: 'tablet',
-  lastCopiedElId: null
+  lastCopiedElId: null,
+  longPressTimer: null
 };
 
 export const getTarget = (): HTMLElement => {

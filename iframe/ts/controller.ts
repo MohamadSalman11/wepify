@@ -42,6 +42,7 @@ const NOT_MOVEABLE_ELEMENTS = new Set(['section', 'item']);
 const FOCUSABLE_ELEMENTS = new Set(['LI', 'SPAN', 'P', 'A', 'BUTTON', 'INPUT']);
 
 const CSS_FILE_MOVEABLE = 'moveable.css';
+const LONG_PRESS_DURATION = 500;
 
 enum ContextMenuActions {
   Copy = 'copy',
@@ -537,9 +538,25 @@ const controlKeydown = (event: KeyboardEvent) => {
   }
 };
 
+const controlTouchStart = (event: TouchEvent) => {
+  state.longPressTimer = setTimeout(() => {
+    event.preventDefault();
+    controlContextMenu(event);
+  }, LONG_PRESS_DURATION);
+};
+
+const controlTouchEnd = () => {
+  if (state.longPressTimer) {
+    clearTimeout(state.longPressTimer);
+    state.longPressTimer = null;
+  }
+};
+
 document.addEventListener('click', controlDocumentClick);
 window.addEventListener('message', controlIframeMessage);
 window.addEventListener('resize', controlWindowResize);
 globalThis.addEventListener('contextmenu', controlContextMenu);
 document.addEventListener('keydown', controlKeydown);
 document.addEventListener('DOMContentLoaded', controlDOMContentLoaded);
+document.addEventListener('touchstart', controlTouchStart, { passive: false });
+document.addEventListener('touchend', controlTouchEnd);

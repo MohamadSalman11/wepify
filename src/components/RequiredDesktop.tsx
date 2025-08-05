@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import { Breakpoint, Path } from '../constant';
@@ -15,7 +15,7 @@ const DEFAULT_MIN_WIDTH = 1280;
  */
 
 interface RequireDesktopProps {
-  children: React.ReactNode;
+  children: ReactNode;
   minWidth?: number;
 }
 

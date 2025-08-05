@@ -100,7 +100,7 @@ function SearchResults({ matchedSites }: { matchedSites: SiteMetadata[] }) {
 
   const handleOpenEditor = async (site: SiteMetadata) => {
     await AppStorage.setItem(StorageKey.Site, site);
-    navigate(buildPath(Path.Editor, { siteId: site.id, pageId: site.pages[0].id }));
+    navigate(buildPath(Path.Editor, { siteId: site.id, pageId: site.firstPageId }));
   };
 
   return (

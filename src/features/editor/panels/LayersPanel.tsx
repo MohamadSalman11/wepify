@@ -91,8 +91,8 @@ function LayerNode({
   return (
     <LayerItem>
       <LayerHeader onClick={handleClick}>
+        {hasChildren && <ChevronIcon icon={LuChevronRight} size='md' $expanded={expanded} />}
         <LayerBox $nested={nested} $selected={selectedElementId === element.id}>
-          {hasChildren && <ChevronIcon icon={LuChevronRight} size='md' $expanded={expanded} />}
           <Icon icon={ICON_MAP[element.name] || LuSquare} color='var(--color-white)' />
           <span>{element.id}</span>
         </LayerBox>
@@ -140,7 +140,7 @@ const LayerBox = styled.div<{ $nested?: boolean; $selected?: boolean }>`
   display: flex;
   align-items: center;
   gap: 1.2rem;
-  padding: 1.2rem;
+  padding: 1.2rem 1.6rem;
   background-color: ${({ $selected }) => ($selected ? 'var(--color-primary-light)' : 'var(--color-gray-light-2)')};
   border-radius: var(--border-radius-md);
   cursor: pointer;
@@ -168,5 +168,8 @@ const LayerHeader = styled.div`
 `;
 
 const ChevronIcon = styled(Icon)<{ $expanded: boolean }>`
-  transform: translateX(-3.1rem) rotate(${({ $expanded }) => ($expanded ? '90deg' : '0deg')});
+  cursor: pointer;
+  margin-right: 0.4rem;
+  margin-left: -0.2rem;
+  transform: rotate(${({ $expanded }) => ($expanded ? '90deg' : '0deg')});
 `;

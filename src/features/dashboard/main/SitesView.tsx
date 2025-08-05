@@ -256,7 +256,7 @@ function TableRow({ siteMetadata }: { siteMetadata: SiteMetadata }) {
       <p>{pagesCount}</p>
       <p>{formatDate(createdAt)}</p>
       <p>{formatDate(lastModified)}</p>
-      <div>
+      <RowActions>
         <Icon icon={LuEye} size='md' onClick={handlePreviewSite} />
         <Icon icon={LuDownload} size='md' onClick={() => handleDownloadSite(true)} />
         <Icon icon={LuPencilLine} size='md' onClick={() => open('edit')} />
@@ -270,7 +270,7 @@ function TableRow({ siteMetadata }: { siteMetadata: SiteMetadata }) {
           <Dropdown.Open>
             <Icon icon={LuEllipsis} size='md' />
           </Dropdown.Open>
-          <Dropdown.Drop translateX={-80} translateY={-10}>
+          <Dropdown.Drop translateX={-80} translateY={-12}>
             <Dropdown.Button onClick={handlePreviewSite} icon={LuEye}>
               Preview
             </Dropdown.Button>
@@ -298,7 +298,7 @@ function TableRow({ siteMetadata }: { siteMetadata: SiteMetadata }) {
             <DeleteDialog siteMetadata={siteMetadata} />
           </Modal.Dialog>
         </Modal.Window>
-      </div>
+      </RowActions>
     </StyledTableRow>
   );
 }
@@ -510,6 +510,15 @@ const StyledTableRow = styled.article`
         color: var(--color-gray-light) !important;
       }
     }
+  }
+`;
+
+const RowActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  span {
   }
 `;
 

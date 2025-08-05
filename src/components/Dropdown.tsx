@@ -91,6 +91,7 @@ function Drop({
 
     const toggleRect = toggleRef.current?.getBoundingClientRect();
     const dropdownRect = dropdownRef.current?.getBoundingClientRect();
+
     if (!toggleRect || !dropdownRect) return;
 
     const dropdownHeight = dropdownRect.height;
@@ -122,7 +123,7 @@ function Button({
 }: {
   children: ReactNode;
   icon: IconType;
-  onClick?: (event?: MouseEventHandler) => void;
+  onClick?: (event?: MouseEvent) => void;
 }) {
   const { setIsOpen } = useDropdownContext();
 

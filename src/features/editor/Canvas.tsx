@@ -34,7 +34,8 @@ const IFRAME_TITLE = 'Site Preview';
 const SIZE_FILL = '100%';
 const SIZE_SCREEN = '100vh';
 const DEFAULT_DEVICE_TYPE = 'tablet';
-const STORE_DELAY_TIMEOUT_MS = 2000;
+const DELAY_STORE_TIMEOUT_MS = 2000;
+const DELAY_LOADING_MS = 100;
 
 /**
  * Component definition
@@ -75,7 +76,7 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
         dispatch(setScale(DEFAULT_SCALE_FACTOR));
         dispatch(setDeviceType(DEFAULT_DEVICE_TYPE));
 
-        setTimeout(() => dispatch(setIsLoading(false)), 100);
+        setTimeout(() => dispatch(setIsLoading(false)), DELAY_LOADING_MS);
       } else {
         dispatch(setIsError(true));
       }
@@ -117,7 +118,7 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
       timeoutRef.current = setTimeout(() => {
         dispatch(setIsStoring(false));
         timeoutRef.current = null;
-      }, STORE_DELAY_TIMEOUT_MS);
+      }, DELAY_STORE_TIMEOUT_MS);
     };
 
     saveInStorage();

@@ -9,6 +9,10 @@ import Canvas from './Canvas';
 import { setIsLoading } from './slices/editorSlice';
 import { setHasOriginSize } from './slices/pageSlice';
 
+/**
+ * Constants
+ */
+
 const KEY_CLOSE_PREVIEW = 'Escape';
 
 /**

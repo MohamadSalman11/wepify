@@ -1,7 +1,7 @@
 import { nanoid } from '@reduxjs/toolkit';
 import { ElementsName } from '@shared/constants';
 import { Image } from '@shared/typing';
-import { useCallback } from 'react';
+import { MouseEvent, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { LuTrash2 } from 'react-icons/lu';
 import Masonry from 'react-masonry-css';
@@ -15,7 +15,7 @@ import { useFilePicker } from '../../../hooks/useFilePicker';
 import { useLoadFromStorage } from '../../../hooks/useLoadFromStorage';
 import { useAppSelector } from '../../../store';
 import { useImageUpload } from '../hooks/useImageUpload';
-import { addImage, deleteImage, setImages } from '../slices/editorSlice';
+import { addImage, deleteImage, setImages, setIsStoring } from '../slices/editorSlice';
 
 /**
  * Constants
@@ -57,6 +57,12 @@ export default function UploadsPanel() {
     onLoaded
   });
 
+  const handleDeleteImage = (event: MouseEvent<HTMLSpanElement>, img: Image) => {
+    dispatch(setIsStoring(true));
+    event.stopPropagation();
+    dispatch(deleteImage(img.id));
+  };
+
   return (
     <>
       {input}
@@ -68,12 +74,7 @@ export default function UploadsPanel() {
         {images?.map((img, i) => (
           <MediaItem key={img.id} onClick={() => iframeConnection.insertElement('image', { src: img.dataUrl })}>
             <img src={img.dataUrl || ''} alt={`uploaded image ${i + 1}`} loading='lazy' />
-            <span
-              onClick={(event) => {
-                event.stopPropagation();
-                dispatch(deleteImage(img.id));
-              }}
-            >
+            <span onClick={(event) => handleDeleteImage(event, img)}>
               <Icon icon={LuTrash2} color='var(--color-white)' />
             </span>
           </MediaItem>

@@ -1,12 +1,13 @@
 import { createElTemplate } from './helpers';
 import type { PageElement } from './typing';
 
-export const TAGS_WITHOUT_CHILDREN = new Set(['input', 'img', 'hr', 'br']);
-export const DEFAULT_BORDER_COLOR = '#4a90e2';
+export const TARGET_ORIGIN = '*';
 export const DEFAULT_BORDER_WIDTH = 2;
+export const DEFAULT_BORDER_COLOR = '#4a90e2';
 export const DEFAULT_SCALE_FACTOR = 100;
 export const PAGE_PADDING = 60;
 export const PAGE_PADDING_X = PAGE_PADDING * 2;
+export const TAGS_WITHOUT_CHILDREN = new Set(['input', 'img', 'hr', 'br']);
 export const UNSAVED_CHANGES_MESSAGE = 'Changes you made may not be saved.';
 
 export enum Tags {

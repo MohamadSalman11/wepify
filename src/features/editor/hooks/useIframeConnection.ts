@@ -1,4 +1,4 @@
-import { RESPONSIVE_PROPS } from '@shared/constants';
+import { RESPONSIVE_PROPS, TARGET_ORIGIN } from '@shared/constants';
 import {
   DeviceType,
   MessageFromIframe,
@@ -11,7 +11,7 @@ import { generateFileNameFromPageName } from '@shared/utils';
 import { useCallback, useEffect, useMemo, useState, type RefObject } from 'react';
 import { useDispatch } from 'react-redux';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { EditorPath, TARGET_ORIGIN } from '../../../constant';
+import { EditorPath } from '../../../constant';
 import { useAppSelector } from '../../../store';
 import {
   addElement,

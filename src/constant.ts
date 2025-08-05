@@ -1,4 +1,3 @@
-export const TARGET_ORIGIN = '*';
 export const TOAST_DURATION = 5000;
 export const TOAST_DELAY_MS = 1000;
 

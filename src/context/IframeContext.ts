@@ -10,6 +10,6 @@ export const IframeContext = createContext<IframeContext | null>(null);
 
 export const useIframeContext = () => {
   const context = useContext(IframeContext);
-  if (!context) throw new Error('useIframeContext must be used inside <IframeContext.Provider>');
+  if (!context) throw new Error('useIframeContext must be used inside <IframeContext>');
   return context;
 };

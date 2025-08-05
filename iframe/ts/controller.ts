@@ -51,6 +51,13 @@ enum ContextMenuActions {
   Delete = 'delete'
 }
 
+enum KeyboardKeys {
+  F12 = 'F12',
+  I = 'I',
+  C = 'c',
+  V = 'v'
+}
+
 const iframeMessageHandlers: {
   [K in MessageToIframe]: (payload: MessageToIframePayloadMap[K]) => void;
 } = {
@@ -272,12 +279,12 @@ export const controlDownloadZip = async (site: Site, shouldMinify: boolean) => {
   postMessageToApp({ type: MessageFromIframe.SiteDownloaded });
 };
 
-const controlContextMenuActions = (event: any) => {
-  const action = event.target.closest('li').dataset.action;
+const controlContextMenuActions = (event: globalThis.MouseEvent) => {
+  const action = (event.target as HTMLElement).closest('li')?.dataset.action;
   const target = getTarget();
 
   if (action === ContextMenuActions.Copy) {
-    state.lastCopiedElId = target.id;
+    handleElementCopy(target.id);
   }
 
   if (action === ContextMenuActions.Paste) {
@@ -291,6 +298,10 @@ const controlContextMenuActions = (event: any) => {
   if (action === ContextMenuActions.Delete) {
     controlDeleteElement();
   }
+};
+
+const handleElementCopy = (targetId: string) => {
+  state.lastCopiedElId = targetId;
 };
 
 const handleElementPaste = () => {
@@ -407,15 +418,26 @@ const controlWindowResize = () => {
   }
 };
 
-const controlContextMenu = (event: MouseEvent) => {
+const controlContextMenu = (event: MouseEvent | TouchEvent) => {
   event.preventDefault();
 
   const iframeRoot = (event.target as Element).closest(SELECTOR_CLOSEST_SECTION);
 
   if (state.isSitePreviewMode || !contextMenu || !iframeRoot) return;
 
-  contextMenu.style.top = `${event.clientY}px`;
-  contextMenu.style.left = `${event.clientX}px`;
+  let clientX = 0;
+  let clientY = 0;
+
+  if ('touches' in event && event.touches.length > 0) {
+    clientX = event.touches[0].clientX;
+    clientY = event.touches[0].clientY;
+  } else if ('clientX' in event && 'clientY' in event) {
+    clientX = event.clientX;
+    clientY = event.clientY;
+  }
+
+  contextMenu.style.top = `${clientY}px`;
+  contextMenu.style.left = `${clientX}px`;
   contextMenu.style.display = 'block';
 };
 
@@ -423,12 +445,12 @@ const controlDOMContentLoaded = () => {
   postMessageToApp({ type: MessageFromIframe.IframeReady });
 };
 
-const controlDocumentClick = (event: MouseEvent) => {
+const controlDocumentClick = (event: globalThis.MouseEvent) => {
   if (contextMenu) {
     contextMenu.style.display = 'none';
   }
 
-  if ((event.target as Element)?.closest(SELECTOR_CONTEXT_MENU)) {
+  if ((event.target as HTMLElement)?.closest(SELECTOR_CONTEXT_MENU)) {
     controlContextMenuActions(event);
   }
 
@@ -483,15 +505,35 @@ const initializeMoveable = () => {
   state.moveable.on('drag', controlDrag).on('resize', controlResize).on('rotate', controlRotate);
 };
 
-const controlKeydown = (e: KeyboardEvent) => {
-  const isF12 = e.key === 'F12';
-  const isCtrlShiftI = e.ctrlKey && e.shiftKey && e.key === 'I';
-  const isCmdOptI = e.metaKey && e.altKey && e.key === 'I';
+const controlKeydown = (event: KeyboardEvent) => {
+  const key = event.key;
+  const isF12 = key === KeyboardKeys.F12;
+  const isCtrlShiftI = event.ctrlKey && event.shiftKey && key === KeyboardKeys.I;
+  const isCmdOptI = event.metaKey && event.altKey && key === KeyboardKeys.I;
   const isDevToolsKey = isF12 || isCtrlShiftI || isCmdOptI;
+  const isCopyShortcut = (event.ctrlKey || event.metaKey) && key.toLowerCase() === KeyboardKeys.C;
+  const isPasteShortcut = (event.ctrlKey || event.metaKey) && key.toLowerCase() === KeyboardKeys.V;
 
   if (isDevToolsKey) {
-    const sectionEl = document.querySelector(SELECTOR_CLOSEST_SECTION) as HTMLElement;
-    sectionEl?.click();
+    const sectionElement = document.querySelector(SELECTOR_CLOSEST_SECTION) as HTMLElement | null;
+    sectionElement?.click();
+    return;
+  }
+
+  if (isCopyShortcut) {
+    event.preventDefault();
+    const target = getTarget();
+
+    if (target) {
+      handleElementCopy(target.id);
+    }
+
+    return;
+  }
+
+  if (isPasteShortcut) {
+    event.preventDefault();
+    handleElementPaste();
   }
 };
 

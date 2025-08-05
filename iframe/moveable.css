@@ -118,6 +118,7 @@ section::after {
   cursor: pointer;
   padding: 12px;
   font-size: 14px;
+  user-select: none;
 }
 
 .context-menu li img {

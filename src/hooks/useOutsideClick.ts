@@ -8,7 +8,7 @@ export const useOutsideClick = <T extends HTMLElement = HTMLElement>(
   const ref = useRef<T>(null);
 
   useEffect(() => {
-    function handleClick(event: Event) {
+    const handleClick = (event: Event) => {
       if (
         ref.current &&
         !ref.current.contains(event.target as Node) &&
@@ -16,7 +16,7 @@ export const useOutsideClick = <T extends HTMLElement = HTMLElement>(
       ) {
         handler();
       }
-    }
+    };
 
     const iframe = document.querySelector('iframe');
     const iframeDoc = iframe?.contentDocument || iframe?.contentWindow?.document;

@@ -14,7 +14,7 @@ export const useLoadFromStorage = <T>({ storageKey, delay = DEFAULT_DELAY, onLoa
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
 
-    async function load() {
+    const load = async () => {
       let data: T | null = null;
 
       if (Array.isArray(storageKey)) {
@@ -29,7 +29,7 @@ export const useLoadFromStorage = <T>({ storageKey, delay = DEFAULT_DELAY, onLoa
       timeoutId = setTimeout(() => {
         onLoaded(data);
       }, delay);
-    }
+    };
 
     load();
 

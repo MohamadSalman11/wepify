@@ -59,7 +59,7 @@ const Container = styled.div`
 
 const Title = styled.h1`
   font-size: 6.2rem;
-  font-weight: 400;
+  font-weight: var(--font-weight-regular);
 
   @media (max-width: ${Breakpoint.TabLand}em) {
     font-size: 5.2rem;

@@ -2,31 +2,25 @@ import { css } from 'styled-components';
 
 const baseStyles = css`
   @font-face {
-    font-weight: 300;
-    src: url('/fonts/inter-light.woff2') format('woff2');
+    font-weight: 400;
+    src: url('/fonts/inter-regular.woff2') format('woff2');
     font-family: 'Inter';
   }
 
   @font-face {
-    font-weight: var(--font-weight-regular);
-    src: url('/fonts/inter-bold.woff2') format('woff2');
-    font-family: 'Inter';
-  }
-
-  @font-face {
-    font-weight: var(--font-weight-medium);
+    font-weight: 500;
     src: url('/fonts/inter-medium.woff2') format('woff2');
     font-family: 'Inter';
   }
 
   @font-face {
-    font-weight: var(--font-weight-semibold);
+    font-weight: 600;
     src: url('/fonts/inter-semibold.woff2') format('woff2');
     font-family: 'Inter';
   }
 
   @font-face {
-    font-weight: var(--font-weight-bold);
+    font-weight: 700;
     src: url('/fonts/inter-bold.woff2') format('woff2');
     font-family: 'Inter';
   }

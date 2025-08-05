@@ -104,5 +104,4 @@ const LoadingBar = styled.div`
 
 const LoadingText = styled.p`
   font-size: 1.4rem;
-  font-weight: 300;
 `;

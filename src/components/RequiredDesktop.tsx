@@ -83,7 +83,7 @@ const Content = styled.div`
 
 const Headline = styled.h1`
   font-size: 5.2rem;
-  font-weight: 400;
+  font-weight: var(--font-weight-regular);
 
   @media (max-width: ${Breakpoint.Phone}em) {
     font-size: 4.4rem;

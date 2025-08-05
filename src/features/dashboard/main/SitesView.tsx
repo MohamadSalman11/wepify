@@ -448,7 +448,7 @@ const StyledSiteView = styled.div<{ $isFiltering: boolean }>`
     background-color: var(--color-white);
     padding: 1.2rem;
     width: 100%;
-    font-weight: 400;
+    font-weight: var(--font-weight-regular);
     font-size: 2rem;
   }
 `;
@@ -490,7 +490,7 @@ const StyledTableHead = styled.article`
 
   h3 {
     color: var(--color-gray);
-    font-weight: 400;
+    font-weight: var();
   }
 `;
 

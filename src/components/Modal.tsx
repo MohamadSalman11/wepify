@@ -116,7 +116,7 @@ const DialogHeader = styled.div`
   margin-bottom: 1.2rem;
 
   h3 {
-    font-weight: 400;
+    font-weight: var(--font-weight-regular);
     font-size: 1.6rem;
   }
 

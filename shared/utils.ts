@@ -1,11 +1,14 @@
 import toast from 'react-hot-toast';
 
-type FieldValidationOptions = {
+interface FieldValidationOptions {
   value: string;
   emptyMessage: string;
   maxLength?: number;
   maxLengthMessage?: string;
-};
+}
+
+export const isElementName = (name: string | undefined | null, ...names: string[]): boolean =>
+  !!name && names.includes(name);
 
 export const rgbToHex = (rgb: string) => {
   const result = rgb.match(/\d+/g)?.map(Number);
@@ -40,9 +43,6 @@ export const generateFileNameFromPageName = (pageName: string): string => {
       .replace(/[^\w_-]/g, '') + '.html'
   );
 };
-
-export const isElementName = (name: string | undefined | null, ...names: string[]): boolean =>
-  !!name && names.includes(name);
 
 export const validateFields = (fields: FieldValidationOptions[]): boolean => {
   for (const { value, emptyMessage, maxLength, maxLengthMessage } of fields) {

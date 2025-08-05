@@ -21,6 +21,7 @@ import {
   setIsError,
   setIsLoading,
   setIsStoring,
+  setPagesMetadata,
   setSite
 } from './slices/editorSlice';
 import { setHasOriginSize, setPage, setScale, setSize } from './slices/pageSlice';
@@ -61,6 +62,10 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
       if (!iframeConnection.iframeReady) return;
 
       if (site && page && canvasRef.current) {
+        const pagesMetadata = site.pages.map(({ elements: _, ...pageWithoutElements }) => pageWithoutElements);
+
+        dispatch(setPagesMetadata(pagesMetadata));
+
         dispatch(
           setSize({
             width: SCREEN_SIZES.tablet.width,

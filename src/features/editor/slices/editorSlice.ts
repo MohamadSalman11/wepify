@@ -1,11 +1,12 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { ELEMENTS_TEMPLATE, ElementsName } from '@shared/constants';
-import { DeviceType, Image, PageElement, Site, SitePage } from '@shared/typing';
+import { DeviceType, Image, PageElement, PageMetadata, Site, SitePage } from '@shared/typing';
 import { findElementById } from '../../../utils/findElementById';
 
 interface EditorState {
   selectedElement: PageElement;
   site: Site;
+  pagesMetadata: PageMetadata[];
   isLoading: boolean;
   isError: boolean;
   isDownloadingSite: boolean;
@@ -25,6 +26,7 @@ const initialState: EditorState = {
     isStarred: false,
     pages: []
   },
+  pagesMetadata: [],
   isLoading: true,
   isError: false,
   deviceType: 'tablet',
@@ -46,22 +48,42 @@ const editorSlice = createSlice({
     setSite(state, action: PayloadAction<Site>) {
       state.site = action.payload;
     },
-    addPage(state, action: PayloadAction<SitePage>) {
+    addPage(state, action: PayloadAction<PageMetadata>) {
+      const pageMetadata = action.payload;
+
       state.site.lastModified = Date.now();
-      state.site.pages.push(action.payload);
+      state.site.pages.push({ ...pageMetadata, elements: [ELEMENTS_TEMPLATE.section as PageElement] });
+      state.pagesMetadata.push(pageMetadata);
     },
     updatePageInfo(state, action: PayloadAction<{ id: string; name: string; title: string }>) {
-      const page = state.site.pages.find((page) => page.id === action.payload.id);
+      const { id, name, title } = action.payload;
 
-      if (page) {
+      const page = state.site.pages.find((page) => page.id === id);
+      const pageMetadata = state.pagesMetadata.find((page) => page.id === id);
+
+      if (page && pageMetadata) {
         state.site.lastModified = Date.now();
-        page.name = action.payload.name;
-        page.title = action.payload.title;
+        page.name = name;
+        page.title = title;
+        pageMetadata.name = name;
+        pageMetadata.title = title;
       }
     },
     deletePage(state, action: PayloadAction<string>) {
       state.site.lastModified = Date.now();
       state.site.pages = state.site.pages.filter((page) => page.id !== action.payload);
+      state.pagesMetadata = state.pagesMetadata.filter((page) => page.id !== action.payload);
+    },
+    setPagesMetadata(state, action: PayloadAction<PageMetadata[]>) {
+      state.pagesMetadata = action.payload;
+    },
+    updatePageMetadata(state, action: PayloadAction<PageMetadata>) {
+      const updatedPageMetadata = action.payload;
+      const pageMetadata = state.pagesMetadata.find((p) => p.id === updatedPageMetadata.id);
+
+      if (pageMetadata) {
+        Object.assign(pageMetadata, updatedPageMetadata);
+      }
     },
     setIsIndexPage(state, action: PayloadAction<string>) {
       state.site.lastModified = Date.now();
@@ -189,6 +211,7 @@ const editorSlice = createSlice({
     setDeviceType(state, action: PayloadAction<DeviceType>) {
       state.deviceType = action.payload;
     },
+
     clearSite() {
       return initialState;
     }
@@ -200,6 +223,8 @@ export const {
   addPage,
   updatePageInfo,
   deletePage,
+  setPagesMetadata,
+  updatePageMetadata,
   setIsIndexPage,
   setIsLoading,
   setIsError,

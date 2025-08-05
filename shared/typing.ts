@@ -98,6 +98,8 @@ export interface SitePage {
   isIndex: boolean;
 }
 
+export type PageMetadata = Omit<SitePage, 'elements'>;
+
 export interface Site {
   id: string;
   name: string;

@@ -1,5 +1,5 @@
 import { nanoid } from '@reduxjs/toolkit';
-import type { SitePage } from '@shared/typing';
+import type { PageMetadata } from '@shared/typing';
 import { generateFileNameFromPageName, validateFields } from '@shared/utils';
 import { useState, type MouseEvent } from 'react';
 import toast from 'react-hot-toast';
@@ -33,7 +33,7 @@ const MAX_PAGE_NAME_LENGTH = 7;
 
 export default function PagesPanel() {
   const dispatch = useDispatch();
-  const site = useAppSelector((state) => state.editor.site);
+  const pagesMetadata = useAppSelector((state) => state.editor.pagesMetadata);
 
   const handleAddNewPage = () => {
     const newPage = createNewPage();
@@ -46,7 +46,7 @@ export default function PagesPanel() {
         Add New Page
       </Button>
       <StyledPagesList>
-        {site.pages?.map((page, i) => (
+        {pagesMetadata?.map((page, i) => (
           <Modal>
             <PageItem key={page.id} page={page} index={i} />
           </Modal>
@@ -56,14 +56,14 @@ export default function PagesPanel() {
   );
 }
 
-function PageItem({ page, index }: { page: SitePage; index: number }) {
+function PageItem({ page, index }: { page: PageMetadata; index: number }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { siteId, pageId } = useParams();
   const { open } = useModalContext();
   const { iframeRef } = useIframeContext();
 
-  const handleOpenEditor = (event: MouseEvent<HTMLLIElement>, page: SitePage) => {
+  const handleOpenEditor = (event: MouseEvent<HTMLLIElement>, page: PageMetadata) => {
     const target = event.target as HTMLElement;
 
     if (page.id === pageId) return;
@@ -131,7 +131,7 @@ function PageItem({ page, index }: { page: SitePage; index: number }) {
   );
 }
 
-function EditDialog({ page, onCloseModal }: { page: SitePage; onCloseModal?: OnCloseModal }) {
+function EditDialog({ page, onCloseModal }: { page: PageMetadata; onCloseModal?: OnCloseModal }) {
   const dispatch = useDispatch();
   const [newName, setNewName] = useState(page.name || '');
   const [newTitle, setNewTitle] = useState(page.title || page.name || '');
@@ -193,7 +193,7 @@ function DeleteDialog({
   currentIndex,
   onCloseModal
 }: {
-  page: SitePage;
+  page: PageMetadata;
   currentIndex: number;
   onCloseModal?: OnCloseModal;
 }) {

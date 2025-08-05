@@ -35,7 +35,7 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
   const { pageId } = useParams();
   const navigate = useNavigate();
   const [iframeReady, setIframeReady] = useState(false);
-  const site = useAppSelector((state) => state.editor.site);
+  const pagesMetadata = useAppSelector((state) => state.editor.pagesMetadata);
 
   const postMessageToIframe = useCallback(
     (message: Record<string, any>) => {
@@ -113,7 +113,7 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
         case MessageFromIframe.NavigateToPage: {
           const pageFileName = data.payload;
 
-          for (const page of site.pages) {
+          for (const page of pagesMetadata) {
             const pageName = page.isIndex ? PAGE_NAME_INDEX : page.name;
             const generatedFileName = generateFileNameFromPageName(pageName);
 
@@ -131,7 +131,7 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [dispatch, navigate, iframeRef, pageId, site, location.pathname]);
+  }, [dispatch, navigate, iframeRef, pageId, pagesMetadata, location.pathname]);
 
   const renderElements = useCallback(
     (

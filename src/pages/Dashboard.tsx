@@ -13,6 +13,7 @@ import { useLoadFromStorage } from '../hooks/useLoadFromStorage';
 import { useAppSelector } from '../store';
 import { AppStorage } from '../utils/appStorage';
 import { toSiteMetadata } from '../utils/toSiteMetadata';
+import { updateInSitesStorage } from '../utils/updateSitesInStorage';
 
 /**
  * Constants
@@ -40,26 +41,21 @@ export default function Dashboard() {
       const updatedSites = sitesMetadata ?? [];
 
       if (site) {
-        const sites: Site[] = (await AppStorage.getItem(StorageKey.Sites)) ?? [];
-        const siteMetadata = toSiteMetadata(site);
-        const siteMetadataIndex = updatedSites.findIndex((s) => s.id === site.id);
-        const isSiteMetadataExist = siteMetadataIndex !== -1;
-        const siteIndex = sites.findIndex((s: Site) => s.id === site.id);
-        const isSiteExist = siteIndex !== -1;
+        await updateInSitesStorage((sites) => {
+          const siteMetadata = toSiteMetadata(site);
+          const siteMetadataIndex = updatedSites.findIndex((s) => s.id === site.id);
+          const isSiteMetadataExist = siteMetadataIndex !== -1;
+          const siteIndex = sites.findIndex((s: Site) => s.id === site.id);
+          const isSiteExist = siteIndex !== -1;
 
-        if (isSiteMetadataExist) {
-          updatedSites[siteMetadataIndex] = siteMetadata;
-        } else {
-          updatedSites.push(siteMetadata);
-        }
+          if (isSiteMetadataExist) {
+            updatedSites[siteMetadataIndex] = siteMetadata;
+          } else {
+            updatedSites.push(siteMetadata);
+          }
 
-        if (isSiteExist) {
-          sites[siteIndex] = site;
-        } else {
-          sites.push(site);
-        }
-
-        await AppStorage.setItem(StorageKey.Sites, sites);
+          return isSiteExist ? [...sites.slice(0, siteIndex), site, ...sites.slice(siteIndex + 1)] : [...sites, site];
+        });
       }
 
       await AppStorage.setItem(StorageKey.Site, null);

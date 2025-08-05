@@ -16,7 +16,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 import Button from '../../components/Button';
-import { ConfirmNavigation } from '../../components/ConfirmNavigation';
+import ConfirmNavigation from '../../components/ConfirmNavigation';
 import Divider from '../../components/divider';
 import Dropdown from '../../components/Dropdown';
 import Input from '../../components/form/Input';

@@ -15,8 +15,8 @@ const DEFAULT_SIZE = 'md';
  * Types
  */
 
-type Variation = keyof typeof variations;
 type Size = 'md' | 'sm';
+type Variation = keyof typeof variations;
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
@@ -134,33 +134,33 @@ const StyledButton = styled.button<{
   $hasIcon: boolean;
 }>`
   ${({ theme: { prefix }, $variation, $size, $fullWidth, $pill, $hasIcon }) => css`
-  --${prefix}-btn-transition: var(--btn-transition);
-  --${prefix}-btn-border-radius: var(--btn-border-radius);
-  --${prefix}-btn-white-space: var(--btn-white-space);
-  --${prefix}-btn-color: var(--color-white);
+    --${prefix}-btn-transition: var(--btn-transition);
+    --${prefix}-btn-border-radius: var(--btn-border-radius);
+    --${prefix}-btn-white-space: var(--btn-white-space);
+    --${prefix}-btn-color: var(--color-white);
 
-  color: var(--${prefix}-btn-color);
-  transition: var(--${prefix}-btn-transition);
-  white-space: var(--${prefix}-btn-white-space);
-  border-radius: ${$pill ? 'var(--border-radius-full)' : `var(--${prefix}-btn-border-radius)`};
-  text-decoration: none;
-  width: ${$fullWidth ? '100%' : 'fit-content'};
+    color: var(--${prefix}-btn-color);
+    transition: var(--${prefix}-btn-transition);
+    white-space: var(--${prefix}-btn-white-space);
+    border-radius: ${$pill ? 'var(--border-radius-full)' : `var(--${prefix}-btn-border-radius)`};
+    text-decoration: none;
+    width: ${$fullWidth ? '100%' : 'fit-content'};
 
-  svg{
-    color: currentColor;
-  }
+    svg {
+      color: currentColor;
+    }
 
-  ${
-    $hasIcon &&
-    css`
-      display: flex;
-      column-gap: 1.2rem;
-      justify-content: center;
-      align-items: center;
-    `
-  }
+    ${
+      $hasIcon &&
+      css`
+        display: flex;
+        column-gap: 1.2rem;
+        justify-content: center;
+        align-items: center;
+      `
+    }
 
-  ${sizes[$size]};
-  ${variations[$variation]};
-`}
+    ${sizes[$size]};
+    ${variations[$variation]};
+  `}
 `;

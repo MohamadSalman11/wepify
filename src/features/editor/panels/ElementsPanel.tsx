@@ -57,7 +57,13 @@ export default function ElementsPanel() {
         <SectionTitle>Add Elements</SectionTitle>
         <SearchBar>
           <Icon icon={LuSearch} />
-          <Input size='md' type='text' placeholder='Search by ID' onChange={handleSearchElement} />
+          <Input
+            size='md'
+            type='text'
+            placeholder='Search by ID'
+            onChange={handleSearchElement}
+            onBlur={(event) => (event.target.value = '')}
+          />
         </SearchBar>
       </div>
       <div>

@@ -205,6 +205,7 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
  */
 
 const StyledCanvas = styled.div<{ $isPreview: boolean }>`
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;

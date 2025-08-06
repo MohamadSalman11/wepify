@@ -422,23 +422,23 @@ const controlWindowResize = () => {
 const controlContextMenu = (event: MouseEvent | TouchEvent) => {
   event.preventDefault();
 
-  const iframeRoot = (event.target as Element).closest(SELECTOR_CLOSEST_SECTION);
+  const closestSection = (event.target as Element).closest(SELECTOR_CLOSEST_SECTION);
 
-  if (state.isSitePreviewMode || !contextMenu || !iframeRoot) return;
+  if (state.isSitePreviewMode || !contextMenu || !closestSection) return;
 
-  let clientX = 0;
-  let clientY = 0;
+  let pageX = 0;
+  let pageY = 0;
 
   if ('touches' in event && event.touches.length > 0) {
-    clientX = event.touches[0].clientX;
-    clientY = event.touches[0].clientY;
-  } else if ('clientX' in event && 'clientY' in event) {
-    clientX = event.clientX;
-    clientY = event.clientY;
+    pageX = event.touches[0].pageX;
+    pageY = event.touches[0].pageY;
+  } else if ('pageX' in event && 'pageY' in event) {
+    pageX = event.pageX;
+    pageY = event.pageY;
   }
 
-  contextMenu.style.top = `${clientY}px`;
-  contextMenu.style.left = `${clientX}px`;
+  contextMenu.style.top = `${pageY}px`;
+  contextMenu.style.left = `${pageX}px`;
   contextMenu.style.display = 'block';
 };
 

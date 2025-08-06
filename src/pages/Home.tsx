@@ -93,16 +93,6 @@ const ImageWrapper = styled.div`
   width: fit-content;
 
   img {
-    @media (max-width: ${Breakpoint.TabLand}em) {
-      width: 80rem;
-    }
-
-    @media (max-width: ${Breakpoint.TabPort}em) {
-      width: 60rem;
-    }
-
-    @media (max-width: ${Breakpoint.Phone}em) {
-      width: 32rem;
-    }
+    width: 100%;
   }
 `;

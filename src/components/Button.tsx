@@ -145,6 +145,7 @@ const StyledButton = styled.button<{
     border-radius: ${$pill ? 'var(--border-radius-full)' : `var(--${prefix}-btn-border-radius)`};
     text-decoration: none;
     width: ${$fullWidth ? '100%' : 'fit-content'};
+    font-weight: var(--font-weight-medium);
 
     svg {
       color: currentColor;

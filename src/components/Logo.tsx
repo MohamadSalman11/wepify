@@ -43,6 +43,7 @@ const LogoContainer = styled.div<{ $clickable: boolean }>`
   font-size: 2.2rem;
   color: var(--color-primary);
   user-select: none;
+  font-weight: var(--font-weight-medium);
 
   ${({ $clickable }) => $clickable && 'cursor: pointer;'}
 `;

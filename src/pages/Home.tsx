@@ -1,3 +1,4 @@
+import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from '../components/Button';
@@ -27,7 +28,7 @@ export default function Home() {
         </ButtonGroup>
       </Container>
       <ImageWrapper>
-        <img src='/hero-img.png' />
+        <LazyLoadImage src='/hero-img.png' alt='Hero' effect='blur' width='100%' />
       </ImageWrapper>
       <Footer />
     </StyledHome>
@@ -91,8 +92,4 @@ const ImageWrapper = styled.div`
   margin: 0 auto;
   margin-bottom: 6.4rem;
   width: fit-content;
-
-  img {
-    width: 100%;
-  }
 `;

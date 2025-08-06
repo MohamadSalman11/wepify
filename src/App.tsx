@@ -1,4 +1,5 @@
 import { Tooltip } from 'radix-ui';
+import 'react-lazy-load-image-component/src/effects/blur.css';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import RequireDesktop from './components/RequiredDesktop';

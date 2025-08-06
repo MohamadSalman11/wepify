@@ -32,6 +32,7 @@ import { buildPath } from '../../../utils/buildPath';
 import { formatDate } from '../../../utils/formatDate';
 import { formatSize } from '../../../utils/formatSize';
 import { runWithToast } from '../../../utils/runWithToast';
+import { setActiveSiteById } from '../../../utils/setActiveSiteById';
 import { updateInSitesStorage } from '../../../utils/updateSitesInStorage';
 import { setIsLoading } from '../../editor/slices/editorSlice';
 import {
@@ -239,18 +240,14 @@ function TableRow({ siteMetadata }: { siteMetadata: SiteMetadata }) {
     const target = event.target as HTMLElement;
     if (!target.closest('svg') && !target.closest('li')) {
       dispatch(setIsLoading(true));
-      const sites = (await AppStorage.getItem(StorageKey.Sites)) as Site[];
-      const site = sites.find((s) => s.id === id);
-      await AppStorage.setItem(StorageKey.Site, site);
+      await setActiveSiteById(id);
       navigate(buildPath(Path.Editor, { siteId: id, pageId: firstPageId }));
     }
   };
 
   const handlePreviewSite = async () => {
     dispatch(setIsLoading(true));
-    const sites = (await AppStorage.getItem(StorageKey.Sites)) as Site[];
-    const site = sites.find((s) => s.id === id);
-    await AppStorage.setItem(StorageKey.Site, site);
+    await setActiveSiteById(id);
     navigate(`${buildPath(Path.Editor, { siteId: id, pageId: firstPageId })}/${EditorPath.Preview}`);
   };
 

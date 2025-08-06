@@ -8,12 +8,12 @@ import styled, { css } from 'styled-components';
 import Dropdown from '../../../components/Dropdown';
 import Input from '../../../components/form/Input';
 import Icon from '../../../components/Icon';
-import { Path, StorageKey } from '../../../constant';
+import { Path } from '../../../constant';
 import useOutsideClick from '../../../hooks/useOutsideClick';
 import { useAppSelector } from '../../../store';
-import { AppStorage } from '../../../utils/appStorage';
 import { buildPath } from '../../../utils/buildPath';
 import { formatDate } from '../../../utils/formatDate';
+import { setActiveSiteById } from '../../../utils/setActiveSiteById';
 import { setFilterLabel, setFilters, type FilterCriteria } from '../slices/dashboardSlice';
 
 /**
@@ -99,7 +99,7 @@ function SearchResults({ matchedSites }: { matchedSites: SiteMetadata[] }) {
   const isNoResult = matchedSites.length === 0;
 
   const handleOpenEditor = async (site: SiteMetadata) => {
-    await AppStorage.setItem(StorageKey.Site, site);
+    await setActiveSiteById(site.id);
     navigate(buildPath(Path.Editor, { siteId: site.id, pageId: site.firstPageId }));
   };
 

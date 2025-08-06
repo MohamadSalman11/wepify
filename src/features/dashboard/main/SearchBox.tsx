@@ -190,7 +190,7 @@ const StyledSearchBox = styled.div`
   position: relative;
 
   h1 {
-    font-weight: var(--font-weight-regular);
+    font-weight: var(--font-weight-medium);
     font-size: 2rem;
   }
 `;

@@ -490,7 +490,7 @@ const StyledTableHead = styled.article`
 
   h3 {
     color: var(--color-gray);
-    font-weight: var(--font-weight-regular);
+    font-weight: var(--font-weight-medium);
   }
 `;
 

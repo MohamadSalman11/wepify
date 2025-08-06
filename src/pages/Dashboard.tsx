@@ -105,6 +105,7 @@ export default function Dashboard() {
 const StyledDashboard = styled.div<{ $isProcessing: boolean }>`
   padding: 1.2rem 2.4rem;
   user-select: none;
+  font-weight: var(--font-weight-medium);
 
   ${(props) =>
     props.$isProcessing &&

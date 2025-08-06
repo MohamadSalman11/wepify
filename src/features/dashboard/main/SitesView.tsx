@@ -472,7 +472,7 @@ const StyledBodySection = styled.section<{ $top: number }>`
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  padding: 1.2rem 0;
+  padding: 0 0 1.2rem 0;
   overflow-y: auto;
   scrollbar-width: none;
   height: ${({ $top }) => `calc(88vh - ${$top - BODY_SCROLL_OFFSET}px)`};

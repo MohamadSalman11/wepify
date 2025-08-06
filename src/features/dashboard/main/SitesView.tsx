@@ -55,6 +55,8 @@ const BODY_SCROLL_OFFSET = 75;
 const MAX_SITE_NAME_LENGTH = 12;
 const MAX_SITE_DESCRIPTION_LENGTH = 20;
 
+const DELAY_DOWNLOAD_SITE_MS = 200;
+
 /**
  * Types
  */
@@ -257,7 +259,7 @@ function TableRow({ siteMetadata }: { siteMetadata: SiteMetadata }) {
       startMessage: ToastMessages.site.generating,
       successMessage: ToastMessages.site.generated,
       icon: <StyledLoader icon={LuLoader} color='var(--color-primary)' size='md' />,
-      delay: TOAST_DELAY_MS,
+      delay: DELAY_DOWNLOAD_SITE_MS,
       onExecute: async () => {
         dispatch(setIsProcessing(true));
         const sites = (await AppStorage.getItem(StorageKey.Sites)) as Site[];

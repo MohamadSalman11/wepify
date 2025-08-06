@@ -248,7 +248,7 @@ const Searchbar = styled.div<{ $isSearchResult: boolean }>`
     width: 80rem;
   }
 
-  svg {
+  span {
     position: absolute;
     font-size: 2rem;
 

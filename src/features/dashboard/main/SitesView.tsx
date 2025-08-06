@@ -275,24 +275,26 @@ function TableRow({ siteMetadata }: { siteMetadata: SiteMetadata }) {
 
   return (
     <StyledTableRow as='article' onClick={handleRowClick}>
-      <div>
+      <LayoutIconContainer>
         <Icon icon={LuLayoutTemplate} /> {name}
-      </div>
+      </LayoutIconContainer>
       <p>{description}</p>
       <p>{formatSize(sizeKb)}</p>
       <p>{pagesCount}</p>
       <p>{formatDate(createdAt)}</p>
       <p>{formatDate(lastModified)}</p>
       <RowActions>
-        <Icon icon={LuEye} size='md' onClick={handlePreviewSite} />
-        <Icon icon={LuDownload} size='md' onClick={() => handleDownloadSite(true)} />
-        <Icon icon={LuPencilLine} size='md' onClick={() => open('edit')} />
-        <Modal.Window name='edit'>
-          <Modal.Dialog title='Edit Site'>
-            <EditDialog siteMetadata={siteMetadata} />
-          </Modal.Dialog>
-        </Modal.Window>
-        <Icon icon={LuStar} fill={isStarred} size='md' onClick={toggleStar} />
+        <ActionGroup>
+          <Icon icon={LuEye} size='md' onClick={handlePreviewSite} />
+          <Icon icon={LuDownload} size='md' onClick={() => handleDownloadSite(true)} />
+          <Icon icon={LuPencilLine} size='md' onClick={() => open('edit')} />
+          <Modal.Window name='edit'>
+            <Modal.Dialog title='Edit Site'>
+              <EditDialog siteMetadata={siteMetadata} />
+            </Modal.Dialog>
+          </Modal.Window>
+          <Icon icon={LuStar} fill={isStarred} size='md' onClick={toggleStar} />
+        </ActionGroup>
         <Dropdown>
           <Dropdown.Open>
             <Icon icon={LuEllipsis} size='md' />
@@ -488,6 +490,10 @@ const StyledTableHead = styled.article`
   font-size: 1.2rem;
   border-bottom: 1px solid var(--color-gray-light-4);
 
+  @media (max-width: 100em) {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) 2rem;
+  }
+
   h3 {
     color: var(--color-gray);
     font-weight: var(--font-weight-medium);
@@ -503,47 +509,56 @@ const StyledTableRow = styled.article`
   transition: var(--transition-base);
   cursor: default;
 
+  @media (max-width: 100em) {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) 2rem;
+  }
+
   &:hover {
     background-color: var(--color-gray-light-4);
 
-    svg {
-      opacity: 1 !important;
+    & > div:nth-of-type(2) > div {
+      opacity: 1;
     }
   }
+`;
 
-  > div:nth-child(1) {
-    display: flex;
-    column-gap: 0.8rem;
-    align-items: center;
-  }
-
-  > div:last-child {
-    position: relative;
-    text-align: right;
-
-    > svg:not(svg:nth-child(5)) {
-      opacity: 0;
-      @media (pointer: coarse) {
-        opacity: 1;
-      }
-    }
-
-    svg {
-      cursor: pointer !important;
-      margin-left: 1.6rem;
-      font-size: 1.6rem;
-
-      &:hover {
-        color: var(--color-gray-light) !important;
-      }
-    }
-  }
+const LayoutIconContainer = styled.div`
+  display: flex;
+  column-gap: 0.8rem;
+  align-items: center;
 `;
 
 const RowActions = styled.div`
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  position: relative;
+  text-align: right;
+
+  span {
+    margin-left: 1.6rem;
+    white-space: pre-wrap;
+
+    svg:hover {
+      color: var(--color-gray-light) !important;
+    }
+  }
+`;
+
+const ActionGroup = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: var(--transition-base);
+
+  @media (pointer: coarse) {
+    opacity: 1;
+  }
+
+  @media (max-width: 100em) {
+    display: none;
+  }
 `;
 
 const DialogActions = styled.div`

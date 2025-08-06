@@ -35,10 +35,10 @@ export enum StorageKey {
 }
 
 export enum Breakpoint {
-  Desktop = 112.5,
-  TabLand = 75,
-  TabPort = 56.25,
-  Phone = 37.5
+  Desktop = 112.5, // 1800px
+  TabLand = 75, // 1200px
+  TabPort = 56.25, // 900px
+  Phone = 37.5 // 600px
 }
 
 export const ToastMessages = {

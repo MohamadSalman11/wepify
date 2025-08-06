@@ -74,6 +74,7 @@ const LeftSection = styled.div`
   font-size: 1.4rem;
   color: var(--color-primary);
   user-select: none;
+  font-weight: 500;
 `;
 
 const LogoWrapper = styled.div`

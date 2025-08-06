@@ -13,17 +13,16 @@ import favicon from '/favicon.ico';
  * Constants
  */
 
-const SELECTOR_STYLE_LINK = 'link[href="./style.css"]';
-const SELECTOR_DATA_IMAGE = 'img[src^="data:image"]';
-const SITE_JSON_WARNING = `⚠️ Do NOT modify any fields in this file manually, it will break the application. Upload it and edit in the app`;
-
-const CSS_FILE_INDEX = 'index.css';
-const CSS_FILE_RESPONSIVE = 'responsive.css';
 const DEFAULT_IMAGES_COUNT = 0;
+const SELECTOR_DATA_IMAGE = 'img[src^="data:image"]';
+const SELECTOR_STYLE_LINK = 'link[href="./style.css"]';
+const SITE_JSON_WARNING = `⚠️ Do NOT modify any fields in this file manually, it will break the application. Upload it and edit in the app`;
 
 enum FileNames {
   IndexPage = 'index.html',
   StyleCSS = 'style.css',
+  ResponsiveCSS = 'responsive.css',
+  IndexCSS = 'index.css',
   SiteJson = 'site.json',
   ZipDownload = 'website.zip',
   Favicon = 'favicon.ico'
@@ -78,8 +77,8 @@ class SiteExporter {
     const indexCssFinal = this.shouldMinify ? minifyCSS(indexCss) : indexCss;
     const responsiveCssFinal = this.shouldMinify ? minifyCSS(responsiveCss) : responsiveCss;
 
-    folder.file(CSS_FILE_INDEX, indexCssFinal);
-    folder.file(CSS_FILE_RESPONSIVE, responsiveCssFinal);
+    folder.file(FileNames.IndexCSS, indexCssFinal);
+    folder.file(FileNames.ResponsiveCSS, responsiveCssFinal);
   }
 
   private async addPage(page: SitePage) {
@@ -96,12 +95,12 @@ class SiteExporter {
     if (styleLink) {
       const indexLink = doc.createElement(ElementsName.Link);
       indexLink.rel = 'stylesheet';
-      indexLink.href = `./${CSS_FILE_INDEX}`;
+      indexLink.href = `./${FileNames.IndexCSS}`;
       styleLink.after(indexLink);
 
       const responsiveLink = doc.createElement(ElementsName.Link);
       responsiveLink.rel = 'stylesheet';
-      responsiveLink.href = `./${CSS_FILE_RESPONSIVE}`;
+      responsiveLink.href = `./${FileNames.ResponsiveCSS}`;
       indexLink.after(responsiveLink);
     }
 

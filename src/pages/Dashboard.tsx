@@ -122,4 +122,5 @@ const StyledDashboard = styled.div<{ $isProcessing: boolean }>`
 
 const DashboardLayout = styled.div`
   display: flex;
+  margin-top: 0.8rem;
 `;

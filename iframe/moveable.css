@@ -91,7 +91,8 @@ section::after {
 }
 
 .select-section::after {
-  background-color: #f45a65;
+  background-color: #3e7df5;
+  color: #fff;
 }
 
 .context-menu {
@@ -101,7 +102,7 @@ section::after {
   margin: 0;
   box-shadow: 0 3px 8px rgba(52, 60, 68, 0.24);
   border-radius: 4px;
-  background-color: white;
+  background-color: #fff;
   padding: 0;
   width: 200px;
   overflow: hidden;

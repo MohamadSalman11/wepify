@@ -250,7 +250,7 @@ const controlSelectionChanged = (id: string) => {
   const elementNode = document.querySelector(`#${id}`) as HTMLElement;
 
   if (elementNode) {
-    elementNode.scrollIntoView({ block: 'center' });
+    elementNode.scrollIntoView({ block: 'start' });
     elementNode.click();
     positionDragButton(elementNode.clientHeight, state.scaleFactor, getVerticalBorderSum(elementNode));
     postMessageToApp({

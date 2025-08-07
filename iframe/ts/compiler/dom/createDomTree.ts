@@ -17,11 +17,15 @@ export const createDomTree = (element: PageElement) => {
   const isLinkElement = 'link' in element && elementNode instanceof HTMLAnchorElement;
   const isImgElement = 'src' in element && elementNode instanceof HTMLImageElement;
   const isInputElement = 'type' in element && 'placeholder' in element && elementNode instanceof HTMLInputElement;
+  const styles = generateInlineStyles({ element, isResponsive: true });
 
   elementNode.id = id;
   elementNode.dataset.name = name;
   elementNode.classList.add(SELECTOR_TARGET.replace('.', ''));
-  Object.assign(elementNode.style, generateInlineStyles({ element, isResponsive: true }));
+  Object.assign(elementNode.style, styles);
+
+  console.log(element);
+  console.log(styles);
 
   if (content) {
     elementNode.textContent = content;

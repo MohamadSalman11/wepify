@@ -15,6 +15,7 @@ const DEFAULT_EDIT_INPUT_TYPE = 'number';
  */
 
 interface SelectProps {
+  id?: string;
   name: string;
   editable?: boolean;
   editInputType?: 'number' | 'text';
@@ -29,6 +30,7 @@ interface SelectProps {
  */
 
 export default function Select({
+  id,
   name,
   editable,
   editInputType = DEFAULT_EDIT_INPUT_TYPE,
@@ -66,24 +68,27 @@ export default function Select({
         aria-expanded={isOpen}
         role='button'
         $clickable={!editable}
-        onClick={editable ? undefined : toggleDropdown}
+        $disabled={disabled}
+        onClick={!editable && !disabled ? toggleDropdown : undefined}
       >
         {editable ? (
-          <LabelInput type={editInputType} value={selected} onChange={handleInputChange} />
+          <LabelInput id={id} type={editInputType} value={selected} disabled={disabled} onChange={handleInputChange} />
         ) : (
           <LabelEditable>{selected || 'Select...'}</LabelEditable>
         )}
-        <Chevron $clickable={true} onClick={editable ? toggleDropdown : undefined}>
-          <Icon icon={LuChevronDown} />
+        <Chevron $clickable={true} onClick={!disabled && editable ? toggleDropdown : undefined}>
+          <Icon icon={LuChevronDown} color={`${disabled ? 'var(--color-white-3)' : ''}`} />
         </Chevron>
       </SelectButton>
-      <DropdownList role='listbox' $open={isOpen}>
-        {options.map((option) => (
-          <DropdownItem key={option} role='option' onClick={() => handleSelect(option)}>
-            {option}
-          </DropdownItem>
-        ))}
-      </DropdownList>
+      {!disabled && (
+        <DropdownList role='listbox' $open={isOpen}>
+          {options.map((option) => (
+            <DropdownItem key={option} role='option' onClick={() => handleSelect(option)}>
+              {option}
+            </DropdownItem>
+          ))}
+        </DropdownList>
+      )}
     </Wrapper>
   );
 }
@@ -96,26 +101,29 @@ const Wrapper = styled.div<{ $disabled: boolean }>`
   position: relative;
   width: 100%;
 
-  ${(props) =>
-    props.$disabled &&
+  ${({ $disabled }) =>
+    $disabled &&
     css`
-      & * {
-        cursor: not-allowed;
+      cursor: not-allowed;
+      * {
+        cursor: not-allowed !important;
+        pointer-events: none;
       }
     `}
 `;
 
-const SelectButton = styled.div<{ $clickable: boolean }>`
+const SelectButton = styled.div<{ $clickable: boolean; $disabled: boolean }>`
   width: 100%;
-  padding: 0.4rem 1.2rem;
-  background-color: var(--color-white-3);
-  border: var(--border-base);
+  padding: 0.5rem 1.2rem;
+  background-color: var(--color-white-2);
   border-radius: var(--border-radius-sm);
+  border: var(--border-base);
   color: var(--color-black-light);
   display: flex;
   justify-content: space-between;
   align-items: center;
   ${({ $clickable }) => $clickable && `cursor: pointer;`}
+  ${(props) => props.$disabled && 'background-color: var(--color-white-3)'}
 `;
 
 const LabelEditable = styled.span`

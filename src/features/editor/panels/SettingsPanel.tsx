@@ -233,9 +233,10 @@ function SizeSettings() {
       <CollapsibleSection title='Size'>
         <GridContainer>
           <SizeRow>
-            <label>X</label>
+            <label htmlFor='settings-panel-input-left'>X</label>
             <ChangeElement>
               <Input
+                id='settings-panel-input-left'
                 name='left'
                 disabled={disableInput}
                 type='number'
@@ -244,9 +245,10 @@ function SizeSettings() {
             </ChangeElement>
           </SizeRow>
           <SizeRow>
-            <label>Y</label>
+            <label htmlFor='settings-panel-input-top'>Y</label>
             <ChangeElement>
               <Input
+                id='settings-panel-input-top'
                 name='top'
                 disabled={disableInput}
                 type='number'
@@ -255,9 +257,10 @@ function SizeSettings() {
             </ChangeElement>
           </SizeRow>
           <SizeRow>
-            <label>W</label>
+            <label htmlFor='settings-panel-input-width'>W</label>
             <ChangeElement>
               <Select
+                id='settings-panel-input-width'
                 name='width'
                 editable
                 editInputType='text'
@@ -268,9 +271,10 @@ function SizeSettings() {
             </ChangeElement>
           </SizeRow>
           <SizeRow>
-            <label>H</label>
+            <label htmlFor='settings-panel-input-height'>H</label>
             <ChangeElement>
               <Select
+                id='settings-panel-input-height'
                 name='height'
                 editable
                 editInputType='text'
@@ -280,9 +284,10 @@ function SizeSettings() {
             </ChangeElement>
           </SizeRow>
           <SizeRow>
-            <label htmlFor='rotate'>R</label>
+            <label htmlFor='settings-panel-input-rotate'>R</label>
             <ChangeElement>
               <Input
+                id='settings-panel-input-rotate'
                 name='rotate'
                 type='text'
                 disabled={disableInput}
@@ -832,9 +837,14 @@ const SelectorContainer = styled.div`
 
 const SizeRow = styled.div`
   display: flex;
-  column-gap: 1.6rem;
   align-items: center;
+  justify-content: center;
+  column-gap: 1.6rem;
   color: var(--color-gray);
+
+  label {
+    min-width: 1rem;
+  }
 `;
 
 const TypographyContainer = styled.div`

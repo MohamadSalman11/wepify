@@ -38,12 +38,10 @@ export const domToPageElement = (elementNode: HTMLElement) => {
     }
   }
 
-  if (style.transform) {
-    const { left = 0, top = 0, rotate } = extractTransform(style.transform) || {};
-    element.left = toResponsiveValue(left);
-    element.top = toResponsiveValue(top);
-    element.rotate = toResponsiveValue(rotate || 0);
-  }
+  const { left, top, rotate } = extractTransform(style.transform) || {};
+  element.left = toResponsiveValue(left || 0);
+  element.top = toResponsiveValue(top || 0);
+  element.rotate = toResponsiveValue(rotate || 0);
 
   if (style.color) element.color = rgbToHex(style.color);
   if (style.backgroundColor) element.backgroundColor = rgbToHex(style.backgroundColor);

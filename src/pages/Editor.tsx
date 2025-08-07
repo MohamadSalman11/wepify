@@ -26,7 +26,7 @@ export default function Editor() {
   const isStoring = useAppSelector((state) => state.editor.isStoring);
 
   useBeforeUnload((event) => {
-    if (isStoring) {
+    if (isStoring && !isPreview) {
       event.preventDefault();
       event.returnValue = UNSAVED_CHANGES_MESSAGE;
     }

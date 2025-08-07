@@ -24,9 +24,6 @@ export const createDomTree = (element: PageElement) => {
   elementNode.classList.add(SELECTOR_TARGET.replace('.', ''));
   Object.assign(elementNode.style, styles);
 
-  console.log(element);
-  console.log(styles);
-
   if (content) {
     elementNode.textContent = content;
   }

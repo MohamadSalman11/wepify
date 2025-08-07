@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { Breakpoint, Path } from '../constant';
 import Button from './Button';
@@ -25,6 +26,8 @@ interface RequireDesktopProps {
 
 export default function RequireDesktop({ children, minWidth = DEFAULT_MIN_WIDTH }: RequireDesktopProps) {
   const [isSupported, setIsSupported] = useState(window.innerWidth >= minWidth);
+  const location = useLocation();
+  const isPreview = location.pathname.endsWith('/preview');
 
   useEffect(() => {
     const handleResize = () => {
@@ -35,7 +38,7 @@ export default function RequireDesktop({ children, minWidth = DEFAULT_MIN_WIDTH 
     return () => window.removeEventListener('resize', handleResize);
   }, [minWidth]);
 
-  if (!isSupported)
+  if (!isSupported && !isPreview)
     return createPortal(
       <StyledUnsupportedDevice>
         <Content>

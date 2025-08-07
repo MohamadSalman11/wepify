@@ -308,14 +308,7 @@ function AlignmentSettings() {
   const alignItems = getResponsiveValue(selectedElement.alignItems, deviceType) || 'flex-start';
 
   if (
-    isElementName(
-      selectedElement.name,
-      ElementsName.Grid,
-      ElementsName.List,
-      ElementsName.Link,
-      ElementsName.Image,
-      ElementsName.Input
-    )
+    isElementName(selectedElement.name, ElementsName.Grid, ElementsName.List, ElementsName.Image, ElementsName.Input)
   ) {
     return null;
   }

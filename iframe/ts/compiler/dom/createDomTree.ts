@@ -19,9 +19,6 @@ export const createDomTree = (element: PageElement) => {
   const isInputElement = 'type' in element && 'placeholder' in element && elementNode instanceof HTMLInputElement;
   const styles = generateInlineStyles({ element, isResponsive: true });
 
-  console.log(element);
-  console.log(styles);
-
   elementNode.id = id;
   elementNode.dataset.name = name;
   elementNode.classList.add(SELECTOR_TARGET.replace('.', ''));

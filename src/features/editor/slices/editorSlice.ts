@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { ELEMENTS_TEMPLATE, ElementsName } from '@shared/constants';
+import { ELEMENTS_TEMPLATE, ElementsName, RESPONSIVE_PROPS } from '@shared/constants';
 import { DeviceType, Image, PageElement, PageMetadata, Site, SitePage } from '@shared/typing';
 import { findElementById } from '../../../utils/findElementById';
 
@@ -143,31 +143,31 @@ const editorSlice = createSlice({
         pageId: string;
         elementId: string;
         updates: Partial<PageElement>;
-        shouldBeResponsive: boolean;
       }>
     ) {
       state.site.lastModified = Date.now();
 
-      const { pageId, elementId, updates, shouldBeResponsive } = action.payload;
-
+      const { pageId, elementId, updates } = action.payload;
       const page = state.site.pages.find((p) => p.id === pageId);
+
       if (!page) return;
 
       const element = findElementById(elementId, page.elements);
+
       if (!element) return;
 
-      if (shouldBeResponsive) {
-        for (const key in updates) {
-          const k = key as keyof typeof element;
+      for (const key in updates) {
+        const k = key as keyof typeof element;
 
+        if (RESPONSIVE_PROPS.has(k)) {
           if (element[k]) {
             Object.assign(element[k], updates[k]);
           } else {
             (element as any)[k] = updates[k];
           }
+        } else {
+          (element as any)[k] = updates[k];
         }
-      } else {
-        Object.assign(element, updates);
       }
     },
     deleteElementInSite(

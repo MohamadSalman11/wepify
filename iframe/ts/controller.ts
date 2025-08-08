@@ -1,4 +1,4 @@
-import { ElementsName, PAGE_PADDING, PAGE_PADDING_X, RESPONSIVE_PROPS, TAGS_WITHOUT_CHILDREN } from '@shared/constants';
+import { ElementsName, PAGE_PADDING, PAGE_PADDING_X, TAGS_WITHOUT_CHILDREN } from '@shared/constants';
 import {
   DeviceType,
   MessageFromIframe,
@@ -21,8 +21,8 @@ import { extractTransform } from './utils/extractTransform';
 import { getScreenBreakpoint } from './utils/getScreenBreakpoint';
 import { getVerticalBorderSum } from './utils/getVerticalBorderSum';
 import { isDefined } from './utils/isDefined';
+import { maybeWrapWithBreakpoint } from './utils/maybeWrapWithBreakpoint';
 import { postMessageToApp } from './utils/postMessageToApp';
-import { wrapUpdatesWithBreakpoint } from './utils/wrapUpdatesWithBreakpoint';
 import { insertDragButton, insertElement, positionDragButton, renderElements, updateTargetStyle } from './view';
 
 /**
@@ -146,14 +146,8 @@ const controlUpdateElement = (updates: Partial<PageElement>) => {
   const section = target.closest(SELECTOR_CLOSEST_SECTION) as HTMLElement;
   const { link, type, placeholder } = updates as Record<string, any>;
 
-  const wrappedFields = Object.fromEntries(
-    Object.entries(updates).map(([key, value]) =>
-      RESPONSIVE_PROPS.has(key) ? [key, wrapUpdatesWithBreakpoint({ [key]: value })[key]] : [key, value]
-    )
-  );
-
   const styles = generateInlineStyles({
-    element: wrappedFields,
+    element: maybeWrapWithBreakpoint(updates),
     isResponsive: true
   });
 
@@ -170,7 +164,7 @@ const controlUpdateElement = (updates: Partial<PageElement>) => {
     type: MessageFromIframe.ElementUpdated,
     payload: {
       id: target.id,
-      fields: RESPONSIVE_PROPS.has(Object.keys(updates)[0]) ? wrapUpdatesWithBreakpoint(updates) : updates
+      fields: maybeWrapWithBreakpoint(updates)
     }
   });
 
@@ -368,7 +362,7 @@ const controlDrag = (event: OnDrag) => {
 
   postMessageToApp({
     type: MessageFromIframe.ElementUpdated,
-    payload: { id: target.id, fields: wrapUpdatesWithBreakpoint({ left, top }) }
+    payload: { id: target.id, fields: maybeWrapWithBreakpoint({ left, top }) }
   });
 };
 
@@ -394,7 +388,7 @@ const controlResize = (event: OnResize) => {
 
   postMessageToApp({
     type: MessageFromIframe.ElementUpdated,
-    payload: { id: target.id, fields: wrapUpdatesWithBreakpoint(updates) }
+    payload: { id: target.id, fields: maybeWrapWithBreakpoint(updates) }
   });
 };
 
@@ -410,7 +404,7 @@ const controlRotate = (event: OnRotate) => {
     type: MessageFromIframe.ElementUpdated,
     payload: {
       id: target.id,
-      fields: wrapUpdatesWithBreakpoint({ rotate })
+      fields: maybeWrapWithBreakpoint({ rotate })
     }
   });
 };

@@ -7,8 +7,8 @@ interface FieldValidationOptions {
   maxLengthMessage?: string;
 }
 
-export const isValueIn = (name: string | undefined | null, ...names: string[]): boolean =>
-  !!name && names.includes(name);
+export const isValueIn = (value: string | undefined | null, ...values: string[]): boolean =>
+  !!value && values.includes(value);
 
 export const rgbToHex = (rgb: string) => {
   const result = rgb.match(/\d+/g)?.map(Number);

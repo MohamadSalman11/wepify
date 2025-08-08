@@ -1,4 +1,4 @@
-import { RESPONSIVE_PROPS, TARGET_ORIGIN } from '@shared/constants';
+import { TARGET_ORIGIN } from '@shared/constants';
 import {
   DeviceType,
   MessageFromIframe,
@@ -76,8 +76,7 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
             updateElementInSite({
               pageId,
               elementId: id,
-              updates: fields,
-              shouldBeResponsive: RESPONSIVE_PROPS.has(Object.keys(fields)[0])
+              updates: fields
             })
           );
           break;

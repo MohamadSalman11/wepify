@@ -159,12 +159,12 @@ export default function SettingsPanel() {
     const updates = { [name]: value };
 
     if (isValueIn(selectedElement.name, ElementsName.Grid)) {
-      Object.assign(updates, getSynchronizedGridUpdates(selectedElement as GridElement, deviceType));
+      Object.assign(updates, getSynchronizedGridUpdates(selectedElement as GridElement, name, deviceType));
     } else {
-      Object.assign(updates, getSynchronizedFlex(selectedElement, value, deviceType));
+      Object.assign(updates, getSynchronizedFlex(selectedElement, name, value, deviceType));
     }
 
-    Object.assign(updates, getSynchronizedTransform(selectedElement, deviceType));
+    Object.assign(updates, getSynchronizedTransform(selectedElement, name, deviceType));
 
     iframeConnection.updateElement(updates);
   };
@@ -874,44 +874,44 @@ const parseNumber = (value: number | string | undefined) => {
   return Number(value.toFixed(0));
 };
 
-const getSynchronizedGridUpdates = (selectedElement: GridElement, deviceType: DeviceType) => {
+const getSynchronizedGridUpdates = (selectedElement: GridElement, propName: string, deviceType: DeviceType) => {
   const updates = {} as any;
-  const { name, rows, columns, rowHeight, columnWidth } = selectedElement;
+  const { rows, columns, rowHeight, columnWidth } = selectedElement;
 
-  if (isValueIn(name, 'columnWidth')) {
+  if (isValueIn(propName, 'columnWidth')) {
     updates.columns = columns[deviceType];
   }
 
-  if (isValueIn(name, 'columns')) {
+  if (isValueIn(propName, 'columns')) {
     updates.columnWidth = columnWidth[deviceType];
   }
 
-  if (isValueIn(name, 'rowHeight')) {
+  if (isValueIn(propName, 'rowHeight')) {
     updates.rows = rows[deviceType];
   }
 
-  if (isValueIn(name, 'rows')) {
+  if (isValueIn(propName, 'rows')) {
     updates.rowHeight = rowHeight[deviceType];
   }
 
   return updates;
 };
 
-const getSynchronizedTransform = (selectedElement: PageElement, deviceType: DeviceType) => {
+const getSynchronizedTransform = (selectedElement: PageElement, propName: string, deviceType: DeviceType) => {
   const updates: any = {};
-  const { name, left, top, rotate } = selectedElement;
+  const { left, top, rotate } = selectedElement;
 
-  if (isValueIn(name, 'left')) {
+  if (isValueIn(propName, 'left')) {
     updates.top = top[deviceType];
     updates.rotate = rotate?.[deviceType] || 0;
   }
 
-  if (isValueIn(name, 'top')) {
+  if (isValueIn(propName, 'top')) {
     updates.left = left[deviceType];
     updates.rotate = rotate?.[deviceType] || 0;
   }
 
-  if (isValueIn(name, 'rotate')) {
+  if (isValueIn(propName, 'rotate')) {
     updates.left = left[deviceType];
     updates.top = top[deviceType];
   }
@@ -919,20 +919,25 @@ const getSynchronizedTransform = (selectedElement: PageElement, deviceType: Devi
   return updates;
 };
 
-const getSynchronizedFlex = (selectedElement: PageElement, value: string | number, deviceType: DeviceType) => {
+const getSynchronizedFlex = (
+  selectedElement: PageElement,
+  propName: string,
+  value: string | number,
+  deviceType: DeviceType
+) => {
   const updates: any = {};
-  const { name, flexDirection, justifyContent, alignItems } = selectedElement;
+  const { flexDirection, justifyContent, alignItems } = selectedElement;
 
-  if (isValueIn(name, 'justifyContent', 'alignItems', 'columnGap', 'rowGap')) {
+  if (isValueIn(propName, 'justifyContent', 'alignItems', 'columnGap', 'rowGap')) {
     updates.display = 'flex';
     updates.flexDirection = flexDirection?.[deviceType] ?? 'column';
   }
 
-  if (isValueIn(name, 'justifyContent') && value === 'none') {
+  if (isValueIn(propName, 'justifyContent') && value === 'none') {
     updates.justifyContent = 'center';
   }
 
-  if (isValueIn(name, 'flexDirection')) {
+  if (isValueIn(propName, 'flexDirection')) {
     const currentFlexDirection = getResponsiveValue(flexDirection, deviceType);
     const newFlexDirection = value as FlexDirectionOption;
     const currentAlignItems = getResponsiveValue(alignItems, deviceType) || 'flex-start';

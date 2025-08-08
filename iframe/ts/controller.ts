@@ -168,8 +168,8 @@ const controlUpdateElement = (updates: Partial<PageElement>) => {
     }
   });
 
-  if (updates.fontFamily && section) {
-    changeTarget(section, ElementsName.Section);
+  if ((updates.fontFamily || updates.fontWeight || updates.fontSize) && state.moveable) {
+    state.moveable.target = null;
   }
 };
 

@@ -71,24 +71,23 @@ const OPTIONS_SPACE = ['between', 'around', 'evenly', 'none'];
 const OPTIONS_FONT_SIZE = ['Inherit', 10, 11, 12, 13, 14, 15, 16, 20, 24, 32, 36, 40, 48, 64, 96, 128];
 const OPTIONS_SIZE = ['fill', 'auto', 50, 100, 150, 250, 500];
 const DEFAULT_BORDER_RADIUS = 0;
-
 const REGEX_TRAILING_NUMBER_SPLIT = /-(\d+)$/;
+
+const OPTIONS_BORDER = [
+  { side: 'Top', icon: LuPanelTop },
+  { side: 'Right', icon: LuPanelRight },
+  { side: 'Bottom', icon: LuPanelBottom },
+  { side: 'Left', icon: LuPanelLeft }
+];
 
 const OPTIONS_FLEX_DIRECTION = [
   { value: 'row', icon: LuArrowRight },
   { value: 'column', icon: LuArrowDown },
   { value: 'row-reverse', icon: LuArrowLeft },
   { label: 'Column Reverse', value: 'column-reverse', icon: LuArrowUp }
-] as const;
+];
 
-const BORDER_SIDES = [
-  { side: 'Top', icon: LuPanelTop },
-  { side: 'Right', icon: LuPanelRight },
-  { side: 'Bottom', icon: LuPanelBottom },
-  { side: 'Left', icon: LuPanelLeft }
-] as const;
-
-const ALIGN_ITEMS = [
+const OPTIONS_ALIGN_ITEM = [
   { icon: LuAlignStartVertical, label: 'Left', targetName: 'justifyContent', targetValue: 'flex-start' },
   { icon: LuAlignEndVertical, label: 'Right', targetName: 'justifyContent', targetValue: 'flex-end' },
   { icon: LuAlignStartHorizontal, label: 'Top', targetName: 'alignItems', targetValue: 'flex-start' },
@@ -100,7 +99,14 @@ const ALIGN_ITEMS = [
     targetValue: 'center'
   },
   { icon: LuAlignVerticalJustifyCenter, label: 'Center vertically', targetName: 'alignItems', targetValue: 'center' }
-] as const;
+];
+
+const OPTIONS_TEXT_ALIGN = [
+  { value: 'left', icon: LuAlignLeft },
+  { value: 'right', icon: LuAlignRight },
+  { value: 'center', icon: LuAlignCenter },
+  { value: 'justify', icon: LuAlignJustify }
+];
 
 const OPTIONS_INPUT_TYPE = [
   'button',
@@ -378,7 +384,7 @@ function AlignmentSettings() {
     <div>
       <CollapsibleSection title='Alignment' open={true}>
         <AlignmentContainer>
-          {ALIGN_ITEMS.map(({ icon, label, targetName, targetValue }) => {
+          {OPTIONS_ALIGN_ITEM.map(({ icon, label, targetName, targetValue }) => {
             const isSelected =
               (targetName === resolvedJustifyName && targetValue === resolvedJustifyValue) ||
               (targetName === resolvedAlignName && targetValue === resolvedAlignValue);
@@ -740,26 +746,23 @@ function TypographySettings() {
         <div>
           <SubTitle>Text Align</SubTitle>
           <TextAlignContainer>
-            <Icon
-              icon={LuAlignLeft}
-              isSelected={textAlign === 'left'}
-              onClick={() => handleElementChange('textAlign', 'left')}
-            />
-            <Icon
-              icon={LuAlignRight}
-              isSelected={textAlign === 'right'}
-              onClick={() => handleElementChange('textAlign', 'right')}
-            />
-            <Icon
-              icon={LuAlignCenter}
-              isSelected={textAlign === 'center'}
-              onClick={() => handleElementChange('textAlign', 'center')}
-            />
-            <Icon
-              icon={LuAlignJustify}
-              isSelected={textAlign === 'justify'}
-              onClick={() => handleElementChange('textAlign', 'justify')}
-            />
+            {OPTIONS_TEXT_ALIGN.map(({ value, icon }) => (
+              <Tooltip.Root key={value}>
+                <Tooltip.Trigger asChild>
+                  <Icon
+                    icon={icon}
+                    isSelected={textAlign === value}
+                    onClick={() => handleElementChange('textAlign', value)}
+                  />
+                </Tooltip.Trigger>
+                <Tooltip.Portal>
+                  <Tooltip.Content className='TooltipContent TooltipSmall' side='top'>
+                    {value}
+                    <Tooltip.Arrow className='TooltipArrow' />
+                  </Tooltip.Content>
+                </Tooltip.Portal>
+              </Tooltip.Root>
+            ))}
           </TextAlignContainer>
         </div>
       </CollapsibleSection>
@@ -828,7 +831,7 @@ function StrokeSettings() {
             </ChangeElement>
           </StrokeWidthContainer>
           <StrokePosition>
-            {BORDER_SIDES.map(({ side, icon }) => (
+            {OPTIONS_BORDER.map(({ side, icon }) => (
               <Icon
                 key={side}
                 icon={icon}
@@ -1140,11 +1143,11 @@ const PaddingBox = styled.div`
 const AlignmentContainer = styled.div`
   display: flex;
   flex-direction: row !important;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
   border-radius: var(--border-radius-sm);
   background-color: var(--color-white-3);
-  padding: 0.6rem;
+  padding: 0.8rem;
 `;
 
 const TextAlignContainer = styled.div`
@@ -1153,7 +1156,7 @@ const TextAlignContainer = styled.div`
   justify-content: space-between;
   border-radius: var(--border-radius-sm);
   background-color: var(--color-white-3);
-  padding: 1.2rem;
+  padding: 0.8rem;
 `;
 
 const RotationContainer = styled.div`

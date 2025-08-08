@@ -1,3 +1,4 @@
+import { hexToRgb } from '@shared/utils';
 import { css } from 'styled-components';
 
 /**
@@ -49,8 +50,10 @@ const variables = css`
     --color-white-2: ${COLOR_WHITE_2};
     --color-white-3: ${COLOR_WHITE_3};
 
-    --box-shadow: rgba(63, 73, 84, 0.18) 0px 2px 4px;
-    --box-shadow-2: rgba(63, 73, 84, 0.2) 0px 2px 8px 0px;
+    --color-black-light-rgb: ${hexToRgb(COLOR_BLACK_LIGHT)};
+
+    --box-shadow: rgba(var(--color-black-light-rgb), 0.18) 0px 2px 4px;
+    --box-shadow-2: rgba(var(--color-black-light-rgb), 0.2) 0px 2px 8px 0px;
 
     /* Body */
     --body-font-size: var(--font-size);

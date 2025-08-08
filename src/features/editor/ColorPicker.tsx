@@ -120,6 +120,7 @@ const PreviewBox = styled.div`
   height: 2rem;
   background-color: var(--color-white);
   border-radius: var(--border-radius-sm);
+  box-shadow: 0 0 2px rgba(var(--color-black-light-rgb), 0.3);
   position: absolute;
   left: 5%;
   cursor: pointer;

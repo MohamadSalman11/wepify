@@ -29,6 +29,7 @@ import { insertDragButton, insertElement, positionDragButton, renderElements, up
  * Constants
  */
 
+const SELECTOR_BODY = 'body';
 const SELECTOR_SECTION = 'section';
 const SELECTOR_CLOSEST_SECTION = "[id^='section-']";
 const SELECTOR_ACTIVE_ITEM = '[class*="select-item"]';
@@ -79,8 +80,6 @@ const iframeMessageHandlers: {
   [MessageToIframe.SearchElement]: (payload) => controlSearchElement(payload),
   [MessageToIframe.DownloadSite]: (payload) => controlDownloadZip(payload.site, payload.shouldMinify)
 };
-
-const contextMenu = document.querySelector(SELECTOR_CONTEXT_MENU) as HTMLUListElement;
 
 /**
  * Controller functions
@@ -423,11 +422,15 @@ const controlContextMenu = (event: MouseEvent | TouchEvent) => {
   event.preventDefault();
 
   const closestSection = (event.target as Element).closest(SELECTOR_CLOSEST_SECTION);
+  const body = document.querySelector(SELECTOR_BODY);
 
-  if (state.isSitePreviewMode || !contextMenu || !closestSection) return;
+  if (state.isSitePreviewMode || !body || !closestSection) return;
 
   let pageX = 0;
   let pageY = 0;
+  const existingContextMenu = document.querySelector(SELECTOR_CONTEXT_MENU);
+
+  existingContextMenu?.remove();
 
   if ('touches' in event && event.touches.length > 0) {
     pageX = event.touches[0].pageX;
@@ -437,9 +440,32 @@ const controlContextMenu = (event: MouseEvent | TouchEvent) => {
     pageY = event.pageY;
   }
 
-  contextMenu.style.top = `${pageY}px`;
-  contextMenu.style.left = `${pageX}px`;
-  contextMenu.style.display = 'block';
+  const contextMenuHTML = `
+      <ul class="context-menu" id="context-menu" style="left:${pageX}px; top:${pageY}px;">
+      <li data-action="copy">
+        <img src="/clipboard-copy.svg" alt="Copy" />
+        Copy
+      </li>
+      <li data-action="paste">
+        <img src="/clipboard-paste.svg" alt="Paste" />
+        Paste
+      </li>
+      <li data-action="bring-to-front">
+        <img src="/bring-to-front.svg" alt="Bring to Front" />
+        Bring to Front
+      </li>
+      <li data-action="send-to-back">
+        <img src="/send-to-back.svg" alt="Send to Back" />
+        Send to Back
+      </li>
+      <li data-action="delete">
+        <img src="/trash.svg" alt="Delete" />
+        Delete
+      </li>
+    </ul>
+  `;
+
+  body.insertAdjacentHTML('beforeend', contextMenuHTML);
 };
 
 const controlDOMContentLoaded = () => {
@@ -447,8 +473,10 @@ const controlDOMContentLoaded = () => {
 };
 
 const controlDocumentClick = (event: globalThis.MouseEvent) => {
+  const contextMenu = document.querySelector(SELECTOR_CONTEXT_MENU) as HTMLUListElement;
+
   if (contextMenu) {
-    contextMenu.style.display = 'none';
+    contextMenu.remove();
   }
 
   if ((event.target as HTMLElement)?.closest(SELECTOR_CONTEXT_MENU)) {

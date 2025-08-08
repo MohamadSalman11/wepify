@@ -96,7 +96,6 @@ section::after {
 }
 
 .context-menu {
-  display: none;
   position: fixed;
   z-index: 100000;
   margin: 0;

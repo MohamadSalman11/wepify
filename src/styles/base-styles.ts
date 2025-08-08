@@ -102,6 +102,11 @@ const baseStyles = css`
     z-index: var(--zindex-tooltip);
     fill: var(--color-primary-light);
   }
+
+  .TooltipSmall {
+    padding: 0.6rem 0.8rem;
+    font-size: 1rem;
+  }
 `;
 
 export default baseStyles;

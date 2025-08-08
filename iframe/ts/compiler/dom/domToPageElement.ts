@@ -7,6 +7,7 @@ import { extractTransform } from '../../utils/extractTransform';
 import { parseGridRepeat } from '../../utils/parseGridRepeat';
 
 const RESPONSIVE_NUMBER_KEYS = [
+  'flexDirection',
   'paddingTop',
   'paddingRight',
   'paddingBottom',
@@ -39,10 +40,13 @@ export const domToPageElement = (elementNode: HTMLElement) => {
   }
 
   const { left, top, rotate } = extractTransform(style.transform) || {};
+
   element.left = toResponsiveValue(left || 0);
   element.top = toResponsiveValue(top || 0);
   element.rotate = toResponsiveValue(rotate || 0);
 
+  if (style.columnGap) element.columnGap = toResponsiveValue(style.columnGap);
+  if (style.rowGap) element.rowGap = toResponsiveValue(style.rowGap);
   if (style.color) element.color = rgbToHex(style.color);
   if (style.backgroundColor) element.backgroundColor = rgbToHex(style.backgroundColor);
   if (style.fontWeight) element.fontWeight = FONT_WEIGHT_NAMES[style.fontWeight as keyof typeof FONT_WEIGHT_NAMES];
@@ -123,8 +127,6 @@ const maybeApplyGridProps = (style: CSSStyleDeclaration, gridElement: GridElemen
 
   if (gridElement.name !== ElementsName.Grid) return;
 
-  if (style.columnGap) gridElement.columnGap = toResponsiveValue(style.columnGap);
-  if (style.rowGap) gridElement.rowGap = toResponsiveValue(style.rowGap);
   if (columnWidth) gridElement.columnWidth = toResponsiveValue(columnWidth);
   if (rowHeight) gridElement.rowHeight = toResponsiveValue(rowHeight);
   if (columns) gridElement.columns = toResponsiveValue(columns);

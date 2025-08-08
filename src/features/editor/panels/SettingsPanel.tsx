@@ -1,11 +1,24 @@
+import * as Tooltip from '@radix-ui/react-tooltip';
 import {
   DEFAULT_BORDER_COLOR,
   DEFAULT_BORDER_WIDTH,
   ElementsName,
   FONT_WEIGHT_VALUES,
-  OPTIONS_FONT
+  OPTIONS_FONT,
+  SPACE_VALUES,
+  Tags
 } from '@shared/constants';
-import type { DeviceType, GridElement, InputElement, LinkElement, PageElement } from '@shared/typing';
+import { resolveAlignment, reverseResolveAlignment } from '@shared/helpers';
+import type {
+  AlignmentName,
+  AlignmentValue,
+  DeviceType,
+  FlexDirectionOption,
+  GridElement,
+  InputElement,
+  LinkElement,
+  PageElement
+} from '@shared/typing';
 import { isElementName } from '@shared/utils';
 import { cloneElement, createContext, useContext, type ChangeEvent, type ReactElement } from 'react';
 import {
@@ -19,6 +32,10 @@ import {
   LuAlignStartHorizontal,
   LuAlignStartVertical,
   LuAlignVerticalJustifyCenter,
+  LuArrowDown,
+  LuArrowLeft,
+  LuArrowRight,
+  LuArrowUp,
   LuFlipHorizontal2,
   LuFlipVertical2,
   LuMonitor,
@@ -50,17 +67,39 @@ const OPTIONS_COLUMN_GAP = [2, 4, 8, 12, 16, 24, 32, 48, 64, 80, 96, 128];
 const OPTIONS_ROW_GAP = OPTIONS_COLUMN_GAP;
 const OPTIONS_ROW_HEIGHT = OPTIONS_COLUMN_WIDTH;
 const OPTIONS_ROW = OPTIONS_COLUMN;
+const OPTIONS_SPACE = ['between', 'around', 'evenly', 'none'];
 const OPTIONS_FONT_SIZE = ['Inherit', 10, 11, 12, 13, 14, 15, 16, 20, 24, 32, 36, 40, 48, 64, 96, 128];
 const OPTIONS_SIZE = ['fill', 'auto', 50, 100, 150, 250, 500];
 const DEFAULT_BORDER_RADIUS = 0;
 
 const REGEX_TRAILING_NUMBER_SPLIT = /-(\d+)$/;
 
+const OPTIONS_FLEX_DIRECTION = [
+  { value: 'row', icon: LuArrowRight },
+  { value: 'column', icon: LuArrowDown },
+  { value: 'row-reverse', icon: LuArrowLeft },
+  { label: 'Column Reverse', value: 'column-reverse', icon: LuArrowUp }
+] as const;
+
 const BORDER_SIDES = [
   { side: 'Top', icon: LuPanelTop },
   { side: 'Right', icon: LuPanelRight },
   { side: 'Bottom', icon: LuPanelBottom },
   { side: 'Left', icon: LuPanelLeft }
+] as const;
+
+const ALIGN_ITEMS = [
+  { icon: LuAlignStartVertical, label: 'Left', targetName: 'justifyContent', targetValue: 'flex-start' },
+  { icon: LuAlignEndVertical, label: 'Right', targetName: 'justifyContent', targetValue: 'flex-end' },
+  { icon: LuAlignStartHorizontal, label: 'Top', targetName: 'alignItems', targetValue: 'flex-start' },
+  { icon: LuAlignEndHorizontal, label: 'Bottom', targetName: 'alignItems', targetValue: 'flex-end' },
+  {
+    icon: LuAlignHorizontalJustifyCenter,
+    label: 'Center horizontally',
+    targetName: 'justifyContent',
+    targetValue: 'center'
+  },
+  { icon: LuAlignVerticalJustifyCenter, label: 'Center vertically', targetName: 'alignItems', targetValue: 'center' }
 ] as const;
 
 const OPTIONS_INPUT_TYPE = [
@@ -124,6 +163,7 @@ export default function SettingsPanel() {
     }
 
     Object.assign(updates, getSynchronizedTransform(name, selectedElement, deviceType));
+    Object.assign(updates, getSynchronizedAlignment(name, value, selectedElement, deviceType));
 
     iframeConnection.updateElement(updates);
   };
@@ -132,10 +172,11 @@ export default function SettingsPanel() {
     <SettingsContext.Provider value={{ handleElementChange }}>
       <SelectorSettings />
       <AlignmentSettings />
+      <SizeSettings />
       {!isElementName(selectedElement.name, ElementsName.Grid) || <GridSettings />}
       {isElementName(selectedElement.name, ElementsName.Link) && <LinkSettings />}
       {isElementName(selectedElement.name, ElementsName.Input) && <InputSettings />}
-      <SizeSettings />
+      <FlexSettings />
       <SpacingSettings />
       <TypographySettings />
       {isElementName(selectedElement.name, ElementsName.Section) || <StrokeSettings />}
@@ -230,7 +271,7 @@ function SizeSettings() {
 
   return (
     <div>
-      <CollapsibleSection title='Size'>
+      <CollapsibleSection title='Size' open={true}>
         <GridContainer>
           <SizeRow>
             <label htmlFor='settings-panel-input-left'>X</label>
@@ -311,9 +352,23 @@ function AlignmentSettings() {
   const { handleElementChange } = useSettingsContext();
   const justifyContent = getResponsiveValue(selectedElement.justifyContent, deviceType) || 'flex-start';
   const alignItems = getResponsiveValue(selectedElement.alignItems, deviceType) || 'flex-start';
+  const flexDirection = getResponsiveValue(selectedElement.flexDirection, deviceType) || 'column';
+
+  const [resolvedJustifyName, resolvedJustifyValue] = reverseResolveAlignment(
+    'justifyContent',
+    justifyContent as AlignmentValue,
+    flexDirection
+  );
+
+  const [resolvedAlignName, resolvedAlignValue] = reverseResolveAlignment(
+    'alignItems',
+    alignItems as AlignmentValue,
+    flexDirection
+  );
 
   if (
-    isElementName(selectedElement.name, ElementsName.Grid, ElementsName.List, ElementsName.Image, ElementsName.Input)
+    isElementName(selectedElement.name, ElementsName.Grid, ElementsName.Image, ElementsName.Input) ||
+    selectedElement.tag === Tags.Li.toLocaleLowerCase()
   ) {
     return null;
   }
@@ -322,37 +377,113 @@ function AlignmentSettings() {
     <div>
       <CollapsibleSection title='Alignment' open={true}>
         <AlignmentContainer>
-          <Icon
-            icon={LuAlignStartVertical}
-            isSelected={alignItems === 'flex-start'}
-            onClick={() => handleElementChange('alignItems', 'flex-start')}
-          />
-          <Icon
-            icon={LuAlignEndVertical}
-            isSelected={alignItems === 'flex-end'}
-            onClick={() => handleElementChange('alignItems', 'flex-end')}
-          />
-          <Icon
-            icon={LuAlignStartHorizontal}
-            isSelected={justifyContent === 'flex-start'}
-            onClick={() => handleElementChange('justifyContent', 'flex-start')}
-          />
-          <Icon
-            icon={LuAlignEndHorizontal}
-            isSelected={justifyContent === 'flex-end'}
-            onClick={() => handleElementChange('justifyContent', 'flex-end')}
-          />
-          <Icon
-            icon={LuAlignHorizontalJustifyCenter}
-            isSelected={alignItems === 'center'}
-            onClick={() => handleElementChange('alignItems', 'center')}
-          />
-          <Icon
-            icon={LuAlignVerticalJustifyCenter}
-            isSelected={justifyContent === 'center'}
-            onClick={() => handleElementChange('justifyContent', 'center')}
-          />
+          {ALIGN_ITEMS.map(({ icon, label, targetName, targetValue }) => {
+            const isSelected =
+              (targetName === resolvedJustifyName && targetValue === resolvedJustifyValue) ||
+              (targetName === resolvedAlignName && targetValue === resolvedAlignValue);
+
+            const handleClick = () =>
+              handleElementChange(
+                ...resolveAlignment(targetName as AlignmentName, targetValue as AlignmentValue, flexDirection)
+              );
+
+            return (
+              <Tooltip.Root key={targetName + targetValue}>
+                <Tooltip.Trigger asChild>
+                  <Icon icon={icon} isSelected={isSelected} onClick={handleClick} />
+                </Tooltip.Trigger>
+                <Tooltip.Portal>
+                  <Tooltip.Content className='TooltipContent TooltipSmall' side='top'>
+                    {label}
+                    <Tooltip.Arrow className='TooltipArrow' />
+                  </Tooltip.Content>
+                </Tooltip.Portal>
+              </Tooltip.Root>
+            );
+          })}
         </AlignmentContainer>
+      </CollapsibleSection>
+    </div>
+  );
+}
+
+function FlexSettings() {
+  const { selectedElement, deviceType } = useAppSelector((state) => state.editor);
+  const { handleElementChange } = useSettingsContext();
+  const rowGap = getResponsiveValue(selectedElement.rowGap, deviceType) ?? 0;
+  const columnGap = getResponsiveValue(selectedElement.columnGap, deviceType) ?? 0;
+  const justifyContent = getResponsiveValue(selectedElement.justifyContent, deviceType);
+  const jcValue = justifyContent?.replace(/^space-/, '') || '';
+  const space = SPACE_VALUES.includes(jcValue) ? jcValue : 'none';
+
+  const selectedDisplay: FlexDirectionOption =
+    getResponsiveValue(selectedElement.flexDirection, deviceType) || 'column';
+
+  const handleSelect = (value: FlexDirectionOption) => {
+    handleElementChange('flexDirection', value);
+  };
+
+  if (
+    isElementName(
+      selectedElement.name,
+      ElementsName.Grid,
+      ElementsName.Heading,
+      ElementsName.Text,
+      ElementsName.Link,
+      ElementsName.Input,
+      ElementsName.Image
+    ) ||
+    selectedElement.tag === Tags.Li.toLocaleLowerCase()
+  ) {
+    return null;
+  }
+
+  return (
+    <div>
+      <CollapsibleSection title='Flex'>
+        <GridContainer>
+          <div>
+            <SubTitle>Gap X</SubTitle>
+            <ChangeElement>
+              <Select name='columnGap' editable defaultSelect={columnGap} options={OPTIONS_COLUMN} />
+            </ChangeElement>
+          </div>
+          <div>
+            <SubTitle>Gap Y</SubTitle>
+            <ChangeElement>
+              <Select name='rowGap' editable defaultSelect={rowGap} options={OPTIONS_ROW} />
+            </ChangeElement>
+          </div>
+          <div>
+            <SubTitle>Space</SubTitle>
+            <ChangeElement>
+              <Select name='justifyContent' defaultSelect={space} options={OPTIONS_SPACE} />
+            </ChangeElement>
+          </div>
+          <div>
+            <SubTitle>Direction</SubTitle>
+            <DisplayOptionsWrapper>
+              {OPTIONS_FLEX_DIRECTION.map(({ value, icon }) => (
+                <Tooltip.Root key={value}>
+                  <Tooltip.Trigger asChild>
+                    <DisplayOptionButton
+                      $active={selectedDisplay === value}
+                      onClick={() => handleSelect(value as FlexDirectionOption)}
+                    >
+                      <Icon icon={icon} size='md' />
+                    </DisplayOptionButton>
+                  </Tooltip.Trigger>
+                  <Tooltip.Portal>
+                    <Tooltip.Content className='TooltipContent TooltipSmall' side='top'>
+                      {value}
+                      <Tooltip.Arrow className='TooltipArrow' />
+                    </Tooltip.Content>
+                  </Tooltip.Portal>
+                </Tooltip.Root>
+              ))}
+            </DisplayOptionsWrapper>
+          </div>
+        </GridContainer>
       </CollapsibleSection>
     </div>
   );
@@ -785,6 +916,45 @@ const getSynchronizedTransform = (name: string, selectedElement: PageElement, de
   return updates;
 };
 
+const getSynchronizedAlignment = (
+  name: string,
+  value: string | number,
+  selectedElement: PageElement,
+  deviceType: DeviceType
+) => {
+  const updates: any = {};
+
+  if (name === 'justifyContent' || name === 'alignItems') {
+    updates.flexDirection = selectedElement.flexDirection?.[deviceType] ?? 'column';
+  }
+
+  if (name === 'justifyContent' && value === 'none') {
+    updates.justifyContent = 'center';
+  }
+
+  if (name === 'flexDirection') {
+    const currentFlexDirection = getResponsiveValue(selectedElement.flexDirection, deviceType);
+    const newFlexDirection = value as FlexDirectionOption;
+    const currentAlignItems = getResponsiveValue(selectedElement.alignItems, deviceType) || 'flex-start';
+    const currentJustifyContent = getResponsiveValue(selectedElement.justifyContent, deviceType) || 'flex-start';
+
+    const [resolvedAlignName, resolvedAlignValue] = resolveAlignment(
+      ...reverseResolveAlignment('alignItems', currentAlignItems as AlignmentValue, currentFlexDirection),
+      newFlexDirection
+    );
+
+    const [resolvedJustifyName, resolvedJustifyValue] = resolveAlignment(
+      ...reverseResolveAlignment('justifyContent', currentJustifyContent as AlignmentValue, currentFlexDirection),
+      newFlexDirection
+    );
+
+    updates[resolvedAlignName] = resolvedAlignValue;
+    updates[resolvedJustifyName] = resolvedJustifyValue;
+  }
+
+  return updates;
+};
+
 /**
  * Styles
  */
@@ -985,4 +1155,28 @@ const RotationContainer = styled.div`
   align-items: center;
   column-gap: 1.4rem;
   margin-left: auto;
+`;
+
+const DisplayOptionsWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  column-gap: 0.2rem;
+  background-color: var(--color-white-3);
+  padding: 0.6rem;
+  border-radius: var(--border-radius-md);
+  width: 100%;
+`;
+
+const DisplayOptionButton = styled.button<{ $active: boolean }>`
+  padding: 0.2rem 0.4rem;
+  border: none;
+  border-radius: var(--border-radius-md);
+  background-color: ${(props) => (props.$active ? 'var(--color-gray-light-3)' : 'transparent')};
+  color: var(--color-black-light);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: var(--color-gray-light-3);
+  }
 `;

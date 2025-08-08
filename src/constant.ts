@@ -1,5 +1,6 @@
 export const TOAST_DURATION = 5000;
 export const TOAST_DELAY_MS = 1000;
+export const DEFAULT_FLEX_DIRECTION = 'column';
 
 export enum Path {
   Home = '/',

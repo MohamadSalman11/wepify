@@ -9,11 +9,13 @@ export const DEFAULT_SCALE_FACTOR = 100;
 export const PAGE_PADDING = 60;
 export const PAGE_PADDING_X = PAGE_PADDING * 2;
 export const TAGS_WITHOUT_CHILDREN = new Set(['input', 'img', 'hr', 'br']);
+export const SPACE_VALUES = ['between', 'around', 'evenly'];
 export const UNSAVED_CHANGES_MESSAGE = 'Changes you made may not be saved.';
 
 export enum Tags {
   Section = 'SECTION',
   Ul = 'UL',
+  Li = 'LI',
   Input = 'INPUT',
   Span = 'SPAN',
   Button = 'BUTTON',
@@ -104,6 +106,7 @@ export const RESPONSIVE_PROPS = new Set([
   'scaleY',
   'scaleX',
   'textAlign',
+  'flexDirection',
   'justifyContent',
   'alignItems',
   'paddingTop',

@@ -1,5 +1,9 @@
 import type { ChangeEvent, InputHTMLAttributes } from 'react';
 
+export type SpaceOption = 'between' | 'around' | 'evenly';
+export type AlignmentName = 'alignItems' | 'justifyContent';
+export type AlignmentValue = 'flex-start' | 'flex-end' | 'center';
+export type FlexDirectionOption = 'row' | 'column' | 'row-reverse' | 'column-reverse';
 export type DeviceType = 'monitor' | 'laptop' | 'tablet' | 'smartphone';
 
 export type InputChangeEvent = ChangeEvent<HTMLInputElement>;
@@ -38,6 +42,7 @@ export interface BaseElement {
   scaleY?: Responsive<number>;
   scaleX?: Responsive<number>;
   textAlign?: Responsive<string>;
+  flexDirection?: Responsive<FlexDirectionOption>;
   justifyContent?: Responsive<string>;
   alignItems?: Responsive<string>;
   paddingTop?: Responsive<number>;
@@ -48,6 +53,8 @@ export interface BaseElement {
   marginRight?: Responsive<number>;
   marginBottom?: Responsive<number>;
   marginLeft?: Responsive<number>;
+  columnGap?: Responsive<number>;
+  rowGap?: Responsive<number>;
   content?: string;
   borderWidth?: number;
   borderColor?: string;
@@ -62,8 +69,6 @@ export interface BaseElement {
 
 export interface GridElement extends BaseElement {
   display: 'grid';
-  columnGap: Responsive<number>;
-  rowGap: Responsive<number>;
   columnWidth: Responsive<number | 'auto'>;
   rowHeight: Responsive<number | 'auto'>;
   columns: Responsive<number>;

@@ -464,7 +464,6 @@ const controlDocumentClick = (event: globalThis.MouseEvent) => {
   event.stopPropagation();
   changeTarget(target, targetName);
   positionDragButton(target.clientHeight, state.scaleFactor, getVerticalBorderSum(target));
-
   postMessageToApp({ type: MessageFromIframe.SelectionChanged, payload: domToPageElement(target) as PageElement });
 
   if (!NOT_MOVEABLE_ELEMENTS.has(state.targetName || '')) {

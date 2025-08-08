@@ -1,4 +1,4 @@
-import { FONT_WEIGHT_VALUES, RESPONSIVE_PROPS } from '@shared/constants';
+import { FONT_WEIGHT_VALUES, RESPONSIVE_PROPS, SPACE_VALUES } from '@shared/constants';
 import type { DeviceType, GridElement, PageElement } from '@shared/typing';
 import { CSS_SIZES } from '../../constants';
 import { getNextBreakpoint } from '../../utils/getNextBreakpoint';
@@ -15,7 +15,9 @@ const PIXEL_STYLE_KEYS = [
   'marginBottom',
   'marginLeft',
   'borderWidth',
-  'borderRadius'
+  'borderRadius',
+  'rowGap',
+  'columnGap'
 ];
 
 const PLAIN_STYLE_KEYS = [
@@ -28,6 +30,7 @@ const PLAIN_STYLE_KEYS = [
   'color',
   'fontFamily',
   'textAlign',
+  'alignItems',
   'zIndex'
 ] as const;
 
@@ -42,7 +45,8 @@ export const generateInlineStyles = ({
 }) => {
   const style: Partial<CSSStyleDeclaration> = {};
   const responsiveProps = extractResponsiveProps(element, isResponsive, deviceType);
-  const { left, top, fontWeight, fontSize, rotate, scaleY, scaleX, zIndex } = responsiveProps;
+  const { left, top, fontWeight, fontSize, rotate, scaleY, scaleX, zIndex, justifyContent, flexDirection } =
+    responsiveProps;
   const shouldTransform = (isDefined(left) && isDefined(top)) || isDefined(rotate);
 
   for (const key of PIXEL_STYLE_KEYS) {
@@ -63,6 +67,15 @@ export const generateInlineStyles = ({
     style.transform = `translate(${left}px, ${top}px) rotate(${rotate || 0}deg)`;
   }
 
+  if (flexDirection) {
+    style.display = 'flex';
+    style.flexDirection = flexDirection;
+  }
+
+  if (justifyContent) {
+    style.justifyContent = SPACE_VALUES.includes(justifyContent) ? `space-${justifyContent}` : justifyContent;
+  }
+
   if (isDefined(zIndex)) style.position = 'relative';
   if (isDefined(scaleX)) style.scale = `${scaleX} 1`;
   if (isDefined(scaleY)) style.scale = `1 ${scaleY}`;
@@ -81,16 +94,11 @@ const maybeApplyGridStyles = (
   style: Partial<CSSStyleDeclaration>,
   isResponsive: boolean
 ) => {
-  const { display, columns, columnWidth, rows, rowHeight, columnGap, rowGap } = extractResponsiveProps(
-    element,
-    isResponsive
-  );
+  const { display, columns, columnWidth, rows, rowHeight } = extractResponsiveProps(element, isResponsive);
 
   if (display) style.display = display;
   if (columns) style.gridTemplateColumns = `repeat(${columns}, ${columnWidth === 'auto' ? '1fr' : `${columnWidth}px`})`;
   if (rows) style.gridTemplateRows = `repeat(${rows}, ${rowHeight === 'auto' ? '1fr' : `${rowHeight}px`})`;
-  if (columnGap) style.columnGap = `${columnGap}px`;
-  if (rowGap) style.rowGap = `${rowGap}px`;
 };
 
 const maybeGenerateFlexStyles = (
@@ -99,19 +107,11 @@ const maybeGenerateFlexStyles = (
   isResponsive: boolean,
   deviceType?: DeviceType
 ) => {
-  const { justifyContent, alignItems } = extractResponsiveProps(element, isResponsive, deviceType);
-
-  if (justifyContent) {
-    style.justifyContent = justifyContent;
-  }
-
-  if (alignItems) {
-    style.alignItems = alignItems;
-  }
+  const { justifyContent, alignItems, flexDirection } = extractResponsiveProps(element, isResponsive, deviceType);
 
   if (justifyContent || alignItems) {
     style.display = 'flex';
-    style.flexDirection = 'column';
+    style.flexDirection = flexDirection || 'column';
   }
 };
 

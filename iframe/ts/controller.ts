@@ -146,8 +146,14 @@ const controlUpdateElement = (updates: Partial<PageElement>) => {
   const section = target.closest(SELECTOR_CLOSEST_SECTION) as HTMLElement;
   const { link, type, placeholder } = updates as Record<string, any>;
 
+  const wrappedFields = Object.fromEntries(
+    Object.entries(updates).map(([key, value]) =>
+      RESPONSIVE_PROPS.has(key) ? [key, wrapUpdatesWithBreakpoint({ [key]: value })[key]] : [key, value]
+    )
+  );
+
   const styles = generateInlineStyles({
-    element: RESPONSIVE_PROPS.has(Object.keys(updates)[0]) ? wrapUpdatesWithBreakpoint(updates) : updates,
+    element: wrappedFields,
     isResponsive: true
   });
 

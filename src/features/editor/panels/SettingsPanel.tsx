@@ -158,12 +158,13 @@ export default function SettingsPanel() {
   const handleElementChange = (name: string, value: string | number) => {
     const updates = { [name]: value };
 
-    if (selectedElement.name === ElementsName.Grid) {
+    if (isElementName(selectedElement.name, ElementsName.Grid)) {
       Object.assign(updates, getSynchronizedGridUpdates(name, selectedElement as GridElement, deviceType));
+    } else {
+      Object.assign(updates, getSynchronizedFlex(name, value, selectedElement, deviceType));
     }
 
     Object.assign(updates, getSynchronizedTransform(name, selectedElement, deviceType));
-    Object.assign(updates, getSynchronizedAlignment(name, value, selectedElement, deviceType));
 
     iframeConnection.updateElement(updates);
   };
@@ -916,7 +917,7 @@ const getSynchronizedTransform = (name: string, selectedElement: PageElement, de
   return updates;
 };
 
-const getSynchronizedAlignment = (
+const getSynchronizedFlex = (
   name: string,
   value: string | number,
   selectedElement: PageElement,
@@ -924,15 +925,16 @@ const getSynchronizedAlignment = (
 ) => {
   const updates: any = {};
 
-  if (name === 'justifyContent' || name === 'alignItems') {
+  if (isElementName(name, 'justifyContent', 'alignItems', 'columnGap', 'rowGap')) {
+    updates.display = 'flex';
     updates.flexDirection = selectedElement.flexDirection?.[deviceType] ?? 'column';
   }
 
-  if (name === 'justifyContent' && value === 'none') {
+  if (isElementName(name, 'justifyContent') && value === 'none') {
     updates.justifyContent = 'center';
   }
 
-  if (name === 'flexDirection') {
+  if (isElementName(name, 'flexDirection')) {
     const currentFlexDirection = getResponsiveValue(selectedElement.flexDirection, deviceType);
     const newFlexDirection = value as FlexDirectionOption;
     const currentAlignItems = getResponsiveValue(selectedElement.alignItems, deviceType) || 'flex-start';
@@ -948,6 +950,7 @@ const getSynchronizedAlignment = (
       newFlexDirection
     );
 
+    updates.display = 'flex';
     updates[resolvedAlignName] = resolvedAlignValue;
     updates[resolvedJustifyName] = resolvedJustifyValue;
   }

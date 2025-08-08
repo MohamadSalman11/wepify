@@ -21,6 +21,7 @@ const PIXEL_STYLE_KEYS = [
 ];
 
 const PLAIN_STYLE_KEYS = [
+  'display',
   'borderTop',
   'borderRight',
   'borderBottom',
@@ -68,7 +69,6 @@ export const generateInlineStyles = ({
   }
 
   if (flexDirection) {
-    style.display = 'flex';
     style.flexDirection = flexDirection;
   }
 
@@ -94,9 +94,8 @@ const maybeApplyGridStyles = (
   style: Partial<CSSStyleDeclaration>,
   isResponsive: boolean
 ) => {
-  const { display, columns, columnWidth, rows, rowHeight } = extractResponsiveProps(element, isResponsive);
+  const { columns, columnWidth, rows, rowHeight } = extractResponsiveProps(element, isResponsive);
 
-  if (display) style.display = display;
   if (columns) style.gridTemplateColumns = `repeat(${columns}, ${columnWidth === 'auto' ? '1fr' : `${columnWidth}px`})`;
   if (rows) style.gridTemplateRows = `repeat(${rows}, ${rowHeight === 'auto' ? '1fr' : `${rowHeight}px`})`;
 };
@@ -110,7 +109,6 @@ const maybeGenerateFlexStyles = (
   const { justifyContent, alignItems, flexDirection } = extractResponsiveProps(element, isResponsive, deviceType);
 
   if (justifyContent || alignItems) {
-    style.display = 'flex';
     style.flexDirection = flexDirection || 'column';
   }
 };

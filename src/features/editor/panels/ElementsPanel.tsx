@@ -1,7 +1,7 @@
 import { nanoid } from '@reduxjs/toolkit';
 import { ElementsName } from '@shared/constants';
 import type { InputChangeEvent } from '@shared/typing';
-import { isElementName } from '@shared/utils';
+import { isValueIn } from '@shared/utils';
 import toast from 'react-hot-toast';
 import { LuImage, LuSearch } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
@@ -68,7 +68,7 @@ export default function ElementsPanel() {
       </div>
       <div>
         <CollapsibleSection title='Layout' open={true}>
-          <PanelList $disabled={isElementName(selectedElement.name, ElementsName.Grid, ElementsName.Link)}>
+          <PanelList $disabled={isValueIn(selectedElement.name, ElementsName.Grid, ElementsName.Link)}>
             <LayoutItem data-grid-active>
               <PanelBox onClick={() => handleAddElement(ElementsName.Section)}>
                 <span>&nbsp;</span>
@@ -99,7 +99,7 @@ export default function ElementsPanel() {
               </PanelBox>
               <span>List</span>
             </LayoutItem>
-            <LayoutItem $disabled={!isElementName(selectedElement.name, ElementsName.Grid)} data-grid-active>
+            <LayoutItem $disabled={!isValueIn(selectedElement.name, ElementsName.Grid)} data-grid-active>
               <PanelBox onClick={() => handleAddElement(ElementsName.GridItem)}>
                 <span>&nbsp;</span>
                 <span>&nbsp;</span>
@@ -108,7 +108,7 @@ export default function ElementsPanel() {
               </PanelBox>
               <span>Grid Item</span>
             </LayoutItem>
-            <LayoutItem $disabled={!isElementName(selectedElement.name, ElementsName.List)} data-list-active>
+            <LayoutItem $disabled={!isValueIn(selectedElement.name, ElementsName.List)} data-list-active>
               <PanelBox onClick={() => handleAddElement(ElementsName.ListItem)}>
                 <span>&nbsp;</span>
                 <span>&nbsp;</span>
@@ -122,7 +122,7 @@ export default function ElementsPanel() {
 
       <div>
         <CollapsibleSection title='Text' open={true}>
-          <PanelList $disabled={isElementName(selectedElement.name, ElementsName.Grid, ElementsName.List)}>
+          <PanelList $disabled={isValueIn(selectedElement.name, ElementsName.Grid, ElementsName.List)}>
             <TextItem onClick={() => handleAddElement(ElementsName.Heading)}>
               <PanelBox>H</PanelBox>
               <span>Heading</span>
@@ -153,7 +153,7 @@ export default function ElementsPanel() {
 
       <div>
         <CollapsibleSection title='Media'>
-          <PanelList $disabled={isElementName(selectedElement.name, ElementsName.Grid)}>
+          <PanelList $disabled={isValueIn(selectedElement.name, ElementsName.Grid)}>
             <MediaItem>
               <PanelBox onClick={openFilePicker}>
                 <Icon icon={LuImage} />

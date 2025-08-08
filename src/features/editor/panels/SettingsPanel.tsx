@@ -19,7 +19,7 @@ import type {
   LinkElement,
   PageElement
 } from '@shared/typing';
-import { isElementName } from '@shared/utils';
+import { isValueIn } from '@shared/utils';
 import { cloneElement, createContext, useContext, type ChangeEvent, type ReactElement } from 'react';
 import {
   LuAlignCenter,
@@ -158,7 +158,7 @@ export default function SettingsPanel() {
   const handleElementChange = (name: string, value: string | number) => {
     const updates = { [name]: value };
 
-    if (isElementName(selectedElement.name, ElementsName.Grid)) {
+    if (isValueIn(selectedElement.name, ElementsName.Grid)) {
       Object.assign(updates, getSynchronizedGridUpdates(selectedElement as GridElement, deviceType));
     } else {
       Object.assign(updates, getSynchronizedFlex(selectedElement, value, deviceType));
@@ -174,13 +174,13 @@ export default function SettingsPanel() {
       <SelectorSettings />
       <AlignmentSettings />
       <SizeSettings />
-      {!isElementName(selectedElement.name, ElementsName.Grid) || <GridSettings />}
-      {isElementName(selectedElement.name, ElementsName.Link) && <LinkSettings />}
-      {isElementName(selectedElement.name, ElementsName.Input) && <InputSettings />}
+      {!isValueIn(selectedElement.name, ElementsName.Grid) || <GridSettings />}
+      {isValueIn(selectedElement.name, ElementsName.Link) && <LinkSettings />}
+      {isValueIn(selectedElement.name, ElementsName.Input) && <InputSettings />}
       <FlexSettings />
       <SpacingSettings />
       <TypographySettings />
-      {isElementName(selectedElement.name, ElementsName.Section) || <StrokeSettings />}
+      {isValueIn(selectedElement.name, ElementsName.Section) || <StrokeSettings />}
       <PageSettings />
     </SettingsContext.Provider>
   );
@@ -245,7 +245,7 @@ function SelectorSettings() {
 function SizeSettings() {
   const { handleElementChange } = useSettingsContext();
   const { selectedElement, deviceType } = useAppSelector((state) => state.editor);
-  const disableInput = isElementName(selectedElement.name, ElementsName.Item, ElementsName.Section);
+  const disableInput = isValueIn(selectedElement.name, ElementsName.Item, ElementsName.Section);
 
   const handleRotate = () => {
     const current = getResponsiveValue(selectedElement.rotate, deviceType) ?? 0;
@@ -266,7 +266,7 @@ function SizeSettings() {
     handleElementChange('scaleY', newScaleY);
   };
 
-  if (isElementName(selectedElement.name, ElementsName.Item)) {
+  if (isValueIn(selectedElement.name, ElementsName.Item)) {
     return null;
   }
 
@@ -368,7 +368,7 @@ function AlignmentSettings() {
   );
 
   if (
-    isElementName(selectedElement.name, ElementsName.Grid, ElementsName.Image, ElementsName.Input) ||
+    isValueIn(selectedElement.name, ElementsName.Grid, ElementsName.Image, ElementsName.Input) ||
     selectedElement.tag === Tags.Li.toLocaleLowerCase()
   ) {
     return null;
@@ -425,7 +425,7 @@ function FlexSettings() {
   };
 
   if (
-    isElementName(
+    isValueIn(
       selectedElement.name,
       ElementsName.Grid,
       ElementsName.Heading,
@@ -504,7 +504,7 @@ function SpacingSettings() {
     paddingLeft
   } = selectedElement;
 
-  if (isElementName(name, ElementsName.Image)) {
+  if (isValueIn(name, ElementsName.Image)) {
     return null;
   }
 
@@ -686,7 +686,7 @@ function TypographySettings() {
   const { handleElementChange } = useSettingsContext();
   const textAlign = getResponsiveValue(selectedElement.textAlign, deviceType);
 
-  if (isElementName(selectedElement.name, ElementsName.Image)) {
+  if (isValueIn(selectedElement.name, ElementsName.Image)) {
     return null;
   }
 
@@ -878,19 +878,19 @@ const getSynchronizedGridUpdates = (selectedElement: GridElement, deviceType: De
   const updates = {} as any;
   const { name, rows, columns, rowHeight, columnWidth } = selectedElement;
 
-  if (isElementName(name, 'columnWidth')) {
+  if (isValueIn(name, 'columnWidth')) {
     updates.columns = columns[deviceType];
   }
 
-  if (isElementName(name, 'columns')) {
+  if (isValueIn(name, 'columns')) {
     updates.columnWidth = columnWidth[deviceType];
   }
 
-  if (isElementName(name, 'rowHeight')) {
+  if (isValueIn(name, 'rowHeight')) {
     updates.rows = rows[deviceType];
   }
 
-  if (isElementName(name === 'rows')) {
+  if (isValueIn(name, 'rows')) {
     updates.rowHeight = rowHeight[deviceType];
   }
 
@@ -901,17 +901,17 @@ const getSynchronizedTransform = (selectedElement: PageElement, deviceType: Devi
   const updates: any = {};
   const { name, left, top, rotate } = selectedElement;
 
-  if (isElementName(name, 'left')) {
+  if (isValueIn(name, 'left')) {
     updates.top = top[deviceType];
     updates.rotate = rotate?.[deviceType] || 0;
   }
 
-  if (isElementName(name, 'top')) {
+  if (isValueIn(name, 'top')) {
     updates.left = left[deviceType];
     updates.rotate = rotate?.[deviceType] || 0;
   }
 
-  if (isElementName(name, 'rotate')) {
+  if (isValueIn(name, 'rotate')) {
     updates.left = left[deviceType];
     updates.top = top[deviceType];
   }
@@ -923,16 +923,16 @@ const getSynchronizedFlex = (selectedElement: PageElement, value: string | numbe
   const updates: any = {};
   const { name, flexDirection, justifyContent, alignItems } = selectedElement;
 
-  if (isElementName(name, 'justifyContent', 'alignItems', 'columnGap', 'rowGap')) {
+  if (isValueIn(name, 'justifyContent', 'alignItems', 'columnGap', 'rowGap')) {
     updates.display = 'flex';
     updates.flexDirection = flexDirection?.[deviceType] ?? 'column';
   }
 
-  if (isElementName(name, 'justifyContent') && value === 'none') {
+  if (isValueIn(name, 'justifyContent') && value === 'none') {
     updates.justifyContent = 'center';
   }
 
-  if (isElementName(name, 'flexDirection')) {
+  if (isValueIn(name, 'flexDirection')) {
     const currentFlexDirection = getResponsiveValue(flexDirection, deviceType);
     const newFlexDirection = value as FlexDirectionOption;
     const currentAlignItems = getResponsiveValue(alignItems, deviceType) || 'flex-start';

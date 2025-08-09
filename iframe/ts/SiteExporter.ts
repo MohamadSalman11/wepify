@@ -119,6 +119,9 @@ class SiteExporter {
 
   private processImages(doc: Document) {
     const images = doc.querySelectorAll(SELECTOR_DATA_IMAGE) as NodeListOf<HTMLImageElement>;
+
+    if (images.length === 0) return;
+
     const imagesFolder = this.zip.folder(Folders.Images)!;
 
     for (const img of images) {

@@ -86,12 +86,8 @@ class SiteExporter {
     doc.head.innerHTML = document.head.innerHTML;
     doc.title = page.title || page.name;
 
-    const faviconLink = doc.createElement(ElementsName.Link);
-    faviconLink.rel = 'icon';
-    faviconLink.href = './favicon.ico';
-    doc.head.append(faviconLink);
-
     const styleLink = doc.head.querySelector(SELECTOR_STYLE_LINK);
+
     if (styleLink) {
       const indexLink = doc.createElement(ElementsName.Link);
       indexLink.rel = 'stylesheet';

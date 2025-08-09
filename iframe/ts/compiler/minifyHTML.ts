@@ -11,6 +11,7 @@ const REGEX = {
   MOVEABLE_CSS_LINK: /<link\s+rel=["']stylesheet["']\s+href=["']\.\/moveable\.css["']\s*\/?>/g,
   CONTENTEDITABLE: /\scontenteditable=["'][^"']*["']/g,
   STYLED_COMPONENT: /<style[^>]*data-styled-id="rCS1w3zcxh"[^>]*>[\s\S]*?<\/style>/gi,
+  STYLE_TAG_ANY: /<style[^>]*>[\s\S]*?<\/style>/gi,
   HTML_COMMENTS: /<!--[\s\S]*?-->/g,
   LINEBREAKS: /\n/g,
   EXTRA_SPACES: /\s{2,}/g,
@@ -52,6 +53,7 @@ export const cleanUpHTML = async (html: string) => {
     .replace(REGEX.MOVEABLE_CSS_LINK, '')
     .replace(REGEX.CONTENTEDITABLE, '')
     .replace(REGEX.STYLED_COMPONENT, '')
+    .replace(REGEX.STYLE_TAG_ANY, '')
     .replace(REGEX.STYLE_INLINE, '')
     .replace(REGEX.A_TAG_ATTRS_TO_REMOVE, '');
 

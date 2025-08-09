@@ -87,7 +87,6 @@ class SiteExporter {
     doc.title = page.title || page.name;
 
     const styleLink = doc.head.querySelector(SELECTOR_STYLE_LINK);
-
     if (styleLink) {
       const indexLink = doc.createElement(ElementsName.Link);
       indexLink.rel = 'stylesheet';

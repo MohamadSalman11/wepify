@@ -83,20 +83,18 @@ class SiteExporter {
 
   private async addPage(page: SitePage) {
     const doc = document.implementation.createHTMLDocument(page.name);
-    const styleLink = doc.head.querySelector(SELECTOR_STYLE_LINK);
-
     doc.head.innerHTML = document.head.innerHTML;
     doc.title = page.title || page.name;
 
+    const styleLink = doc.head.querySelector(SELECTOR_STYLE_LINK);
+
     if (styleLink) {
       const indexLink = doc.createElement(ElementsName.Link);
-
       indexLink.rel = 'stylesheet';
       indexLink.href = `./${FileNames.IndexCSS}`;
       styleLink.after(indexLink);
 
       const responsiveLink = doc.createElement(ElementsName.Link);
-
       responsiveLink.rel = 'stylesheet';
       responsiveLink.href = `./${FileNames.ResponsiveCSS}`;
       indexLink.after(responsiveLink);

@@ -1,7 +1,6 @@
 const REGEX = {
   COMMENTS: /\/\*[\s\S]*?\*\//g,
   WHITESPACE_AROUND_SYMBOLS: /\s*([{}:;,>])\s*/g,
-  TRAILING_SEMICOLON: /;}/g,
   MULTIPLE_SPACES: /\s+/g,
   NEWLINES: /\n/g,
   SPACE_AFTER_COMMA: /,\s+/g
@@ -13,7 +12,6 @@ export function minifyCSS(css: string): string {
     .replace(REGEX.NEWLINES, '')
     .replace(REGEX.WHITESPACE_AROUND_SYMBOLS, '$1')
     .replace(REGEX.SPACE_AFTER_COMMA, ',')
-    .replace(REGEX.TRAILING_SEMICOLON, '}')
     .replace(REGEX.MULTIPLE_SPACES, ' ')
     .trim();
 }

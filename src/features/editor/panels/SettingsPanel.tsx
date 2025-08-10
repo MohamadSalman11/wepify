@@ -1,4 +1,3 @@
-import * as Tooltip from '@radix-ui/react-tooltip';
 import {
   DEFAULT_BORDER_COLOR,
   DEFAULT_BORDER_WIDTH,
@@ -55,6 +54,7 @@ import {
 } from 'react-icons/lu';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import AppTooltip from '../../../components/AppTooltip';
 import Input from '../../../components/form/Input';
 import Select from '../../../components/form/Select';
 import Icon from '../../../components/Icon';
@@ -445,17 +445,9 @@ function AlignmentSettings() {
               );
 
             return (
-              <Tooltip.Root key={targetName + targetValue}>
-                <Tooltip.Trigger asChild>
-                  <Icon icon={icon} isSelected={isSelected} onClick={handleClick} />
-                </Tooltip.Trigger>
-                <Tooltip.Portal>
-                  <Tooltip.Content className='TooltipContent TooltipSmall' side='top'>
-                    {label}
-                    <Tooltip.Arrow className='TooltipArrow' />
-                  </Tooltip.Content>
-                </Tooltip.Portal>
-              </Tooltip.Root>
+              <AppTooltip key={targetName + targetValue} label={label} side='top' sizeSmall>
+                <Icon icon={icon} isSelected={isSelected} onClick={handleClick} />
+              </AppTooltip>
             );
           })}
         </AlignmentContainer>
@@ -521,22 +513,14 @@ function FlexSettings() {
             <SubTitle>Direction</SubTitle>
             <DisplayOptionsWrapper>
               {OPTIONS_FLEX_DIRECTION.map(({ value, icon }) => (
-                <Tooltip.Root key={value}>
-                  <Tooltip.Trigger asChild>
-                    <DisplayOptionButton
-                      $active={selectedDisplay === value}
-                      onClick={() => handleSelect(value as FlexDirectionOption)}
-                    >
-                      <Icon icon={icon} size='md' />
-                    </DisplayOptionButton>
-                  </Tooltip.Trigger>
-                  <Tooltip.Portal>
-                    <Tooltip.Content className='TooltipContent TooltipSmall' side='top'>
-                      {value}
-                      <Tooltip.Arrow className='TooltipArrow' />
-                    </Tooltip.Content>
-                  </Tooltip.Portal>
-                </Tooltip.Root>
+                <AppTooltip key={value} label={value} side='top' sizeSmall>
+                  <DisplayOptionButton
+                    $active={selectedDisplay === value}
+                    onClick={() => handleSelect(value as FlexDirectionOption)}
+                  >
+                    <Icon icon={icon} size='md' />
+                  </DisplayOptionButton>
+                </AppTooltip>
               ))}
             </DisplayOptionsWrapper>
           </div>
@@ -717,7 +701,7 @@ function InputSettings() {
 
   return (
     <div>
-      <CollapsibleSection title='Input' open={true}>
+      <CollapsibleSection title='Input' open>
         <GridContainer>
           <div>
             <SubTitle>Placeholder</SubTitle>
@@ -797,21 +781,13 @@ function TypographySettings() {
           <SubTitle>Text Align</SubTitle>
           <TextAlignContainer>
             {OPTIONS_TEXT_ALIGN.map(({ value, icon }) => (
-              <Tooltip.Root key={value}>
-                <Tooltip.Trigger asChild>
-                  <Icon
-                    icon={icon}
-                    isSelected={textAlign === value}
-                    onClick={() => handleElementChange('textAlign', value)}
-                  />
-                </Tooltip.Trigger>
-                <Tooltip.Portal>
-                  <Tooltip.Content className='TooltipContent TooltipSmall' side='top'>
-                    {value}
-                    <Tooltip.Arrow className='TooltipArrow' />
-                  </Tooltip.Content>
-                </Tooltip.Portal>
-              </Tooltip.Root>
+              <AppTooltip key={value} label={value} side='top' sizeSmall>
+                <Icon
+                  icon={icon}
+                  isSelected={textAlign === value}
+                  onClick={() => handleElementChange('textAlign', value)}
+                />
+              </AppTooltip>
             ))}
           </TextAlignContainer>
         </div>
@@ -868,22 +844,14 @@ function StrokeSettings() {
           </StrokeWidthContainer>
           <StrokePosition>
             {OPTIONS_BORDER.map(({ side, icon }) => (
-              <Tooltip.Root key={side}>
-                <Tooltip.Trigger asChild>
-                  <Icon
-                    icon={icon}
-                    size='md'
-                    isSelected={!borders[`border${side}`]?.includes('none') && borders[`border${side}`] !== undefined}
-                    onClick={() => toggleBorder(side, `${borderWidth}px solid ${borderColor}`)}
-                  />
-                </Tooltip.Trigger>
-                <Tooltip.Portal>
-                  <Tooltip.Content className='TooltipContent TooltipSmall' side='top'>
-                    {side}
-                    <Tooltip.Arrow className='TooltipArrow' />
-                  </Tooltip.Content>
-                </Tooltip.Portal>
-              </Tooltip.Root>
+              <AppTooltip key={side} label={side} side='top' sizeSmall>
+                <Icon
+                  icon={icon}
+                  size='md'
+                  isSelected={!borders[`border${side}`]?.includes('none') && borders[`border${side}`] !== undefined}
+                  onClick={() => toggleBorder(side, `${borderWidth}px solid ${borderColor}`)}
+                />
+              </AppTooltip>
             ))}
           </StrokePosition>
         </GridContainer>

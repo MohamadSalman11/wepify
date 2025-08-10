@@ -1,7 +1,7 @@
-import * as Tooltip from '@radix-ui/react-tooltip';
 import { forwardRef, Ref } from 'react';
 import type { IconType } from 'react-icons';
 import styled from 'styled-components';
+import AppTooltip from './AppTooltip';
 
 /**
  * Constants
@@ -9,7 +9,7 @@ import styled from 'styled-components';
 
 const DEFAULT_ICON_SIZE = 'lg';
 const DEFAULT_BORDER_RADIUS = 'full';
-const DEFAULT_TOOLTIP_SIDE = 'bottom';
+const DEFAULT_HOVER_COLOR = 'var(--color-white-2)';
 
 const SIZE: Record<IconSize, string> = {
   sm: '1rem',
@@ -56,11 +56,11 @@ const Icon = forwardRef<HTMLButtonElement | SVGElement, IconProps>(
       isSelected = false,
       disabled = false,
       color,
-      hoverColor = 'var(--color-white-2)',
+      hoverColor = DEFAULT_HOVER_COLOR,
       fill = false,
       tooltipLabel,
-      tooltipSide = DEFAULT_TOOLTIP_SIDE,
-      tooltipSideOffset = 15,
+      tooltipSide,
+      tooltipSideOffset,
       borderRadius = DEFAULT_BORDER_RADIUS,
       className,
       onClick,
@@ -108,15 +108,9 @@ const Icon = forwardRef<HTMLButtonElement | SVGElement, IconProps>(
     if (!tooltipLabel) return wrappedIcon;
 
     return (
-      <Tooltip.Root>
-        <Tooltip.Trigger asChild>{wrappedIcon}</Tooltip.Trigger>
-        <Tooltip.Portal>
-          <Tooltip.Content className='TooltipContent' side={tooltipSide} sideOffset={tooltipSideOffset}>
-            {tooltipLabel}
-            <Tooltip.Arrow className='TooltipArrow' />
-          </Tooltip.Content>
-        </Tooltip.Portal>
-      </Tooltip.Root>
+      <AppTooltip label={tooltipLabel} side={tooltipSide} sideOffset={tooltipSideOffset}>
+        {wrappedIcon}
+      </AppTooltip>
     );
   }
 );

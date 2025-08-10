@@ -1,4 +1,4 @@
-import { ElementsName, PAGE_PADDING, PAGE_PADDING_X, TAGS_WITHOUT_CHILDREN } from '@shared/constants';
+import { ElementsName, PAGE_PADDING, PAGE_PADDING_X, Tags, TAGS_WITHOUT_CHILDREN } from '@shared/constants';
 import {
   DeviceType,
   MessageFromIframe,
@@ -12,7 +12,7 @@ import { createDomTree } from './compiler/dom/createDomTree';
 import { domToPageElement } from './compiler/dom/domToPageElement';
 import { generateInlineStyles } from './compiler/dom/generateInlineStyles';
 import { MOVEABLE_CONFIG } from './config';
-import { SELECTOR_DRAG_BUTTON, SELECTOR_ROOT, SELECTOR_TARGET } from './constants';
+import { SELECTOR_DRAG_BUTTON, SELECTOR_ROOT, SELECTOR_SECTION, SELECTOR_TARGET } from './constants';
 import { changeTarget, getMoveableInstance, getTarget, state } from './model';
 import SiteExporter from './SiteExporter';
 import { adjustGridColumnsIfNeeded } from './utils/adjustGridColumnsIfNeeded';
@@ -234,12 +234,18 @@ const controlDeleteElement = () => {
   const targetId = target.id;
   const parentId = target.parentElement?.id;
   const deletedElement = domToPageElement(target);
-  const section = document.querySelector(SELECTOR_CLOSEST_SECTION) as HTMLElementTagNameMap['section'];
+
+  const section =
+    state.targetName === ElementsName.Section
+      ? target.previousElementSibling?.tagName === Tags.Section
+        ? target.previousElementSibling
+        : document.querySelector(SELECTOR_SECTION)
+      : target.closest(SELECTOR_SECTION);
 
   if (!section || !parentId || !targetId || target.id === ID_FIRST_SECTION) return;
 
   target.remove();
-  section.click();
+  (section as HTMLElement).click();
 
   postMessageToApp({
     type: MessageFromIframe.ElementDeleted,
@@ -548,6 +554,7 @@ const initializeMoveable = () => {
 
 const controlKeydown = (event: KeyboardEvent) => {
   const key = event.key;
+  const target = getTarget();
   const isF12 = key === KeyboardKeys.F12;
   const isCtrlShiftI = event.ctrlKey && event.shiftKey && key === KeyboardKeys.I;
   const isCmdOptI = event.metaKey && event.altKey && key === KeyboardKeys.I;
@@ -556,7 +563,7 @@ const controlKeydown = (event: KeyboardEvent) => {
   const isPasteShortcut = (event.ctrlKey || event.metaKey) && key.toLowerCase() === KeyboardKeys.V;
 
   if (isDevToolsKey) {
-    const sectionElement = document.querySelector(SELECTOR_CLOSEST_SECTION) as HTMLElement | null;
+    const sectionElement = target.querySelector(SELECTOR_CLOSEST_SECTION) as HTMLElement | null;
     sectionElement?.click();
     return;
   }

@@ -20,6 +20,7 @@ import {
   setDeviceType,
   setIsDownloadingSite,
   setIsStoring,
+  setLastDeletedElement,
   updateElementInSite,
   updatePageInSite,
   updateSelectElement
@@ -100,9 +101,11 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
           break;
         }
         case MessageFromIframe.ElementDeleted: {
-          const { targetId, parentId } = data.payload;
+          const { element, parentId } = data.payload;
+
+          dispatch(setLastDeletedElement(element));
           dispatch(setIsStoring(true));
-          dispatch(deleteElementInSite({ pageId, parentElementId: parentId, elementId: targetId }));
+          dispatch(deleteElementInSite({ pageId, parentElementId: parentId, elementId: element.id }));
           break;
         }
         case MessageFromIframe.SiteDownloaded: {
@@ -149,8 +152,16 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
   );
 
   const insertElement = useCallback(
-    (name: string, additionalProps?: Record<string, any>) => {
-      postMessageToIframe({ type: MessageToIframe.InsertElement, payload: { name, additionalProps } });
+    ({
+      name,
+      element,
+      additionalProps
+    }: {
+      name?: string;
+      element?: PageElement;
+      additionalProps?: Record<string, any>;
+    }) => {
+      postMessageToIframe({ type: MessageToIframe.InsertElement, payload: { name, element, additionalProps } });
     },
     [postMessageToIframe]
   );

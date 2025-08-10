@@ -33,7 +33,7 @@ export default function ElementsPanel() {
   const handleImageUpload = useImageUpload(
     (result) => {
       if (!result) return;
-      iframeConnection.insertElement(ElementsName.Image, { src: result });
+      iframeConnection.insertElement({ name: ElementsName.Image, additionalProps: { src: result } });
       dispatch(addImage({ id: nanoid(), dataUrl: result as string }));
     },
     (message) => toast.error(message)
@@ -47,7 +47,7 @@ export default function ElementsPanel() {
   };
 
   const handleAddElement = (name: string) => {
-    iframeConnection.insertElement(name);
+    iframeConnection.insertElement({ name });
   };
 
   return (

@@ -53,6 +53,7 @@ export interface BaseElement {
   marginRight?: Responsive<number>;
   marginBottom?: Responsive<number>;
   marginLeft?: Responsive<number>;
+  display?: string;
   columnGap?: Responsive<number>;
   rowGap?: Responsive<number>;
   content?: string;
@@ -159,7 +160,7 @@ export type MessageToIframePayloadMap = {
   };
   [MessageToIframe.UpdateElement]: { updates: Partial<PageElement> };
   [MessageToIframe.UpdatePage]: { updates: { backgroundColor: string } };
-  [MessageToIframe.InsertElement]: { name: string; additionalProps?: Record<string, any> };
+  [MessageToIframe.InsertElement]: { name?: string; element?: PageElement; additionalProps?: Record<string, any> };
   [MessageToIframe.DeleteElement]: undefined;
   [MessageToIframe.ChangeSelection]: string;
   [MessageToIframe.SearchElement]: string;
@@ -174,7 +175,7 @@ export type MessageFromIframeData =
       payload: { id: string; fields: Partial<PageElement> };
     }
   | { type: MessageFromIframe.ElementInserted; payload: { parentId: string; element: PageElement } }
-  | { type: MessageFromIframe.ElementDeleted; payload: { targetId: string; parentId: string } }
+  | { type: MessageFromIframe.ElementDeleted; payload: { element: PageElement; parentId: string } }
   | { type: MessageFromIframe.SiteDownloaded }
   | { type: MessageFromIframe.BreakpointChanged; payload: { newDeviceType: DeviceType } }
   | { type: MessageFromIframe.PageUpdated; payload: { updates: Record<string, any> } }

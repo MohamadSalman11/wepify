@@ -35,7 +35,7 @@ export default function UploadsPanel() {
   const handleImageUpload = useImageUpload(
     (result) => {
       if (!result) return;
-      iframeConnection.insertElement(ElementsName.Image, { src: result });
+      iframeConnection.insertElement({ name: ElementsName.Image, additionalProps: { src: result } });
       dispatch(addImage({ id: nanoid(), dataUrl: result as string }));
     },
     (message) => toast.error(message)
@@ -72,7 +72,12 @@ export default function UploadsPanel() {
       {images.length === 0 && <EmptyMessage>No images uploaded yet</EmptyMessage>}
       <MasonryGrid breakpointCols={2} className='masonry-grid' columnClassName='masonry-grid_column'>
         {images?.map((img, i) => (
-          <MediaItem key={img.id} onClick={() => iframeConnection.insertElement('image', { src: img.dataUrl })}>
+          <MediaItem
+            key={img.id}
+            onClick={() =>
+              iframeConnection.insertElement({ name: ElementsName.Image, additionalProps: { src: img.dataUrl } })
+            }
+          >
             <img src={img.dataUrl || ''} alt={`uploaded image ${i + 1}`} loading='lazy' />
             <span onClick={(event) => handleDeleteImage(event, img)}>
               <Icon icon={LuTrash2} color='var(--color-white)' />

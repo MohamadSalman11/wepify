@@ -5,6 +5,7 @@ import { findElementById } from '../../../utils/findElementById';
 
 interface EditorState {
   selectedElement: PageElement;
+  lastDeletedElement: PageElement | null;
   site: Site;
   pagesMetadata: PageMetadata[];
   isLoading: boolean;
@@ -17,6 +18,7 @@ interface EditorState {
 
 const initialState: EditorState = {
   selectedElement: ELEMENTS_TEMPLATE.section as PageElement,
+  lastDeletedElement: null,
   site: {
     id: '',
     name: '',
@@ -41,6 +43,9 @@ const editorSlice = createSlice({
   reducers: {
     selectElement: (state, action: PayloadAction<PageElement>) => {
       state.selectedElement = action.payload;
+    },
+    setLastDeletedElement(state, action: PayloadAction<PageElement | null>) {
+      state.lastDeletedElement = action.payload;
     },
     updateSelectElement(state, action: PayloadAction<Partial<PageElement>>) {
       Object.assign(state.selectedElement, action.payload);
@@ -220,6 +225,7 @@ const editorSlice = createSlice({
 
 export const {
   setSite,
+  setLastDeletedElement,
   addPage,
   updatePageInfo,
   deletePage,

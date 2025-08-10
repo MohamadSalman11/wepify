@@ -57,7 +57,6 @@ export const generateInlineStyles = ({
     borderColor
   } = responsiveProps;
   const shouldTransform = (isDefined(left) && isDefined(top)) || isDefined(rotate);
-  console.log(element);
 
   for (const key of BORDER_STYLE_KEYS) {
     const value = responsiveProps[key];

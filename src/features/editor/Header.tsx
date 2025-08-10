@@ -9,6 +9,7 @@ import {
   LuLaptop,
   LuMonitor,
   LuRefreshCw,
+  LuRotateCcwSquare,
   LuSmartphone,
   LuTablet
 } from 'react-icons/lu';
@@ -21,12 +22,12 @@ import Divider from '../../components/divider';
 import Dropdown from '../../components/Dropdown';
 import Input from '../../components/form/Input';
 import Icon from '../../components/Icon';
-import { EditorPath, StorageKey } from '../../constant';
+import { Breakpoint, EditorPath, StorageKey } from '../../constant';
 import { useIframeContext } from '../../context/IframeContext';
 import { useAppSelector } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
 import { calculateScaleToFit } from '../../utils/calculateScaleToFit';
-import { setDeviceType, setIsDownloadingSite, setIsLoading } from './slices/editorSlice';
+import { setDeviceType, setIsDownloadingSite, setIsLoading, setLastDeletedElement } from './slices/editorSlice';
 import { setScale, setSize } from './slices/pageSlice';
 
 /**
@@ -69,7 +70,9 @@ export default function Header() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { iframeConnection } = useIframeContext();
-  const { site, isDownloadingSite, isStoring, deviceType } = useAppSelector((state) => state.editor);
+  const { site, lastDeletedElement, isDownloadingSite, isStoring, deviceType } = useAppSelector(
+    (state) => state.editor
+  );
   const { originWidth, originHeight } = useAppSelector((state) => state.page);
 
   const handleDownloadSite = async (shouldMinify: boolean) => {
@@ -89,6 +92,13 @@ export default function Header() {
     );
     dispatch(setIsLoading(true));
     navigate(EditorPath.Preview);
+  };
+
+  const handleRecoverDeletedElement = () => {
+    if (lastDeletedElement) {
+      iframeConnection.insertElement({ element: lastDeletedElement });
+      dispatch(setLastDeletedElement(null));
+    }
   };
 
   return (
@@ -122,10 +132,16 @@ export default function Header() {
 
       <EditorActions>
         {isStoring ? <StyledRefreshIcon icon={LuRefreshCw} /> : <StyledCloudIcon icon={BsCloudCheck} fill />}
-
+        <Divider rotate={90} width={30} />
+        <Icon
+          icon={LuRotateCcwSquare}
+          disabled={!lastDeletedElement}
+          tooltipLabel='Recover Deleted Element'
+          onClick={handleRecoverDeletedElement}
+        />
         <Divider rotate={90} width={30} />
         <ConfirmNavigation onConfirmed={handleSitePreview}>
-          <Icon icon={LuEye} hover={true} tooltipLabel='Preview Site' />
+          <Icon icon={LuEye} hover tooltipLabel='Preview Site' />
         </ConfirmNavigation>
         <Divider rotate={90} width={30} />
         <Dropdown>
@@ -217,6 +233,7 @@ const StyledHeader = styled.header`
   align-items: center;
   justify-content: space-between;
   grid-column: 2 / 5;
+  column-gap: 4.8rem;
   padding: 0.8rem 3.2rem;
   border-bottom: var(--border-base);
   background-color: var(--color-white);
@@ -224,14 +241,23 @@ const StyledHeader = styled.header`
   & > div {
     justify-content: end;
 
-    &:not(:nth-child(2)) {
-      width: 50rem;
+    &:nth-child(1) {
+      width: 30rem;
+    }
+
+    &:nth-child(3) {
+      width: 52rem;
     }
 
     &:nth-child(2) {
       justify-content: center;
       min-width: 54rem;
       max-width: 54rem;
+
+      @media (max-width: ${Breakpoint.laptop}em) {
+        min-width: 45rem;
+        max-width: 45rem;
+      }
     }
   }
 `;
@@ -240,6 +266,10 @@ const DevicePreviewControls = styled.div`
   display: flex;
   column-gap: 4.4rem;
   align-items: center;
+
+  @media (max-width: ${Breakpoint.laptop}em) {
+    column-gap: 2.4rem;
+  }
 `;
 
 const SizeInputs = styled.div`
@@ -269,6 +299,10 @@ const EditorActions = styled.div`
   display: flex;
   column-gap: 2.4rem;
   align-items: center;
+
+  @media (max-width: ${Breakpoint.Desktop}em) {
+    column-gap: 1.2rem;
+  }
 `;
 
 const DesignInfo = styled.div`

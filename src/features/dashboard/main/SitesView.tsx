@@ -24,7 +24,15 @@ import Dropdown from '../../../components/Dropdown';
 import Input from '../../../components/form/Input';
 import Icon from '../../../components/Icon';
 import Modal, { type OnCloseModal } from '../../../components/Modal';
-import { EditorPath, Path, StorageKey, TOAST_DELAY_MS, TOAST_DURATION, ToastMessages } from '../../../constant';
+import {
+  Breakpoint,
+  EditorPath,
+  Path,
+  StorageKey,
+  TOAST_DELAY_MS,
+  TOAST_DURATION,
+  ToastMessages
+} from '../../../constant';
 import { useModalContext } from '../../../context/ModalContext';
 import { useAppSelector } from '../../../store';
 import { AppStorage } from '../../../utils/appStorage';
@@ -490,7 +498,7 @@ const StyledTableHead = styled.article`
   font-size: 1.2rem;
   border-bottom: 1px solid var(--color-gray-light-4);
 
-  @media (max-width: 100em) {
+  @media (max-width: ${Breakpoint.laptop}em) {
     grid-template-columns: repeat(6, minmax(0, 1fr)) 2rem;
   }
 
@@ -509,7 +517,7 @@ const StyledTableRow = styled.article`
   transition: var(--transition-base);
   cursor: default;
 
-  @media (max-width: 100em) {
+  @media (max-width: ${Breakpoint.laptop}em) {
     grid-template-columns: repeat(6, minmax(0, 1fr)) 2rem;
   }
 
@@ -556,7 +564,7 @@ const ActionGroup = styled.div`
     opacity: 1;
   }
 
-  @media (max-width: 100em) {
+  @media (max-width: ${Breakpoint.laptop}em) {
     display: none;
   }
 `;

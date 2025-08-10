@@ -74,7 +74,7 @@ const iframeMessageHandlers: {
   [MessageToIframe.UpdateElement]: (payload) => controlUpdateElement(payload.updates),
   [MessageToIframe.UpdatePage]: (payload) => controlUpdatePage(payload.updates),
   [MessageToIframe.InsertElement]: (payload) =>
-    controlInsertElement({ name: payload.name, additionalProps: payload.additionalProps }),
+    controlInsertElement({ name: payload.name, element: payload.element, additionalProps: payload.additionalProps }),
   [MessageToIframe.DeleteElement]: () => controlDeleteElement(),
   [MessageToIframe.ChangeSelection]: (payload) => controlSelectionChanged(payload),
   [MessageToIframe.SearchElement]: (payload) => controlSearchElement(payload),
@@ -186,16 +186,18 @@ const controlUpdatePage = (updates: { backgroundColor: string }) => {
 
 const controlInsertElement = ({
   name,
+  element,
   additionalProps,
   elNode
 }: {
   name?: string;
+  element?: PageElement;
   additionalProps?: Record<string, any>;
   elNode?: HTMLElement;
 }) => {
   const target = getTarget();
   const moveableInstance = getMoveableInstance();
-  const newElement = elNode ? domToPageElement(elNode) : createNewElement(name as string, additionalProps);
+  const newElement = elNode ? domToPageElement(elNode) : element || createNewElement(name as string, additionalProps);
   const elementNode = elNode || createDomTree(newElement as PageElement);
   const canHaveNotChildren = TAGS_WITHOUT_CHILDREN.has(target.tagName.toLowerCase());
 
@@ -231,6 +233,7 @@ const controlDeleteElement = () => {
   const target = getTarget();
   const targetId = target.id;
   const parentId = target.parentElement?.id;
+  const deletedElement = domToPageElement(target);
   const section = document.querySelector(SELECTOR_CLOSEST_SECTION) as HTMLElementTagNameMap['section'];
 
   if (!section || !parentId || !targetId || target.id === ID_FIRST_SECTION) return;
@@ -240,7 +243,7 @@ const controlDeleteElement = () => {
 
   postMessageToApp({
     type: MessageFromIframe.ElementDeleted,
-    payload: { targetId, parentId }
+    payload: { element: deletedElement as PageElement, parentId }
   });
 };
 

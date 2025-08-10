@@ -47,6 +47,7 @@ export const domToPageElement = (elementNode: HTMLElement) => {
   element.top = toResponsiveValue(top || 0);
   element.rotate = toResponsiveValue(rotate || 0);
 
+  if (style.display) element.display = style.display;
   if (style.columnGap) element.columnGap = toResponsiveValue(style.columnGap);
   if (style.rowGap) element.rowGap = toResponsiveValue(style.rowGap);
   if (style.color) element.color = rgbToHex(style.color);
@@ -121,7 +122,7 @@ const maybeApplyBorderProps = (element: Partial<PageElement>, style: Partial<CSS
 const maybeApplyChildren = (elementNode: HTMLElement, element: Partial<PageElement>) => {
   const children = [...elementNode.children].map((child) => domToPageElement(child as HTMLElement)) as PageElement[];
 
-  if (element.children && children.length > 0) {
+  if (children.length > 0) {
     element.children = children;
   }
 };

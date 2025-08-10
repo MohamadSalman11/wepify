@@ -1,24 +1,9 @@
-import { FONT_WEIGHT_VALUES, RESPONSIVE_PROPS, SPACE_VALUES } from '@shared/constants';
+import { FONT_WEIGHT_VALUES, NUMERIC_PROPS, RESPONSIVE_PROPS, SPACE_VALUES } from '@shared/constants';
 import type { DeviceType, GridElement, PageElement } from '@shared/typing';
 import { CSS_SIZES } from '../../constants';
 import { getNextBreakpoint } from '../../utils/getNextBreakpoint';
 import { getScreenBreakpoint } from '../../utils/getScreenBreakpoint';
 import { isDefined } from '../../utils/isDefined';
-
-const PIXEL_STYLE_KEYS = [
-  'paddingTop',
-  'paddingRight',
-  'paddingBottom',
-  'paddingLeft',
-  'marginTop',
-  'marginRight',
-  'marginBottom',
-  'marginLeft',
-  'borderWidth',
-  'borderRadius',
-  'rowGap',
-  'columnGap'
-];
 
 const PLAIN_STYLE_KEYS = [
   'display',
@@ -50,7 +35,7 @@ export const generateInlineStyles = ({
     responsiveProps;
   const shouldTransform = (isDefined(left) && isDefined(top)) || isDefined(rotate);
 
-  for (const key of PIXEL_STYLE_KEYS) {
+  for (const key of NUMERIC_PROPS) {
     const value = responsiveProps[key];
     if (value !== undefined) {
       style[key as any] = `${value}px`;

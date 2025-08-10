@@ -4,6 +4,7 @@ import {
   DEFAULT_BORDER_WIDTH,
   ElementsName,
   FONT_WEIGHT_VALUES,
+  NUMERIC_PROPS,
   OPTIONS_FONT,
   SPACE_VALUES,
   Tags
@@ -205,8 +206,17 @@ function ChangeElement({
 
   return cloneElement(children, {
     onChange: (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      handler?.(event.target.value);
-      handleElementChange(event.target.name, event.target.value);
+      const propName = event.target.name;
+      const isNumber = NUMERIC_PROPS.includes(propName);
+      let value: string | number = event.target.value;
+
+      if (isNumber) {
+        const parsed = parseFloat(event.target.value);
+        value = isNaN(parsed) ? 0 : parsed;
+      }
+
+      handler?.(value);
+      handleElementChange(propName, value);
     }
   });
 }

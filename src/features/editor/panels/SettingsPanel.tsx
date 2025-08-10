@@ -832,13 +832,22 @@ function StrokeSettings() {
           </StrokeWidthContainer>
           <StrokePosition>
             {OPTIONS_BORDER.map(({ side, icon }) => (
-              <Icon
-                key={side}
-                icon={icon}
-                size='md'
-                isSelected={!borders[`border${side}`]?.includes('none') && borders[`border${side}`] !== undefined}
-                onClick={() => toggleBorder(side, `${borderWidth}px solid ${borderColor}`)}
-              />
+              <Tooltip.Root key={side}>
+                <Tooltip.Trigger asChild>
+                  <Icon
+                    icon={icon}
+                    size='md'
+                    isSelected={!borders[`border${side}`]?.includes('none') && borders[`border${side}`] !== undefined}
+                    onClick={() => toggleBorder(side, `${borderWidth}px solid ${borderColor}`)}
+                  />
+                </Tooltip.Trigger>
+                <Tooltip.Portal>
+                  <Tooltip.Content className='TooltipContent TooltipSmall' side='top'>
+                    {side}
+                    <Tooltip.Arrow className='TooltipArrow' />
+                  </Tooltip.Content>
+                </Tooltip.Portal>
+              </Tooltip.Root>
             ))}
           </StrokePosition>
         </GridContainer>

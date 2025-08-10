@@ -102,7 +102,7 @@ const maybeApplyBorderProps = (element: Partial<PageElement>, style: Partial<CSS
 
       if (match) {
         const [, width, , color] = match;
-        element.borderWidth = Number.parseFloat(width) || DEFAULT_BORDER_WIDTH;
+        element.borderWidth = Number.parseFloat(width) ?? DEFAULT_BORDER_WIDTH;
         element.borderColor = color === 'initial' ? DEFAULT_BORDER_COLOR : rgbToHex(color);
         break;
       }

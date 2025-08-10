@@ -210,11 +210,13 @@ export default function SettingsPanel() {
 
 function ChangeElement({
   children,
+  minValue,
   handler
 }: {
   children: ReactElement<{
     onChange?: (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   }>;
+  minValue?: number;
   handler?: (value: string | number) => void;
 }) {
   const { handleElementChange } = useSettingsContext();
@@ -223,11 +225,16 @@ function ChangeElement({
     onChange: (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       const propName = event.target.name;
       const isNumber = NUMERIC_PROPS.has(propName);
-      let value: string | number = event.target.value;
+      const rawValue = event.target.value;
+      let value: string | number = rawValue;
+
+      if (rawValue === '') return;
 
       if (isNumber) {
-        const parsed = Number(event.target.value);
-        value = Number.isNaN(parsed) ? 0 : parsed;
+        const parsed = Number(rawValue);
+        if (Number.isNaN(parsed)) return;
+        if (minValue !== undefined && parsed < minValue) return;
+        value = parsed;
       }
 
       handler?.(value);
@@ -831,13 +838,13 @@ function StrokeSettings() {
           </div>
           <StrokeWidthContainer>
             <StrokeLabel>width</StrokeLabel>
-            <ChangeElement>
+            <ChangeElement minValue={0}>
               <Input name='borderWidth' type='number' defaultValue={borderWidth} />
             </ChangeElement>
           </StrokeWidthContainer>
           <StrokeWidthContainer>
             <StrokeLabel>radius</StrokeLabel>
-            <ChangeElement>
+            <ChangeElement minValue={0}>
               <Input name='borderRadius' type='number' defaultValue={borderRadius} />
             </ChangeElement>
           </StrokeWidthContainer>

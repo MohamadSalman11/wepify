@@ -98,11 +98,6 @@ function PageItem({ page, index }: { page: PageMetadata; index: number }) {
                   Edit
                 </Dropdown.Button>
               </Modal.Open>
-              <Modal.Open openName='delete'>
-                <Dropdown.Button icon={LuTrash2} onClick={() => open('delete')}>
-                  Delete
-                </Dropdown.Button>
-              </Modal.Open>
               <Dropdown.Button icon={LuLink} onClick={() => handleCopyLink(page.isIndex ? 'index' : page.name)}>
                 Copy page link
               </Dropdown.Button>
@@ -112,6 +107,11 @@ function PageItem({ page, index }: { page: PageMetadata; index: number }) {
               >
                 Duplicate page
               </Dropdown.Button>
+              <Modal.Open openName='delete'>
+                <Dropdown.Button icon={LuTrash2} onClick={() => open('delete')}>
+                  Delete
+                </Dropdown.Button>
+              </Modal.Open>
             </Dropdown.Drop>
           </Dropdown>
           <Modal.Window name='edit'>
@@ -177,10 +177,10 @@ function EditDialog({ page, onCloseModal }: { page: PageMetadata; onCloseModal?:
         onChange={(event) => setNewTitle(event.target.value)}
       />
       <DialogActions>
-        <Button onClick={handleSave} size='sm' pill={true}>
+        <Button onClick={handleSave} size='sm' pill>
           OK
         </Button>
-        <Button onClick={onCloseModal} variation='secondary' size='sm' pill={true}>
+        <Button onClick={onCloseModal} variation='secondary' size='sm' pill>
           Cancel
         </Button>
       </DialogActions>
@@ -230,10 +230,10 @@ function DeleteDialog({
     <>
       <p>Are you sure you want to delete "{page.name}"? This action cannot be undone.</p>
       <DialogActions>
-        <Button size='sm' variation='danger' pill={true} onClick={handleDelete}>
+        <Button size='sm' variation='danger' pill onClick={handleDelete}>
           Delete Forever
         </Button>
-        <Button onClick={onCloseModal} size='sm' variation='secondary' pill={true}>
+        <Button onClick={onCloseModal} size='sm' variation='secondary' pill>
           Cancel
         </Button>
       </DialogActions>

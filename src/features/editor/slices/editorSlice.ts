@@ -69,7 +69,6 @@ const editorSlice = createSlice({
     addPage(state, action: PayloadAction<PageMetadata>) {
       const pageMetadata = action.payload;
 
-      state.site.lastModified = Date.now();
       state.site.pages.push({ ...pageMetadata, elements: [ELEMENTS_TEMPLATE.section as PageElement] });
       state.pagesMetadata.push(pageMetadata);
     },
@@ -80,7 +79,6 @@ const editorSlice = createSlice({
       const pageMetadata = state.pagesMetadata.find((page) => page.id === id);
 
       if (page && pageMetadata) {
-        state.site.lastModified = Date.now();
         page.name = name;
         page.title = title;
         pageMetadata.name = name;
@@ -88,7 +86,6 @@ const editorSlice = createSlice({
       }
     },
     deletePage(state, action: PayloadAction<string>) {
-      state.site.lastModified = Date.now();
       state.site.pages = state.site.pages.filter((page) => page.id !== action.payload);
       state.pagesMetadata = state.pagesMetadata.filter((page) => page.id !== action.payload);
     },
@@ -104,8 +101,6 @@ const editorSlice = createSlice({
       }
     },
     setIsIndexPage(state, action: PayloadAction<string>) {
-      state.site.lastModified = Date.now();
-
       for (const page of state.site.pages) {
         page.isIndex = page.id === action.payload;
       }
@@ -127,11 +122,9 @@ const editorSlice = createSlice({
       state.images = action.payload;
     },
     addImage(state, action: PayloadAction<Image>) {
-      state.site.lastModified = Date.now();
       state.images.push(action.payload);
     },
     deleteImage(state, action: PayloadAction<string>) {
-      state.site.lastModified = Date.now();
       state.images = state.images.filter((image) => image.id !== action.payload);
     },
     addElement(
@@ -142,8 +135,6 @@ const editorSlice = createSlice({
         newElement: PageElement;
       }>
     ) {
-      state.site.lastModified = Date.now();
-
       const { pageId, parentElementId, newElement } = action.payload;
 
       const page = state.site.pages.find((p) => p.id === pageId);
@@ -167,8 +158,6 @@ const editorSlice = createSlice({
         updates: Partial<PageElement>;
       }>
     ) {
-      state.site.lastModified = Date.now();
-
       const { pageId, elementId, updates } = action.payload;
       const page = state.site.pages.find((p) => p.id === pageId);
 
@@ -200,8 +189,6 @@ const editorSlice = createSlice({
         elementId: string;
       }>
     ) {
-      state.site.lastModified = Date.now();
-
       const { pageId, parentElementId, elementId } = action.payload;
 
       const page = state.site.pages.find((p) => p.id === pageId);
@@ -234,6 +221,10 @@ const editorSlice = createSlice({
       state.deviceType = action.payload;
     },
 
+    setSiteLastModified(state, action: PayloadAction<number>) {
+      state.site.lastModified = action.payload;
+    },
+
     clearSite() {
       return initialState;
     }
@@ -242,10 +233,13 @@ const editorSlice = createSlice({
 
 export const editorMiddleware: Middleware = (storeAPI) => (next) => (action) => {
   const result = next(action);
-  const prefix = `${editorSlice.name}/`;
 
-  if (STORING_ACTIONS.has((action as any).type.replace(prefix, ''))) {
+  const prefix = `${editorSlice.name}/`;
+  const actionName = (action as any).type.replace(prefix, '');
+
+  if (STORING_ACTIONS.has(actionName)) {
     storeAPI.dispatch(setIsStoring(true));
+    storeAPI.dispatch(setSiteLastModified(Date.now()));
   }
 
   return result;
@@ -263,6 +257,7 @@ export const {
   setIsLoading,
   setIsError,
   setIsStoring,
+  setSiteLastModified,
   setImages,
   addElement,
   selectElement,

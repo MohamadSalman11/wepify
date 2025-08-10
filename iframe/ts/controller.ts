@@ -181,6 +181,8 @@ const controlUpdatePage = (updates: { backgroundColor: string }) => {
 
   Object.assign(body.style, updates);
 
+  if (state.initRender) return;
+
   postMessageToApp({ type: MessageFromIframe.PageUpdated, payload: { updates } });
 };
 

@@ -312,7 +312,7 @@ function SizeSettings() {
     <div>
       <CollapsibleSection title='Size' open={true}>
         <GridContainer>
-          <SizeRow>
+          <SizeRow $disabled={disableInput}>
             <label htmlFor='settings-panel-input-left'>X</label>
             <ChangeElement>
               <Input
@@ -324,7 +324,7 @@ function SizeSettings() {
               />
             </ChangeElement>
           </SizeRow>
-          <SizeRow>
+          <SizeRow $disabled={disableInput}>
             <label htmlFor='settings-panel-input-top'>Y</label>
             <ChangeElement>
               <Input
@@ -336,7 +336,7 @@ function SizeSettings() {
               />
             </ChangeElement>
           </SizeRow>
-          <SizeRow>
+          <SizeRow $disabled={disableInput}>
             <label htmlFor='settings-panel-input-width'>W</label>
             <ChangeElement>
               <Select
@@ -363,7 +363,7 @@ function SizeSettings() {
               />
             </ChangeElement>
           </SizeRow>
-          <SizeRow>
+          <SizeRow $disabled={disableInput}>
             <label htmlFor='settings-panel-input-rotate'>R</label>
             <ChangeElement>
               <Input
@@ -1063,7 +1063,7 @@ const SelectorContainer = styled.div`
   font-size: 1.2rem;
 `;
 
-const SizeRow = styled.div`
+const SizeRow = styled.div<{ $disabled?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1072,6 +1072,7 @@ const SizeRow = styled.div`
 
   label {
     min-width: 1rem;
+    ${(props) => props.$disabled && 'color: var(--color-gray-light-3);'}
   }
 `;
 

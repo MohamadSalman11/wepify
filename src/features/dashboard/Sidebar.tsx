@@ -1,5 +1,6 @@
 import { nanoid } from '@reduxjs/toolkit';
 import type { PageElement, Site, SitePage } from '@shared/typing';
+import toast from 'react-hot-toast';
 import { LuClock4, LuCloud, LuFileDown, LuFilePlus, LuHouse, LuLoader, LuStar } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
@@ -63,6 +64,8 @@ export default function Sidebar() {
   async function handleDesignNewSite() {
     const siteId = nanoid();
     const page = createNewPage();
+
+    toast.dismiss();
 
     page.isIndex = true;
 

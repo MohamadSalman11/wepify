@@ -6,6 +6,8 @@ import { state } from '../../model';
 import { extractTransform } from '../../utils/extractTransform';
 import { parseGridRepeat } from '../../utils/parseGridRepeat';
 
+const BORDER_REGEX = /^(\d+px)\s+(\w+)\s+(.+)$/;
+
 const RESPONSIVE_NUMBER_KEYS = [
   'flexDirection',
   'paddingTop',
@@ -90,21 +92,30 @@ const maybeApplySizeProps = (element: Partial<PageElement>, style: Partial<CSSSt
 };
 
 const maybeApplyBorderProps = (element: Partial<PageElement>, style: Partial<CSSStyleDeclaration>) => {
-  const { borderTop, borderRight, borderBottom, borderLeft, borderColor, borderWidth, borderRadius } = style;
+  const sides = ['borderTop', 'borderRight', 'borderBottom', 'borderLeft'] as const;
 
-  if (borderColor) {
-    element.borderColor = borderColor === 'initial' ? DEFAULT_BORDER_COLOR : rgbToHex(borderColor);
+  for (const side of sides) {
+    const borderValue = style[side];
+
+    if (typeof borderValue === 'string' && borderValue !== 'none') {
+      const match = borderValue.match(BORDER_REGEX);
+
+      if (match) {
+        const [, width, , color] = match;
+        element.borderWidth = Number.parseFloat(width) || DEFAULT_BORDER_WIDTH;
+        element.borderColor = color === 'initial' ? DEFAULT_BORDER_COLOR : rgbToHex(color);
+        break;
+      }
+    }
   }
 
-  if (borderWidth) {
-    element.borderWidth = Number.parseFloat(borderWidth) || DEFAULT_BORDER_WIDTH;
+  for (const side of sides) {
+    if (style[side]) element[side] = style[side];
   }
 
-  if (borderTop) element.borderTop = borderTop;
-  if (borderRight) element.borderRight = borderRight;
-  if (borderBottom) element.borderBottom = borderBottom;
-  if (borderLeft) element.borderLeft = borderLeft;
-  if (borderRadius) element.borderRadius = Number.parseFloat(borderRadius);
+  if (style.borderRadius) {
+    element.borderRadius = Number.parseFloat(style.borderRadius);
+  }
 };
 
 const maybeApplyChildren = (elementNode: HTMLElement, element: Partial<PageElement>) => {

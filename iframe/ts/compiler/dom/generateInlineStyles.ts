@@ -1,17 +1,28 @@
-import { FONT_WEIGHT_VALUES, NUMERIC_PROPS, RESPONSIVE_PROPS, SPACE_VALUES } from '@shared/constants';
+import { FONT_WEIGHT_VALUES, RESPONSIVE_PROPS, SPACE_VALUES } from '@shared/constants';
 import type { DeviceType, GridElement, PageElement } from '@shared/typing';
 import { CSS_SIZES } from '../../constants';
 import { getNextBreakpoint } from '../../utils/getNextBreakpoint';
 import { getScreenBreakpoint } from '../../utils/getScreenBreakpoint';
 import { isDefined } from '../../utils/isDefined';
 
+const PIXEL_STYLE_KEYS = [
+  'paddingTop',
+  'paddingRight',
+  'paddingBottom',
+  'paddingLeft',
+  'marginTop',
+  'marginRight',
+  'marginBottom',
+  'marginLeft',
+  'borderRadius',
+  'rowGap',
+  'columnGap'
+];
+
+const BORDER_STYLE_KEYS = ['borderTop', 'borderRight', 'borderBottom', 'borderLeft'];
+
 const PLAIN_STYLE_KEYS = [
   'display',
-  'borderTop',
-  'borderRight',
-  'borderBottom',
-  'borderLeft',
-  'borderColor',
   'backgroundColor',
   'color',
   'fontFamily',
@@ -31,11 +42,47 @@ export const generateInlineStyles = ({
 }) => {
   const style: Partial<CSSStyleDeclaration> = {};
   const responsiveProps = extractResponsiveProps(element, isResponsive, deviceType);
-  const { left, top, fontWeight, fontSize, rotate, scaleY, scaleX, zIndex, justifyContent, flexDirection } =
-    responsiveProps;
+  const {
+    left,
+    top,
+    fontWeight,
+    fontSize,
+    rotate,
+    scaleY,
+    scaleX,
+    zIndex,
+    justifyContent,
+    flexDirection,
+    borderWidth,
+    borderColor
+  } = responsiveProps;
   const shouldTransform = (isDefined(left) && isDefined(top)) || isDefined(rotate);
+  console.log(element);
 
-  for (const key of NUMERIC_PROPS) {
+  for (const key of BORDER_STYLE_KEYS) {
+    const value = responsiveProps[key];
+
+    if (value === 'none') {
+      style[key] = 'none';
+      continue;
+    }
+
+    if (typeof value === 'string') {
+      let [width, , color] = value.split(/\s+/);
+
+      if (isDefined(borderWidth)) {
+        width = `${borderWidth}px`;
+      }
+
+      if (isDefined(borderColor)) {
+        color = borderColor;
+      }
+
+      style[key] = [width, 'solid', color || ''].join(' ').trim();
+    }
+  }
+
+  for (const key of PIXEL_STYLE_KEYS) {
     const value = responsiveProps[key];
     if (value !== undefined) {
       style[key as any] = `${value}px`;

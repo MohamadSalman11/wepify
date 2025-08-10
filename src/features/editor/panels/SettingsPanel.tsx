@@ -4,7 +4,6 @@ import {
   DEFAULT_BORDER_WIDTH,
   ElementsName,
   FONT_WEIGHT_VALUES,
-  NUMERIC_PROPS,
   OPTIONS_FONT,
   SPACE_VALUES,
   Tags
@@ -134,6 +133,21 @@ const OPTIONS_INPUT_TYPE = [
   'week'
 ];
 
+const NUMERIC_PROPS = new Set([
+  'paddingTop',
+  'paddingRight',
+  'paddingBottom',
+  'paddingLeft',
+  'marginTop',
+  'marginRight',
+  'marginBottom',
+  'marginLeft',
+  'borderWidth',
+  'borderRadius',
+  'rowGap',
+  'columnGap'
+]);
+
 /**
  * Context
  */
@@ -172,6 +186,7 @@ export default function SettingsPanel() {
     }
 
     Object.assign(updates, getSynchronizedTransform(selectedElement, name, deviceType));
+    Object.assign(updates, getSynchronizedBorder(selectedElement, name));
 
     iframeConnection.updateElement(updates);
   };
@@ -207,12 +222,12 @@ function ChangeElement({
   return cloneElement(children, {
     onChange: (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       const propName = event.target.name;
-      const isNumber = NUMERIC_PROPS.includes(propName);
+      const isNumber = NUMERIC_PROPS.has(propName);
       let value: string | number = event.target.value;
 
       if (isNumber) {
-        const parsed = parseFloat(event.target.value);
-        value = isNaN(parsed) ? 0 : parsed;
+        const parsed = Number(event.target.value);
+        value = Number.isNaN(parsed) ? 0 : parsed;
       }
 
       handler?.(value);
@@ -964,6 +979,28 @@ const getSynchronizedFlex = (
     updates.display = 'flex';
     updates[resolvedAlignName] = resolvedAlignValue;
     updates[resolvedJustifyName] = resolvedJustifyValue;
+  }
+
+  return updates;
+};
+
+const getSynchronizedBorder = (selectedElement: PageElement, propName: string) => {
+  const updates: any = {};
+  const { borderColor, borderWidth } = selectedElement;
+  const sides = ['borderTop', 'borderRight', 'borderBottom', 'borderLeft'];
+
+  if (isValueIn(propName, 'borderWidth')) {
+    for (const side of sides) {
+      updates[side] = selectedElement[side];
+    }
+    updates.borderColor = borderColor;
+  }
+
+  if (isValueIn(propName, 'borderColor')) {
+    for (const side of sides) {
+      updates[side] = selectedElement[side];
+    }
+    updates.borderWidth = borderWidth;
   }
 
   return updates;

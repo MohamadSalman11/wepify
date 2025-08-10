@@ -96,21 +96,6 @@ export const SCREEN_SIZES = {
   smartphone: { width: 375, height: 667 }
 } as const;
 
-export const NUMERIC_PROPS = [
-  'paddingTop',
-  'paddingRight',
-  'paddingBottom',
-  'paddingLeft',
-  'marginTop',
-  'marginRight',
-  'marginBottom',
-  'marginLeft',
-  'borderWidth',
-  'borderRadius',
-  'rowGap',
-  'columnGap'
-];
-
 export const RESPONSIVE_PROPS = new Set([
   'width',
   'height',

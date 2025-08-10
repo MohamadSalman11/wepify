@@ -104,7 +104,7 @@ export default function SitesView({
         {isFiltering ? (
           <FilterHeader>
             <span onClick={handleClearFilter}>
-              <Icon icon={LuArrowLeft} hover={true} />
+              <Icon icon={LuArrowLeft} hover />
             </span>
             {filterLabel}
           </FilterHeader>

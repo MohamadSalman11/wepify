@@ -65,7 +65,7 @@ function Dialog({ children, title }: { children: ClickableElement; title: string
     <StyledDialog>
       <DialogHeader>
         <h3>{title}</h3>
-        <Icon onClick={close} icon={LuX} hover={true} />
+        <Icon onClick={close} icon={LuX} hover />
       </DialogHeader>
       {cloneElement(children, {
         onCloseModal: close

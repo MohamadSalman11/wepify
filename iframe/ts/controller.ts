@@ -484,7 +484,7 @@ const controlDocumentClick = (event: globalThis.MouseEvent) => {
 
   const target = (event.target as HTMLElement)?.closest(SELECTOR_TARGET) as HTMLElement;
 
-  if (!target || state.isSitePreviewMode) return;
+  if (!target || state.isSitePreviewMode || state.target?.id === target.id) return;
 
   const targetName = target.id.split('-')[0];
   const dragButton = document.querySelector(SELECTOR_DRAG_BUTTON) as HTMLImageElement;

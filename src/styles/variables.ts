@@ -114,7 +114,7 @@ const variables = css`
     --input-border-radius: var(--border-radius-md);
 
     --input-padding-y-sm: 0.8rem;
-    --input-padding-x-sm: var(--padding-x);
+    --input-padding-x-sm: 1.4rem;
     --input-font-size-sm: var(--font-size);
 
     --input-padding-y-lg: 1.6rem;

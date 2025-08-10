@@ -20,7 +20,15 @@ import type {
   PageElement
 } from '@shared/typing';
 import { isValueIn } from '@shared/utils';
-import { cloneElement, createContext, useContext, type ChangeEvent, type ReactElement } from 'react';
+import {
+  cloneElement,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ChangeEvent,
+  type ReactElement
+} from 'react';
 import {
   LuAlignCenter,
   LuAlignEndHorizontal,
@@ -228,6 +236,8 @@ function ChangeElement({
       const rawValue = event.target.value;
       let value: string | number = rawValue;
 
+      handler?.(value);
+
       if (rawValue === '') return;
 
       if (isNumber) {
@@ -237,7 +247,6 @@ function ChangeElement({
         value = parsed;
       }
 
-      handler?.(value);
       handleElementChange(propName, value);
     }
   });
@@ -284,6 +293,15 @@ function SizeSettings() {
   const { handleElementChange } = useSettingsContext();
   const { selectedElement, deviceType } = useAppSelector((state) => state.editor);
   const disableInput = isValueIn(selectedElement.name, ElementsName.Item, ElementsName.Section);
+  const leftValue = parseNumber(getResponsiveValue(selectedElement.left, deviceType)) ?? 0;
+  const topValue = parseNumber(getResponsiveValue(selectedElement.top, deviceType)) ?? 0;
+  const [left, setLeft] = useState(leftValue);
+  const [top, setTop] = useState(topValue);
+
+  useEffect(() => {
+    setLeft(leftValue);
+    setTop(topValue);
+  }, [leftValue, topValue]);
 
   const handleRotate = () => {
     const current = getResponsiveValue(selectedElement.rotate, deviceType) ?? 0;
@@ -314,25 +332,25 @@ function SizeSettings() {
         <GridContainer>
           <SizeRow $disabled={disableInput}>
             <label htmlFor='settings-panel-input-left'>X</label>
-            <ChangeElement>
+            <ChangeElement handler={setLeft}>
               <Input
                 id='settings-panel-input-left'
                 name='left'
                 disabled={disableInput}
                 type='number'
-                value={disableInput ? '' : parseNumber(getResponsiveValue(selectedElement.left, deviceType))}
+                value={disableInput ? '' : left}
               />
             </ChangeElement>
           </SizeRow>
           <SizeRow $disabled={disableInput}>
             <label htmlFor='settings-panel-input-top'>Y</label>
-            <ChangeElement>
+            <ChangeElement handler={setTop}>
               <Input
                 id='settings-panel-input-top'
                 name='top'
                 disabled={disableInput}
                 type='number'
-                value={disableInput ? '' : parseNumber(getResponsiveValue(selectedElement.top, deviceType))}
+                value={disableInput ? '' : top}
               />
             </ChangeElement>
           </SizeRow>

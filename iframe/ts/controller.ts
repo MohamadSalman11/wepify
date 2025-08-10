@@ -487,6 +487,9 @@ const controlDocumentClick = (event: globalThis.MouseEvent) => {
   if (!target || state.isSitePreviewMode) return;
 
   const targetName = target.id.split('-')[0];
+  const dragButton = document.querySelector(SELECTOR_DRAG_BUTTON) as HTMLImageElement;
+
+  dragButton.style.display = 'none';
 
   event.stopPropagation();
   changeTarget(target, targetName);
@@ -496,6 +499,10 @@ const controlDocumentClick = (event: globalThis.MouseEvent) => {
   if (!NOT_MOVEABLE_ELEMENTS.has(state.targetName || '')) {
     getMoveableInstance().target = target;
   }
+
+  setTimeout(() => {
+    dragButton.style.display = 'inline';
+  });
 
   const previousSelected = document.querySelector(SELECTOR_ACTIVE_ITEM);
   previousSelected?.classList.remove(CLASS_SELECTED_ITEM);

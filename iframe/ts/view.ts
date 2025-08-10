@@ -53,10 +53,6 @@ export const positionDragButton = (
   if (dragButton) {
     const scale = scaleFactor === DEFAULT_SCALE_FACTOR ? 1 : scaleFactor / DEFAULT_SCALE_FACTOR;
     dragButton.style.transform = `translateZ(0px) translate(${DRAG_BUTTON_OFFSET_X}px, ${elementHeight * scale + DRAG_BUTTON_OFFSET_Y + (borderWidth || 0)}px)`;
-
-    setTimeout(() => {
-      dragButton.style.display = 'inline';
-    });
   }
 };
 

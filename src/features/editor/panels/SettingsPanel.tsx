@@ -801,33 +801,19 @@ function StrokeSettings() {
         <GridContainer>
           <div>
             <ChangeElement>
-              <ColorPicker
-                name='borderColor'
-                defaultValue={borderColor}
-                onChange={(event) => handleElementChange('borderColor', event.target.value)}
-              />
+              <ColorPicker name='borderColor' defaultValue={borderColor} />
             </ChangeElement>
           </div>
           <StrokeWidthContainer>
             <StrokeLabel>width</StrokeLabel>
             <ChangeElement>
-              <Input
-                name='borderWidth'
-                type='number'
-                defaultValue={borderWidth}
-                onChange={(event) => handleElementChange('borderWidth', event.target.value)}
-              />
+              <Input name='borderWidth' type='number' defaultValue={borderWidth} />
             </ChangeElement>
           </StrokeWidthContainer>
           <StrokeWidthContainer>
             <StrokeLabel>radius</StrokeLabel>
             <ChangeElement>
-              <Input
-                name='borderRadius'
-                type='number'
-                defaultValue={borderRadius}
-                onChange={(event) => handleElementChange('borderRadius', event.target.value)}
-              />
+              <Input name='borderRadius' type='number' defaultValue={borderRadius} />
             </ChangeElement>
           </StrokeWidthContainer>
           <StrokePosition>

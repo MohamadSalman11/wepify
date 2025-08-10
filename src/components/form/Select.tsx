@@ -123,7 +123,7 @@ const SelectButton = styled.div<{ $clickable: boolean; $disabled: boolean }>`
   justify-content: space-between;
   align-items: center;
   ${({ $clickable }) => $clickable && `cursor: pointer;`}
-  ${(props) => props.$disabled && 'opacity: 0.5;'}
+  ${(props) => props.$disabled && 'opacity: 0.7;'}
 `;
 
 const LabelEditable = styled.span`

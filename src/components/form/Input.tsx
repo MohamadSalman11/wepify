@@ -78,7 +78,7 @@ const StyledInput = styled.input<{ $size: Size; $pill: boolean }>`
 
       &:disabled {
         cursor: not-allowed;
-        opacity: 0.5;
+        opacity: 0.7;
 
         &::placeholder {
          color:var(--color-gray-light);

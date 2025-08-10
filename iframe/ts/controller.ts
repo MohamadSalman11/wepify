@@ -12,7 +12,7 @@ import { createDomTree } from './compiler/dom/createDomTree';
 import { domToPageElement } from './compiler/dom/domToPageElement';
 import { generateInlineStyles } from './compiler/dom/generateInlineStyles';
 import { MOVEABLE_CONFIG } from './config';
-import { SELECTOR_DRAG_BUTTON, SELECTOR_ROOT, SELECTOR_SECTION, SELECTOR_TARGET } from './constants';
+import { SELECTOR_DRAG_BUTTON, SELECTOR_ROOT, SELECTOR_TARGET } from './constants';
 import { changeTarget, getMoveableInstance, getTarget, state } from './model';
 import SiteExporter from './SiteExporter';
 import { adjustGridColumnsIfNeeded } from './utils/adjustGridColumnsIfNeeded';

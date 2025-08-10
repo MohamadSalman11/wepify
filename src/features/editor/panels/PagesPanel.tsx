@@ -62,6 +62,7 @@ function PageItem({ page, index }: { page: PageMetadata; index: number }) {
   const { siteId, pageId } = useParams();
   const { open } = useModalContext();
   const { iframeRef } = useIframeContext();
+  const isActivePage = page.id === pageId;
 
   const handleOpenEditor = (event: MouseEvent<HTMLLIElement>, page: PageMetadata) => {
     const target = event.target as HTMLElement;
@@ -76,9 +77,9 @@ function PageItem({ page, index }: { page: PageMetadata; index: number }) {
   };
 
   return (
-    <StyledPageItem $active={page.id === pageId} onClick={(event) => handleOpenEditor(event, page)}>
+    <StyledPageItem $active={isActivePage} onClick={(event) => handleOpenEditor(event, page)}>
       <div>
-        <Icon icon={LuSquareMenu} color={page.isIndex ? 'var(--color-white)' : 'var(--color-gray)'} />
+        <Icon icon={LuSquareMenu} color={isActivePage ? 'var(--color-white)' : 'var(--color-gray)'} />
         <span>
           {page.name.length > MAX_PAGE_NAME_LENGTH ? `${page.name.slice(0, MAX_PAGE_NAME_LENGTH)}...` : page.name}
         </span>

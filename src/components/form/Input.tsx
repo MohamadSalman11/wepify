@@ -33,7 +33,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({ size = DEFAULT_SIZE, p
 const sizes: Record<Size, RuleSet> = {
   sm: css`
     ${({ theme: { prefix } }) => css`
-    --${prefix}-input-padding-y-sm: var(--input-padding-y-sm); 
+    --${prefix}-input-padding-y-sm: var(--input-padding-y-sm);
     --${prefix}-input-padding-x-sm: var(--input-padding-x-sm);
     --${prefix}-input-font-size-sm: var(--input-font-size-sm);
 
@@ -43,7 +43,7 @@ const sizes: Record<Size, RuleSet> = {
   `,
   md: css`
     ${({ theme: { prefix } }) => css`
-    --${prefix}-input-padding-y: var(--input-padding-y); 
+    --${prefix}-input-padding-y: var(--input-padding-y);
     --${prefix}-input-padding-x: var(--input-padding-x);
     --${prefix}-input-font-size: var(--input-font-size);
 
@@ -53,7 +53,7 @@ const sizes: Record<Size, RuleSet> = {
   `,
   lg: css`
     ${({ theme: { prefix } }) => css`
-    --${prefix}-input-padding-y-lg: var(--input-padding-y-lg); 
+    --${prefix}-input-padding-y-lg: var(--input-padding-y-lg);
     --${prefix}-input-padding-x-lg: var(--input-padding-x-lg);
     --${prefix}-input-font-size-lg: var(--input-font-size-lg);
 
@@ -69,7 +69,7 @@ const StyledInput = styled.input<{ $size: Size; $pill: boolean }>`
 
       color: var(--color-black-light);
       border-radius: ${$pill ? 'var(--border-radius-full)' : `var(--${prefix}-input-border-radius)`};
-      background-color: var(--color-white-2);
+      background-color: var(--color-white-3);
       width: 100%;
 
       &::placeholder {
@@ -78,7 +78,7 @@ const StyledInput = styled.input<{ $size: Size; $pill: boolean }>`
 
       &:disabled {
         cursor: not-allowed;
-        background-color: var(--color-white-3);
+        opacity: 0.5;
 
         &::placeholder {
          color:var(--color-gray-light);

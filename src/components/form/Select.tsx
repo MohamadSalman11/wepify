@@ -115,7 +115,7 @@ const Wrapper = styled.div<{ $disabled: boolean }>`
 const SelectButton = styled.div<{ $clickable: boolean; $disabled: boolean }>`
   width: 100%;
   padding: 0.5rem 1.2rem;
-  background-color: var(--color-white-2);
+  background-color: var(--color-white-3);
   border-radius: var(--border-radius-sm);
   border: var(--border-base);
   color: var(--color-black-light);
@@ -123,7 +123,7 @@ const SelectButton = styled.div<{ $clickable: boolean; $disabled: boolean }>`
   justify-content: space-between;
   align-items: center;
   ${({ $clickable }) => $clickable && `cursor: pointer;`}
-  ${(props) => props.$disabled && 'background-color: var(--color-white-3)'}
+  ${(props) => props.$disabled && 'opacity: 0.5;'}
 `;
 
 const LabelEditable = styled.span`

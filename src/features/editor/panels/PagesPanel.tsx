@@ -42,7 +42,7 @@ export default function PagesPanel() {
 
   return (
     <>
-      <Button fullWidth={true} onClick={handleAddNewPage}>
+      <Button fullWidth onClick={handleAddNewPage}>
         Add New Page
       </Button>
       <StyledPagesList>

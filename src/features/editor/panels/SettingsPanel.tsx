@@ -274,7 +274,7 @@ function SelectorSettings() {
 
   return (
     <div>
-      <CollapsibleSection title='Selector' open={true}>
+      <CollapsibleSection title='Selector' open>
         <SelectorContainer>
           <Icon icon={LuMonitor} />
           <Select
@@ -328,7 +328,7 @@ function SizeSettings() {
 
   return (
     <div>
-      <CollapsibleSection title='Size' open={true}>
+      <CollapsibleSection title='Size' open>
         <GridContainer>
           <SizeRow $disabled={disableInput}>
             <label htmlFor='settings-panel-input-left'>X</label>
@@ -432,7 +432,7 @@ function AlignmentSettings() {
 
   return (
     <div>
-      <CollapsibleSection title='Alignment' open={true}>
+      <CollapsibleSection title='Alignment' open>
         <AlignmentContainer>
           {OPTIONS_ALIGN_ITEM.map(({ icon, label, targetName, targetValue }) => {
             const isSelected =
@@ -623,7 +623,7 @@ function GridSettings() {
 
   return (
     <div>
-      <CollapsibleSection title='Grid' open={true}>
+      <CollapsibleSection title='Grid' open>
         <GridContainer>
           <div>
             <SubTitle>Columns</SubTitle>
@@ -701,7 +701,7 @@ function LinkSettings() {
 
   return (
     <div>
-      <CollapsibleSection title='Link' open={true}>
+      <CollapsibleSection title='Link' open>
         <div>
           <ChangeElement>
             <Input name='link' type='text' defaultValue={selectedElement.link} placeholder='https://example.com' />

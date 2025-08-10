@@ -72,7 +72,7 @@ export default function Editor() {
         <Header />
         {leftPanelOpen && <Outlet />}
         <Canvas isPreview={isPreview} />
-        <Panel panel='settings' sectioned={true} borderDir='left' />
+        <Panel panel='settings' sectioned borderDir='left' />
       </StyledEditor>
     </IframeContext.Provider>
   );

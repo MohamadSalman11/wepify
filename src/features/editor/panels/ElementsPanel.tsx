@@ -67,7 +67,7 @@ export default function ElementsPanel() {
         </SearchBar>
       </div>
       <div>
-        <CollapsibleSection title='Layout' open={true}>
+        <CollapsibleSection title='Layout' open>
           <PanelList $disabled={isValueIn(selectedElement.name, ElementsName.Grid, ElementsName.Link)}>
             <LayoutItem data-grid-active>
               <PanelBox onClick={() => handleAddElement(ElementsName.Section)}>

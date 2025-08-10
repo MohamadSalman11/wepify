@@ -394,10 +394,10 @@ function EditDialog({ siteMetadata, onCloseModal }: { siteMetadata: SiteMetadata
         onChange={(event) => setNewDescription(event.target.value)}
       />
       <DialogActions>
-        <Button size='sm' pill={true} onClick={handleSiteUpdate}>
+        <Button size='sm' pill onClick={handleSiteUpdate}>
           OK
         </Button>
-        <Button onClick={onCloseModal} variation='secondary' size='sm' pill={true}>
+        <Button onClick={onCloseModal} variation='secondary' size='sm' pill>
           Cancel
         </Button>
       </DialogActions>
@@ -432,7 +432,7 @@ function DeleteDialog({ siteMetadata, onCloseModal }: { siteMetadata: SiteMetada
     <>
       <p>Are you sure you want to delete "{name}"? This action cannot be undone.</p>
       <DialogActions>
-        <Button size='sm' variation='danger' pill={true} onClick={handleDelete}>
+        <Button size='sm' variation='danger' pill onClick={handleDelete}>
           Delete Forever
         </Button>
         <Button onClick={onCloseModal} size='sm' variation='secondary' pill={true}>

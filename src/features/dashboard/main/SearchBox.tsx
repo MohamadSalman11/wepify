@@ -78,14 +78,7 @@ export default function SearchBox() {
       <h1>Welcome to Wepify</h1>
       <Searchbar ref={useOutsideClick<HTMLDivElement>(clearSearch)} $isSearchResult={isSearchResultVisible}>
         <Icon icon={LuSearch} />
-        <Input
-          size='lg'
-          pill={true}
-          ref={inputRef}
-          type='text'
-          placeholder='Search in Wepify'
-          onChange={handleSearch}
-        />
+        <Input size='lg' pill ref={inputRef} type='text' placeholder='Search in Wepify' onChange={handleSearch} />
         {isSearching && <Icon icon={LuX} onClick={clearSearch} />}
       </Searchbar>
       {isSearchResultVisible && <SearchResults matchedSites={matchedSites} />}

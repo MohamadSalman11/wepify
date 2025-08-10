@@ -48,7 +48,7 @@ export default function Preview() {
   return (
     <>
       <ClosePreviewButton onClick={handleClose}>Close Preview</ClosePreviewButton>
-      <Canvas isPreview={true} />
+      <Canvas isPreview />
     </>
   );
 }

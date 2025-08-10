@@ -76,7 +76,7 @@ export default function Select({
         ) : (
           <LabelEditable>{selected || 'Select...'}</LabelEditable>
         )}
-        <Chevron $clickable={true} onClick={!disabled && editable ? toggleDropdown : undefined}>
+        <Chevron $clickable onClick={!disabled && editable ? toggleDropdown : undefined}>
           <Icon icon={LuChevronDown} color={`${disabled ? 'var(--color-white-3)' : ''}`} />
         </Chevron>
       </SelectButton>

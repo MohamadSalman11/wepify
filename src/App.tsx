@@ -19,7 +19,7 @@ import theme from './styles/theme';
 function App() {
   return (
     <BrowserRouter>
-      <Tooltip.Provider disableHoverableContent={true} delayDuration={200}>
+      <Tooltip.Provider disableHoverableContent delayDuration={200}>
         <PanelProvider>
           <ThemeProvider theme={theme}>
             <GlobalStyles />
@@ -46,7 +46,7 @@ function App() {
                 }
               >
                 <Route index element={<Navigate replace to={EditorPath.Elements} />} />
-                <Route path={EditorPath.Elements} element={<Panel panel={EditorPath.Elements} sectioned={true} />} />
+                <Route path={EditorPath.Elements} element={<Panel panel={EditorPath.Elements} sectioned />} />
                 <Route path={EditorPath.Pages} element={<Panel panel={EditorPath.Pages} />} />
                 <Route path={EditorPath.Layers} element={<Panel panel={EditorPath.Layers} />} />
                 <Route path={EditorPath.Uploads} element={<Panel panel={EditorPath.Uploads} />} />

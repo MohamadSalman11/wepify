@@ -116,7 +116,7 @@ const SelectButton = styled.div<{ $clickable: boolean; $disabled: boolean }>`
   width: 100%;
   padding: 0.5rem 1.2rem;
   background-color: var(--color-white-3);
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--border-radius-md);
   border: var(--border-base);
   color: var(--color-black-light);
   display: flex;

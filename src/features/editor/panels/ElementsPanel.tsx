@@ -301,6 +301,10 @@ const MediaItem = styled.li`
     justify-content: center;
     align-items: center;
   }
+
+  span {
+    background-color: transparent !important;
+  }
 `;
 
 const SearchBar = styled.div`

@@ -109,6 +109,10 @@ const editorSlice = createSlice({
       for (const page of state.site.pages) {
         page.isIndex = page.id === action.payload;
       }
+
+      for (const meta of state.pagesMetadata) {
+        meta.isIndex = meta.id === action.payload;
+      }
     },
     setIsLoading(state, action: PayloadAction<boolean>) {
       state.isLoading = action.payload;

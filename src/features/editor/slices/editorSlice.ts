@@ -1,7 +1,20 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, Middleware, type PayloadAction } from '@reduxjs/toolkit';
 import { ELEMENTS_TEMPLATE, ElementsName, RESPONSIVE_PROPS } from '@shared/constants';
 import { DeviceType, Image, PageElement, PageMetadata, Site, SitePage } from '@shared/typing';
 import { findElementById } from '../../../utils/findElementById';
+
+const STORING_ACTIONS = new Set([
+  'addPage',
+  'deletePage',
+  'duplicatePage',
+  'updatePageInfo',
+  'setIsIndexPage',
+  'addElement',
+  'updateElementInSite',
+  'deleteElementInSite',
+  'updatePageInSite',
+  'deleteImage'
+]);
 
 interface EditorState {
   selectedElement: PageElement;
@@ -222,6 +235,17 @@ const editorSlice = createSlice({
     }
   }
 });
+
+export const editorMiddleware: Middleware = (storeAPI) => (next) => (action) => {
+  const result = next(action);
+  const prefix = `${editorSlice.name}/`;
+
+  if (STORING_ACTIONS.has((action as any).type.replace(prefix, ''))) {
+    storeAPI.dispatch(setIsStoring(true));
+  }
+
+  return result;
+};
 
 export const {
   setSite,

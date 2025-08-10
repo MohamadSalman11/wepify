@@ -374,6 +374,7 @@ function EditDialog({ siteMetadata, onCloseModal }: { siteMetadata: SiteMetadata
       onExecute: async () => {
         dispatch(setIsProcessing(true));
         onCloseModal?.();
+        
         await updateInSitesStorage((sites) =>
           sites.map((s) => (s.id === id ? { ...s, name: trimmedName, description: trimmedDescription } : s))
         );
@@ -435,7 +436,7 @@ function DeleteDialog({ siteMetadata, onCloseModal }: { siteMetadata: SiteMetada
         <Button size='sm' variation='danger' pill onClick={handleDelete}>
           Delete Forever
         </Button>
-        <Button onClick={onCloseModal} size='sm' variation='secondary' pill={true}>
+        <Button onClick={onCloseModal} size='sm' variation='secondary' pill>
           Cancel
         </Button>
       </DialogActions>

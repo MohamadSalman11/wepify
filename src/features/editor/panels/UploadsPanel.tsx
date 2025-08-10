@@ -15,7 +15,7 @@ import { useFilePicker } from '../../../hooks/useFilePicker';
 import { useLoadFromStorage } from '../../../hooks/useLoadFromStorage';
 import { useAppSelector } from '../../../store';
 import { useImageUpload } from '../hooks/useImageUpload';
-import { addImage, deleteImage, setImages, setIsStoring } from '../slices/editorSlice';
+import { addImage, deleteImage, setImages } from '../slices/editorSlice';
 
 /**
  * Constants
@@ -59,14 +59,13 @@ export default function UploadsPanel() {
 
   const handleDeleteImage = (event: MouseEvent<HTMLSpanElement>, img: Image) => {
     event.stopPropagation();
-    dispatch(setIsStoring(true));
     dispatch(deleteImage(img.id));
   };
 
   return (
     <>
       {input}
-      <Button fullWidth={true} onClick={openFilePicker}>
+      <Button fullWidth onClick={openFilePicker}>
         Upload File
       </Button>
       {images.length === 0 && <EmptyMessage>No images uploaded yet</EmptyMessage>}

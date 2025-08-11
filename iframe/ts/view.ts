@@ -11,12 +11,12 @@ const SELECTOR_MOVEABLE_CONTROL = '.moveable-control';
 
 export const insertElement = (element: HTMLElement, parentId?: string) => {
   const rootElement = document.querySelector(SELECTOR_ROOT);
-  const parentElemnent = document.querySelector(`#${parentId}`) || document.querySelector(SELECTOR_ROOT);
+  const parentElement = document.querySelector(`#${parentId}`) || document.querySelector(SELECTOR_ROOT);
 
   if (element.tagName === Tags.Section) {
     rootElement?.append(element);
   } else {
-    p?.append(element);
+    parentElement?.append(element);
   }
 };
 

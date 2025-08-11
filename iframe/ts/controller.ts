@@ -303,7 +303,7 @@ const controlContextMenuActions = (event: globalThis.MouseEvent) => {
   const target = getTarget();
 
   if (action === ContextMenuActions.Copy) {
-    handleElementCopy(target.id);
+    handleElementCopy(target);
   }
 
   if (action === ContextMenuActions.Paste) {
@@ -319,12 +319,12 @@ const controlContextMenuActions = (event: globalThis.MouseEvent) => {
   }
 };
 
-const handleElementCopy = (targetId: string) => {
-  state.lastCopiedElId = targetId;
+const handleElementCopy = (element: HTMLElement) => {
+  state.lastCopiedEl = element;
 };
 
 const handleElementPaste = () => {
-  const originalEl = document.querySelector(`#${state.lastCopiedElId}`) as HTMLElement;
+  const originalEl = state.lastCopiedEl;
   if (!originalEl) return;
 
   const clonedEl = originalEl.cloneNode(true) as HTMLElement;
@@ -584,7 +584,7 @@ const controlKeydown = (event: KeyboardEvent) => {
     const target = getTarget();
 
     if (target) {
-      handleElementCopy(target.id);
+      handleElementCopy(target);
     }
 
     return;

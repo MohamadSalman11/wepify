@@ -9,7 +9,7 @@ export const state: {
   isSitePreviewMode: boolean;
   scaleFactor: number;
   deviceType: DeviceType;
-  lastCopiedElId: string | null;
+  lastCopiedEl: HTMLElement | null;
   longPressTimer: ReturnType<typeof setTimeout> | null;
 } = {
   moveable: null,
@@ -19,7 +19,7 @@ export const state: {
   isSitePreviewMode: false,
   scaleFactor: 100,
   deviceType: 'tablet',
-  lastCopiedElId: null,
+  lastCopiedEl: null,
   longPressTimer: null
 };
 
@@ -53,6 +53,5 @@ export const initializeState = () => {
   state.isSitePreviewMode = false;
   state.scaleFactor = 100;
   state.deviceType = 'tablet';
-  state.lastCopiedElId = null;
   state.longPressTimer = null;
 };

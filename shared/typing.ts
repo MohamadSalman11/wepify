@@ -19,6 +19,7 @@ export interface BaseElement {
   id: string;
   tag: string;
   name: string;
+  parentId?: string;
   width?: Responsive<number | 'fill' | 'auto'>;
   height?: Responsive<number | 'fill' | 'auto'>;
   left: Responsive<number>;

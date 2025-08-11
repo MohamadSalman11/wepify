@@ -9,15 +9,14 @@ const DRAG_BUTTON_OFFSET_X = -2;
 const DRAG_BUTTON_OFFSET_Y = 16;
 const SELECTOR_MOVEABLE_CONTROL = '.moveable-control';
 
-export const insertElement = (element: HTMLElement, parentElement: HTMLElement | null) => {
+export const insertElement = (element: HTMLElement, parentId?: string) => {
   const rootElement = document.querySelector(SELECTOR_ROOT);
-
-  if (!parentElement) return;
+  const parentElemnent = document.querySelector(`#${parentId}`) || document.querySelector(SELECTOR_ROOT);
 
   if (element.tagName === Tags.Section) {
     rootElement?.append(element);
   } else {
-    parentElement.append(element);
+    p?.append(element);
   }
 };
 

@@ -211,9 +211,9 @@ const controlInsertElement = ({
   const canHaveNotChildren = TAGS_WITHOUT_CHILDREN.has(target.tagName.toLowerCase());
 
   if (canHaveNotChildren) {
-    insertElement(elementNode, target.parentElement);
+    insertElement(elementNode, target.parentElement?.id);
   } else {
-    insertElement(elementNode, target);
+    insertElement(elementNode, element?.parentId || target.id);
   }
 
   if (state.targetName === ElementsName.Grid) {
@@ -252,6 +252,8 @@ const controlDeleteElement = () => {
       : target.closest(SELECTOR_SECTION);
 
   if (!section || !parentId || !targetId || target.id === ID_FIRST_SECTION) return;
+
+  deletedElement.parentId = target.parentElement.id;
 
   target.remove();
   (section as HTMLElement).click();

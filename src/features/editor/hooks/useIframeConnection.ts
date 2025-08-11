@@ -10,7 +10,7 @@ import {
 import { generateFileNameFromPageName } from '@shared/utils';
 import { useCallback, useEffect, useMemo, useState, type RefObject } from 'react';
 import { useDispatch } from 'react-redux';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { EditorPath } from '../../../constant';
 import { useAppSelector } from '../../../store';
 import {
@@ -32,7 +32,6 @@ const PAGE_PATH_SEGMENT_REGEX = new RegExp(`${EditorPath.Pages}[^/]+`);
 export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | null>) => {
   const dispatch = useDispatch();
   const location = useLocation();
-  const { pageId } = useParams();
   const navigate = useNavigate();
   const [iframeReady, setIframeReady] = useState(false);
   const pagesMetadata = useAppSelector((state) => state.editor.pagesMetadata);
@@ -50,8 +49,6 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
       const data: MessageFromIframeData = event.data;
-
-      if (!pageId) return;
 
       switch (data.type) {
         case MessageFromIframe.IframeReady: {
@@ -73,7 +70,6 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
 
           dispatch(
             updateElementInSite({
-              pageId,
               elementId: id,
               updates: fields
             })
@@ -87,19 +83,19 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
             dispatch(setBackground(updates.backgroundColor));
           }
 
-          dispatch(updatePageInSite({ id: pageId, updates }));
+          dispatch(updatePageInSite(updates));
           break;
         }
         case MessageFromIframe.ElementInserted: {
           const { parentId, element } = data.payload;
-          dispatch(addElement({ pageId, parentElementId: parentId, newElement: element }));
+          dispatch(addElement({ parentElementId: parentId, newElement: element }));
           break;
         }
         case MessageFromIframe.ElementDeleted: {
           const { element, parentId } = data.payload;
 
           dispatch(setLastDeletedElement(element));
-          dispatch(deleteElementInSite({ pageId, parentElementId: parentId, elementId: element.id }));
+          dispatch(deleteElementInSite({ parentElementId: parentId, elementId: element.id }));
           break;
         }
         case MessageFromIframe.SiteDownloaded: {
@@ -127,7 +123,7 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [dispatch, navigate, iframeRef, pageId, pagesMetadata, location.pathname]);
+  }, [dispatch, navigate, iframeRef, pagesMetadata, location.pathname]);
 
   const renderElements = useCallback(
     (
@@ -194,6 +190,7 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
 
   const downloadSite = useCallback(
     (site: Site, shouldMinify: boolean) => {
+      console.log(site);
       postMessageToIframe({ type: MessageToIframe.DownloadSite, payload: { site, shouldMinify } });
     },
     [postMessageToIframe]

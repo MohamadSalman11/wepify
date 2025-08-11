@@ -1,12 +1,11 @@
 import { nanoid } from '@reduxjs/toolkit';
-import type { Site, SiteMetadata } from '@shared/typing';
+import type { SiteMetadata } from '@shared/typing';
 import { validateFields } from '@shared/utils';
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import toast from 'react-hot-toast';
 import {
   LuArrowLeft,
   LuCopy,
-  LuDownload,
   LuEllipsis,
   LuEye,
   LuLayoutTemplate,
@@ -18,24 +17,14 @@ import {
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
-import { controlDownloadZip } from '../../../../iframe/ts/controller';
 import Button from '../../../components/Button';
 import Dropdown from '../../../components/Dropdown';
 import Input from '../../../components/form/Input';
 import Icon from '../../../components/Icon';
 import Modal, { type OnCloseModal } from '../../../components/Modal';
-import {
-  Breakpoint,
-  EditorPath,
-  Path,
-  StorageKey,
-  TOAST_DELAY_MS,
-  TOAST_DURATION,
-  ToastMessages
-} from '../../../constant';
+import { Breakpoint, EditorPath, Path, TOAST_DELAY_MS, TOAST_DURATION, ToastMessages } from '../../../constant';
 import { useModalContext } from '../../../context/ModalContext';
 import { useAppSelector } from '../../../store';
-import { AppStorage } from '../../../utils/appStorage';
 import { buildPath } from '../../../utils/buildPath';
 import { formatDate } from '../../../utils/formatDate';
 import { formatSize } from '../../../utils/formatSize';
@@ -63,8 +52,6 @@ const BODY_SCROLL_OFFSET = 75;
 
 const MAX_SITE_NAME_LENGTH = 12;
 const MAX_SITE_DESCRIPTION_LENGTH = 20;
-
-const DELAY_DOWNLOAD_SITE_MS = 200;
 
 /**
  * Types
@@ -259,27 +246,6 @@ function TableRow({ siteMetadata }: { siteMetadata: SiteMetadata }) {
     navigate(`${buildPath(Path.Editor, { siteId: id, pageId: firstPageId })}/${EditorPath.Preview}`);
   };
 
-  const handleDownloadSite = (shouldMinify: boolean) => {
-    runWithToast({
-      startMessage: ToastMessages.site.generating,
-      successMessage: ToastMessages.site.generated,
-      icon: <StyledLoader icon={LuLoader} color='var(--color-primary)' size='md' />,
-      delay: DELAY_DOWNLOAD_SITE_MS,
-      onExecute: async () => {
-        dispatch(setIsProcessing(true));
-        const sites = (await AppStorage.getItem(StorageKey.Sites)) as Site[];
-        const site = sites.find((s) => s.id === id);
-
-        if (!site) {
-          throw new Error(ToastMessages.site.downloadFailed);
-        }
-
-        await controlDownloadZip(site, shouldMinify);
-      },
-      onFinally: () => dispatch(setIsProcessing(false))
-    });
-  };
-
   return (
     <StyledTableRow as='article' onClick={handleRowClick}>
       <LayoutIconContainer>
@@ -293,7 +259,6 @@ function TableRow({ siteMetadata }: { siteMetadata: SiteMetadata }) {
       <RowActions>
         <ActionGroup>
           <Icon icon={LuEye} size='md' onClick={handlePreviewSite} />
-          <Icon icon={LuDownload} size='md' onClick={() => handleDownloadSite(true)} />
           <Icon icon={LuPencilLine} size='md' onClick={() => open('edit')} />
           <Modal.Window name='edit'>
             <Modal.Dialog title='Edit Site'>
@@ -309,9 +274,6 @@ function TableRow({ siteMetadata }: { siteMetadata: SiteMetadata }) {
           <Dropdown.Drop translateX={-80} translateY={-12}>
             <Dropdown.Button onClick={handlePreviewSite} icon={LuEye}>
               Preview
-            </Dropdown.Button>
-            <Dropdown.Button icon={LuDownload} onClick={() => handleDownloadSite(true)}>
-              Download
             </Dropdown.Button>
             <Dropdown.Button icon={LuPencilLine} onClick={() => open('edit')}>
               Edit

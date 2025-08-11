@@ -19,6 +19,7 @@ const STORING_ACTIONS = new Set([
 interface EditorState {
   selectedElement: PageElement;
   lastDeletedElement: PageElement | null;
+  currentPageId: string;
   site: Site;
   pagesMetadata: PageMetadata[];
   isLoading: boolean;
@@ -32,6 +33,7 @@ interface EditorState {
 const initialState: EditorState = {
   selectedElement: ELEMENTS_TEMPLATE.section as PageElement,
   lastDeletedElement: null,
+  currentPageId: '',
   site: {
     id: '',
     name: '',
@@ -130,14 +132,13 @@ const editorSlice = createSlice({
     addElement(
       state,
       action: PayloadAction<{
-        pageId: string;
         parentElementId: string;
         newElement: PageElement;
       }>
     ) {
-      const { pageId, parentElementId, newElement } = action.payload;
+      const { parentElementId, newElement } = action.payload;
 
-      const page = state.site.pages.find((p) => p.id === pageId);
+      const page = state.site.pages.find((p) => p.id === state.currentPageId);
       if (!page) return;
 
       if (newElement.name === ElementsName.Section) {
@@ -153,13 +154,12 @@ const editorSlice = createSlice({
     updateElementInSite(
       state,
       action: PayloadAction<{
-        pageId: string;
         elementId: string;
         updates: Partial<PageElement>;
       }>
     ) {
-      const { pageId, elementId, updates } = action.payload;
-      const page = state.site.pages.find((p) => p.id === pageId);
+      const { elementId, updates } = action.payload;
+      const page = state.site.pages.find((p) => p.id === state.currentPageId);
 
       if (!page) return;
 
@@ -184,14 +184,13 @@ const editorSlice = createSlice({
     deleteElementInSite(
       state,
       action: PayloadAction<{
-        pageId: string;
         parentElementId: string;
         elementId: string;
       }>
     ) {
-      const { pageId, parentElementId, elementId } = action.payload;
+      const { parentElementId, elementId } = action.payload;
 
-      const page = state.site.pages.find((p) => p.id === pageId);
+      const page = state.site.pages.find((p) => p.id === state.currentPageId);
       if (!page) return;
 
       const parentEl = findElementById(parentElementId, page.elements);
@@ -205,14 +204,17 @@ const editorSlice = createSlice({
 
       parentEl.children = parentEl.children.filter((el) => el.id !== elementId);
     },
-    updatePageInSite(state, action: PayloadAction<{ id: string; updates: Partial<SitePage> }>) {
-      const { id, updates } = action.payload;
+    updatePageInSite(state, action: PayloadAction<Partial<SitePage>>) {
+      const updates = action.payload;
 
-      const page = state.site.pages.find((p) => p.id === id);
+      const page = state.site.pages.find((p) => p.id === state.currentPageId);
 
       if (page) {
         Object.assign(page, updates);
       }
+    },
+    setCurrentPageId(state, action: PayloadAction<string>) {
+      state.currentPageId = action.payload;
     },
     setIsDownloadingSite(state, action: PayloadAction<boolean>) {
       state.isDownloadingSite = action.payload;
@@ -256,6 +258,7 @@ export const {
   setIsIndexPage,
   setIsLoading,
   setIsError,
+  setCurrentPageId,
   setIsStoring,
   setSiteLastModified,
   setImages,

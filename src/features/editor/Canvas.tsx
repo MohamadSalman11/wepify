@@ -17,6 +17,7 @@ import { usePanel } from './context/PanelContext';
 import {
   clearSite,
   selectElement,
+  setCurrentPageId,
   setDeviceType,
   setIsError,
   setIsLoading,
@@ -61,10 +62,11 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
 
       if (!iframeConnection.iframeReady) return;
 
-      if (site && page && canvasRef.current) {
+      if (site && page && canvasRef.current && pageId) {
         const pagesMetadata = site.pages.map(({ elements: _, ...pageWithoutElements }) => pageWithoutElements);
 
         dispatch(setPagesMetadata(pagesMetadata));
+        dispatch(setCurrentPageId(pageId));
 
         dispatch(
           setSize({

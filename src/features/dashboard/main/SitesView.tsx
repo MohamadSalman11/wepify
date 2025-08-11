@@ -374,10 +374,11 @@ function EditDialog({ siteMetadata, onCloseModal }: { siteMetadata: SiteMetadata
       onExecute: async () => {
         dispatch(setIsProcessing(true));
         onCloseModal?.();
-        
+
         await updateInSitesStorage((sites) =>
           sites.map((s) => (s.id === id ? { ...s, name: trimmedName, description: trimmedDescription } : s))
         );
+
         return { id, name: trimmedName, description: trimmedDescription };
       },
       onSuccess: ({ id, name, description }) => dispatch(updateSiteDetails({ id, name, description })),

@@ -11,5 +11,8 @@ export const AppStorage = {
     const item = await STORAGE.getItem(key);
 
     return item as T;
+  },
+  async removeItem(key: StorageKey) {
+    await STORAGE.removeItem(key);
   }
 };

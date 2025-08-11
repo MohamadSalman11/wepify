@@ -50,9 +50,7 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
   const { leftPanelOpen } = usePanel();
   const { iframeConnection, iframeRef } = useIframeContext();
   const { hasSetOriginSize, backgroundColor, width, height, scale } = useAppSelector((state) => state.page);
-  const { site, selectedElement, lastDeletedElement, images, isLoading, isError, deviceType } = useAppSelector(
-    (state) => state.editor
-  );
+  const { site, images, isLoading, isError, deviceType } = useAppSelector((state) => state.editor);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const onLoaded = useCallback(
@@ -113,7 +111,7 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
   }, [dispatch, canvasRef, deviceType, hasSetOriginSize, leftPanelOpen]);
 
   useEffect(() => {
-    if (!site.id) return;
+    if (!site.id || site.pages.length === 0) return;
 
     const saveInStorage = async () => {
       if (timeoutRef.current) {

@@ -19,7 +19,15 @@ import { useAppSelector } from '../../../store';
 import { AppStorage } from '../../../utils/appStorage';
 import { buildPath } from '../../../utils/buildPath';
 import { createNewPage } from '../../../utils/createNewPage';
-import { addPage, deletePage, setIsIndexPage, setIsLoading, updatePageInfo } from '../slices/editorSlice';
+import { setIsLoading as setIsLoadingDashboard } from '../../dashboard/slices/dashboardSlice';
+import {
+  addPage,
+  clearSite,
+  deletePage,
+  setIsIndexPage,
+  setIsLoading as setIsLoadingEditor,
+  updatePageInfo
+} from '../slices/editorSlice';
 
 /**
  * Constants
@@ -70,7 +78,7 @@ function PageItem({ page, index }: { page: PageMetadata; index: number }) {
     if (page.id === pageId) return;
 
     if (!target.closest('svg') && siteId) {
-      dispatch(setIsLoading(true));
+      dispatch(setIsLoadingEditor(true));
       iframeRef.current?.contentWindow?.location.reload();
       navigate(buildPath(Path.Editor, { siteId, pageId: page.id }));
     }
@@ -212,7 +220,11 @@ function DeleteDialog({
     toast.success(ToastMessages.site.deleted);
 
     if (isDeletingCurrentPage && !availablePageId) {
-      await AppStorage.setItem(StorageKey.Site, null);
+      dispatch(setIsLoadingDashboard(true));
+
+      await AppStorage.removeItem(StorageKey.Site);
+
+      dispatch(clearSite());
       navigate(Path.Dashboard);
       return;
     }
@@ -222,7 +234,7 @@ function DeleteDialog({
     }
 
     if (isDeletingCurrentPage) {
-      dispatch(setIsLoading(true));
+      dispatch(setIsLoadingEditor(true));
       navigate(buildPath(Path.Editor, { siteId: site.id, pageId: availablePageId }));
     }
   };

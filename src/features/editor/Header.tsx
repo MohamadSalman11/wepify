@@ -159,7 +159,7 @@ export default function Header() {
             </Dropdown.Button>
           </Dropdown.Drop>
         </Dropdown>
-        <Button asLink={true} href={PUBLISH_LINK} target='_blank'>
+        <Button asLink href={PUBLISH_LINK} target='_blank'>
           Publish
         </Button>
       </EditorActions>

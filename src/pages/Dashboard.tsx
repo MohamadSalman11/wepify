@@ -58,7 +58,7 @@ export default function Dashboard() {
         });
       }
 
-      await AppStorage.setItem(StorageKey.Site, null);
+      await AppStorage.removeItem(StorageKey.Site);
       dispatch(setSites(updatedSites));
       dispatch(setIsLoading(false));
     },

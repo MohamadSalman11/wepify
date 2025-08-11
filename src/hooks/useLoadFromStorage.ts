@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import type { StorageKey } from '../constant';
 import { AppStorage } from '../utils/appStorage';
 
-const DEFAULT_DELAY = 1000;
+const DEFAULT_DELAY = 2000;
 
 type UseLoadFromStorage<T> = {
   storageKey: StorageKey | StorageKey[];

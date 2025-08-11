@@ -121,7 +121,7 @@ export default function ElementsPanel() {
       </div>
 
       <div>
-        <CollapsibleSection title='Text' open={true}>
+        <CollapsibleSection title='Text' open>
           <PanelList $disabled={isValueIn(selectedElement.name, ElementsName.Grid, ElementsName.List)}>
             <TextItem onClick={() => handleAddElement(ElementsName.Heading)}>
               <PanelBox>H</PanelBox>

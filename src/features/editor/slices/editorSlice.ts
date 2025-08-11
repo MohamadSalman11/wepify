@@ -2,6 +2,7 @@ import { createSlice, Middleware, type PayloadAction } from '@reduxjs/toolkit';
 import { ElementsName, RESPONSIVE_PROPS } from '@shared/constants';
 import { DeviceType, Image, PageElement, PageMetadata, Site, SitePage } from '@shared/typing';
 import { findElementById } from '../../../utils/findElementById';
+import { flattenElements } from '../../../utils/flattenElements';
 
 const STORING_ACTIONS = new Set([
   'addPage',
@@ -198,18 +199,26 @@ const editorSlice = createSlice({
       const { parentElementId, elementId } = action.payload;
 
       const page = state.site.pages.find((p) => p.id === state.currentPageId);
+
       if (!page) return;
 
       const parentEl = findElementById(parentElementId, page.elements);
 
       if (!parentEl) {
         page.elements = page.elements.filter((el) => el.id !== elementId);
-        return;
+      } else if (parentEl.children) {
+        parentEl.children = parentEl.children.filter((el) => el.id !== elementId);
       }
 
-      if (!parentEl.children) return;
+      let index = 1;
+      const flattedElements = flattenElements(page.elements);
+      const name = elementId.split('-')[0];
+      const sameNameElements = flattedElements.filter((el) => el.name === name);
 
-      parentEl.children = parentEl.children.filter((el) => el.id !== elementId);
+      for (const el of sameNameElements) {
+        el.id = `${name}-${index}`;
+        index++;
+      }
     },
     updatePageInSite(state, action: PayloadAction<Partial<SitePage>>) {
       const updates = action.payload;
@@ -229,7 +238,6 @@ const editorSlice = createSlice({
     setDeviceType(state, action: PayloadAction<DeviceType>) {
       state.deviceType = action.payload;
     },
-
     setSiteLastModified(state, action: PayloadAction<number>) {
       state.site.lastModified = action.payload;
     },

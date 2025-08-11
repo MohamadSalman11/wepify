@@ -23,6 +23,7 @@ import { CONTENT_EDITABLE_ELEMENTS, SELECTOR_DRAG_BUTTON, SELECTOR_ROOT, SELECTO
 import { changeTarget, getMoveableInstance, getTarget, initializeState, state } from './model';
 import SiteExporter from './SiteExporter';
 import { adjustGridColumnsIfNeeded } from './utils/adjustGridColumnsIfNeeded';
+import { assignUniqueId } from './utils/assignUniqueId';
 import { createNewElement } from './utils/createNewElement';
 import { extractTransform } from './utils/extractTransform';
 import { getScreenBreakpoint } from './utils/getScreenBreakpoint';
@@ -210,6 +211,11 @@ const controlInsertElement = ({
   const elementNode = elNode || createDomTree(newElement as PageElement);
   const canHaveNotChildren = TAGS_WITHOUT_CHILDREN.has(target.tagName.toLowerCase());
 
+  if (element) {
+    assignUniqueId(elementNode);
+    newElement.id = elementNode.id;
+  }
+
   if (canHaveNotChildren) {
     insertElement(elementNode, target.parentElement?.id);
   } else {
@@ -257,6 +263,14 @@ const controlDeleteElement = () => {
 
   target.remove();
   (section as HTMLElement).click();
+
+  let index = 1;
+  const elements = document.querySelectorAll(`[data-name='${target.dataset.name}']`);
+
+  for (const el of elements) {
+    el.id = `${target.dataset.name}-${index}`;
+    index++;
+  }
 
   postMessageToApp({
     type: MessageFromIframe.ElementDeleted,
@@ -328,23 +342,8 @@ const handleElementPaste = () => {
   if (!originalEl) return;
 
   const clonedEl = originalEl.cloneNode(true) as HTMLElement;
-  const obj: Record<string, number> = {};
 
-  const updateIdsRecursively = (el: HTMLElement) => {
-    const baseName = el.dataset.name;
-    if (!baseName) return;
-
-    obj[baseName] = (obj[baseName] ?? document.querySelectorAll(`[id^="${baseName}-"]`).length) + 1;
-
-    const newId = `${baseName}-${obj[baseName]}`;
-    el.id = newId;
-
-    for (const child of el.children) {
-      updateIdsRecursively(child as HTMLElement);
-    }
-  };
-
-  updateIdsRecursively(clonedEl);
+  assignUniqueId(clonedEl);
   controlInsertElement({ elNode: clonedEl });
 };
 
@@ -505,13 +504,13 @@ const controlDocumentClick = (event: globalThis.MouseEvent) => {
   const previousTarget = state.target;
   const target = (event.target as HTMLElement)?.closest(SELECTOR_TARGET) as HTMLElement;
 
-  if (CONTENT_EDITABLE_ELEMENTS.has(target.tagName.toLowerCase())) {
+  if (CONTENT_EDITABLE_ELEMENTS.has(target?.tagName.toLowerCase())) {
     target.contentEditable = 'true';
   } else if (previousTarget?.hasAttribute('contenteditable')) {
     previousTarget.removeAttribute('contenteditable');
   }
 
-  if (FOCUSABLE_ELEMENTS.has(target.tagName)) {
+  if (FOCUSABLE_ELEMENTS.has(target?.tagName)) {
     target.focus();
   }
 

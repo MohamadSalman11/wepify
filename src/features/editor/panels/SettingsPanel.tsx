@@ -295,13 +295,16 @@ function SizeSettings() {
   const disableInput = isValueIn(selectedElement.name, ElementsName.Item, ElementsName.Section);
   const leftValue = parseNumber(getResponsiveValue(selectedElement.left, deviceType)) ?? 0;
   const topValue = parseNumber(getResponsiveValue(selectedElement.top, deviceType)) ?? 0;
+  const rotateValue = parseNumber(getResponsiveValue(selectedElement.rotate, deviceType)) ?? 0;
   const [left, setLeft] = useState(leftValue);
   const [top, setTop] = useState(topValue);
+  const [rotate, setRotate] = useState(topValue);
 
   useEffect(() => {
     setLeft(leftValue);
     setTop(topValue);
-  }, [leftValue, topValue]);
+    setTop(rotateValue);
+  }, [leftValue, topValue, rotateValue]);
 
   const handleRotate = () => {
     const current = getResponsiveValue(selectedElement.rotate, deviceType) ?? 0;
@@ -383,13 +386,13 @@ function SizeSettings() {
           </SizeRow>
           <SizeRow $disabled={disableInput}>
             <label htmlFor='settings-panel-input-rotate'>R</label>
-            <ChangeElement>
+            <ChangeElement handler={setRotate}>
               <Input
                 id='settings-panel-input-rotate'
                 name='rotate'
-                type='text'
+                type='number'
                 disabled={disableInput}
-                value={disableInput ? '' : (parseNumber(getResponsiveValue(selectedElement.rotate, deviceType)) ?? 0)}
+                value={disableInput ? '' : rotate}
               />
             </ChangeElement>
           </SizeRow>

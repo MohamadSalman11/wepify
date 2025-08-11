@@ -85,6 +85,7 @@ class SiteExporter {
     const doc = document.implementation.createHTMLDocument(page.name);
     doc.head.innerHTML = document.head.innerHTML;
     doc.title = page.title || page.name;
+    doc.body.style.backgroundColor = page.backgroundColor;
 
     const styleLink = doc.head.querySelector(SELECTOR_STYLE_LINK);
     if (styleLink) {

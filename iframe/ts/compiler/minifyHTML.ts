@@ -17,10 +17,7 @@ const REGEX = {
   EXTRA_SPACES: /\s{2,}/g,
   TAG_GAPS: />\s+</g,
   WHITESPACE: /\s+/,
-  STYLE_INLINE: /style="([^"]*)"/g,
-  STYLE_COLON_SPACES: /\s*:\s*/g,
-  STYLE_SEMICOLON_SPACES: /\s*;\s*/g,
-  STYLE_COMMA_SPACES: /\s*,\s*/g,
+  STYLE_TAG_WITH_STYLE_ATTR: /<([a-z]+)([^>]*)\sstyle="[^"]*"([^>]*)>/gi,
   QUOTES_TRIM: /^['"]+|['"]+$/g,
   MULTIPLE_AMPERSANDS: /[&]{2,}/g,
   QUESTION_MARK_AMPERSAND: /\?&/,
@@ -54,8 +51,11 @@ export const cleanUpHTML = async (html: string) => {
     .replace(REGEX.CONTENTEDITABLE, '')
     .replace(REGEX.STYLED_COMPONENT, '')
     .replace(REGEX.STYLE_TAG_ANY, '')
-    .replace(REGEX.STYLE_INLINE, '')
-    .replace(REGEX.A_TAG_ATTRS_TO_REMOVE, '');
+    .replace(REGEX.A_TAG_ATTRS_TO_REMOVE, '')
+    .replace(REGEX.STYLE_TAG_WITH_STYLE_ATTR, (match, tagName, beforeStyle, afterStyle) => {
+      if (tagName.toLowerCase() === 'body') return match;
+      return `<${tagName}${beforeStyle}${afterStyle}>`;
+    });
 
   const options = {
     parser: PRETTIER_PARSER,
@@ -74,14 +74,6 @@ export const minifyHTML = async (html: string) => {
     .replace(REGEX.LINEBREAKS, '')
     .replace(REGEX.EXTRA_SPACES, ' ')
     .replace(REGEX.TAG_GAPS, '><')
-    .replace(REGEX.STYLE_INLINE, (_, css: string) => {
-      const minifiedCss = css
-        .replace(REGEX.STYLE_COLON_SPACES, ':')
-        .replace(REGEX.STYLE_SEMICOLON_SPACES, ';')
-        .replace(REGEX.STYLE_COMMA_SPACES, ',')
-        .trim();
-      return `style="${minifiedCss}"`;
-    })
     .trim();
 };
 

@@ -102,6 +102,7 @@ export interface SitePage {
   title: string;
   elements: PageElement[];
   isIndex: boolean;
+  backgroundColor: string;
 }
 
 export type PageMetadata = Omit<SitePage, 'elements'>;

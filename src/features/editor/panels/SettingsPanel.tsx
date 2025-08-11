@@ -303,7 +303,7 @@ function SizeSettings() {
   useEffect(() => {
     setLeft(leftValue);
     setTop(topValue);
-    setTop(rotateValue);
+    setRotate(rotateValue);
   }, [leftValue, topValue, rotateValue]);
 
   const handleRotate = () => {

@@ -1,7 +1,7 @@
 import { DEFAULT_BORDER_COLOR, DEFAULT_BORDER_WIDTH, ElementsName, FONT_WEIGHT_NAMES } from '@shared/constants';
 import type { GridElement, InputElement, LinkElement, PageElement } from '@shared/typing';
 import { rgbToHex } from '@shared/utils';
-import { CSS_SIZES_NAME } from '../../constants';
+import { CONTENT_EDITABLE_ELEMENTS, CSS_SIZES_NAME } from '../../constants';
 import { state } from '../../model';
 import { extractTransform } from '../../utils/extractTransform';
 import { parseGridRepeat } from '../../utils/parseGridRepeat';
@@ -66,6 +66,18 @@ export const domToPageElement = (elementNode: HTMLElement) => {
   if (style.scale) {
     element.scaleX = toResponsiveValue(Number(style.scale.split(' ')[0]));
     element.scaleY = toResponsiveValue(Number(style.scale.split(' ')[1]));
+  }
+
+  if (CONTENT_EDITABLE_ELEMENTS.has(elementNode.tagName.toLowerCase())) {
+    let directText = '';
+
+    for (const node of elementNode.childNodes) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        directText += node.textContent;
+      }
+    }
+
+    element.content = directText.trim();
   }
 
   maybeApplySizeProps(element, style);

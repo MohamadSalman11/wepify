@@ -1,5 +1,5 @@
 import { DEFAULT_BORDER_COLOR, DEFAULT_BORDER_WIDTH, ElementsName, FONT_WEIGHT_NAMES } from '@shared/constants';
-import type { GridElement, InputElement, LinkElement, PageElement } from '@shared/typing';
+import type { GridElement, ImageElement, InputElement, LinkElement, PageElement } from '@shared/typing';
 import { rgbToHex } from '@shared/utils';
 import { CONTENT_EDITABLE_ELEMENTS, CSS_SIZES_NAME } from '../../constants';
 import { state } from '../../model';
@@ -66,6 +66,10 @@ export const domToPageElement = (elementNode: HTMLElement) => {
   if (style.scale) {
     element.scaleX = toResponsiveValue(Number(style.scale.split(' ')[0]));
     element.scaleY = toResponsiveValue(Number(style.scale.split(' ')[1]));
+  }
+
+  if (elementNode instanceof HTMLImageElement && elementNode.src) {
+    (element as ImageElement).src = elementNode.src;
   }
 
   if (CONTENT_EDITABLE_ELEMENTS.has(elementNode.tagName.toLowerCase())) {

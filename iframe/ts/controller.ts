@@ -1,4 +1,11 @@
-import { ElementsName, PAGE_PADDING, PAGE_PADDING_X, Tags, TAGS_WITHOUT_CHILDREN } from '@shared/constants';
+import {
+  ElementsName,
+  ID_FIRST_SECTION,
+  PAGE_PADDING,
+  PAGE_PADDING_X,
+  Tags,
+  TAGS_WITHOUT_CHILDREN
+} from '@shared/constants';
 import {
   DeviceType,
   MessageFromIframe,
@@ -13,7 +20,7 @@ import { domToPageElement } from './compiler/dom/domToPageElement';
 import { generateInlineStyles } from './compiler/dom/generateInlineStyles';
 import { MOVEABLE_CONFIG } from './config';
 import { SELECTOR_DRAG_BUTTON, SELECTOR_ROOT, SELECTOR_TARGET } from './constants';
-import { changeTarget, getMoveableInstance, getTarget, state } from './model';
+import { changeTarget, getMoveableInstance, getTarget, initializeState, state } from './model';
 import SiteExporter from './SiteExporter';
 import { adjustGridColumnsIfNeeded } from './utils/adjustGridColumnsIfNeeded';
 import { createNewElement } from './utils/createNewElement';
@@ -34,7 +41,6 @@ const SELECTOR_SECTION = 'section';
 const SELECTOR_CLOSEST_SECTION = "[id^='section-']";
 const SELECTOR_ACTIVE_ITEM = '[class*="select-item"]';
 const SELECTOR_ACTIVE_SECTION = '[class*="select-section"]';
-const ID_FIRST_SECTION = 'section-1';
 const SELECTOR_FIRST_SECTION = `#${ID_FIRST_SECTION}`;
 const SELECTOR_CONTEXT_MENU = '#context-menu';
 const CLASS_SELECTED_ITEM = 'select-item';
@@ -78,7 +84,8 @@ const iframeMessageHandlers: {
   [MessageToIframe.DeleteElement]: () => controlDeleteElement(),
   [MessageToIframe.ChangeSelection]: (payload) => controlSelectionChanged(payload),
   [MessageToIframe.SearchElement]: (payload) => controlSearchElement(payload),
-  [MessageToIframe.DownloadSite]: (payload) => controlDownloadZip(payload.site, payload.shouldMinify)
+  [MessageToIframe.DownloadSite]: (payload) => controlDownloadZip(payload.site, payload.shouldMinify),
+  [MessageToIframe.InitializeState]: () => initializeState()
 };
 
 /**
@@ -95,6 +102,8 @@ const controlRenderElements = (
   state.isSitePreviewMode = isPreview;
   state.deviceType = deviceType;
   state.scaleFactor = scaleFactor;
+
+  console.log(elements);
 
   renderElements(elements);
 

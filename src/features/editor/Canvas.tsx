@@ -119,7 +119,7 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
-
+      console.log(site);
       await AppStorage.setItem(StorageKey.Site, site);
 
       timeoutRef.current = setTimeout(() => {

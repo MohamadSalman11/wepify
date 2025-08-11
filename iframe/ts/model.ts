@@ -44,3 +44,15 @@ export const changeTarget = (newTarget: HTMLElement, name: string) => {
   state.target = newTarget;
   state.targetName = name;
 };
+
+export const initializeState = () => {
+  state.moveable = null;
+  state.target = null;
+  state.targetName = null;
+  state.initRender = true;
+  state.isSitePreviewMode = false;
+  state.scaleFactor = 100;
+  state.deviceType = 'tablet';
+  state.lastCopiedElId = null;
+  state.longPressTimer = null;
+};

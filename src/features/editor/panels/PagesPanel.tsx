@@ -45,6 +45,7 @@ export default function PagesPanel() {
 
   const handleAddNewPage = () => {
     const newPage = createNewPage();
+    console.log(newPage);
     dispatch(addPage(newPage));
   };
 
@@ -69,7 +70,7 @@ function PageItem({ page, index }: { page: PageMetadata; index: number }) {
   const navigate = useNavigate();
   const { siteId, pageId } = useParams();
   const { open } = useModalContext();
-  const { iframeRef } = useIframeContext();
+  const { iframeConnection } = useIframeContext();
   const isActivePage = page.id === pageId;
 
   const handleOpenEditor = (event: MouseEvent<HTMLLIElement>, page: PageMetadata) => {
@@ -78,8 +79,8 @@ function PageItem({ page, index }: { page: PageMetadata; index: number }) {
     if (page.id === pageId) return;
 
     if (!target.closest('svg') && siteId) {
+      iframeConnection.initializeState();
       dispatch(setIsLoadingEditor(true));
-      iframeRef.current?.contentWindow?.location.reload();
       navigate(buildPath(Path.Editor, { siteId, pageId: page.id }));
     }
   };

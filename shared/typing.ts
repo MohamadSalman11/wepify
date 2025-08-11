@@ -147,7 +147,8 @@ export enum MessageToIframe {
   ChangeSelection = 'CHANGE_SELECTION',
   SearchElement = 'SEARCH_ELEMENT',
   DownloadSite = 'DOWNLOAD_SITE',
-  UpdatePage = 'UPDATE_PAGE'
+  UpdatePage = 'UPDATE_PAGE',
+  InitializeState = 'INITIALIZE_STATE'
 }
 
 export type MessageToIframePayloadMap = {
@@ -165,6 +166,7 @@ export type MessageToIframePayloadMap = {
   [MessageToIframe.ChangeSelection]: string;
   [MessageToIframe.SearchElement]: string;
   [MessageToIframe.DownloadSite]: { site: Site; shouldMinify: boolean };
+  [MessageToIframe.InitializeState]: undefined;
 };
 
 export type MessageFromIframeData =

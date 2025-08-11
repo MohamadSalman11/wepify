@@ -196,6 +196,10 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
     [postMessageToIframe]
   );
 
+  const initializeState = useCallback(() => {
+    postMessageToIframe({ type: MessageToIframe.InitializeState });
+  }, [postMessageToIframe]);
+
   return useMemo(
     () => ({
       iframeReady,
@@ -206,7 +210,8 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
       searchElement,
       deleteElement,
       downloadSite,
-      updatePage
+      updatePage,
+      initializeState
     }),
     [
       iframeReady,
@@ -217,7 +222,8 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
       searchElement,
       deleteElement,
       downloadSite,
-      updatePage
+      updatePage,
+      initializeState
     ]
   );
 };

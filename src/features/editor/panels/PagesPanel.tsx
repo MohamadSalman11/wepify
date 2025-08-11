@@ -297,11 +297,15 @@ const StyledPageItem = styled.li<{ $active: boolean }>`
       transition: var(--transition-base);
       width: 90%;
 
-      span {
+      & > span {
         box-shadow: var(--box-shadow);
         border-radius: var(--border-radius-sm);
         background-color: var(--color-white);
         padding: 0.2rem 0.2rem 0 0.2rem;
+
+        & > span {
+          margin-top: -0.1rem;
+        }
       }
 
       @media (pointer: coarse) {

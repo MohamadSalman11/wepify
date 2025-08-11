@@ -225,7 +225,7 @@ function DeleteDialog({
 
     dispatch(deletePage(page.id));
     onCloseModal?.();
-    toast.success(ToastMessages.site.deleted);
+    toast.success(ToastMessages.page.deleted);
 
     if (isDeletingCurrentPage && !availablePageId) {
       dispatch(setIsLoadingDashboard(true));

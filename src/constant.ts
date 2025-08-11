@@ -45,12 +45,10 @@ export enum Breakpoint {
 
 export const ToastMessages = {
   site: {
-    generating: 'Generating site...',
     duplicating: 'Duplicating site...',
     updating: 'Updating site...',
     deleting: 'Deleting site...',
     importing: 'Importing site...',
-    generated: 'Site generated! Download should appear shortly in your browser.',
     addedStar: 'Site added to starred.',
     removedStar: 'Site removed from starred.',
     updated: 'Site updated successfully.',

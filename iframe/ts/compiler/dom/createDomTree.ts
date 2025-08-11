@@ -66,7 +66,6 @@ const handleInputElement = (elementNode: HTMLInputElement, type: string, placeho
 };
 
 const handleEditableElement = (elementNode: HTMLElement) => {
-  elementNode.contentEditable = 'true';
   elementNode.spellcheck = false;
 
   if (elementNode.tagName === Tags.Span) {

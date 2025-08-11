@@ -19,7 +19,7 @@ import { createDomTree } from './compiler/dom/createDomTree';
 import { domToPageElement } from './compiler/dom/domToPageElement';
 import { generateInlineStyles } from './compiler/dom/generateInlineStyles';
 import { MOVEABLE_CONFIG } from './config';
-import { SELECTOR_DRAG_BUTTON, SELECTOR_ROOT, SELECTOR_TARGET } from './constants';
+import { CONTENT_EDITABLE_ELEMENTS, SELECTOR_DRAG_BUTTON, SELECTOR_ROOT, SELECTOR_TARGET } from './constants';
 import { changeTarget, getMoveableInstance, getTarget, initializeState, state } from './model';
 import SiteExporter from './SiteExporter';
 import { adjustGridColumnsIfNeeded } from './utils/adjustGridColumnsIfNeeded';
@@ -502,6 +502,7 @@ const controlDocumentClick = (event: globalThis.MouseEvent) => {
     controlContextMenuActions(event);
   }
 
+  const previousTarget = getTarget();
   const target = (event.target as HTMLElement)?.closest(SELECTOR_TARGET) as HTMLElement;
 
   if (!target || state.isSitePreviewMode || state.target?.id === target.id) return;
@@ -520,6 +521,12 @@ const controlDocumentClick = (event: globalThis.MouseEvent) => {
 
   if (!NOT_MOVEABLE_ELEMENTS.has(state.targetName || '')) {
     getMoveableInstance().target = target;
+  }
+
+  if (CONTENT_EDITABLE_ELEMENTS.has(target.tagName.toLowerCase())) {
+    target.contentEditable = 'true';
+  } else if (previousTarget.hasAttribute('contenteditable')) {
+    previousTarget.removeAttribute('contenteditable');
   }
 
   if (dragButton) {

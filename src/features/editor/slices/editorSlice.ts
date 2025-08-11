@@ -1,5 +1,5 @@
 import { createSlice, Middleware, type PayloadAction } from '@reduxjs/toolkit';
-import { ELEMENTS_TEMPLATE, ElementsName, RESPONSIVE_PROPS } from '@shared/constants';
+import { ElementsName, RESPONSIVE_PROPS } from '@shared/constants';
 import { DeviceType, Image, PageElement, PageMetadata, Site, SitePage } from '@shared/typing';
 import { findElementById } from '../../../utils/findElementById';
 
@@ -31,7 +31,11 @@ interface EditorState {
 }
 
 const initialState: EditorState = {
-  selectedElement: ELEMENTS_TEMPLATE.section as PageElement,
+  selectedElement: {
+    id: '',
+    tag: '',
+    name: ''
+  },
   lastDeletedElement: null,
   currentPageId: '',
   site: {
@@ -229,9 +233,11 @@ const editorSlice = createSlice({
     setSiteLastModified(state, action: PayloadAction<number>) {
       state.site.lastModified = action.payload;
     },
-
-    clearSite() {
+    clearEditor() {
       return initialState;
+    },
+    clearSelectedElement(state) {
+      state.selectedElement = initialState.selectedElement;
     }
   }
 });
@@ -275,7 +281,8 @@ export const {
   updatePageInSite,
   setIsDownloadingSite,
   setDeviceType,
-  clearSite
+  clearEditor,
+  clearSelectedElement
 } = editorSlice.actions;
 
 export default editorSlice.reducer;

@@ -22,13 +22,13 @@ export interface BaseElement {
   parentId?: string;
   width?: Responsive<number | 'fill' | 'auto'>;
   height?: Responsive<number | 'fill' | 'auto'>;
-  left: Responsive<number>;
-  top: Responsive<number>;
-  color: string;
-  backgroundColor: string;
-  fontSize: Responsive<number | 'Inherit'>;
-  fontFamily: string;
-  fontWeight:
+  left?: Responsive<number>;
+  top?: Responsive<number>;
+  color?: string;
+  backgroundColor?: string;
+  fontSize?: Responsive<number | 'Inherit'>;
+  fontFamily?: string;
+  fontWeight?:
     | 'Inherit'
     | 'Thin'
     | 'ExtraLight'

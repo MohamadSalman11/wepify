@@ -46,6 +46,10 @@ export const changeTarget = (newTarget: HTMLElement, name: string) => {
 };
 
 export const initializeState = () => {
+  if (state.moveable?.target) {
+    state.moveable.target = null;
+  }
+
   state.moveable = null;
   state.target = null;
   state.targetName = null;

@@ -15,7 +15,7 @@ import { calculateScaleToFit } from '../../utils/calculateScaleToFit';
 import { setIsLoading as setDashboardIsLoading } from '../dashboard/slices/dashboardSlice';
 import { usePanel } from './context/PanelContext';
 import {
-  clearSite,
+  clearEditor,
   selectElement,
   setCurrentPageId,
   setDeviceType,
@@ -144,7 +144,7 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
 
   useEffect(() => {
     return () => {
-      dispatch(clearSite());
+      dispatch(clearEditor());
     };
   }, [dispatch]);
 

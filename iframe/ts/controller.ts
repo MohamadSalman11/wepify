@@ -502,10 +502,20 @@ const controlDocumentClick = (event: globalThis.MouseEvent) => {
     controlContextMenuActions(event);
   }
 
-  const previousTarget = getTarget();
+  const previousTarget = state.target;
   const target = (event.target as HTMLElement)?.closest(SELECTOR_TARGET) as HTMLElement;
 
-  if (!target || state.isSitePreviewMode || state.target?.id === target.id) return;
+  if (CONTENT_EDITABLE_ELEMENTS.has(target.tagName.toLowerCase())) {
+    target.contentEditable = 'true';
+  } else if (previousTarget?.hasAttribute('contenteditable')) {
+    previousTarget.removeAttribute('contenteditable');
+  }
+
+  if (FOCUSABLE_ELEMENTS.has(target.tagName)) {
+    target.focus();
+  }
+
+  if (!target || state.isSitePreviewMode || previousTarget?.id === target.id) return;
 
   const targetName = target.id.split('-')[0];
   const dragButton = document.querySelector(SELECTOR_DRAG_BUTTON) as HTMLImageElement;
@@ -521,12 +531,6 @@ const controlDocumentClick = (event: globalThis.MouseEvent) => {
 
   if (!NOT_MOVEABLE_ELEMENTS.has(state.targetName || '')) {
     getMoveableInstance().target = target;
-  }
-
-  if (CONTENT_EDITABLE_ELEMENTS.has(target.tagName.toLowerCase())) {
-    target.contentEditable = 'true';
-  } else if (previousTarget.hasAttribute('contenteditable')) {
-    previousTarget.removeAttribute('contenteditable');
   }
 
   if (dragButton) {
@@ -545,10 +549,6 @@ const controlDocumentClick = (event: globalThis.MouseEvent) => {
   if (state.target && state.targetName === ElementsName.Section) {
     document.querySelector(SELECTOR_ACTIVE_SECTION)?.classList.remove(CLASS_SELECTED_SECTION);
     state.target.classList.add(CLASS_SELECTED_SECTION);
-  }
-
-  if (FOCUSABLE_ELEMENTS.has(target.tagName)) {
-    target.focus();
   }
 };
 

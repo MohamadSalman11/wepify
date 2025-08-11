@@ -22,7 +22,8 @@ import { createNewPage } from '../../../utils/createNewPage';
 import { setIsLoading as setIsLoadingDashboard } from '../../dashboard/slices/dashboardSlice';
 import {
   addPage,
-  clearSite,
+  clearEditor,
+  clearSelectedElement,
   deletePage,
   setIsIndexPage,
   setIsLoading as setIsLoadingEditor,
@@ -82,6 +83,7 @@ function PageItem({ page, index }: { page: PageMetadata; index: number }) {
       iframeConnection.initializeState();
       dispatch(setIsLoadingEditor(true));
       dispatch(clearPage());
+      dispatch(clearSelectedElement());
       navigate(buildPath(Path.Editor, { siteId, pageId: page.id }));
     }
   };
@@ -232,7 +234,7 @@ function DeleteDialog({
 
       await AppStorage.removeItem(StorageKey.Site);
 
-      dispatch(clearSite());
+      dispatch(clearEditor());
       navigate(Path.Dashboard);
       return;
     }

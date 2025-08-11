@@ -1,5 +1,5 @@
 import { createSlice, Middleware, type PayloadAction } from '@reduxjs/toolkit';
-import { ELEMENTS_TEMPLATE, ElementsName, ID_FIRST_SECTION, RESPONSIVE_PROPS } from '@shared/constants';
+import { ELEMENTS_TEMPLATE, ElementsName, RESPONSIVE_PROPS } from '@shared/constants';
 import { DeviceType, Image, PageElement, PageMetadata, Site, SitePage } from '@shared/typing';
 import { findElementById } from '../../../utils/findElementById';
 
@@ -68,19 +68,14 @@ const editorSlice = createSlice({
     setSite(state, action: PayloadAction<Site>) {
       state.site = action.payload;
     },
-    addPage(state, action: PayloadAction<SitePage | PageMetadata>) {
+    addPage(state, action: PayloadAction<SitePage>) {
       const page = action.payload;
 
-      if ('elements' in page) {
-        state.site.pages.push(page);
+      state.site.pages.push(page);
 
-        const { elements: _, ...pageWithoutElements } = page;
+      const { elements: _, ...pageWithoutElements } = page;
 
-        state.pagesMetadata.push(pageWithoutElements);
-      } else {
-        state.site.pages.push({ ...page, elements: [{ ...(ELEMENTS_TEMPLATE.section as any), id: ID_FIRST_SECTION }] });
-        state.pagesMetadata.push(page);
-      }
+      state.pagesMetadata.push(pageWithoutElements);
     },
     updatePageInfo(state, action: PayloadAction<{ id: string; name: string; title: string }>) {
       const { id, name, title } = action.payload;

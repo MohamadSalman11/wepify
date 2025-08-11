@@ -1,5 +1,5 @@
 import { nanoid } from '@reduxjs/toolkit';
-import type { PageMetadata } from '@shared/typing';
+import type { PageMetadata, Site } from '@shared/typing';
 import { generateFileNameFromPageName, validateFields } from '@shared/utils';
 import { useState, type MouseEvent } from 'react';
 import toast from 'react-hot-toast';
@@ -86,6 +86,15 @@ function PageItem({ page, index }: { page: PageMetadata; index: number }) {
     }
   };
 
+  const handleDuplicatePage = async () => {
+    const site = (await AppStorage.getItem(StorageKey.Site)) as Site;
+    const duplicatedPage = site.pages.find((p) => p.id === pageId);
+
+    if (duplicatedPage) {
+      dispatch(addPage({ ...duplicatedPage, id: nanoid(), isIndex: false }));
+    }
+  };
+
   return (
     <StyledPageItem $active={isActivePage} onClick={(event) => handleOpenEditor(event, page)}>
       <div>
@@ -112,10 +121,7 @@ function PageItem({ page, index }: { page: PageMetadata; index: number }) {
               <Dropdown.Button icon={LuLink} onClick={() => handleCopyLink(page.isIndex ? 'index' : page.name)}>
                 Copy page link
               </Dropdown.Button>
-              <Dropdown.Button
-                icon={LuCopy}
-                onClick={() => dispatch(addPage({ ...page, id: nanoid(), isIndex: false }))}
-              >
+              <Dropdown.Button icon={LuCopy} onClick={handleDuplicatePage}>
                 Duplicate page
               </Dropdown.Button>
               <Modal.Open openName='delete'>

@@ -190,7 +190,6 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
 
   const downloadSite = useCallback(
     (site: Site, shouldMinify: boolean) => {
-      console.log(site);
       postMessageToIframe({ type: MessageToIframe.DownloadSite, payload: { site, shouldMinify } });
     },
     [postMessageToIframe]

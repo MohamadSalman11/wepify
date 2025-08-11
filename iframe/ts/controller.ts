@@ -103,8 +103,6 @@ const controlRenderElements = (
   state.deviceType = deviceType;
   state.scaleFactor = scaleFactor;
 
-  console.log(elements);
-
   renderElements(elements);
 
   if (state.initRender) {

@@ -28,6 +28,7 @@ import {
   setIsLoading as setIsLoadingEditor,
   updatePageInfo
 } from '../slices/editorSlice';
+import { clearPage } from '../slices/pageSlice';
 
 /**
  * Constants
@@ -45,7 +46,6 @@ export default function PagesPanel() {
 
   const handleAddNewPage = () => {
     const newPage = createNewPage();
-    console.log(newPage);
     dispatch(addPage(newPage));
   };
 
@@ -81,6 +81,7 @@ function PageItem({ page, index }: { page: PageMetadata; index: number }) {
     if (!target.closest('svg') && siteId) {
       iframeConnection.initializeState();
       dispatch(setIsLoadingEditor(true));
+      dispatch(clearPage());
       navigate(buildPath(Path.Editor, { siteId, pageId: page.id }));
     }
   };

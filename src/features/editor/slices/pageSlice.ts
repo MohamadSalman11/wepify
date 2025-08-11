@@ -59,10 +59,13 @@ const pageSlice = createSlice({
     },
     setBackground(state, action: PayloadAction<string>) {
       state.backgroundColor = action.payload;
+    },
+    clearPage(state) {
+      Object.assign(state, initialState);
     }
   }
 });
 
-export const { setPage, setSize, setScale, setHasOriginSize, setBackground } = pageSlice.actions;
+export const { setPage, setSize, setScale, setHasOriginSize, setBackground, clearPage } = pageSlice.actions;
 
 export default pageSlice.reducer;

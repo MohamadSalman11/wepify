@@ -30,7 +30,7 @@ const DEFAULT_TRANSLATE_Y = 0;
 
 type ClickableElement = ReactElement<{ onClick?: MouseEventHandler; ref: RefObject<HTMLElement | null> }>;
 
-interface DropdownContextType {
+interface DropdownContext {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   toggleRef: RefObject<HTMLElement | null>;
@@ -45,7 +45,7 @@ interface Position {
  * Context
  */
 
-const DropdownContext = createContext<DropdownContextType | null>(null);
+const DropdownContext = createContext<DropdownContext | null>(null);
 
 const useDropdownContext = () => {
   const context = useContext(DropdownContext);

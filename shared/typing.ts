@@ -40,8 +40,8 @@ export interface BaseElement {
     | 'ExtraBold'
     | 'Black';
   rotate?: Responsive<number>;
-  scaleY?: Responsive<number>;
-  scaleX?: Responsive<number>;
+  scaleY?: number;
+  scaleX?: number;
   textAlign?: Responsive<string>;
   flexDirection?: Responsive<FlexDirectionOption>;
   justifyContent?: Responsive<string>;

@@ -41,11 +41,13 @@ export const domToPageElement = (elementNode: HTMLElement) => {
     }
   }
 
-  const { left, top, rotate } = extractTransform(style.transform) || {};
+  const { left, top, rotate, scaleX, scaleY } = extractTransform(style.transform) || {};
 
-  element.left = toResponsiveValue(left || 0);
-  element.top = toResponsiveValue(top || 0);
-  element.rotate = toResponsiveValue(rotate || 0);
+  element.left = toResponsiveValue(left);
+  element.top = toResponsiveValue(top);
+  element.rotate = toResponsiveValue(rotate);
+  element.scaleX = scaleX;
+  element.scaleX = scaleY;
 
   if (style.display) element.display = style.display;
   if (style.columnGap) element.columnGap = toResponsiveValue(style.columnGap);
@@ -61,11 +63,6 @@ export const domToPageElement = (elementNode: HTMLElement) => {
 
   if (style.fontSize) {
     element.fontSize = toResponsiveValue(style.fontSize === 'inherit' ? 'Inherit' : Number.parseFloat(style.fontSize));
-  }
-
-  if (style.scale) {
-    element.scaleX = toResponsiveValue(Number(style.scale.split(' ')[0]));
-    element.scaleY = toResponsiveValue(Number(style.scale.split(' ')[1]));
   }
 
   if (elementNode instanceof HTMLImageElement && elementNode.src) {

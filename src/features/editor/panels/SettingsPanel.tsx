@@ -314,13 +314,13 @@ function SizeSettings() {
   };
 
   const handleFlipHorizontal = () => {
-    const currentScaleX = getResponsiveValue(selectedElement.scaleX, deviceType) ?? 1;
+    const currentScaleX = selectedElement.scaleX ?? 1;
     const newScaleX = currentScaleX === 1 ? -1 : 1;
     handleElementChange('scaleX', newScaleX);
   };
 
   const handleFlipVertical = () => {
-    const currentScaleY = getResponsiveValue(selectedElement.scaleY, deviceType) ?? 1;
+    const currentScaleY = selectedElement.scaleY ?? 1;
     const newScaleY = currentScaleY === 1 ? -1 : 1;
     handleElementChange('scaleY', newScaleY);
   };
@@ -917,25 +917,17 @@ const getSynchronizedGridUpdates = (selectedElement: GridElement, propName: stri
 };
 
 const getSynchronizedTransform = (selectedElement: PageElement, propName: string, deviceType: DeviceType) => {
-  const updates: any = {};
-  const { left, top, rotate } = selectedElement;
+  const { left, top, rotate, scaleX, scaleY } = selectedElement;
 
-  if (isValueIn(propName, 'left')) {
-    updates.top = top[deviceType];
-    updates.rotate = rotate?.[deviceType] || 0;
-  }
+  const values = {
+    left: left?.[deviceType] ?? 0,
+    top: top?.[deviceType] ?? 0,
+    rotate: rotate?.[deviceType] ?? 0,
+    scaleX: scaleX ?? 1,
+    scaleY: scaleY ?? 1
+  };
 
-  if (isValueIn(propName, 'top')) {
-    updates.left = left[deviceType];
-    updates.rotate = rotate?.[deviceType] || 0;
-  }
-
-  if (isValueIn(propName, 'rotate')) {
-    updates.left = left[deviceType];
-    updates.top = top[deviceType];
-  }
-
-  return updates;
+  return Object.fromEntries(Object.entries(values).filter(([key]) => !isValueIn(propName, key)));
 };
 
 const getSynchronizedFlex = (

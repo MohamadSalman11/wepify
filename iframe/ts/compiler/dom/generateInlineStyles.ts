@@ -56,7 +56,8 @@ export const generateInlineStyles = ({
     borderWidth,
     borderColor
   } = responsiveProps;
-  const shouldTransform = (isDefined(left) && isDefined(top)) || isDefined(rotate);
+  const shouldTransform =
+    (isDefined(left) && isDefined(top)) || isDefined(rotate) || isDefined(scaleX) || isDefined(scaleY);
 
   for (const key of BORDER_STYLE_KEYS) {
     const value = responsiveProps[key];
@@ -96,7 +97,7 @@ export const generateInlineStyles = ({
   }
 
   if (shouldTransform) {
-    style.transform = `translate(${left}px, ${top}px) rotate(${rotate || 0}deg)`;
+    style.transform = `translate(${left}px, ${top}px) rotate(${rotate}deg) scale(${scaleX}, ${scaleY})`;
   }
 
   if (flexDirection) {
@@ -108,8 +109,6 @@ export const generateInlineStyles = ({
   }
 
   if (isDefined(zIndex)) style.position = 'relative';
-  if (isDefined(scaleX)) style.scale = `${scaleX} 1`;
-  if (isDefined(scaleY)) style.scale = `1 ${scaleY}`;
   if (fontWeight) style.fontWeight = FONT_WEIGHT_VALUES[fontWeight as keyof typeof FONT_WEIGHT_VALUES];
   if (isDefined(fontSize)) style.fontSize = fontSize === 'Inherit' ? fontSize : `${fontSize}px`;
 

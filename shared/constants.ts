@@ -104,8 +104,6 @@ export const RESPONSIVE_PROPS = new Set([
   'top',
   'fontSize',
   'rotate',
-  'scaleY',
-  'scaleX',
   'textAlign',
   'flexDirection',
   'justifyContent',

@@ -2,12 +2,12 @@ import { ElementsName } from '@shared/constants';
 import type { InputChangeEvent } from '@shared/typing';
 import { createElement, useMemo, useRef } from 'react';
 
-interface Options {
+interface UseFilePickerProps {
   accept?: string;
   onSelect: (file: File) => void;
 }
 
-export const useFilePicker = ({ accept = '*', onSelect }: Options) => {
+export const useFilePicker = ({ accept = '*', onSelect }: UseFilePickerProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const openFilePicker = () => {

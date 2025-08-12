@@ -3,12 +3,12 @@ import { isTyping } from '../utils/isTyping';
 
 const KEY_DELETE_ELEMENT = 'Backspace';
 
-interface UseDeleteKeyHandlerParams {
+interface UseDeleteKeyHandlerProps {
   iframeRef?: RefObject<HTMLIFrameElement | null>;
   onDelete: () => void;
 }
 
-export const useDeleteKeyHandler = ({ iframeRef, onDelete }: UseDeleteKeyHandlerParams) => {
+export const useDeleteKeyHandler = ({ iframeRef, onDelete }: UseDeleteKeyHandlerProps) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const canDelete = iframeRef ? !isTyping(iframeRef) : true;

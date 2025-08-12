@@ -4,13 +4,13 @@ import { AppStorage } from '../utils/appStorage';
 
 const DEFAULT_DELAY = 2000;
 
-type UseLoadFromStorage<T> = {
+type UseLoadFromStorageProps<T> = {
   storageKey: StorageKey | StorageKey[];
   delay?: number;
   onLoaded: (data: T | null) => void;
 };
 
-export const useLoadFromStorage = <T>({ storageKey, delay = DEFAULT_DELAY, onLoaded }: UseLoadFromStorage<T>) => {
+export const useLoadFromStorage = <T>({ storageKey, delay = DEFAULT_DELAY, onLoaded }: UseLoadFromStorageProps<T>) => {
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
 

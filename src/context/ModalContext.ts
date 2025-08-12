@@ -1,12 +1,12 @@
 import { createContext, useContext } from 'react';
 
-interface ModalContextType {
+interface ModalContext {
   openName: string;
   close: () => void;
   open: (name: string) => void;
 }
 
-export const ModalContext = createContext<ModalContextType | null>(null);
+export const ModalContext = createContext<ModalContext | null>(null);
 
 export const useModalContext = () => {
   const context = useContext(ModalContext);

@@ -16,13 +16,13 @@ import { toSiteMetadata } from '../utils/toSiteMetadata';
 import { updateInSitesStorage } from '../utils/updateSitesInStorage';
 
 /**
- * Constants
+ * Types
  */
 
-interface StorageData {
-  sitesMetadata: SiteMetadata[] | null;
+type StorageData = {
   site: Site | null;
-}
+  sitesMetadata: SiteMetadata[] | null;
+} | null;
 
 /**
  * Component definition
@@ -34,24 +34,26 @@ export default function Dashboard() {
   const { sitesMetadata, isLoading, isProcessing } = useAppSelector((state) => state.dashboard);
 
   const onLoaded = useCallback(
-    async (data: StorageData | null) => {
-      if (!data) return dispatch(setIsLoading(false));
+    async (data: StorageData) => {
+      if (!data) {
+        return dispatch(setIsLoading(false));
+      }
 
       const { sitesMetadata, site } = data;
-      const updatedSites = sitesMetadata ?? [];
+      const sitesMetadataCopy = sitesMetadata ?? [];
 
       if (site) {
         await updateInSitesStorage((sites) => {
           const siteMetadata = toSiteMetadata(site);
-          const siteMetadataIndex = updatedSites.findIndex((s) => s.id === site.id);
+          const siteMetadataIndex = sitesMetadataCopy.findIndex((s) => s.id === site.id);
           const isSiteMetadataExist = siteMetadataIndex !== -1;
           const siteIndex = sites.findIndex((s: Site) => s.id === site.id);
           const isSiteExist = siteIndex !== -1;
 
           if (isSiteMetadataExist) {
-            updatedSites[siteMetadataIndex] = siteMetadata;
+            sitesMetadataCopy[siteMetadataIndex] = siteMetadata;
           } else {
-            updatedSites.push(siteMetadata);
+            sitesMetadataCopy.push(siteMetadata);
           }
 
           return isSiteExist ? [...sites.slice(0, siteIndex), site, ...sites.slice(siteIndex + 1)] : [...sites, site];
@@ -59,7 +61,7 @@ export default function Dashboard() {
       }
 
       await AppStorage.removeItem(StorageKey.Site);
-      dispatch(setSites(updatedSites));
+      dispatch(setSites(sitesMetadataCopy));
       dispatch(setIsLoading(false));
     },
     [dispatch]

@@ -1,6 +1,6 @@
 import { DEFAULT_SCALE_FACTOR, PAGE_PADDING_X, SCREEN_SIZES } from '@shared/constants';
-import { Site } from '@shared/typing';
-import { useCallback, useEffect, useRef } from 'react';
+import { Image, Site } from '@shared/typing';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -19,6 +19,7 @@ import {
   selectElement,
   setCurrentPageId,
   setDeviceType,
+  setImages,
   setIsError,
   setIsLoading,
   setIsStoring,
@@ -40,6 +41,12 @@ const DELAY_STORE_TIMEOUT_MS = 2000;
 const DELAY_LOADING_MS = 100;
 
 /**
+ * Types
+ */
+
+type StorageData = { site: Site | null; images: Image[] } | null;
+
+/**
  * Component definition
  */
 
@@ -53,46 +60,56 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
   const { hasSetOriginSize, backgroundColor, width, height, scale } = useAppSelector((state) => state.page);
   const { site, images, isLoading, isError, deviceType } = useAppSelector((state) => state.editor);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const storageKey = useMemo(() => [StorageKey.Site, StorageKey.Images], []);
 
   const onLoaded = useCallback(
-    async (site: Site | null) => {
+    async (data: StorageData) => {
+      const { site, images } = data || {};
+
+      console.log(images);
+
       if (!site) return dispatch(setIsError(true));
 
       const page = site.pages.find((p) => p.id === pageId);
 
       if (!iframeConnection.iframeReady) return;
 
-      if (site && page && canvasRef.current && pageId) {
-        const pagesMetadata = site.pages.map(({ elements: _, ...pageWithoutElements }) => pageWithoutElements);
-
-        dispatch(setPagesMetadata(pagesMetadata));
-        dispatch(setCurrentPageId(pageId));
-
-        dispatch(
-          setSize({
-            width: SCREEN_SIZES.tablet.width,
-            height: SCREEN_SIZES.tablet.height,
-            originWidth: canvasRef.current.clientWidth,
-            originHeight: canvasRef.current.clientHeight
-          })
-        );
-
-        dispatch(setSite(site));
-        dispatch(setPage(page));
-        dispatch(selectElement(page.elements[0]));
-        dispatch(setScale(DEFAULT_SCALE_FACTOR));
-        dispatch(setDeviceType(DEFAULT_DEVICE_TYPE));
-
-        setTimeout(() => dispatch(setIsLoading(false)), DELAY_LOADING_MS);
-      } else {
+      if (!(site && page && canvasRef.current && pageId)) {
         dispatch(setIsError(true));
+        return;
       }
+
+      const pagesMetadata = site.pages.map(({ elements: _, ...pageWithoutElements }) => pageWithoutElements);
+
+      if (images && images.length > 0) {
+        dispatch(setImages(images));
+      }
+
+      dispatch(setPagesMetadata(pagesMetadata));
+      dispatch(setCurrentPageId(pageId));
+
+      dispatch(
+        setSize({
+          width: SCREEN_SIZES.tablet.width,
+          height: SCREEN_SIZES.tablet.height,
+          originWidth: canvasRef.current.clientWidth,
+          originHeight: canvasRef.current.clientHeight
+        })
+      );
+
+      dispatch(setSite(site));
+      dispatch(setPage(page));
+      dispatch(selectElement(page.elements[0]));
+      dispatch(setScale(DEFAULT_SCALE_FACTOR));
+      dispatch(setDeviceType(DEFAULT_DEVICE_TYPE));
+
+      setTimeout(() => dispatch(setIsLoading(false)), DELAY_LOADING_MS);
     },
     [iframeConnection.iframeReady, canvasRef, dispatch, pageId]
   );
 
-  useLoadFromStorage<Site | null>({
-    storageKey: StorageKey.Site,
+  useLoadFromStorage<StorageData>({
+    storageKey,
     onLoaded
   });
 
@@ -139,6 +156,8 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
   }, [dispatch, site, isLoading]);
 
   useEffect(() => {
+    if (images.length === 0) return;
+
     AppStorage.setItem(StorageKey.Images, images);
   }, [images]);
 

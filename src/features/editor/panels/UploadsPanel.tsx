@@ -1,7 +1,7 @@
 import { nanoid } from '@reduxjs/toolkit';
 import { ElementsName } from '@shared/constants';
 import { Image } from '@shared/typing';
-import { MouseEvent, useCallback } from 'react';
+import { MouseEvent } from 'react';
 import toast from 'react-hot-toast';
 import { LuTrash2 } from 'react-icons/lu';
 import Masonry from 'react-masonry-css';
@@ -9,13 +9,11 @@ import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import Button from '../../../components/Button';
 import Icon from '../../../components/Icon';
-import { StorageKey } from '../../../constant';
 import { useIframeContext } from '../../../context/IframeContext';
 import { useFilePicker } from '../../../hooks/useFilePicker';
-import { useLoadFromStorage } from '../../../hooks/useLoadFromStorage';
 import { useAppSelector } from '../../../store';
 import { useImageUpload } from '../hooks/useImageUpload';
-import { addImage, deleteImage, setImages } from '../slices/editorSlice';
+import { addImage, deleteImage } from '../slices/editorSlice';
 
 /**
  * Constants
@@ -42,20 +40,6 @@ export default function UploadsPanel() {
   );
 
   const { input, openFilePicker } = useFilePicker({ accept: ACCEPTED_FILE_TYPE, onSelect: handleImageUpload });
-
-  const onLoaded = useCallback(
-    (images: Image[] | null) => {
-      if (images) {
-        dispatch(setImages(images));
-      }
-    },
-    [dispatch]
-  );
-
-  useLoadFromStorage<Image[]>({
-    storageKey: StorageKey.Images,
-    onLoaded
-  });
 
   const handleDeleteImage = (event: MouseEvent<HTMLSpanElement>, img: Image) => {
     event.stopPropagation();

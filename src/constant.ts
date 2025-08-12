@@ -5,7 +5,8 @@ export const DEFAULT_FLEX_DIRECTION = 'column';
 export enum Path {
   Home = '/',
   Dashboard = '/dashboard',
-  Editor = '/editor/sites/:siteId/pages/:pageId'
+  Editor = '/editor/sites/:siteId/pages/:pageId',
+  NotFound = '*'
 }
 
 export enum DashboardPath {

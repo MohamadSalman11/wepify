@@ -33,6 +33,10 @@ const baseStyles = css`
     letter-spacing: var(--body-letter-spacing);
   }
 
+  p {
+    line-height: 1.5;
+  }
+
   input,
   button,
   textarea,

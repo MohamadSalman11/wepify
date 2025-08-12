@@ -2,6 +2,7 @@ import { Tooltip } from 'radix-ui';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
+import NotFound from './components/NotFound';
 import RequireDesktop from './components/RequiredDesktop';
 import { DashboardPath, EditorPath, Path } from './constant';
 import RecentSites from './features/dashboard/main/RecentSites';
@@ -52,6 +53,7 @@ function App() {
                 <Route path={EditorPath.Uploads} element={<Panel panel={EditorPath.Uploads} />} />
                 <Route path={EditorPath.Preview} element={<Preview />} />
               </Route>
+              <Route path={Path.NotFound} element={<NotFound />} />
             </Routes>
           </ThemeProvider>
         </PanelProvider>

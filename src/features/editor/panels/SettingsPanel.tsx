@@ -172,8 +172,10 @@ const useSettingsContext = () => {
  * Types
  */
 
+type HandleElementChange = (name: string, value: string | number, additionalChanges?: Partial<PageElement>) => void;
+
 interface SettingsContextType {
-  handleElementChange: (name: string, value: string | number) => void;
+  handleElementChange: HandleElementChange;
 }
 
 /**
@@ -184,7 +186,7 @@ export default function SettingsPanel() {
   const { iframeConnection } = useIframeContext();
   const { selectedElement, deviceType } = useAppSelector((state) => state.editor);
 
-  const handleElementChange = (name: string, value: string | number) => {
+  const handleElementChange: HandleElementChange = (name, value, additionalChanges) => {
     const updates = { [name]: value };
 
     if (isValueIn(selectedElement.name, ElementsName.Grid)) {
@@ -195,6 +197,7 @@ export default function SettingsPanel() {
 
     Object.assign(updates, getSynchronizedTransform(selectedElement, name, deviceType));
     Object.assign(updates, getSynchronizedBorder(selectedElement, name));
+    Object.assign(updates, additionalChanges);
 
     iframeConnection.updateElement(updates);
   };
@@ -310,7 +313,7 @@ function SizeSettings() {
     const current = getResponsiveValue(selectedElement.rotate, deviceType) ?? 0;
     let newRotate = current - 90;
     if (newRotate <= -180) newRotate = 180;
-    handleElementChange('rotate', newRotate);
+    handleElementChange('rotate', newRotate, { scaleX: 1, scaleY: 1 });
   };
 
   const handleFlipHorizontal = () => {

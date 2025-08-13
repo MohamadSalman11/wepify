@@ -4,7 +4,9 @@ import { Provider } from 'react-redux';
 import App from './App.tsx';
 import store from './store.ts';
 
-createRoot(document.querySelector('#root') as HTMLDivElement).render(
+const SELECTOR_ROOT_ELEMENT = '#root';
+
+createRoot(document.querySelector(SELECTOR_ROOT_ELEMENT) as HTMLDivElement).render(
   <StrictMode>
     <Provider store={store}>
       <App />

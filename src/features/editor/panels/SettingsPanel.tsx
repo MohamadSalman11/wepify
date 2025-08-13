@@ -160,7 +160,7 @@ const NUMERIC_PROPS = new Set([
  * Context
  */
 
-const SettingsContext = createContext<SettingsContextType | null>(null);
+const SettingsContext = createContext<SettingsContext | null>(null);
 
 const useSettingsContext = () => {
   const context = useContext(SettingsContext);
@@ -174,7 +174,7 @@ const useSettingsContext = () => {
 
 type HandleElementChange = (name: string, value: string | number, additionalChanges?: Partial<PageElement>) => void;
 
-interface SettingsContextType {
+interface SettingsContext {
   handleElementChange: HandleElementChange;
 }
 

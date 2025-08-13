@@ -172,6 +172,7 @@ const useSettingsContext = () => {
  * Types
  */
 
+type BorderSide = 'Top' | 'Right' | 'Bottom' | 'Left';
 type HandleElementChange = (name: string, value: string | number, additionalChanges?: Partial<PageElement>) => void;
 
 interface SettingsContext {
@@ -816,7 +817,7 @@ function StrokeSettings() {
 
   const borders = { borderTop, borderRight, borderBottom, borderLeft };
 
-  const toggleBorder = (side: 'Top' | 'Right' | 'Bottom' | 'Left', value: string) => {
+  const toggleBorder = (side: BorderSide, value: string) => {
     const border = `border${side}`;
     const currentBorderValue = borders[border as keyof typeof borders];
 
@@ -849,16 +850,20 @@ function StrokeSettings() {
             </ChangeElement>
           </StrokeWidthContainer>
           <StrokePosition>
-            {OPTIONS_BORDER.map(({ side, icon }) => (
-              <AppTooltip key={side} label={side} side='top' sizeSmall>
-                <Icon
-                  icon={icon}
-                  size='md'
-                  isSelected={!borders[`border${side}`]?.includes('none') && borders[`border${side}`] !== undefined}
-                  onClick={() => toggleBorder(side, `${borderWidth}px solid ${borderColor}`)}
-                />
-              </AppTooltip>
-            ))}
+            {OPTIONS_BORDER.map(({ side, icon }) => {
+              const border = `border${side}` as keyof typeof borders;
+
+              return (
+                <AppTooltip key={side} label={side} side='top' sizeSmall>
+                  <Icon
+                    icon={icon}
+                    size='md'
+                    isSelected={!borders[border]?.includes('none') && borders[border] !== undefined}
+                    onClick={() => toggleBorder(side as BorderSide, `${borderWidth}px solid ${borderColor}`)}
+                  />
+                </AppTooltip>
+              );
+            })}
           </StrokePosition>
         </GridContainer>
       </CollapsibleSection>
@@ -978,18 +983,18 @@ const getSynchronizedFlex = (
 const getSynchronizedBorder = (selectedElement: PageElement, propName: string) => {
   const updates: any = {};
   const { borderColor, borderWidth } = selectedElement;
-  const sides = ['borderTop', 'borderRight', 'borderBottom', 'borderLeft'];
+  const borders = ['borderTop', 'borderRight', 'borderBottom', 'borderLeft'];
 
   if (isValueIn(propName, 'borderWidth')) {
-    for (const side of sides) {
-      updates[side] = selectedElement[side];
+    for (const border of borders) {
+      updates[border] = selectedElement[border as keyof PageElement];
     }
     updates.borderColor = borderColor;
   }
 
   if (isValueIn(propName, 'borderColor')) {
-    for (const side of sides) {
-      updates[side] = selectedElement[side];
+    for (const border of borders) {
+      updates[border] = selectedElement[border as keyof PageElement];
     }
     updates.borderWidth = borderWidth;
   }

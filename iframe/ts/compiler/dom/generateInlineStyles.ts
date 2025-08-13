@@ -63,7 +63,7 @@ export const generateInlineStyles = ({
     const value = responsiveProps[key];
 
     if (value === 'none') {
-      style[key] = 'none';
+      style[key as any] = 'none';
       continue;
     }
 
@@ -78,7 +78,7 @@ export const generateInlineStyles = ({
         color = borderColor;
       }
 
-      style[key] = [width, 'solid', color || ''].join(' ').trim();
+      style[key as any] = [width, 'solid', color || ''].join(' ').trim();
     }
   }
 

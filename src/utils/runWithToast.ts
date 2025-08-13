@@ -1,7 +1,7 @@
 import toast, { Renderable } from 'react-hot-toast';
 import { ToastMessages } from '../constant';
 
-type RunWithToastParams<T> = {
+type RunWithToastProps<T> = {
   startMessage: string;
   successMessage: string;
   errorMessage?: string;
@@ -21,7 +21,7 @@ export const runWithToast = async <T>({
   onExecute,
   onSuccess,
   onFinally
-}: RunWithToastParams<T>): Promise<void> => {
+}: RunWithToastProps<T>): Promise<void> => {
   const toastId = toast(startMessage, {
     icon,
     duration: Infinity

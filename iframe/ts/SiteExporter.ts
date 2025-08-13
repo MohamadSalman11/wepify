@@ -29,8 +29,8 @@ enum FileNames {
 }
 
 enum Folders {
-  Root = 'dist',
-  Images = 'dist/images'
+  Root = 'src',
+  Images = 'src/images'
 }
 
 /**

@@ -1,9 +1,9 @@
-import { RefObject, useEffect, useRef } from 'react';
+import { useEffect, useRef, type RefObject } from 'react';
 
 export const useOutsideClick = <T extends HTMLElement = HTMLElement>(
   handler: () => void,
-  extraRef?: RefObject<HTMLElement | null>,
-  containerRef?: RefObject<HTMLElement | null>
+  containerRef?: RefObject<HTMLElement | null>,
+  extraRef?: RefObject<HTMLElement | null>
 ) => {
   const ref = useRef<T>(null);
 

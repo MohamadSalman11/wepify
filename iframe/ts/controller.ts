@@ -100,6 +100,12 @@ const controlRenderElements = (
   scaleFactor: number,
   backgroundColor: string
 ) => {
+  const iframeRoot = document.querySelector(SELECTOR_ROOT) as HTMLDivElement;
+
+  if (iframeRoot) {
+    iframeRoot.dataset.isPreview = String(isPreview);
+  }
+
   state.isSitePreviewMode = isPreview;
   state.deviceType = deviceType;
   state.scaleFactor = scaleFactor;
@@ -108,18 +114,6 @@ const controlRenderElements = (
 
   if (state.initRender) {
     controlUpdatePage({ backgroundColor });
-  }
-
-  const linkHref = `./${CSS_FILE_MOVEABLE}`;
-  const existingLink = document.querySelector(`link[href="${linkHref}"]`);
-
-  if (isPreview) {
-    existingLink?.remove();
-  } else if (!existingLink) {
-    const link = document.createElement(ElementsName.Link);
-    link.rel = 'stylesheet';
-    link.href = linkHref;
-    document.head.append(link);
   }
 
   if (state.moveable) {

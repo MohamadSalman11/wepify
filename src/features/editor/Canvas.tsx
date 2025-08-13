@@ -1,8 +1,8 @@
-import { DEFAULT_SCALE_FACTOR, PAGE_PADDING_X, SCREEN_SIZES } from '@shared/constants';
+import { DEFAULT_SCALE_FACTOR, PAGE_PADDING_X, SCREEN_SIZES, UNSAVED_CHANGES_MESSAGE } from '@shared/constants';
 import { Image, Site } from '@shared/typing';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useDispatch } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useBeforeUnload, useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import LoadingScreen from '../../components/LoadingScreen';
 import { LoadingMessages, Path, StorageKey } from '../../constant';
@@ -59,11 +59,18 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
   const { leftPanelOpen } = usePanel();
   const { iframeConnection, iframeRef } = useIframeContext();
   const { hasSetOriginSize, backgroundColor, width, height, scale } = useAppSelector((state) => state.page);
-  const { site, images, isLoading, isError, deviceType } = useAppSelector((state) => state.editor);
+  const { site, images, deviceType, isStoring, isLoading, isError } = useAppSelector((state) => state.editor);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const storageKey = useMemo(() => [StorageKey.Site, StorageKey.Images], []);
 
   useNetworkStatus();
+
+  useBeforeUnload((event) => {
+    if (isStoring && !isPreview) {
+      event.preventDefault();
+      event.returnValue = UNSAVED_CHANGES_MESSAGE;
+    }
+  });
 
   const onLoaded = useCallback(
     async (data: StorageData) => {

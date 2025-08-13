@@ -34,6 +34,7 @@ export const createDomTree = (element: PageElement) => {
 
     elementNode.addEventListener('click', (event) => {
       event.preventDefault();
+
       if (state.isSitePreviewMode) {
         postMessageToApp({ type: MessageFromIframe.NavigateToPage, payload: elementNode.getAttribute('href') || '' });
       }

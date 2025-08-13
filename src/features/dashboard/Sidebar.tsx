@@ -69,7 +69,7 @@ export default function Sidebar() {
 
   const handleDesignNewSite = async () => {
     const siteId = nanoid();
-    const page = createNewPage();
+    const page = createNewPage(DEFAULT_NAME);
 
     toast.dismiss();
 

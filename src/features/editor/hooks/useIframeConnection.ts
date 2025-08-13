@@ -27,7 +27,7 @@ import {
 import { setBackground } from '../slices/pageSlice';
 
 const PAGE_NAME_INDEX = 'index';
-const PAGE_PATH_SEGMENT_REGEX = new RegExp(`${EditorPath.Pages}[^/]+`);
+const PAGE_PATH_SEGMENT_REGEX = /\/pages\/[^/]+/;
 
 export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | null>) => {
   const dispatch = useDispatch();
@@ -104,17 +104,24 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
         }
         case MessageFromIframe.NavigateToPage: {
           const pageFileName = data.payload;
+          let isNavigated = false;
 
           for (const page of pagesMetadata) {
             const pageName = page.isIndex ? PAGE_NAME_INDEX : page.name;
             const generatedFileName = generateFileNameFromPageName(pageName);
 
             if (generatedFileName === pageFileName) {
+              isNavigated = true;
               const currentPath = location.pathname;
               const updatedPath = currentPath.replace(PAGE_PATH_SEGMENT_REGEX, `/${EditorPath.Pages}/${page.id}`);
+
               navigate(updatedPath);
               break;
             }
+          }
+
+          if (!isNavigated) {
+            window.open(pageFileName, '_blank', 'noopener,noreferrer');
           }
           break;
         }

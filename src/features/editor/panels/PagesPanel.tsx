@@ -42,26 +42,21 @@ const MAX_PAGE_NAME_LENGTH = 7;
  */
 
 export default function PagesPanel() {
-  const dispatch = useDispatch();
   const pagesMetadata = useAppSelector((state) => state.editor.pagesMetadata);
-
-  const handleAddNewPage = () => {
-    const newPage = createNewPage();
-    dispatch(addPage(newPage));
-  };
 
   return (
     <>
-      <Button fullWidth onClick={handleAddNewPage}>
-        Add New Page
-      </Button>
-      <StyledPagesList>
-        {pagesMetadata?.map((page, i) => (
-          <Modal key={page.id}>
-            <PageItem page={page} index={i} />
-          </Modal>
-        ))}
-      </StyledPagesList>
+      <Modal>
+        <Modal.Open openName='add-page'>
+          <Button fullWidth>Add New Page</Button>
+        </Modal.Open>
+        <Modal.Window name='add-page'>
+          <Modal.Dialog title='Add Page'>
+            <AddDialog />
+          </Modal.Dialog>
+        </Modal.Window>
+        <StyledPagesList>{pagesMetadata?.map((page, i) => <PageItem page={page} index={i} />)}</StyledPagesList>
+      </Modal>
     </>
   );
 }
@@ -85,15 +80,6 @@ function PageItem({ page, index }: { page: PageMetadata; index: number }) {
       dispatch(clearPage());
       dispatch(clearSelectedElement());
       navigate(buildPath(Path.Editor, { siteId, pageId: page.id }));
-    }
-  };
-
-  const handleDuplicatePage = async () => {
-    const site = (await AppStorage.getItem(StorageKey.Site)) as Site;
-    const duplicatedPage = site.pages.find((p) => p.id === pageId);
-
-    if (duplicatedPage) {
-      dispatch(addPage({ ...duplicatedPage, id: nanoid(), isIndex: false }));
     }
   };
 
@@ -123,9 +109,9 @@ function PageItem({ page, index }: { page: PageMetadata; index: number }) {
               <Dropdown.Button icon={LuLink} onClick={() => handleCopyLink(page.isIndex ? 'index' : page.name)}>
                 Copy page link
               </Dropdown.Button>
-              <Dropdown.Button icon={LuCopy} onClick={handleDuplicatePage}>
-                Duplicate page
-              </Dropdown.Button>
+              <Modal.Open openName='duplicate-page'>
+                <Dropdown.Button icon={LuCopy}>Duplicate page</Dropdown.Button>
+              </Modal.Open>
               <Modal.Open openName='delete'>
                 <Dropdown.Button icon={LuTrash2} onClick={() => open('delete')}>
                   Delete
@@ -136,6 +122,11 @@ function PageItem({ page, index }: { page: PageMetadata; index: number }) {
           <Modal.Window name='edit'>
             <Modal.Dialog title='Edit Page'>
               <EditDialog page={page} />
+            </Modal.Dialog>
+          </Modal.Window>
+          <Modal.Window name='duplicate-page'>
+            <Modal.Dialog title='Duplicate Page'>
+              <DuplicateDialog page={page} />
             </Modal.Dialog>
           </Modal.Window>
           <Modal.Window name='delete'>
@@ -150,51 +141,54 @@ function PageItem({ page, index }: { page: PageMetadata; index: number }) {
   );
 }
 
-function EditDialog({ page, onCloseModal }: { page: PageMetadata; onCloseModal?: OnCloseModal }) {
-  const dispatch = useDispatch();
-  const [newName, setNewName] = useState(page.name || '');
-  const [newTitle, setNewTitle] = useState(page.title || page.name || '');
+function PageForm({
+  initialName = '',
+  initialTitle = '',
+  excludePageId,
+  onSubmit,
+  onCloseModal,
+  successMessage
+}: {
+  initialName?: string;
+  initialTitle?: string;
+  excludePageId?: string;
+  onSubmit: (name: string, title: string) => void;
+  onCloseModal?: OnCloseModal;
+  successMessage?: string;
+}) {
   const site = useAppSelector((state) => state.editor.site);
+  const [name, setName] = useState(initialName);
+  const [title, setTitle] = useState(initialTitle || initialName);
 
   const handleSave = () => {
-    const trimmedName = newName.trim();
-    const trimmedTitle = newTitle.trim();
+    const trimmedName = name.trim();
+    const trimmedTitle = title.trim();
 
-    const isValid = validateFields([
-      {
-        value: trimmedName,
-        emptyMessage: ToastMessages.page.emptyName
-      }
-    ]);
+    const isValid = validateFields([{ value: trimmedName, emptyMessage: ToastMessages.page.emptyName }]);
 
     if (!isValid) return;
 
-    const nameExists = site.pages.some((p) => p.name.toLowerCase() === trimmedName.toLowerCase() && p.id !== page.id);
+    const nameExists = site.pages.some(
+      (p) => p.name.toLowerCase() === trimmedName.toLowerCase() && p.id !== excludePageId
+    );
 
     if (nameExists) {
       toast.error(ToastMessages.page.duplicateName);
       return;
     }
 
-    dispatch(updatePageInfo({ id: page.id, name: trimmedName, title: trimmedTitle }));
+    onSubmit(trimmedName, trimmedTitle || trimmedName);
     onCloseModal?.();
-    toast.success(ToastMessages.page.renamed);
+
+    if (successMessage) {
+      toast.success(successMessage);
+    }
   };
 
   return (
     <>
-      <Input
-        type='text'
-        placeholder='Page Name'
-        defaultValue={page.name}
-        onChange={(event) => setNewName(event.target.value)}
-      />
-      <Input
-        type='text'
-        placeholder='Page Title'
-        defaultValue={page.title}
-        onChange={(event) => setNewTitle(event.target.value)}
-      />
+      <Input type='text' placeholder='Page Name' value={name} onChange={(e) => setName(e.target.value)} />
+      <Input type='text' placeholder='Page Title' value={title} onChange={(e) => setTitle(e.target.value)} />
       <DialogActions>
         <Button onClick={handleSave} size='sm' pill>
           OK
@@ -204,6 +198,65 @@ function EditDialog({ page, onCloseModal }: { page: PageMetadata; onCloseModal?:
         </Button>
       </DialogActions>
     </>
+  );
+}
+
+function AddDialog({ onCloseModal }: { onCloseModal?: OnCloseModal }) {
+  const dispatch = useDispatch();
+
+  return (
+    <PageForm
+      onCloseModal={onCloseModal}
+      onSubmit={(name, title) => {
+        const newPage = createNewPage(name, title);
+        dispatch(addPage(newPage));
+      }}
+    />
+  );
+}
+
+function EditDialog({ page, onCloseModal }: { page: PageMetadata; onCloseModal?: OnCloseModal }) {
+  const dispatch = useDispatch();
+
+  return (
+    <PageForm
+      initialName={page.name}
+      initialTitle={page.title}
+      excludePageId={page.id}
+      successMessage={ToastMessages.page.renamed}
+      onCloseModal={onCloseModal}
+      onSubmit={(name, title) => {
+        dispatch(updatePageInfo({ id: page.id, name, title }));
+      }}
+    />
+  );
+}
+
+function DuplicateDialog({ page, onCloseModal }: { page: PageMetadata; onCloseModal?: OnCloseModal }) {
+  const dispatch = useDispatch();
+
+  return (
+    <PageForm
+      initialName={`${page.name} (Copy)`}
+      initialTitle={`${page.title || page.name} (Copy)`}
+      onCloseModal={onCloseModal}
+      onSubmit={async (name, title) => {
+        const site = (await AppStorage.getItem(StorageKey.Site)) as Site;
+        const duplicatedPage = site.pages.find((p) => p.id === page.id);
+
+        if (duplicatedPage) {
+          dispatch(
+            addPage({
+              ...duplicatedPage,
+              name,
+              title,
+              id: nanoid(),
+              isIndex: false
+            })
+          );
+        }
+      }}
+    />
   );
 }
 

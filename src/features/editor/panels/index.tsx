@@ -1,3 +1,4 @@
+import { ComponentType } from 'react';
 import { LuChevronLeft } from 'react-icons/lu';
 import styled, { css } from 'styled-components';
 import Icon from '../../../components/Icon';
@@ -14,7 +15,7 @@ import UploadsPanel from './UploadsPanel';
 
 const DEFAULT_BORDER_DIRECTION = 'right';
 
-const PANEL_COMPONENTS: Record<PanelKey, React.ComponentType> = {
+const PANEL_COMPONENTS: Record<PanelKey, ComponentType> = {
   elements: ElementsPanel,
   settings: SettingsPanel,
   pages: PagesPanel,
@@ -26,8 +27,8 @@ const PANEL_COMPONENTS: Record<PanelKey, React.ComponentType> = {
  * Types
  */
 
-type PanelKey = 'elements' | 'settings' | 'pages' | 'layers' | 'uploads';
 type BorderDirection = 'right' | 'left';
+type PanelKey = 'elements' | 'settings' | 'pages' | 'layers' | 'uploads';
 
 interface PanelProps {
   panel: PanelKey;

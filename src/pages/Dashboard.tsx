@@ -1,80 +1,17 @@
-import type { Site, SiteMetadata } from '@shared/typing';
-import { useCallback, useEffect, useMemo } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { useDispatch } from 'react-redux';
 import styled, { css } from 'styled-components';
 import LoadingScreen from '../components/LoadingScreen';
-import { StorageKey } from '../constant';
 import Header from '../features/dashboard/Header';
 import Main from '../features/dashboard/main/Main';
 import Sidebar from '../features/dashboard/Sidebar';
-import { setIsLoading, setSites } from '../features/dashboard/slices/dashboardSlice';
-import { useLoadFromStorage } from '../hooks/useLoadFromStorage';
 import { useAppSelector } from '../store';
-import { AppStorage } from '../utils/appStorage';
-import { toSiteMetadata } from '../utils/toSiteMetadata';
-import { updateInSitesStorage } from '../utils/updateSitesInStorage';
-
-/**
- * Types
- */
-
-type StorageData = {
-  site: Site | null;
-  sitesMetadata: SiteMetadata[] | null;
-} | null;
 
 /**
  * Component definition
  */
 
 export default function Dashboard() {
-  const dispatch = useDispatch();
-  const storageKey = useMemo(() => [StorageKey.SitesMetaData, StorageKey.Site], []) as StorageKey[];
-  const { sitesMetadata, isLoading, isProcessing } = useAppSelector((state) => state.dashboard);
-
-  const onLoaded = useCallback(
-    async (data: StorageData) => {
-      if (!data) {
-        return dispatch(setIsLoading(false));
-      }
-
-      const { sitesMetadata, site } = data;
-      const sitesMetadataCopy = sitesMetadata ?? [];
-
-      if (site) {
-        await updateInSitesStorage((sites) => {
-          const siteMetadata = toSiteMetadata(site);
-          const siteMetadataIndex = sitesMetadataCopy.findIndex((s) => s.id === site.id);
-          const isSiteMetadataExist = siteMetadataIndex !== -1;
-          const siteIndex = sites.findIndex((s: Site) => s.id === site.id);
-          const isSiteExist = siteIndex !== -1;
-
-          if (isSiteMetadataExist) {
-            sitesMetadataCopy[siteMetadataIndex] = siteMetadata;
-          } else {
-            sitesMetadataCopy.push(siteMetadata);
-          }
-
-          return isSiteExist ? [...sites.slice(0, siteIndex), site, ...sites.slice(siteIndex + 1)] : [...sites, site];
-        });
-      }
-
-      await AppStorage.removeItem(StorageKey.Site);
-      dispatch(setSites(sitesMetadataCopy));
-      dispatch(setIsLoading(false));
-    },
-    [dispatch]
-  );
-
-  useLoadFromStorage<StorageData>({
-    storageKey,
-    onLoaded
-  });
-
-  useEffect(() => {
-    AppStorage.setItem(StorageKey.SitesMetaData, sitesMetadata);
-  }, [sitesMetadata]);
+  const { isLoading, isProcessing } = useAppSelector((state) => state.dashboard);
 
   if (isLoading) {
     return (

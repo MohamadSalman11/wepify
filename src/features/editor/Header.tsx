@@ -321,7 +321,7 @@ const DesignInfo = styled.div`
 
 const spin = keyframes`
   to {
-    transform: rotate(360deg);
+    transform: rotate(-360deg);
   }
 `;
 

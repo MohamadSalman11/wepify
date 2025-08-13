@@ -33,21 +33,17 @@ const dashboardSlice = createSlice({
   name: 'dashboard',
   initialState,
   reducers: {
+    setIsLoading(state, action: PayloadAction<boolean>) {
+      state.isLoading = action.payload;
+    },
+    setIsProcessing(state, action: PayloadAction<boolean>) {
+      state.isProcessing = action.payload;
+    },
     setSites(state, action: PayloadAction<SiteMetadata[]>) {
       state.sitesMetadata = action.payload;
     },
     addSite(state, action: PayloadAction<SiteMetadata>) {
       state.sitesMetadata.push(action.payload);
-    },
-    deleteSite(state, action: PayloadAction<string>) {
-      state.sitesMetadata = state.sitesMetadata.filter((site) => site.id !== action.payload);
-    },
-    duplicateSite(state, action: PayloadAction<{ id: string; newId: string }>) {
-      const site = state.sitesMetadata.find((site) => site.id === action.payload.id);
-
-      if (site) {
-        state.sitesMetadata.push({ ...site, id: action.payload.newId });
-      }
     },
     updateSiteDetails(state, action: PayloadAction<{ id: string; name: string; description: string }>) {
       const site = state.sitesMetadata.find((site) => site.id === action.payload.id);
@@ -57,11 +53,12 @@ const dashboardSlice = createSlice({
         site.description = action.payload.description;
       }
     },
-    setFilters(state, action: PayloadAction<FilterCriteria>) {
-      state.filters = action.payload;
-    },
-    setFilterLabel(state, action: PayloadAction<string>) {
-      state.filterLabel = action.payload;
+    duplicateSite(state, action: PayloadAction<{ id: string; newId: string }>) {
+      const site = state.sitesMetadata.find((site) => site.id === action.payload.id);
+
+      if (site) {
+        state.sitesMetadata.push({ ...site, id: action.payload.newId });
+      }
     },
     toggleSiteStarred(state, action: PayloadAction<string>) {
       const site = state.sitesMetadata.find((site) => site.id === action.payload);
@@ -70,26 +67,29 @@ const dashboardSlice = createSlice({
         site.isStarred = !site.isStarred;
       }
     },
-    setIsLoading(state, action: PayloadAction<boolean>) {
-      state.isLoading = action.payload;
+    deleteSite(state, action: PayloadAction<string>) {
+      state.sitesMetadata = state.sitesMetadata.filter((site) => site.id !== action.payload);
     },
-    setIsProcessing(state, action: PayloadAction<boolean>) {
-      state.isProcessing = action.payload;
+    setFilters(state, action: PayloadAction<FilterCriteria>) {
+      state.filters = action.payload;
+    },
+    setFilterLabel(state, action: PayloadAction<string>) {
+      state.filterLabel = action.payload;
     }
   }
 });
 
 export const {
+  setIsLoading,
+  setIsProcessing,
   setSites,
   addSite,
-  deleteSite,
-  duplicateSite,
   updateSiteDetails,
-  setFilters,
-  setFilterLabel,
+  duplicateSite,
   toggleSiteStarred,
-  setIsLoading,
-  setIsProcessing
+  deleteSite,
+  setFilters,
+  setFilterLabel
 } = dashboardSlice.actions;
 
 export default dashboardSlice.reducer;

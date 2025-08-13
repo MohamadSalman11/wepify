@@ -452,7 +452,7 @@ function AlignmentSettings() {
               );
 
             return (
-              <AppTooltip key={targetName + targetValue} label={label} side='top' sizeSmall>
+              <AppTooltip key={targetName + targetValue} label={label} side='top' sideOffset={5} sizeSmall>
                 <Icon icon={icon} isSelected={isSelected} onClick={handleClick} />
               </AppTooltip>
             );
@@ -520,7 +520,7 @@ function FlexSettings() {
             <SubTitle>Direction</SubTitle>
             <DisplayOptionsWrapper>
               {OPTIONS_FLEX_DIRECTION.map(({ value, icon }) => (
-                <AppTooltip key={value} label={value} side='top' sizeSmall>
+                <AppTooltip key={value} label={value} side='top' sideOffset={5} sizeSmall>
                   <DisplayOptionButton
                     $active={selectedDisplay === value}
                     onClick={() => handleSelect(value as FlexDirectionOption)}
@@ -788,7 +788,7 @@ function TypographySettings() {
           <SubTitle>Text Align</SubTitle>
           <TextAlignContainer>
             {OPTIONS_TEXT_ALIGN.map(({ value, icon }) => (
-              <AppTooltip key={value} label={value} side='top' sizeSmall>
+              <AppTooltip key={value} label={value} side='top' sideOffset={5} sizeSmall>
                 <Icon
                   icon={icon}
                   isSelected={textAlign === value}

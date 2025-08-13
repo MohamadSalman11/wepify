@@ -43,8 +43,6 @@ const DOCUMENT_HEAD_TEMPLATE = `
     />
     <link rel="icon" type="image/x-icon" href="${File.Favicon}" />
     <link rel="stylesheet" href="./${File.StyleCSS}" />
-    <link rel="stylesheet" href="./${File.IndexCSS}" />
-    <link rel="stylesheet" href="./${File.ResponsiveCSS}" />
 `;
 
 /**
@@ -86,13 +84,17 @@ class SiteExporter {
 
     folder.file(File.StyleCSS, this.shouldMinify ? minifyCSS(cssFile) : cssFile);
 
-    const { indexCss, responsiveCss } = generateCssFiles(site);
+    const pageCssMap = generateCssFiles(site);
 
-    const indexCssFinal = this.shouldMinify ? minifyCSS(indexCss) : indexCss;
-    const responsiveCssFinal = this.shouldMinify ? minifyCSS(responsiveCss) : responsiveCss;
+    for (const pageId in pageCssMap) {
+      const { indexCss, responsiveCss } = pageCssMap[pageId];
 
-    folder.file(File.IndexCSS, indexCssFinal);
-    folder.file(File.ResponsiveCSS, responsiveCssFinal);
+      const indexCssFinal = this.shouldMinify ? minifyCSS(indexCss) : indexCss;
+      const responsiveCssFinal = this.shouldMinify ? minifyCSS(responsiveCss) : responsiveCss;
+
+      folder.file(`${pageId}_index.css`, indexCssFinal);
+      folder.file(`${pageId}_responsive.css`, responsiveCssFinal);
+    }
   }
 
   private async addPage(page: SitePage) {
@@ -100,6 +102,13 @@ class SiteExporter {
     doc.head.innerHTML = DOCUMENT_HEAD_TEMPLATE;
     doc.title = page.title || page.name;
     doc.body.style.backgroundColor = page.backgroundColor;
+
+    const pageCssLinks = `
+    <link rel="stylesheet" href="./${page.id}_${File.IndexCSS}" />
+    <link rel="stylesheet" href="./${page.id}_${File.ResponsiveCSS}" />
+  `;
+
+    doc.head.insertAdjacentHTML('beforeend', pageCssLinks);
 
     renderElements(page.elements, doc);
     this.processImages(doc);

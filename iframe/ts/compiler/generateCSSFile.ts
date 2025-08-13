@@ -4,45 +4,42 @@ import { generateInlineStyles } from './dom/generateInlineStyles';
 import { mergeStyles } from './mergeStyle';
 
 export const generateCssFiles = (site: Site) => {
-  const baseStyles: Record<string, Partial<Record<string, string | number>>> = {};
-  const laptopStyles: Record<string, Partial<Record<string, string | number>>> = {};
-  const tabletStyles: Record<string, Partial<Record<string, string | number>>> = {};
-  const phoneStyles: Record<string, Partial<Record<string, string | number>>> = {};
+  const result: Record<string, { indexCss: string; responsiveCss: string }> = {};
 
   for (const page of site.pages) {
+    const baseStyles: Record<string, Partial<Record<string, string | number>>> = {};
+    const laptopStyles: Record<string, Partial<Record<string, string | number>>> = {};
+    const tabletStyles: Record<string, Partial<Record<string, string | number>>> = {};
+    const phoneStyles: Record<string, Partial<Record<string, string | number>>> = {};
+
     for (const elem of page.elements) {
       processElement(elem, baseStyles, laptopStyles, tabletStyles, phoneStyles);
     }
+
+    const indexCss = buildCss(baseStyles);
+    const responsiveCss = [
+      buildMediaQuery(SCREEN_SIZES.laptop.width, laptopStyles),
+      buildMediaQuery(SCREEN_SIZES.tablet.width, tabletStyles),
+      buildMediaQuery(SCREEN_SIZES.smartphone.width, phoneStyles)
+    ]
+      .filter(Boolean)
+      .join('\n\n');
+
+    result[page.id] = { indexCss, responsiveCss };
   }
 
-  const indexCss = buildCss(baseStyles);
-  const responsiveCss = [
-    buildMediaQuery(SCREEN_SIZES.laptop.width, laptopStyles),
-    buildMediaQuery(SCREEN_SIZES.tablet.width, tabletStyles),
-    buildMediaQuery(SCREEN_SIZES.smartphone.width, phoneStyles)
-  ]
-    .filter(Boolean)
-    .join('\n\n');
-
-  return { indexCss, responsiveCss };
+  return result;
 };
 
-const toCssProp = (prop: string) => {
-  return prop.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
-};
+const toCssProp = (prop: string) => prop.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
 
-const styleObjectToCssDeclarations = (styleObj: Partial<Record<string, string | number>>) => {
-  return Object.entries(styleObj)
-    .map(([key, value]) => {
-      if (value === undefined || value === null) return '';
-      const cssKey = toCssProp(key);
-      return `${cssKey}: ${value};`;
-    })
+const styleObjectToCssDeclarations = (styleObj: Partial<Record<string, string | number>>) =>
+  Object.entries(styleObj)
+    .map(([key, value]) => (value == null ? '' : `${toCssProp(key)}: ${value};`))
     .filter(Boolean);
-};
 
-const buildCss = (selectorsStyles: Record<string, Partial<Record<string, string | number>>>) => {
-  return Object.entries(selectorsStyles)
+const buildCss = (selectorsStyles: Record<string, Partial<Record<string, string | number>>>) =>
+  Object.entries(selectorsStyles)
     .map(([selector, styles]) => {
       const decls = styleObjectToCssDeclarations(styles);
       if (decls.length === 0) return '';
@@ -50,7 +47,6 @@ const buildCss = (selectorsStyles: Record<string, Partial<Record<string, string 
     })
     .filter(Boolean)
     .join('\n\n');
-};
 
 const buildMediaQuery = (
   maxWidth: number,

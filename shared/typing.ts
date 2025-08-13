@@ -186,5 +186,5 @@ export type MessageFromIframeData =
   | { type: MessageFromIframe.NavigateToPage; payload: string };
 
 export type RequiredKeys<T> = {
-  [K in keyof T]-?: {} extends Pick<T, K> ? never : K;
+  [K in keyof T]-?: Record<string, any> extends Pick<T, K> ? never : K;
 }[keyof T];

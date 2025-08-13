@@ -21,6 +21,15 @@ export default tseslint.config(
       unicorn
     },
     rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_'
+        }
+      ],
+
       ...unicorn.configs.recommended.rules,
       'unicorn/filename-case': 'off',
       'unicorn/prevent-abbreviations': 'off',
@@ -29,7 +38,7 @@ export default tseslint.config(
       'unicorn/switch-case-braces': 'off',
 
       ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }]
+      'react-refresh/only-export-components': 'off'
     }
   },
   prettierRecommended

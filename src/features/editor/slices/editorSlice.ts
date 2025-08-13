@@ -61,17 +61,14 @@ const editorSlice = createSlice({
   name: 'editor',
   initialState,
   reducers: {
-    selectElement: (state, action: PayloadAction<PageElement>) => {
-      state.selectedElement = action.payload;
-    },
-    setLastDeletedElement(state, action: PayloadAction<PageElement | null>) {
-      state.lastDeletedElement = action.payload;
-    },
-    updateSelectElement(state, action: PayloadAction<Partial<PageElement>>) {
-      Object.assign(state.selectedElement, action.payload);
-    },
     setSite(state, action: PayloadAction<Site>) {
       state.site = action.payload;
+    },
+    setPagesMetadata(state, action: PayloadAction<PageMetadata[]>) {
+      state.pagesMetadata = action.payload;
+    },
+    setCurrentPageId(state, action: PayloadAction<string>) {
+      state.currentPageId = action.payload;
     },
     addPage(state, action: PayloadAction<SitePage>) {
       const page = action.payload;
@@ -95,13 +92,6 @@ const editorSlice = createSlice({
         pageMetadata.title = title;
       }
     },
-    deletePage(state, action: PayloadAction<string>) {
-      state.site.pages = state.site.pages.filter((page) => page.id !== action.payload);
-      state.pagesMetadata = state.pagesMetadata.filter((page) => page.id !== action.payload);
-    },
-    setPagesMetadata(state, action: PayloadAction<PageMetadata[]>) {
-      state.pagesMetadata = action.payload;
-    },
     updatePageMetadata(state, action: PayloadAction<PageMetadata>) {
       const updatedPageMetadata = action.payload;
       const pageMetadata = state.pagesMetadata.find((p) => p.id === updatedPageMetadata.id);
@@ -119,14 +109,21 @@ const editorSlice = createSlice({
         meta.isIndex = meta.id === action.payload;
       }
     },
-    setIsLoading(state, action: PayloadAction<boolean>) {
-      state.isLoading = action.payload;
+    deletePage(state, action: PayloadAction<string>) {
+      state.site.pages = state.site.pages.filter((page) => page.id !== action.payload);
+      state.pagesMetadata = state.pagesMetadata.filter((page) => page.id !== action.payload);
     },
-    setIsError(state, action: PayloadAction<boolean>) {
-      state.isError = action.payload;
+    updatePageInSite(state, action: PayloadAction<Partial<SitePage>>) {
+      const updates = action.payload;
+
+      const page = state.site.pages.find((p) => p.id === state.currentPageId);
+
+      if (page) {
+        Object.assign(page, updates);
+      }
     },
-    setIsStoring(state, action: PayloadAction<boolean>) {
-      state.isStoring = action.payload;
+    setDeviceType(state, action: PayloadAction<DeviceType>) {
+      state.deviceType = action.payload;
     },
     setImages(state, action: PayloadAction<Image[]>) {
       state.images = action.payload;
@@ -158,6 +155,12 @@ const editorSlice = createSlice({
       if (!parentEl) return;
 
       parentEl.children?.push(newElement);
+    },
+    selectElement: (state, action: PayloadAction<PageElement>) => {
+      state.selectedElement = action.payload;
+    },
+    updateSelectElement(state, action: PayloadAction<Partial<PageElement>>) {
+      Object.assign(state.selectedElement, action.payload);
     },
     updateElementInSite(
       state,
@@ -220,32 +223,29 @@ const editorSlice = createSlice({
         index++;
       }
     },
-    updatePageInSite(state, action: PayloadAction<Partial<SitePage>>) {
-      const updates = action.payload;
-
-      const page = state.site.pages.find((p) => p.id === state.currentPageId);
-
-      if (page) {
-        Object.assign(page, updates);
-      }
+    setLastDeletedElement(state, action: PayloadAction<PageElement | null>) {
+      state.lastDeletedElement = action.payload;
     },
-    setCurrentPageId(state, action: PayloadAction<string>) {
-      state.currentPageId = action.payload;
+    setIsLoading(state, action: PayloadAction<boolean>) {
+      state.isLoading = action.payload;
     },
-    setIsDownloadingSite(state, action: PayloadAction<boolean>) {
-      state.isDownloadingSite = action.payload;
+    setIsError(state, action: PayloadAction<boolean>) {
+      state.isError = action.payload;
     },
-    setDeviceType(state, action: PayloadAction<DeviceType>) {
-      state.deviceType = action.payload;
+    setIsStoring(state, action: PayloadAction<boolean>) {
+      state.isStoring = action.payload;
     },
     setSiteLastModified(state, action: PayloadAction<number>) {
       state.site.lastModified = action.payload;
     },
-    clearEditor() {
-      return initialState;
+    setIsDownloadingSite(state, action: PayloadAction<boolean>) {
+      state.isDownloadingSite = action.payload;
     },
     clearSelectedElement(state) {
       state.selectedElement = initialState.selectedElement;
+    },
+    clearEditor() {
+      return initialState;
     }
   }
 });
@@ -266,31 +266,31 @@ export const editorMiddleware: Middleware = (storeAPI) => (next) => (action) => 
 
 export const {
   setSite,
-  setLastDeletedElement,
+  setPagesMetadata,
+  setCurrentPageId,
   addPage,
   updatePageInfo,
-  deletePage,
-  setPagesMetadata,
   updatePageMetadata,
   setIsIndexPage,
-  setIsLoading,
-  setIsError,
-  setCurrentPageId,
-  setIsStoring,
-  setSiteLastModified,
+  deletePage,
+  updatePageInSite,
+  setDeviceType,
   setImages,
+  addImage,
+  deleteImage,
   addElement,
   selectElement,
   updateSelectElement,
   updateElementInSite,
   deleteElementInSite,
-  deleteImage,
-  addImage,
-  updatePageInSite,
+  setLastDeletedElement,
+  setIsLoading,
+  setIsError,
+  setIsStoring,
+  setSiteLastModified,
   setIsDownloadingSite,
-  setDeviceType,
-  clearEditor,
-  clearSelectedElement
+  clearSelectedElement,
+  clearEditor
 } = editorSlice.actions;
 
 export default editorSlice.reducer;

@@ -51,11 +51,11 @@ const pageSlice = createSlice({
         state.hasSetOriginSize = true;
       }
     },
-    setScale(state, action: PayloadAction<number>) {
-      state.scale = action.payload;
-    },
     setHasOriginSize(state, action: PayloadAction<boolean>) {
       state.hasSetOriginSize = action.payload;
+    },
+    setScale(state, action: PayloadAction<number>) {
+      state.scale = action.payload;
     },
     setBackground(state, action: PayloadAction<string>) {
       state.backgroundColor = action.payload;
@@ -66,6 +66,6 @@ const pageSlice = createSlice({
   }
 });
 
-export const { setPage, setSize, setScale, setHasOriginSize, setBackground, clearPage } = pageSlice.actions;
+export const { setPage, setSize, setHasOriginSize, setScale, setBackground, clearPage } = pageSlice.actions;
 
 export default pageSlice.reducer;

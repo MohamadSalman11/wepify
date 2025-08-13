@@ -567,13 +567,15 @@ const initializeMoveable = () => {
 
 const controlKeydown = (event: KeyboardEvent) => {
   const key = event.key;
-  const target = getTarget();
+  const target = state.target;
   const isF12 = key === KeyboardKeys.F12;
   const isCtrlShiftI = event.ctrlKey && event.shiftKey && key === KeyboardKeys.I;
   const isCmdOptI = event.metaKey && event.altKey && key === KeyboardKeys.I;
   const isDevToolsKey = isF12 || isCtrlShiftI || isCmdOptI;
   const isCopyShortcut = (event.ctrlKey || event.metaKey) && key.toLowerCase() === KeyboardKeys.C;
   const isPasteShortcut = (event.ctrlKey || event.metaKey) && key.toLowerCase() === KeyboardKeys.V;
+
+  if (!target) return;
 
   if (isDevToolsKey) {
     const sectionElement = target.querySelector(SELECTOR_CLOSEST_SECTION) as HTMLElement | null;

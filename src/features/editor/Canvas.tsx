@@ -63,20 +63,9 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const storageKey = useMemo(() => [StorageKey.Site, StorageKey.Images], []);
 
-  useNetworkStatus();
-
-  useBeforeUnload((event) => {
-    if (isStoring && !isPreview) {
-      event.preventDefault();
-      event.returnValue = UNSAVED_CHANGES_MESSAGE;
-    }
-  });
-
   const onLoaded = useCallback(
     async (data: StorageData) => {
       const { site, images } = data || {};
-
-      console.log(images);
 
       if (!site) return dispatch(setIsError(true));
 
@@ -166,18 +155,6 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
   }, [dispatch, site, isLoading]);
 
   useEffect(() => {
-    if (images.length === 0) return;
-
-    AppStorage.setItem(StorageKey.Images, images);
-  }, [images]);
-
-  useEffect(() => {
-    return () => {
-      dispatch(clearEditor());
-    };
-  }, [dispatch]);
-
-  useEffect(() => {
     if (iframeConnection.iframeReady && !isLoading) {
       const elements = site.pages.find((p) => p.id === pageId)?.elements;
 
@@ -202,6 +179,27 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
     iframeRoot.style.scale = `${isPreview ? 1 : scale / DEFAULT_SCALE_FACTOR}`;
     iframeRoot.style.transformOrigin = 'top left';
   }, [isLoading, iframeRef, width, height, scale, isPreview]);
+
+  useNetworkStatus();
+
+  useBeforeUnload((event) => {
+    if (isStoring && !isPreview) {
+      event.preventDefault();
+      event.returnValue = UNSAVED_CHANGES_MESSAGE;
+    }
+  });
+
+  useEffect(() => {
+    if (images.length === 0) return;
+
+    AppStorage.setItem(StorageKey.Images, images);
+  }, [images]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearEditor());
+    };
+  }, [dispatch]);
 
   useDeleteKeyHandler({
     iframeRef,

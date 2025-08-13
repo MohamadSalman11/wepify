@@ -1,16 +1,10 @@
 import { RefObject, useEffect, useRef } from 'react';
 
-interface UseOutsideClickProps {
-  extraRef?: RefObject<HTMLElement | null>;
-  containerRef?: RefObject<HTMLElement | null>;
-  handler: () => void;
-}
-
-export const useOutsideClick = <T extends HTMLElement = HTMLElement>({
-  containerRef,
-  extraRef,
-  handler
-}: UseOutsideClickProps) => {
+export const useOutsideClick = <T extends HTMLElement = HTMLElement>(
+  handler: () => void,
+  extraRef?: RefObject<HTMLElement | null>,
+  containerRef?: RefObject<HTMLElement | null>
+) => {
   const ref = useRef<T>(null);
 
   useEffect(() => {

@@ -501,13 +501,13 @@ function FlexSettings() {
           <div>
             <SubTitle>Gap X</SubTitle>
             <ChangeElement>
-              <Select name='columnGap' editable defaultSelect={columnGap} options={OPTIONS_COLUMN} />
+              <Select name='columnGap' editable defaultSelect={columnGap} options={OPTIONS_COLUMN_GAP} />
             </ChangeElement>
           </div>
           <div>
             <SubTitle>Gap Y</SubTitle>
             <ChangeElement>
-              <Select name='rowGap' editable defaultSelect={rowGap} options={OPTIONS_ROW} />
+              <Select name='rowGap' editable defaultSelect={rowGap} options={OPTIONS_ROW_GAP} />
             </ChangeElement>
           </div>
           <div>

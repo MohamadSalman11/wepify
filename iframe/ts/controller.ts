@@ -49,7 +49,6 @@ const CLASS_SELECTED_SECTION = 'select-section';
 const NOT_MOVEABLE_ELEMENTS = new Set(['section', 'item']);
 const FOCUSABLE_ELEMENTS = new Set(['LI', 'SPAN', 'P', 'A', 'BUTTON', 'INPUT']);
 
-const CSS_FILE_MOVEABLE = 'moveable.css';
 const LONG_PRESS_DURATION = 500;
 
 enum ContextMenuActions {
@@ -427,12 +426,14 @@ const controlWindowResize = () => {
 };
 
 const controlContextMenu = (event: MouseEvent | TouchEvent) => {
+  if (state.isSitePreviewMode) return;
+
   event.preventDefault();
 
   const closestSection = (event.target as Element).closest(SELECTOR_CLOSEST_SECTION);
   const body = document.querySelector(SELECTOR_BODY);
 
-  if (state.isSitePreviewMode || !body || !closestSection) return;
+  if (!body || !closestSection) return;
 
   let pageX = 0;
   let pageY = 0;

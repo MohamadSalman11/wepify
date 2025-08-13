@@ -1,6 +1,7 @@
-import { DEFAULT_FLEX_DIRECTION } from '../src/constant';
 import { TAGS_WITHOUT_CHILDREN } from './constants';
 import type { AlignmentName, AlignmentValue, FlexDirectionOption, PageElement } from './typing';
+
+const DEFAULT_FLEX_DIRECTION = 'column';
 
 const BASE_PROPS = {
   fontSize: { monitor: 20 },

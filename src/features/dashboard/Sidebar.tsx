@@ -67,7 +67,7 @@ export default function Sidebar() {
   const totalSize = formatSize(sitesMetadata.reduce((acc, curr) => acc + curr.sizeKb, 0));
   const { input, openFilePicker } = useFilePicker({ accept: ACCEPTED_FILE_TYPE, onSelect: handleUploadSiteJson });
 
-  async function handleDesignNewSite() {
+  const handleDesignNewSite = async () => {
     const siteId = nanoid();
     const page = createNewPage();
 
@@ -88,7 +88,7 @@ export default function Sidebar() {
     dispatch(setIsLoading(true));
     await AppStorage.setItem(StorageKey.Site, site);
     navigate(buildPath(Path.Editor, { siteId, pageId: page.id }));
-  }
+  };
 
   async function handleUploadSiteJson(file: File) {
     runWithToast({

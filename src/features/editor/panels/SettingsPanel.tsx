@@ -854,7 +854,7 @@ function StrokeSettings() {
               const border = `border${side}` as keyof typeof borders;
 
               return (
-                <AppTooltip key={side} label={side} side='top' sizeSmall>
+                <AppTooltip key={side} label={side} side='top' sideOffset={5} sizeSmall>
                   <Icon
                     icon={icon}
                     size='md'

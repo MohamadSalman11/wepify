@@ -500,7 +500,7 @@ const controlDocumentClick = (event: globalThis.MouseEvent) => {
   const previousTarget = state.target;
   const target = (event.target as HTMLElement)?.closest(SELECTOR_TARGET) as HTMLElement;
 
-  if (CONTENT_EDITABLE_ELEMENTS.has(target?.tagName.toLowerCase())) {
+  if (CONTENT_EDITABLE_ELEMENTS.has(target?.tagName.toLowerCase()) && !state.isSitePreviewMode) {
     target.contentEditable = 'true';
   } else if (previousTarget?.hasAttribute('contenteditable')) {
     previousTarget.removeAttribute('contenteditable');

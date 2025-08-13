@@ -49,31 +49,31 @@ export const ToastMessages = {
     updating: 'Updating site...',
     deleting: 'Deleting site...',
     importing: 'Importing site...',
-    addedStar: 'Site added to starred.',
-    removedStar: 'Site removed from starred.',
-    updated: 'Site updated successfully.',
-    deleted: 'Site deleted successfully.',
-    duplicated: 'Site duplicated successfully.',
-    imported: 'Site imported successfully.',
-    importFailed: 'Failed to import the site.',
-    importInvalid: 'Invalid site JSON. Please upload a valid file.',
-    downloadFailed: 'Site could not be downloaded. Please try again.',
-    emptyName: 'Site name cannot be empty.',
-    emptyDescription: 'Site description cannot be empty.',
-    nameTooLong: 'Site name cannot exceed 12 characters.',
-    descriptionTooLong: 'Site description cannot exceed 20 characters.'
+    addedStar: 'Site added to starred',
+    removedStar: 'Site removed from starred',
+    updated: 'Site updated successfully',
+    deleted: 'Site deleted successfully',
+    duplicated: 'Site duplicated successfully',
+    imported: 'Site imported successfully',
+    importFailed: 'Failed to import the site',
+    importInvalid: 'Invalid site JSON. Please upload a valid file',
+    downloadFailed: 'Site could not be downloaded. Please try again',
+    emptyName: 'Site name cannot be empty',
+    emptyDescription: 'Site description cannot be empty',
+    nameTooLong: 'Site name cannot exceed 12 characters',
+    descriptionTooLong: 'Site description cannot exceed 20 characters'
   },
   page: {
-    renamed: 'Page name changed successfully.',
-    deleted: 'Page deleted successfully.',
-    linkCopied: 'Page link copied.',
-    linkCopyErr: 'Failed to copy page link.',
-    emptyName: 'Page name cannot be empty.',
-    duplicateName: 'A page with this name already exists. Please choose a different name.'
+    renamed: 'Page name changed successfully',
+    deleted: 'Page deleted successfully',
+    linkCopied: 'Page link copied',
+    linkCopyErr: 'Failed to copy page link',
+    emptyName: 'Page name cannot be empty',
+    duplicateName: 'A page with this name already exists. Please choose a different name'
   },
   network: {
-    offline: 'You are currently offline. Some features may be unavailable.',
-    online: 'You are back online. All features are now available.'
+    offline: 'You are currently offline. Some features may be unavailable',
+    online: 'You are back online. All features are now available'
   },
-  error: 'Something went wrong.'
-} as const;
+  error: 'Something went wrong'
+};

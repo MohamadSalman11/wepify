@@ -90,6 +90,7 @@ export default function Sidebar() {
     navigate(buildPath(Path.Editor, { siteId, pageId: page.id }));
   };
 
+  // Keep as function declaration to prevent "used before its declaration" error
   async function handleUploadSiteJson(file: File) {
     runWithToast({
       startMessage: ToastMessages.site.importing,

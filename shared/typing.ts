@@ -184,3 +184,7 @@ export type MessageFromIframeData =
   | { type: MessageFromIframe.BreakpointChanged; payload: { newDeviceType: DeviceType } }
   | { type: MessageFromIframe.PageUpdated; payload: { updates: Record<string, any> } }
   | { type: MessageFromIframe.NavigateToPage; payload: string };
+
+export type RequiredKeys<T> = {
+  [K in keyof T]-?: {} extends Pick<T, K> ? never : K;
+}[keyof T];

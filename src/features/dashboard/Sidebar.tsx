@@ -1,5 +1,5 @@
 import { nanoid } from '@reduxjs/toolkit';
-import type { PageElement, Site, SitePage } from '@shared/typing';
+import type { BaseElement, PageElement, RequiredKeys, Site, SitePage } from '@shared/typing';
 import toast from 'react-hot-toast';
 import { LuClock4, LuCloud, LuFileDown, LuFilePlus, LuHouse, LuLoader, LuStar } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
@@ -29,25 +29,31 @@ const DEFAULT_NAME = 'Untitled';
 const DEFAULT_DESCRIPTION = 'My modern clean site';
 const ACCEPTED_FILE_TYPE = '.json';
 
-const SITE_SCHEMA = {
+/**
+ * Types
+ */
+
+const ELEMENT_SCHEMA: Record<RequiredKeys<BaseElement>, string> = {
+  id: 'string',
+  tag: 'string',
+  name: 'string'
+};
+
+const PAGE_SCHEMA: Omit<Record<keyof SitePage, string>, 'id'> = {
+  name: 'string',
+  title: 'string',
+  isIndex: 'boolean',
+  elements: 'array',
+  backgroundColor: 'string'
+};
+
+const SITE_SCHEMA: Omit<Record<keyof Site, string>, 'id'> = {
   name: 'string',
   description: 'string',
   pages: 'array',
   createdAt: 'number',
   lastModified: 'number',
   isStarred: 'boolean'
-};
-
-const PAGE_SCHEMA = {
-  name: 'string',
-  title: 'string',
-  isIndex: 'boolean',
-  elements: 'array'
-};
-
-const ELEMENT_SCHEMA = {
-  id: 'string',
-  tag: 'string'
 };
 
 /**

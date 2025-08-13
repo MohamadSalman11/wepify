@@ -174,10 +174,6 @@ const controlUpdateElement = (updates: Partial<PageElement>) => {
       fields: maybeWrapWithBreakpoint(updates)
     }
   });
-
-  if ((updates.fontFamily || updates.fontWeight || updates.fontSize) && state.moveable) {
-    state.moveable.target = null;
-  }
 };
 
 const controlUpdatePage = (updates: { backgroundColor: string }) => {

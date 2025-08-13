@@ -1,11 +1,11 @@
 import { createContext, ReactNode, useContext, useState } from 'react';
 
-interface PanelContextType {
+interface PanelContext {
   leftPanelOpen: boolean;
   setLeftPanelOpen: (val: boolean) => void;
 }
 
-const PanelContext = createContext<PanelContextType | null>(null);
+const PanelContext = createContext<PanelContext | null>(null);
 
 export const PanelProvider = ({ children }: { children: ReactNode }) => {
   const [leftPanelOpen, setLeftPanelOpen] = useState(true);

@@ -9,6 +9,7 @@ import { LoadingMessages, Path, StorageKey } from '../../constant';
 import { useIframeContext } from '../../context/IframeContext';
 import { useDeleteKeyHandler } from '../../hooks/useDeleteKeyHandler';
 import { useLoadFromStorage } from '../../hooks/useLoadFromStorage';
+import { useNetworkStatus } from '../../hooks/useNetworkStatus';
 import { useAppSelector } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
 import { calculateScaleToFit } from '../../utils/calculateScaleToFit';
@@ -61,6 +62,8 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
   const { site, images, isLoading, isError, deviceType } = useAppSelector((state) => state.editor);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const storageKey = useMemo(() => [StorageKey.Site, StorageKey.Images], []);
+
+  useNetworkStatus();
 
   const onLoaded = useCallback(
     async (data: StorageData) => {

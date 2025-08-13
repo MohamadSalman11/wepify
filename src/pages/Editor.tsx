@@ -1,9 +1,8 @@
 import { UNSAVED_CHANGES_MESSAGE } from '@shared/constants';
-import { useEffect, useRef } from 'react';
-import toast, { Toaster } from 'react-hot-toast';
+import { useRef } from 'react';
+import { Toaster } from 'react-hot-toast';
 import { Outlet, useBeforeUnload, useLocation } from 'react-router-dom';
 import styled, { css } from 'styled-components';
-import { TOAST_DURATION, ToastMessages } from '../constant';
 import { IframeContext } from '../context/IframeContext';
 import Canvas from '../features/editor/Canvas';
 import { usePanel } from '../features/editor/context/PanelContext';
@@ -31,28 +30,6 @@ export default function Editor() {
       event.returnValue = UNSAVED_CHANGES_MESSAGE;
     }
   });
-
-  useEffect(() => {
-    const handleOffline = () => {
-      toast.error(ToastMessages.network.offline, { duration: TOAST_DURATION });
-    };
-
-    const handleOnline = () => {
-      toast.success(ToastMessages.network.online, { duration: TOAST_DURATION });
-    };
-
-    globalThis.addEventListener('offline', handleOffline);
-    globalThis.addEventListener('online', handleOnline);
-
-    if (!navigator.onLine) {
-      handleOffline();
-    }
-
-    return () => {
-      globalThis.removeEventListener('offline', handleOffline);
-      globalThis.removeEventListener('online', handleOnline);
-    };
-  }, []);
 
   if (isPreview) {
     return (

@@ -8,10 +8,7 @@ const REGEX = {
   SCRIPT_MODULE_SELF_CLOSING: /<script\s+type="module"[^>]*\/>/g,
   GOOGLE_FONTS_LINK: /<link[^>]+href="https:\/\/fonts\.googleapis\.com\/css2[^"]+"[^>]*>/,
   CLASS_ATTRIBUTE: /class="([^"]*)"/g,
-  MOVEABLE_CSS_LINK: /<link\s+rel=["']stylesheet["']\s+href=["']\.\/moveable\.css["']\s*\/?>/g,
   CONTENTEDITABLE: /\scontenteditable=["'][^"']*["']/g,
-  STYLED_COMPONENT: /<style[^>]*data-styled-id="rCS1w3zcxh"[^>]*>[\s\S]*?<\/style>/gi,
-  STYLE_TAG_ANY: /<style[^>]*>[\s\S]*?<\/style>/gi,
   HTML_COMMENTS: /<!--[\s\S]*?-->/g,
   LINEBREAKS: /\n/g,
   EXTRA_SPACES: /\s{2,}/g,
@@ -47,10 +44,7 @@ export const cleanUpHTML = async (html: string) => {
         .join(' ');
       return filtered ? `class="${filtered}"` : '';
     })
-    .replace(REGEX.MOVEABLE_CSS_LINK, '')
     .replace(REGEX.CONTENTEDITABLE, '')
-    .replace(REGEX.STYLED_COMPONENT, '')
-    .replace(REGEX.STYLE_TAG_ANY, '')
     .replace(REGEX.A_TAG_ATTRS_TO_REMOVE, '')
     .replace(REGEX.STYLE_TAG_WITH_STYLE_ATTR, (match, tagName, beforeStyle, afterStyle) => {
       if (tagName.toLowerCase() === 'body') return match;

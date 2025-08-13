@@ -1,4 +1,3 @@
-import { ElementsName } from '@shared/constants';
 import { Site, SitePage } from '@shared/typing';
 import JSZip from 'jszip';
 import cssFile from '../style.css?raw';
@@ -15,10 +14,9 @@ import favicon from '/favicon.ico';
 
 const DEFAULT_IMAGES_COUNT = 0;
 const SELECTOR_DATA_IMAGE = 'img[src^="data:image"]';
-const SELECTOR_STYLE_LINK = 'link[href="./style.css"]';
 const SITE_JSON_WARNING = `⚠️ Do NOT modify any fields in this file manually, it will break the application. Upload it and edit in the app`;
 
-enum FileNames {
+enum File {
   IndexPage = 'index.html',
   StyleCSS = 'style.css',
   ResponsiveCSS = 'responsive.css',
@@ -32,6 +30,22 @@ enum Folders {
   Root = 'src',
   Images = 'src/images'
 }
+
+const DOCUMENT_HEAD_TEMPLATE = `
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Iframe Content</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Oswald:wght@200..700&family=Pacifico&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,800&family=Raleway:ital,wght@0,100..900;1,100..900&family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Savate:ital,wght@0,200..900;1,200..900&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/x-icon" href="${File.Favicon}" />
+    <link rel="stylesheet" href="./${File.StyleCSS}" />
+    <link rel="stylesheet" href="./${File.IndexCSS}" />
+    <link rel="stylesheet" href="./${File.ResponsiveCSS}" />
+`;
 
 /**
  * Class definition
@@ -53,7 +67,7 @@ class SiteExporter {
     const faviconBlob = await fetch(favicon).then((res) => res.blob());
     const faviconArrayBuffer = await faviconBlob.arrayBuffer();
 
-    srcFolder.file(FileNames.Favicon, faviconArrayBuffer);
+    srcFolder.file(File.Favicon, faviconArrayBuffer);
 
     this.addCssFiles(site);
 
@@ -61,44 +75,31 @@ class SiteExporter {
       await this.addPage(page);
     }
 
-    this.zip.file(FileNames.SiteJson, JSON.stringify({ __WARNING__: SITE_JSON_WARNING, ...site }, null, 2));
+    this.zip.file(File.SiteJson, JSON.stringify({ __WARNING__: SITE_JSON_WARNING, ...site }, null, 2));
 
     const content = await this.zip.generateAsync({ type: 'blob' });
-    downloadBlob(content, FileNames.ZipDownload);
+    downloadBlob(content, File.ZipDownload);
   }
 
   private addCssFiles(site: Site) {
     const folder = this.zip.folder(Folders.Root)!;
 
-    folder.file(FileNames.StyleCSS, this.shouldMinify ? minifyCSS(cssFile) : cssFile);
+    folder.file(File.StyleCSS, this.shouldMinify ? minifyCSS(cssFile) : cssFile);
 
     const { indexCss, responsiveCss } = generateCssFiles(site);
 
     const indexCssFinal = this.shouldMinify ? minifyCSS(indexCss) : indexCss;
     const responsiveCssFinal = this.shouldMinify ? minifyCSS(responsiveCss) : responsiveCss;
 
-    folder.file(FileNames.IndexCSS, indexCssFinal);
-    folder.file(FileNames.ResponsiveCSS, responsiveCssFinal);
+    folder.file(File.IndexCSS, indexCssFinal);
+    folder.file(File.ResponsiveCSS, responsiveCssFinal);
   }
 
   private async addPage(page: SitePage) {
     const doc = document.implementation.createHTMLDocument(page.name);
-    doc.head.innerHTML = document.head.innerHTML;
+    doc.head.innerHTML = DOCUMENT_HEAD_TEMPLATE;
     doc.title = page.title || page.name;
     doc.body.style.backgroundColor = page.backgroundColor;
-
-    const styleLink = doc.head.querySelector(SELECTOR_STYLE_LINK);
-    if (styleLink) {
-      const indexLink = doc.createElement(ElementsName.Link);
-      indexLink.rel = 'stylesheet';
-      indexLink.href = `./${FileNames.IndexCSS}`;
-      styleLink.after(indexLink);
-
-      const responsiveLink = doc.createElement(ElementsName.Link);
-      responsiveLink.rel = 'stylesheet';
-      responsiveLink.href = `./${FileNames.ResponsiveCSS}`;
-      indexLink.after(responsiveLink);
-    }
 
     renderElements(page.elements, doc);
     this.processImages(doc);
@@ -107,7 +108,7 @@ class SiteExporter {
       ? await minifyHTML(doc.documentElement.outerHTML)
       : await cleanUpHTML(doc.documentElement.outerHTML);
 
-    const fileName = page.isIndex ? FileNames.IndexPage : `${page.name.toLowerCase().replace(/\s+/g, '_')}.html`;
+    const fileName = page.isIndex ? File.IndexPage : `${page.name.toLowerCase().replace(/\s+/g, '_')}.html`;
 
     const folder = this.zip.folder(Folders.Root)!;
     folder.file(fileName, html);

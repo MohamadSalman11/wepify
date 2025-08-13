@@ -55,8 +55,14 @@ export default function PagesPanel() {
             <AddDialog />
           </Modal.Dialog>
         </Modal.Window>
-        <StyledPagesList>{pagesMetadata?.map((page, i) => <PageItem page={page} index={i} />)}</StyledPagesList>
       </Modal>
+      <StyledPagesList>
+        {pagesMetadata?.map((page, i) => (
+          <Modal>
+            <PageItem page={page} index={i} />
+          </Modal>
+        ))}
+      </StyledPagesList>
     </>
   );
 }

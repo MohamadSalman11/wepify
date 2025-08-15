@@ -280,7 +280,7 @@ const controlSelectionChanged = (id: string) => {
   }
 };
 
-export const controlDownloadZip = async (site: Site, shouldMinify: boolean) => {
+const controlDownloadZip = async (site: Site, shouldMinify: boolean) => {
   const exporter = new SiteExporter(shouldMinify);
   await exporter.exportSite(site);
 

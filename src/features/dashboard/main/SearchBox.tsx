@@ -269,6 +269,11 @@ const StyledSearchContainer = styled.div`
   border-top-left-radius: 0;
   border-top: 1px solid var(--color-gray-light-2);
   overflow-y: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const NoResultsText = styled.p`

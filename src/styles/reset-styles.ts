@@ -7,6 +7,7 @@ const resetStyles = css`
     box-sizing: inherit;
     margin: 0;
     padding: 0;
+    scrollbar-color: var(--color-gray-light-2) transparent;
   }
 
   html {

@@ -57,6 +57,24 @@ html {
   backface-visibility: hidden;
   will-change: transform;
   overflow-x: hidden;
+  scrollbar-color: #bec9d5 #fff;
+}
+
+html::-webkit-scrollbar {
+  width: 0.8rem;
+}
+
+html::-webkit-scrollbar-track {
+  background-color: #fff;
+}
+
+html::-webkit-scrollbar-thumb {
+  border-radius: 0.8rem;
+  background-color: #bec9d5;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background-color: #a3aebc;
 }
 
 #iframe-root[data-is-preview='false'] section:not(.select-section) {

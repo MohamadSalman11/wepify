@@ -413,6 +413,9 @@ function DeleteDialog({ siteMetadata, onCloseModal }: { siteMetadata: SiteMetada
 
 const StyledSiteView = styled.div<{ $isFiltering: boolean }>`
   width: 100%;
+  max-width: 192rem;
+  margin-left: auto;
+  margin-right: auto;
   margin-top: ${({ $isFiltering }) => ($isFiltering ? '0' : '5.2rem')};
 
   h2 {

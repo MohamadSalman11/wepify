@@ -20,6 +20,7 @@ const STORING_ACTIONS = new Set([
 interface EditorState {
   selectedElement: PageElement;
   lastDeletedElement: PageElement | null;
+  lastCopiedElement: PageElement | null;
   currentPageId: string;
   site: Site;
   pagesMetadata: PageMetadata[];
@@ -38,6 +39,7 @@ const initialState: EditorState = {
     name: ''
   },
   lastDeletedElement: null,
+  lastCopiedElement: null,
   currentPageId: '',
   site: {
     id: '',
@@ -192,30 +194,29 @@ const editorSlice = createSlice({
         }
       }
     },
-    deleteElementInSite(
-      state,
-      action: PayloadAction<{
-        parentElementId: string;
-        elementId: string;
-      }>
-    ) {
-      const { parentElementId, elementId } = action.payload;
+    deleteElementInSite(state, action: PayloadAction<{ id: string; parentId: string }>) {
+      const { id, parentId } = action.payload;
 
       const page = state.site.pages.find((p) => p.id === state.currentPageId);
 
       if (!page) return;
 
-      const parentEl = findElementById(parentElementId, page.elements);
+      const element = findElementById(id, page.elements);
+      const parentEl = findElementById(parentId, page.elements);
 
       if (!parentEl) {
-        page.elements = page.elements.filter((el) => el.id !== elementId);
+        page.elements = page.elements.filter((el) => el.id !== id);
       } else if (parentEl.children) {
-        parentEl.children = parentEl.children.filter((el) => el.id !== elementId);
+        parentEl.children = parentEl.children.filter((el) => el.id !== id);
+      }
+
+      if (element) {
+        state.lastDeletedElement = { ...element, parentId };
       }
 
       let index = 1;
       const flattedElements = flattenElements(page.elements);
-      const name = elementId.split('-')[0];
+      const name = id.split('-')[0];
       const sameNameElements = flattedElements.filter((el) => el.name === name);
 
       for (const el of sameNameElements) {
@@ -223,8 +224,15 @@ const editorSlice = createSlice({
         index++;
       }
     },
-    setLastDeletedElement(state, action: PayloadAction<PageElement | null>) {
-      state.lastDeletedElement = action.payload;
+    clearLastDeletedElement(state) {
+      state.lastDeletedElement = null;
+    },
+    setLastCopiedElement(state) {
+      const elements = state.site.pages.find((p) => p.id === state.currentPageId)?.elements;
+
+      if (!elements) return;
+
+      state.lastCopiedElement = findElementById(state.selectedElement.id, elements);
     },
     setIsLoading(state, action: PayloadAction<boolean>) {
       state.isLoading = action.payload;
@@ -283,7 +291,8 @@ export const {
   updateSelectElement,
   updateElementInSite,
   deleteElementInSite,
-  setLastDeletedElement,
+  clearLastDeletedElement,
+  setLastCopiedElement,
   setIsLoading,
   setIsError,
   setIsStoring,

@@ -185,23 +185,20 @@ const controlUpdatePage = (updates: { backgroundColor: string }) => {
 const controlInsertElement = ({
   name,
   element,
-  additionalProps,
-  elNode
+  additionalProps
 }: {
   name?: string;
   element?: PageElement;
   additionalProps?: Record<string, any>;
-  elNode?: HTMLElement;
 }) => {
   const target = getTarget();
   const moveableInstance = getMoveableInstance();
-  const newElement = elNode ? domToPageElement(elNode) : element || createNewElement(name as string, additionalProps);
-  const elementNode = elNode || createDomTree(newElement as PageElement);
+  const newElement = element || createNewElement(name as string, additionalProps);
+  const elementNode = createDomTree(newElement as PageElement);
   const canHaveNotChildren = TAGS_WITHOUT_CHILDREN.has(target.tagName.toLowerCase());
 
   if (element) {
-    assignUniqueId(elementNode);
-    newElement.id = elementNode.id;
+    assignUniqueId(elementNode, newElement);
   }
 
   if (canHaveNotChildren) {
@@ -236,7 +233,6 @@ const controlDeleteElement = () => {
   const target = getTarget();
   const targetId = target.id;
   const parentId = target.parentElement?.id;
-  const deletedElement = domToPageElement(target);
 
   const section =
     state.targetName === ElementsName.Section
@@ -246,8 +242,6 @@ const controlDeleteElement = () => {
       : target.closest(SELECTOR_SECTION);
 
   if (!section || !parentId || !targetId || target.id === ID_FIRST_SECTION) return;
-
-  deletedElement.parentId = target.parentElement.id;
 
   target.remove();
   (section as HTMLElement).click();
@@ -262,7 +256,7 @@ const controlDeleteElement = () => {
 
   postMessageToApp({
     type: MessageFromIframe.ElementDeleted,
-    payload: { element: deletedElement as PageElement, parentId }
+    payload: { id: targetId, parentId }
   });
 };
 
@@ -292,7 +286,7 @@ const controlContextMenuActions = (event: globalThis.MouseEvent) => {
   const target = getTarget();
 
   if (action === ContextMenuActions.Copy) {
-    handleElementCopy(target);
+    handleElementCopy();
   }
 
   if (action === ContextMenuActions.Paste) {
@@ -308,18 +302,12 @@ const controlContextMenuActions = (event: globalThis.MouseEvent) => {
   }
 };
 
-const handleElementCopy = (element: HTMLElement) => {
-  state.lastCopiedEl = element;
+const handleElementCopy = () => {
+  postMessageToApp({ type: MessageFromIframe.CopyElement });
 };
 
 const handleElementPaste = () => {
-  const originalEl = state.lastCopiedEl;
-  if (!originalEl) return;
-
-  const clonedEl = originalEl.cloneNode(true) as HTMLElement;
-
-  assignUniqueId(clonedEl);
-  controlInsertElement({ elNode: clonedEl });
+  postMessageToApp({ type: MessageFromIframe.PasteElement });
 };
 
 const handleBringToFrontOrSendToBack = (target: HTMLElement, action: string) => {
@@ -566,12 +554,7 @@ const controlKeydown = (event: KeyboardEvent) => {
 
   if (isCopyShortcut) {
     event.preventDefault();
-    const target = getTarget();
-
-    if (target) {
-      handleElementCopy(target);
-    }
-
+    handleElementCopy();
     return;
   }
 

@@ -138,6 +138,8 @@ export enum MessageFromIframe {
   SiteDownloaded = 'SITE_DOWNLOADED',
   BreakpointChanged = 'BREAKPOINT_CHANGED',
   PageUpdated = 'PAGE_UPDATED',
+  CopyElement = 'COPY_ELEMENT',
+  PasteElement = 'PASTE_ELEMENT',
   NavigateToPage = 'NAVIGATE_TO_PAGE'
 }
 
@@ -177,10 +179,12 @@ export type MessageFromIframeData =
       payload: { id: string; fields: Partial<PageElement> };
     }
   | { type: MessageFromIframe.ElementInserted; payload: { parentId: string; element: PageElement } }
-  | { type: MessageFromIframe.ElementDeleted; payload: { element: PageElement; parentId: string } }
+  | { type: MessageFromIframe.ElementDeleted; payload: { id: string; parentId: string } }
   | { type: MessageFromIframe.SiteDownloaded }
   | { type: MessageFromIframe.BreakpointChanged; payload: { newDeviceType: DeviceType } }
   | { type: MessageFromIframe.PageUpdated; payload: { updates: Record<string, any> } }
+  | { type: MessageFromIframe.CopyElement }
+  | { type: MessageFromIframe.PasteElement }
   | { type: MessageFromIframe.NavigateToPage; payload: string };
 
 export type RequiredKeys<T> = {

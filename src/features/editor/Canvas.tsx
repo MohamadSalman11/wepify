@@ -85,7 +85,6 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
       }
 
       dispatch(setPagesMetadata(pagesMetadata));
-      dispatch(setCurrentPageId(pageId));
 
       dispatch(
         setSize({
@@ -96,6 +95,7 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
         })
       );
 
+      dispatch(setCurrentPageId(pageId));
       dispatch(setSite(site));
       dispatch(setPage(page));
       dispatch(selectElement(page.elements[0]));

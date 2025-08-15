@@ -19,7 +19,7 @@ import {
   selectElement,
   setDeviceType,
   setIsDownloadingSite,
-  setLastDeletedElement,
+  setLastCopiedElement,
   updateElementInSite,
   updatePageInSite,
   updateSelectElement
@@ -35,6 +35,7 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
   const navigate = useNavigate();
   const [iframeReady, setIframeReady] = useState(false);
   const pagesMetadata = useAppSelector((state) => state.editor.pagesMetadata);
+  const lastCopiedElement = useAppSelector((state) => state.editor.lastCopiedElement);
 
   const postMessageToIframe = useCallback(
     (message: Record<string, any>) => {
@@ -45,92 +46,6 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
     },
     [iframeRef]
   );
-
-  useEffect(() => {
-    const handleMessage = async (event: MessageEvent) => {
-      const data: MessageFromIframeData = event.data;
-
-      switch (data.type) {
-        case MessageFromIframe.IframeReady: {
-          setIframeReady(true);
-          break;
-        }
-        case MessageFromIframe.BreakpointChanged: {
-          dispatch(setDeviceType(data.payload.newDeviceType));
-          break;
-        }
-        case MessageFromIframe.SelectionChanged: {
-          dispatch(selectElement(data.payload));
-          break;
-        }
-        case MessageFromIframe.ElementUpdated: {
-          const { id, fields } = data.payload;
-
-          dispatch(updateSelectElement(fields));
-
-          dispatch(
-            updateElementInSite({
-              elementId: id,
-              updates: fields
-            })
-          );
-          break;
-        }
-        case MessageFromIframe.PageUpdated: {
-          const { updates } = data.payload;
-
-          if (updates.backgroundColor) {
-            dispatch(setBackground(updates.backgroundColor));
-          }
-
-          dispatch(updatePageInSite(updates));
-          break;
-        }
-        case MessageFromIframe.ElementInserted: {
-          const { parentId, element } = data.payload;
-          dispatch(addElement({ parentElementId: parentId, newElement: element }));
-          break;
-        }
-        case MessageFromIframe.ElementDeleted: {
-          const { element, parentId } = data.payload;
-
-          dispatch(setLastDeletedElement(element));
-          dispatch(deleteElementInSite({ parentElementId: parentId, elementId: element.id }));
-          break;
-        }
-        case MessageFromIframe.SiteDownloaded: {
-          dispatch(setIsDownloadingSite(false));
-          break;
-        }
-        case MessageFromIframe.NavigateToPage: {
-          const pageFileName = data.payload;
-          let isNavigated = false;
-
-          for (const page of pagesMetadata) {
-            const pageName = page.isIndex ? PAGE_NAME_INDEX : page.name;
-            const generatedFileName = generateFileNameFromPageName(pageName);
-
-            if (generatedFileName === pageFileName) {
-              isNavigated = true;
-              const currentPath = location.pathname;
-              const updatedPath = currentPath.replace(PAGE_PATH_SEGMENT_REGEX, `/${EditorPath.Pages}/${page.id}`);
-
-              navigate(updatedPath);
-              break;
-            }
-          }
-
-          if (!isNavigated) {
-            window.open(pageFileName, '_blank', 'noopener,noreferrer');
-          }
-          break;
-        }
-      }
-    };
-
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [dispatch, navigate, iframeRef, pagesMetadata, location.pathname]);
 
   const renderElements = useCallback(
     (
@@ -198,6 +113,99 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
   const initializeState = useCallback(() => {
     postMessageToIframe({ type: MessageToIframe.InitializeState });
   }, [postMessageToIframe]);
+
+  useEffect(() => {
+    const handleMessage = async (event: MessageEvent) => {
+      const data: MessageFromIframeData = event.data;
+
+      switch (data.type) {
+        case MessageFromIframe.IframeReady: {
+          setIframeReady(true);
+          break;
+        }
+        case MessageFromIframe.BreakpointChanged: {
+          dispatch(setDeviceType(data.payload.newDeviceType));
+          break;
+        }
+        case MessageFromIframe.SelectionChanged: {
+          dispatch(selectElement(data.payload));
+          break;
+        }
+        case MessageFromIframe.ElementUpdated: {
+          const { id, fields } = data.payload;
+
+          dispatch(updateSelectElement(fields));
+
+          dispatch(
+            updateElementInSite({
+              elementId: id,
+              updates: fields
+            })
+          );
+          break;
+        }
+        case MessageFromIframe.PageUpdated: {
+          const { updates } = data.payload;
+
+          if (updates.backgroundColor) {
+            dispatch(setBackground(updates.backgroundColor));
+          }
+
+          dispatch(updatePageInSite(updates));
+          break;
+        }
+        case MessageFromIframe.ElementInserted: {
+          const { parentId, element } = data.payload;
+          dispatch(addElement({ parentElementId: parentId, newElement: element }));
+          break;
+        }
+        case MessageFromIframe.ElementDeleted: {
+          dispatch(deleteElementInSite(data.payload));
+          break;
+        }
+        case MessageFromIframe.SiteDownloaded: {
+          dispatch(setIsDownloadingSite(false));
+          break;
+        }
+        case MessageFromIframe.CopyElement: {
+          dispatch(setLastCopiedElement());
+          break;
+        }
+        case MessageFromIframe.PasteElement: {
+          if (!lastCopiedElement) return;
+
+          insertElement({ element: lastCopiedElement });
+          break;
+        }
+        case MessageFromIframe.NavigateToPage: {
+          const pageFileName = data.payload;
+          let isNavigated = false;
+
+          for (const page of pagesMetadata) {
+            const pageName = page.isIndex ? PAGE_NAME_INDEX : page.name;
+            const generatedFileName = generateFileNameFromPageName(pageName);
+
+            if (generatedFileName === pageFileName) {
+              isNavigated = true;
+              const currentPath = location.pathname;
+              const updatedPath = currentPath.replace(PAGE_PATH_SEGMENT_REGEX, `/${EditorPath.Pages}/${page.id}`);
+
+              navigate(updatedPath);
+              break;
+            }
+          }
+
+          if (!isNavigated) {
+            window.open(pageFileName, '_blank', 'noopener,noreferrer');
+          }
+          break;
+        }
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [dispatch, navigate, insertElement, iframeRef, pagesMetadata, lastCopiedElement, location.pathname]);
 
   return useMemo(
     () => ({

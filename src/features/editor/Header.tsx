@@ -27,7 +27,7 @@ import { useIframeContext } from '../../context/IframeContext';
 import { useAppSelector } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
 import { calculateScaleToFit } from '../../utils/calculateScaleToFit';
-import { setDeviceType, setIsDownloadingSite, setIsLoading, setLastDeletedElement } from './slices/editorSlice';
+import { clearLastDeletedElement, setDeviceType, setIsDownloadingSite, setIsLoading } from './slices/editorSlice';
 import { setScale, setSize } from './slices/pageSlice';
 
 /**
@@ -97,7 +97,7 @@ export default function Header() {
   const handleRecoverDeletedElement = () => {
     if (lastDeletedElement) {
       iframeConnection.insertElement({ element: lastDeletedElement });
-      dispatch(setLastDeletedElement(null));
+      dispatch(clearLastDeletedElement());
     }
   };
 

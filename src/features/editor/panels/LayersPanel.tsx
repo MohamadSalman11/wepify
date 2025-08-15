@@ -16,7 +16,6 @@ import styled from 'styled-components';
 import Icon from '../../../components/Icon';
 import { useIframeContext } from '../../../context/IframeContext';
 import { useAppSelector } from '../../../store';
-import { flattenElements } from '../../../utils/flattenElements';
 
 /**
  * Constants
@@ -80,12 +79,7 @@ function LayerNode({
       setExpanded((prev) => !prev);
     }
 
-    const flatElements = flattenElements(elements);
-    const found = flatElements.find((el) => el.id === element.id);
-
-    if (found) {
-      iframeConnection.changeSelection(found.id);
-    }
+    iframeConnection.changeSelection(element.id);
   };
 
   return (

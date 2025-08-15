@@ -84,7 +84,7 @@ function LayerNode({
     const found = flatElements.find((el) => el.id === element.id);
 
     if (found) {
-      iframeConnection.handleSelectionChange(found.id);
+      iframeConnection.changeSelection(found.id);
     }
   };
 

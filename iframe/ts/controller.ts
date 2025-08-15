@@ -83,7 +83,6 @@ const iframeMessageHandlers: {
     controlInsertElement({ name: payload.name, element: payload.element, additionalProps: payload.additionalProps }),
   [MessageToIframe.DeleteElement]: () => controlDeleteElement(),
   [MessageToIframe.ChangeSelection]: (payload) => controlSelectionChanged(payload),
-  [MessageToIframe.SearchElement]: (payload) => controlSearchElement(payload),
   [MessageToIframe.DownloadSite]: (payload) => controlDownloadZip(payload.site, payload.shouldMinify),
   [MessageToIframe.InitializeState]: () => initializeState()
 };
@@ -279,19 +278,6 @@ const controlSelectionChanged = (id: string) => {
       payload: domToPageElement(elementNode) as PageElement
     });
   }
-};
-
-const controlSearchElement = (id: string) => {
-  const element = document.querySelector(`#${id}`) as HTMLElement;
-
-  if (!element) return;
-
-  element.click();
-
-  postMessageToApp({
-    type: MessageFromIframe.SelectionChanged,
-    payload: domToPageElement(element) as PageElement
-  });
 };
 
 export const controlDownloadZip = async (site: Site, shouldMinify: boolean) => {

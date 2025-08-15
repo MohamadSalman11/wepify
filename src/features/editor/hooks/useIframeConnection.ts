@@ -181,16 +181,9 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
     postMessageToIframe({ type: MessageToIframe.DeleteElement });
   }, [postMessageToIframe]);
 
-  const handleSelectionChange = useCallback(
+  const changeSelection = useCallback(
     (id: string) => {
       postMessageToIframe({ type: MessageToIframe.ChangeSelection, payload: id });
-    },
-    [postMessageToIframe]
-  );
-
-  const searchElement = useCallback(
-    (id: string) => {
-      postMessageToIframe({ type: MessageToIframe.SearchElement, payload: id });
     },
     [postMessageToIframe]
   );
@@ -212,8 +205,7 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
       renderElements,
       updateElement,
       insertElement,
-      handleSelectionChange,
-      searchElement,
+      changeSelection,
       deleteElement,
       downloadSite,
       updatePage,
@@ -224,8 +216,7 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
       renderElements,
       updateElement,
       insertElement,
-      handleSelectionChange,
-      searchElement,
+      changeSelection,
       deleteElement,
       downloadSite,
       updatePage,

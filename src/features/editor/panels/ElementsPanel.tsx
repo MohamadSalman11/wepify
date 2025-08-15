@@ -43,7 +43,7 @@ export default function ElementsPanel() {
 
   const handleSearchElement = (event: InputChangeEvent) => {
     const id = event.target.value;
-    iframeConnection.searchElement(id);
+    iframeConnection.changeSelection(id);
   };
 
   const handleAddElement = (name: string) => {

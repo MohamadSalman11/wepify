@@ -273,7 +273,7 @@ function SelectorSettings() {
     });
 
   const handleSelection = (id: string) => {
-    iframeConnection.handleSelectionChange(id);
+    iframeConnection.changeSelection(id);
   };
 
   return (

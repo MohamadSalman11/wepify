@@ -82,7 +82,7 @@ const iframeMessageHandlers: {
   [MessageToIframe.InsertElement]: (payload) =>
     controlInsertElement({ name: payload.name, element: payload.element, additionalProps: payload.additionalProps }),
   [MessageToIframe.DeleteElement]: () => controlDeleteElement(),
-  [MessageToIframe.ChangeSelection]: (payload) => controlSelectionChanged(payload),
+  [MessageToIframe.ChangeSelection]: (payload) => controlChangeSelection(payload),
   [MessageToIframe.DownloadSite]: (payload) => controlDownloadZip(payload.site, payload.shouldMinify),
   [MessageToIframe.InitializeState]: () => initializeState()
 };
@@ -266,18 +266,18 @@ const controlDeleteElement = () => {
   });
 };
 
-const controlSelectionChanged = (id: string) => {
+const controlChangeSelection = (id: string) => {
   const elementNode = document.querySelector(`#${id}`) as HTMLElement;
 
-  if (elementNode) {
-    elementNode.scrollIntoView({ block: 'start' });
-    elementNode.click();
-    positionDragButton(elementNode.clientHeight, state.scaleFactor, getVerticalBorderSum(elementNode));
-    postMessageToApp({
-      type: MessageFromIframe.SelectionChanged,
-      payload: domToPageElement(elementNode) as PageElement
-    });
-  }
+  if (!elementNode) return;
+
+  elementNode.click();
+  elementNode.scrollIntoView({ block: state.targetName === ElementsName.Section ? 'start' : 'center' });
+  positionDragButton(elementNode.clientHeight, state.scaleFactor, getVerticalBorderSum(elementNode));
+  postMessageToApp({
+    type: MessageFromIframe.SelectionChanged,
+    payload: domToPageElement(elementNode) as PageElement
+  });
 };
 
 const controlDownloadZip = async (site: Site, shouldMinify: boolean) => {

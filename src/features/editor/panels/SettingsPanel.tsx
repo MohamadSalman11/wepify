@@ -431,7 +431,15 @@ function AlignmentSettings() {
   );
 
   if (
-    isValueIn(selectedElement.name, ElementsName.Grid, ElementsName.Image, ElementsName.Input) ||
+    isValueIn(
+      selectedElement.name,
+      ElementsName.Grid,
+      ElementsName.Heading,
+      ElementsName.Text,
+      ElementsName.Link,
+      ElementsName.Image,
+      ElementsName.Input
+    ) ||
     selectedElement.tag === Tags.Li.toLocaleLowerCase()
   ) {
     return null;

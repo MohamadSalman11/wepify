@@ -197,6 +197,12 @@ const controlInsertElement = ({
   const elementNode = createDomTree(newElement as PageElement);
   const canHaveNotChildren = TAGS_WITHOUT_CHILDREN.has(target.tagName.toLowerCase());
 
+  const parentId =
+    element?.parentId ||
+    (canHaveNotChildren
+      ? (target.parentElement || target.closest(SELECTOR_CLOSEST_SECTION) || { id: SELECTOR_FIRST_SECTION }).id
+      : target.id);
+
   if (element) {
     assignUniqueId(elementNode, newElement);
   }
@@ -218,9 +224,7 @@ const controlInsertElement = ({
   postMessageToApp({
     type: MessageFromIframe.ElementInserted,
     payload: {
-      parentId: canHaveNotChildren
-        ? (target.parentElement || target.closest(SELECTOR_CLOSEST_SECTION) || { id: SELECTOR_FIRST_SECTION }).id
-        : target.id,
+      parentId,
       element: newElement as PageElement
     }
   });

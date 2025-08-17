@@ -59,7 +59,7 @@ export default function Sidebar() {
         </NavList>
       </nav>
       <ConfirmNavigation onConfirmed={handleLogout}>
-        <StyledLeaveIcon icon={LuLogOut} color='var(--color-red)' hoverColor='var(--color-red-light)' hover />
+        <StyledLeaveIcon icon={LuLogOut} color='var(--color-red)' hoverColor='var(--color-red-very-light)' hover />
       </ConfirmNavigation>
     </StyledSidebar>
   );

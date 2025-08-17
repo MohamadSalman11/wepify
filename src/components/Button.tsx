@@ -95,6 +95,10 @@ const variations = {
   `,
   danger: css`
     background-color: var(--color-red);
+
+    &:hover {
+      background-color: var(--color-red-light);
+    }
   `
 };
 

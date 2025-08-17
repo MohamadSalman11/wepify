@@ -207,7 +207,7 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
   });
 
   return (
-    <StyledCanvas ref={canvasRef} $isPreview={isPreview} id='canvas'>
+    <StyledCanvas ref={canvasRef} id='canvas'>
       <title>
         {isLoading
           ? isPreview
@@ -236,7 +236,7 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
  * Styles
  */
 
-const StyledCanvas = styled.div<{ $isPreview: boolean }>`
+const StyledCanvas = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;

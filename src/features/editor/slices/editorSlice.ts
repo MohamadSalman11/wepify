@@ -1,6 +1,15 @@
 import { createSlice, Middleware, type PayloadAction } from '@reduxjs/toolkit';
 import { ElementsName, RESPONSIVE_PROPS } from '@shared/constants';
-import { DeviceType, Image, PageElement, PageMetadata, Site, SitePage } from '@shared/typing';
+import {
+  BaseElement,
+  DeviceType,
+  Image,
+  LastDeletedElement,
+  PageElement,
+  PageMetadata,
+  Site,
+  SitePage
+} from '@shared/typing';
 import { findElementById } from '../../../utils/findElementById';
 import { flattenElements } from '../../../utils/flattenElements';
 
@@ -19,7 +28,7 @@ const STORING_ACTIONS = new Set([
 
 interface EditorState {
   selectedElement: PageElement;
-  lastDeletedElement: PageElement | null;
+  lastDeletedElement: (LastDeletedElement & BaseElement) | null;
   lastCopiedElement: PageElement | null;
   currentPageId: string;
   site: Site;
@@ -141,9 +150,10 @@ const editorSlice = createSlice({
       action: PayloadAction<{
         parentElementId: string;
         newElement: PageElement;
+        domIndex?: number;
       }>
     ) {
-      const { parentElementId, newElement } = action.payload;
+      const { parentElementId, newElement, domIndex } = action.payload;
 
       const page = state.site.pages.find((p) => p.id === state.currentPageId);
       if (!page) return;
@@ -156,7 +166,11 @@ const editorSlice = createSlice({
       const parentEl = findElementById(parentElementId, page.elements);
       if (!parentEl) return;
 
-      parentEl.children?.push(newElement);
+      if (domIndex === undefined) {
+        parentEl.children?.push(newElement);
+      } else {
+        parentEl.children?.splice(domIndex, 0, newElement);
+      }
     },
     selectElement: (state, action: PayloadAction<PageElement>) => {
       state.selectedElement = action.payload;
@@ -194,8 +208,8 @@ const editorSlice = createSlice({
         }
       }
     },
-    deleteElementInSite(state, action: PayloadAction<{ id: string; parentId: string }>) {
-      const { id, parentId } = action.payload;
+    deleteElementInSite(state, action: PayloadAction<{ id: string } & LastDeletedElement>) {
+      const { id, parentId, domIndex } = action.payload;
 
       const page = state.site.pages.find((p) => p.id === state.currentPageId);
 
@@ -211,7 +225,7 @@ const editorSlice = createSlice({
       }
 
       if (element) {
-        state.lastDeletedElement = { ...element, parentId };
+        state.lastDeletedElement = { ...element, parentId, domIndex };
       }
 
       let index = 1;

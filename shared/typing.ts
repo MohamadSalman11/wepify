@@ -19,7 +19,6 @@ export interface BaseElement {
   id: string;
   tag: string;
   name: string;
-  parentId?: string;
   width?: Responsive<number | 'fill' | 'auto'>;
   height?: Responsive<number | 'fill' | 'auto'>;
   left?: Responsive<number>;
@@ -96,6 +95,8 @@ export type PageElement =
   | (BaseElement & Partial<Omit<LinkElement, keyof BaseElement>>)
   | (BaseElement & Partial<Omit<ImageElement, keyof BaseElement>>)
   | (BaseElement & Partial<Omit<InputElement, keyof BaseElement>>);
+
+export type LastDeletedElement = { parentId: string; domIndex?: number };
 
 export interface SitePage {
   id: string;
@@ -178,8 +179,8 @@ export type MessageFromIframeData =
       type: MessageFromIframe.ElementUpdated;
       payload: { id: string; fields: Partial<PageElement> };
     }
-  | { type: MessageFromIframe.ElementInserted; payload: { parentId: string; element: PageElement } }
-  | { type: MessageFromIframe.ElementDeleted; payload: { id: string; parentId: string } }
+  | { type: MessageFromIframe.ElementInserted; payload: { element: PageElement; parentId: string; domIndex?: number } }
+  | { type: MessageFromIframe.ElementDeleted; payload: { id: string } & LastDeletedElement }
   | { type: MessageFromIframe.SiteDownloaded }
   | { type: MessageFromIframe.BreakpointChanged; payload: { newDeviceType: DeviceType } }
   | { type: MessageFromIframe.PageUpdated; payload: { updates: Record<string, any> } }

@@ -8,6 +8,7 @@ import {
 } from '@shared/constants';
 import {
   DeviceType,
+  LastDeletedElement,
   MessageFromIframe,
   MessageToIframe,
   MessageToIframePayloadMap,
@@ -188,7 +189,7 @@ const controlInsertElement = ({
   additionalProps
 }: {
   name?: string;
-  element?: PageElement;
+  element?: PageElement & Partial<LastDeletedElement>;
   additionalProps?: Record<string, any>;
 }) => {
   const target = getTarget();
@@ -208,9 +209,9 @@ const controlInsertElement = ({
   }
 
   if (canHaveNotChildren) {
-    insertElement(elementNode, target.parentElement?.id);
+    insertElement(elementNode, target.parentElement?.id, element?.domIndex);
   } else {
-    insertElement(elementNode, element?.parentId || target.id);
+    insertElement(elementNode, element?.parentId || target.id, element?.domIndex);
   }
 
   if (state.targetName === ElementsName.Grid) {
@@ -221,11 +222,16 @@ const controlInsertElement = ({
     positionDragButton(elementNode.clientHeight, state.scaleFactor);
   }
 
+  if (element) {
+    elementNode.scrollIntoView({ block: element.name === ElementsName.Section ? 'start' : 'center' });
+  }
+
   postMessageToApp({
     type: MessageFromIframe.ElementInserted,
     payload: {
+      element: newElement as PageElement,
       parentId,
-      element: newElement as PageElement
+      domIndex: element?.domIndex
     }
   });
 
@@ -237,6 +243,7 @@ const controlDeleteElement = () => {
   const target = getTarget();
   const targetId = target.id;
   const parentId = target.parentElement?.id;
+  const domIndex = [...target.parentElement!.children].indexOf(target);
 
   const section =
     state.targetName === ElementsName.Section
@@ -260,7 +267,7 @@ const controlDeleteElement = () => {
 
   postMessageToApp({
     type: MessageFromIframe.ElementDeleted,
-    payload: { id: targetId, parentId }
+    payload: { id: targetId, parentId, domIndex }
   });
 };
 

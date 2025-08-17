@@ -155,8 +155,8 @@ export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | nul
           break;
         }
         case MessageFromIframe.ElementInserted: {
-          const { parentId, element } = data.payload;
-          dispatch(addElement({ parentElementId: parentId, newElement: element }));
+          const { element, parentId, domIndex } = data.payload;
+          dispatch(addElement({ newElement: element, parentElementId: parentId, domIndex }));
           break;
         }
         case MessageFromIframe.ElementDeleted: {

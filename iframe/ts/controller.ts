@@ -205,7 +205,7 @@ const controlInsertElement = ({
       : target.id);
 
   if (element) {
-    assignUniqueId(elementNode, newElement);
+    assignUniqueId(elementNode, element);
   }
 
   if (canHaveNotChildren) {
@@ -225,6 +225,8 @@ const controlInsertElement = ({
   if (element) {
     elementNode.scrollIntoView({ block: element.name === ElementsName.Section ? 'start' : 'center' });
   }
+
+  console.log(newElement, parentId, element?.domIndex);
 
   postMessageToApp({
     type: MessageFromIframe.ElementInserted,

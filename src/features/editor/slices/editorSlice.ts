@@ -29,7 +29,7 @@ const STORING_ACTIONS = new Set([
 interface EditorState {
   selectedElement: PageElement;
   lastDeletedElement: (LastDeletedElement & BaseElement) | null;
-  lastCopiedElement: PageElement | null;
+  lastCopiedElement: (PageElement & { domIndex?: number }) | null;
   currentPageId: string;
   site: Site;
   pagesMetadata: PageMetadata[];
@@ -247,6 +247,10 @@ const editorSlice = createSlice({
       if (!elements) return;
 
       state.lastCopiedElement = findElementById(state.selectedElement.id, elements);
+
+      if (state.lastCopiedElement?.domIndex) {
+        state.lastCopiedElement.domIndex = undefined;
+      }
     },
     setIsLoading(state, action: PayloadAction<boolean>) {
       state.isLoading = action.payload;

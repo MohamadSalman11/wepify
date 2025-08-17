@@ -14,6 +14,7 @@ import { setHasOriginSize } from './slices/pageSlice';
  */
 
 const KEY_CLOSE_PREVIEW = 'Escape';
+const SCREEN_SIZE_INSTRUCTIONS = 'Press F12 (or Cmd+Option+I on Mac) to preview this page on different screen sizes.';
 
 /**
  * Component definition
@@ -47,7 +48,12 @@ export default function Preview() {
 
   return (
     <>
-      <ClosePreviewButton onClick={handleClose}>Close Preview</ClosePreviewButton>
+      <ButtonContainer>
+        <StyledButton onClick={() => alert(SCREEN_SIZE_INSTRUCTIONS)}>Preview on Screen Sizes</StyledButton>
+        <StyledButton variation='danger' onClick={handleClose}>
+          Close Preview
+        </StyledButton>
+      </ButtonContainer>
       <Canvas isPreview />
     </>
   );
@@ -57,12 +63,18 @@ export default function Preview() {
  * Styles
  */
 
-const ClosePreviewButton = styled(Button).attrs({
-  size: 'sm',
-  pill: true
-})`
+const ButtonContainer = styled.div`
   position: fixed;
   bottom: 2%;
   left: 1%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.2rem;
   z-index: var(--zindex-preview-close-button);
 `;
+
+const StyledButton = styled(Button).attrs({
+  size: 'sm',
+  pill: true
+})``;

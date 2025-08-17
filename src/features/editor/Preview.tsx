@@ -77,4 +77,6 @@ const ButtonContainer = styled.div`
 const StyledButton = styled(Button).attrs({
   size: 'sm',
   pill: true
-})``;
+})`
+  box-shadow: var(--box-shadow-2);
+`;

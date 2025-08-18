@@ -740,6 +740,7 @@ function TypographySettings() {
   const { selectedElement, deviceType } = useAppSelector((state) => state.editor);
   const { handleElementChange } = useSettingsContext();
   const textAlign = getResponsiveValue(selectedElement.textAlign, deviceType);
+  const showTextAlign = isValueIn(selectedElement.name, 'heading', 'text', 'link', 'input');
 
   if (isValueIn(selectedElement.name, ElementsName.Image)) {
     return null;
@@ -792,20 +793,22 @@ function TypographySettings() {
             </ChangeElement>
           </div>
         </GridContainer>
-        <div>
-          <SubTitle>Text Align</SubTitle>
-          <TextAlignContainer>
-            {OPTIONS_TEXT_ALIGN.map(({ value, icon }) => (
-              <AppTooltip key={value} label={value} side='top' sideOffset={5} sizeSmall>
-                <Icon
-                  icon={icon}
-                  isSelected={textAlign === value}
-                  onClick={() => handleElementChange('textAlign', value)}
-                />
-              </AppTooltip>
-            ))}
-          </TextAlignContainer>
-        </div>
+        {showTextAlign && (
+          <div>
+            <SubTitle>Text Align</SubTitle>
+            <TextAlignContainer>
+              {OPTIONS_TEXT_ALIGN.map(({ value, icon }) => (
+                <AppTooltip key={value} label={value} side='top' sideOffset={5} sizeSmall>
+                  <Icon
+                    icon={icon}
+                    isSelected={textAlign === value}
+                    onClick={() => handleElementChange('textAlign', value)}
+                  />
+                </AppTooltip>
+              ))}
+            </TextAlignContainer>
+          </div>
+        )}
       </CollapsibleSection>
     </TypographyContainer>
   );

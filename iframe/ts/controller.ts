@@ -24,7 +24,7 @@ import { CONTENT_EDITABLE_ELEMENTS, SELECTOR_DRAG_BUTTON, SELECTOR_ROOT, SELECTO
 import { changeTarget, getMoveableInstance, getTarget, initializeState, state } from './model';
 import SiteExporter from './SiteExporter';
 import { adjustGridColumnsIfNeeded } from './utils/adjustGridColumnsIfNeeded';
-import { assignUniqueId } from './utils/assignUniqueId';
+import { assignUniqueIdsToDomElementTree } from './utils/assignUniqueIdsToDomElementTree';
 import { createNewElement } from './utils/createNewElement';
 import { extractTransform } from './utils/extractTransform';
 import { getScreenBreakpoint } from './utils/getScreenBreakpoint';
@@ -81,7 +81,11 @@ const iframeMessageHandlers: {
   [MessageToIframe.UpdateElement]: (payload) => controlUpdateElement(payload.updates),
   [MessageToIframe.UpdatePage]: (payload) => controlUpdatePage(payload.updates),
   [MessageToIframe.InsertElement]: (payload) =>
-    controlInsertElement({ name: payload.name, element: payload.element, additionalProps: payload.additionalProps }),
+    controlInsertElement({
+      name: payload.name,
+      pageElement: payload.element,
+      additionalProps: payload.additionalProps
+    }),
   [MessageToIframe.DeleteElement]: () => controlDeleteElement(),
   [MessageToIframe.ChangeSelection]: (payload) => controlChangeSelection(payload),
   [MessageToIframe.DownloadSite]: (payload) => controlDownloadZip(payload.site, payload.shouldMinify),
@@ -185,33 +189,37 @@ const controlUpdatePage = (updates: { backgroundColor: string }) => {
 
 const controlInsertElement = ({
   name,
-  element,
+  pageElement,
   additionalProps
 }: {
   name?: string;
-  element?: PageElement & Partial<LastDeletedElement>;
+  pageElement?: PageElement & Partial<LastDeletedElement>;
   additionalProps?: Record<string, any>;
 }) => {
   const target = getTarget();
   const moveableInstance = getMoveableInstance();
-  const newElement = element || createNewElement(name as string, additionalProps);
+  const newElement = pageElement || createNewElement(name as string, additionalProps);
   const elementNode = createDomTree(newElement as PageElement);
   const canHaveNotChildren = TAGS_WITHOUT_CHILDREN.has(target.tagName.toLowerCase());
 
   const parentId =
-    element?.parentId ||
+    pageElement?.parentId ||
     (canHaveNotChildren
       ? (target.parentElement || target.closest(SELECTOR_CLOSEST_SECTION) || { id: SELECTOR_FIRST_SECTION }).id
       : target.id);
 
-  if (element) {
-    assignUniqueId(elementNode, element);
+  if (canHaveNotChildren) {
+    insertElement(elementNode, target.parentElement?.id, pageElement?.domIndex);
+  } else {
+    insertElement(elementNode, pageElement?.parentId || target.id, pageElement?.domIndex);
   }
 
-  if (canHaveNotChildren) {
-    insertElement(elementNode, target.parentElement?.id, element?.domIndex);
-  } else {
-    insertElement(elementNode, element?.parentId || target.id, element?.domIndex);
+  if (pageElement?.parentId) {
+    pageElement.parentId = undefined;
+  }
+
+  if (pageElement) {
+    assignUniqueIdsToDomElementTree(elementNode);
   }
 
   if (state.targetName === ElementsName.Grid) {
@@ -222,18 +230,16 @@ const controlInsertElement = ({
     positionDragButton(elementNode.clientHeight, state.scaleFactor);
   }
 
-  if (element) {
-    elementNode.scrollIntoView({ block: element.name === ElementsName.Section ? 'start' : 'center' });
+  if (pageElement) {
+    elementNode.scrollIntoView({ block: pageElement.name === ElementsName.Section ? 'start' : 'center' });
   }
-
-  console.log(newElement, parentId, element?.domIndex);
 
   postMessageToApp({
     type: MessageFromIframe.ElementInserted,
     payload: {
       element: newElement as PageElement,
       parentId,
-      domIndex: element?.domIndex
+      domIndex: pageElement?.domIndex
     }
   });
 
@@ -259,13 +265,7 @@ const controlDeleteElement = () => {
   target.remove();
   (section as HTMLElement).click();
 
-  let index = 1;
-  const elements = document.querySelectorAll(`[data-name='${target.dataset.name}']`);
-
-  for (const el of elements) {
-    el.id = `${target.dataset.name}-${index}`;
-    index++;
-  }
+  assignUniqueIdsToDomElementTree(target);
 
   postMessageToApp({
     type: MessageFromIframe.ElementDeleted,

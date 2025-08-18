@@ -10,6 +10,7 @@ import {
   Site,
   SitePage
 } from '@shared/typing';
+import { assignUniqueIdsToPageElements } from '../../../utils/assignUniqueIdsToPageElements';
 import { findElementById } from '../../../utils/findElementById';
 import { flattenElements } from '../../../utils/flattenElements';
 
@@ -171,6 +172,8 @@ const editorSlice = createSlice({
       } else {
         parentEl.children?.splice(domIndex, 0, newElement);
       }
+
+      assignUniqueIdsToPageElements(newElement, flattenElements(page.elements));
     },
     selectElement: (state, action: PayloadAction<PageElement>) => {
       state.selectedElement = action.payload;
@@ -226,16 +229,7 @@ const editorSlice = createSlice({
 
       if (element) {
         state.lastDeletedElement = { ...element, parentId, domIndex };
-      }
-
-      let index = 1;
-      const flattedElements = flattenElements(page.elements);
-      const name = id.split('-')[0];
-      const sameNameElements = flattedElements.filter((el) => el.name === name);
-
-      for (const el of sameNameElements) {
-        el.id = `${name}-${index}`;
-        index++;
+        assignUniqueIdsToPageElements(element, flattenElements(page.elements));
       }
     },
     clearLastDeletedElement(state) {
@@ -248,7 +242,7 @@ const editorSlice = createSlice({
 
       state.lastCopiedElement = findElementById(state.selectedElement.id, elements);
 
-      if (state.lastCopiedElement?.domIndex) {
+      if (state.lastCopiedElement?.domIndex !== undefined) {
         state.lastCopiedElement.domIndex = undefined;
       }
     },

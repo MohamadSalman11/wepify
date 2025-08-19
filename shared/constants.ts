@@ -232,15 +232,15 @@ export const ELEMENTS_TEMPLATE: Record<string, Partial<PageElement>> = {
     height: { monitor: 'auto' },
     content: 'text',
     backgroundColor: '#f4f8f8',
-    borderRadius: 12,
+    borderRadius: 16,
     borderTop: '2px solid #6597f7',
     borderRight: '2px solid #6597f7',
     borderBottom: '2px solid #6597f7',
     borderLeft: '2px solid #6597f7',
-    paddingTop: { monitor: 6 },
-    paddingRight: { monitor: 6 },
-    paddingLeft: { monitor: 6 },
-    paddingBottom: { monitor: 6 }
+    paddingTop: { monitor: 12 },
+    paddingRight: { monitor: 12 },
+    paddingLeft: { monitor: 12 },
+    paddingBottom: { monitor: 12 }
   }),
   input: createElTemplate({
     tag: 'input',

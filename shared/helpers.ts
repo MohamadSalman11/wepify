@@ -5,7 +5,7 @@ const DEFAULT_FLEX_DIRECTION = 'column';
 
 const BASE_PROPS = {
   fontSize: { monitor: 20 },
-  fontFamily: 'Inter',
+  fontFamily: 'Inherit',
   color: '#000000',
   children: []
 };

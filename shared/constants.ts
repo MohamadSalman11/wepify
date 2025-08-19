@@ -128,6 +128,7 @@ export const ELEMENTS_TEMPLATE: Record<string, Partial<PageElement>> = {
   section: createElTemplate({
     tag: 'section',
     name: 'section',
+    fontFamily: 'Inter',
     left: { monitor: 0 },
     top: { monitor: 0 },
     width: { monitor: 'fill' },

@@ -242,7 +242,7 @@ function ChangeElement({
 
       handler?.(value);
 
-      if (rawValue === '') return;
+      if (rawValue === '' && propName !== ElementsName.Link) return;
 
       if (isNumber) {
         const parsed = Number(rawValue);
@@ -703,7 +703,7 @@ function LinkSettings() {
       <CollapsibleSection title='Link' open>
         <div>
           <ChangeElement>
-            <Input name='link' type='text' defaultValue={selectedElement.link} placeholder='https://example.com' />
+            <Input name='link' type='text' value={selectedElement.link} placeholder='https://example.com' />
           </ChangeElement>
         </div>
       </CollapsibleSection>

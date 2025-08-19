@@ -155,7 +155,7 @@ const controlUpdateElement = (updates: Partial<PageElement>) => {
     isResponsive: true
   });
 
-  if (link && target instanceof HTMLAnchorElement) target.href = link;
+  if (isDefined(link) && target instanceof HTMLAnchorElement) target.href = link;
   if (type && target instanceof HTMLInputElement) target.type = type;
   if (placeholder && target instanceof HTMLInputElement) target.placeholder = placeholder;
 
@@ -223,7 +223,7 @@ const controlInsertElement = ({
   }
 
   if (state.targetName === ElementsName.Grid) {
-    adjustGridColumnsIfNeeded(target);
+    adjustGridColumnsIfNeeded(target as HTMLDivElement);
   }
 
   if (newElement.name !== ElementsName.Item && newElement.name !== ElementsName.Image) {

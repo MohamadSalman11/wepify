@@ -97,7 +97,7 @@ export const generateInlineStyles = ({
   }
 
   if (shouldTransform) {
-    style.transform = `translate(${left}px, ${top}px) rotate(${rotate}deg) scale(${scaleX}, ${scaleY})`;
+    style.transform = `translate(${left || 0}px, ${top || 0}px) rotate(${rotate || 0}deg) scale(${scaleX || 1}, ${scaleY || 1})`;
   }
 
   if (flexDirection) {

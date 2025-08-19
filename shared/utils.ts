@@ -10,28 +10,23 @@ interface FieldValidationOptions {
 export const isValueIn = (value: string | undefined | null, ...values: string[]): boolean =>
   !!value && values.includes(value);
 
-export const rgbToHex = (rgb: string) => {
-  const result = rgb.match(/\d+/g)?.map(Number);
+export const colorToHex = (color: string): string => {
+  const result = color.match(/[\d.]+/g)?.map(Number);
 
-  if (!result) return rgb;
+  if (!result || result.length < 3) return color;
 
-  return (
-    '#' +
-    result
-      .slice(0, 3)
-      .map((x) => x.toString(16).padStart(2, '0'))
-      .join('')
-  );
-};
+  const [r, g, b, a] = result;
 
-export const rgbaToHex = ({ r, g, b, a }: { r: number; g: number; b: number; a: number }) => {
   const hex = [r, g, b].map((x) => Math.round(x).toString(16).padStart(2, '0')).join('');
 
-  const alphaHex = Math.round(a * 255)
-    .toString(16)
-    .padStart(2, '0');
+  if (typeof a === 'number' && !Number.isNaN(a)) {
+    const alphaHex = Math.round(a * 255)
+      .toString(16)
+      .padStart(2, '0');
+    return `#${hex}${alphaHex}`;
+  }
 
-  return `#${hex}${alphaHex}`;
+  return `#${hex}`;
 };
 
 export const hexToRgb = (hex: string) => {

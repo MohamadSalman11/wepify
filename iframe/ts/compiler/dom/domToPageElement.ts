@@ -1,6 +1,6 @@
 import { DEFAULT_BORDER_COLOR, DEFAULT_BORDER_WIDTH, ElementsName, FONT_WEIGHT_NAMES } from '@shared/constants';
 import type { GridElement, ImageElement, InputElement, LinkElement, PageElement } from '@shared/typing';
-import { rgbToHex } from '@shared/utils';
+import { colorToHex } from '@shared/utils';
 import { CONTENT_EDITABLE_ELEMENTS, CSS_SIZES_NAME } from '../../constants';
 import { state } from '../../model';
 import { extractTransform } from '../../utils/extractTransform';
@@ -52,8 +52,8 @@ export const domToPageElement = (elementNode: HTMLElement) => {
   if (style.display) element.display = style.display;
   if (style.columnGap) element.columnGap = toResponsiveValue(style.columnGap);
   if (style.rowGap) element.rowGap = toResponsiveValue(style.rowGap);
-  if (style.color) element.color = rgbToHex(style.color);
-  if (style.backgroundColor) element.backgroundColor = rgbToHex(style.backgroundColor);
+  if (style.color) element.color = colorToHex(style.color);
+  if (style.backgroundColor) element.backgroundColor = colorToHex(style.backgroundColor);
   if (style.fontWeight) element.fontWeight = FONT_WEIGHT_NAMES[style.fontWeight as keyof typeof FONT_WEIGHT_NAMES];
 
   if (style.fontFamily) {
@@ -117,7 +117,7 @@ const maybeApplyBorderProps = (element: Partial<PageElement>, style: Partial<CSS
       if (match) {
         const [, width, , color] = match;
         element.borderWidth = Number.parseFloat(width) ?? DEFAULT_BORDER_WIDTH;
-        element.borderColor = color === 'initial' ? DEFAULT_BORDER_COLOR : rgbToHex(color);
+        element.borderColor = color === 'initial' ? DEFAULT_BORDER_COLOR : colorToHex(color);
         break;
       }
     }

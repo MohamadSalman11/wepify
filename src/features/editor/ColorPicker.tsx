@@ -1,5 +1,5 @@
 import { InputChangeEvent } from '@shared/typing';
-import { rgbaToHex, rgbToHex } from '@shared/utils';
+import { colorToHex } from '@shared/utils';
 import Sketch from '@uiw/react-color-sketch';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -62,12 +62,25 @@ export default function ColorPicker({ name, defaultValue, onChange }: ColorPicke
   };
 
   const handleSketchColorChange = (color: Record<string, any>) => {
-    const { r, g, b } = color.rgb;
-    const hex = color.rgba.a === 1 ? rgbToHex(`rgb(${r}, ${g}, ${b})`) : rgbaToHex(color.rgba);
+    let cssColor: string;
+
+    if (color.rgba) {
+      const { r, g, b, a } = color.rgba;
+      cssColor = a < 1 ? `rgba(${r}, ${g}, ${b}, ${a})` : `rgb(${r}, ${g}, ${b})`;
+    } else if (color.rgb) {
+      const { r, g, b } = color.rgb;
+      cssColor = `rgb(${r}, ${g}, ${b})`;
+    } else if (typeof color === 'string') {
+      cssColor = color;
+    } else {
+      return;
+    }
+
+    const hex = colorToHex(cssColor);
+
     setHex(hex);
     onChange?.({ target: { value: hex, name } });
   };
-
   return (
     <div ref={colorPickerRef}>
       <Preview onClick={() => setIsOpen(!isOpen)}>

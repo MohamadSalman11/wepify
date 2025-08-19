@@ -34,16 +34,13 @@ export default function Preview() {
   }, [dispatch, location.pathname, navigate]);
 
   useEffect(() => {
-    if (isLoading) return;
-
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === KEY_CLOSE_PREVIEW) {
-        handleClose();
-      }
+      if (isLoading) return;
+      if (event.key === KEY_CLOSE_PREVIEW) handleClose();
     };
 
-    globalThis.addEventListener('keydown', handleKeyDown);
-    return () => globalThis.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [handleClose, isLoading]);
 
   return (

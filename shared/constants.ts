@@ -183,7 +183,7 @@ export const ELEMENTS_TEMPLATE: Record<string, Partial<PageElement>> = {
     fontFamily: 'Inherit',
     fontWeight: 'Inherit',
     fontSize: { monitor: 'Inherit' },
-    content: 'li 1'
+    content: 'list item'
   }),
   heading: createElTemplate({
     tag: 'span',

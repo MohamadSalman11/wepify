@@ -137,7 +137,6 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
       }
 
       await AppStorage.setItem(StorageKey.Site, site);
-      console.log(site);
 
       timeoutRef.current = setTimeout(() => {
         dispatch(setIsStoring(false));

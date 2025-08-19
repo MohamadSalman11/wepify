@@ -401,9 +401,15 @@ function SizeSettings() {
             </ChangeElement>
           </SizeRow>
           <RotationContainer>
-            <Icon icon={LuRotateCwSquare} disabled={disableInput} onClick={handleRotate} />
-            <Icon icon={LuFlipHorizontal2} disabled={disableInput} onClick={handleFlipHorizontal} />
-            <Icon icon={LuFlipVertical2} disabled={disableInput} onClick={handleFlipVertical} />
+            <AppTooltip label='Rotate -90°' side='top' sideOffset={5} sizeSmall>
+              <Icon icon={LuRotateCwSquare} disabled={disableInput} onClick={handleRotate} />
+            </AppTooltip>
+            <AppTooltip label='Flip Horizontal' side='top' sideOffset={5} sizeSmall>
+              <Icon icon={LuFlipHorizontal2} disabled={disableInput} onClick={handleFlipHorizontal} />
+            </AppTooltip>
+            <AppTooltip label='Flip Vertical' side='top' sideOffset={5} sizeSmall>
+              <Icon icon={LuFlipVertical2} disabled={disableInput} onClick={handleFlipVertical} />
+            </AppTooltip>
           </RotationContainer>
         </GridContainer>
       </CollapsibleSection>

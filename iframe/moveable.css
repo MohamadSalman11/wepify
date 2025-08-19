@@ -21,7 +21,8 @@
   display: none !important;
 }
 
-#iframe-root[data-is-preview='false'] .select-item:not([contenteditable='true']) {
+#iframe-root[data-is-preview='false'] .select-item {
+  position: relative;
   z-index: 999;
   box-shadow: 0 0 0 3px #3e7df5;
 }

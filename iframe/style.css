@@ -16,14 +16,6 @@ body {
   list-style-position: inside;
 }
 
-li {
-  padding: 4px;
-  &:focus {
-    outline: 1px solid #0d1116;
-    border-radius: 4px;
-  }
-}
-
 input {
   outline: none;
 }

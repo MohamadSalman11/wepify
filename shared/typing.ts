@@ -24,7 +24,11 @@ export interface BaseElement {
   left?: Responsive<number>;
   top?: Responsive<number>;
   color?: string;
+  colorOnHover?: string;
+  backgroundColorOnHover?: string;
   backgroundColor?: string;
+  transitionType?: string;
+  transitionDuration?: number;
   fontSize?: Responsive<number | 'Inherit'>;
   fontFamily?: string;
   fontWeight?:

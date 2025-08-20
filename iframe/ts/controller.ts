@@ -148,7 +148,10 @@ const controlUpdateElement = (updates: Partial<PageElement>) => {
   if (Object.keys(updates).length === 0) return;
 
   const target = getTarget();
-  const { link, type, placeholder } = updates as Record<string, any>;
+  const { link, type, placeholder, backgroundColorOnHover, backgroundColor, color, colorOnHover } = updates as Record<
+    string,
+    any
+  >;
 
   const styles = generateInlineStyles({
     element: maybeWrapWithBreakpoint(updates),
@@ -158,6 +161,30 @@ const controlUpdateElement = (updates: Partial<PageElement>) => {
   if (isDefined(link) && target instanceof HTMLAnchorElement) target.href = link;
   if (type && target instanceof HTMLInputElement) target.type = type;
   if (placeholder && target instanceof HTMLInputElement) target.placeholder = placeholder;
+
+  if (backgroundColor) {
+    target.dataset.originalBg = backgroundColor;
+    target.setAttribute('onmouseout', `this.style.backgroundColor='${target.dataset.originalBg}'`);
+  }
+
+  if (backgroundColorOnHover) {
+    target.dataset.backgroundColorOnHover = backgroundColorOnHover;
+
+    target.setAttribute('onmouseover', `this.style.backgroundColor='${backgroundColorOnHover}'`);
+    target.setAttribute('onmouseout', `this.style.backgroundColor='${target.dataset.originalBg}'`);
+  }
+
+  if (color) {
+    target.dataset.originalColor = color;
+    target.setAttribute('onmouseout', `this.style.color='${target.dataset.originalColor}'`);
+  }
+
+  if (colorOnHover) {
+    target.dataset.colorOnHover = colorOnHover;
+
+    target.setAttribute('onmouseover', `this.style.color='${colorOnHover}'`);
+    target.setAttribute('onmouseout', `this.style.color='${target.dataset.originalColor}'`);
+  }
 
   Object.assign(target.style, styles);
 

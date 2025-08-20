@@ -25,7 +25,11 @@ const RESPONSIVE_NUMBER_KEYS = [
 
 export const domToPageElement = (elementNode: HTMLElement) => {
   const style = elementNode.style;
-  const { id, tagName } = elementNode;
+  const {
+    id,
+    tagName,
+    dataset: { originalBg, backgroundColorOnHover, colorOnHover, originalColor }
+  } = elementNode;
 
   const element: Partial<PageElement> = {
     id,
@@ -53,7 +57,12 @@ export const domToPageElement = (elementNode: HTMLElement) => {
   if (style.columnGap) element.columnGap = toResponsiveValue(style.columnGap);
   if (style.rowGap) element.rowGap = toResponsiveValue(style.rowGap);
   if (style.color) element.color = colorToHex(style.color);
-  if (style.backgroundColor) element.backgroundColor = colorToHex(style.backgroundColor);
+  if (style.backgroundColor && originalBg) element.backgroundColor = originalBg;
+  if (style.color && originalColor) element.color = originalColor;
+  if (backgroundColorOnHover) element.backgroundColorOnHover = backgroundColorOnHover;
+  if (colorOnHover) element.colorOnHover = colorOnHover;
+  if (style.transitionDuration) element.transitionDuration = Number.parseFloat(style.transitionDuration);
+  if (style.transitionTimingFunction) element.transitionType = style.transitionTimingFunction;
   if (style.fontWeight) element.fontWeight = FONT_WEIGHT_NAMES[style.fontWeight as keyof typeof FONT_WEIGHT_NAMES];
 
   if (style.fontFamily) {

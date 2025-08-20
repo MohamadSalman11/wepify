@@ -76,6 +76,8 @@ const OPTIONS_ROW_GAP = OPTIONS_COLUMN_GAP;
 const OPTIONS_ROW_HEIGHT = OPTIONS_COLUMN_WIDTH;
 const OPTIONS_ROW = OPTIONS_COLUMN;
 const OPTIONS_SPACE = ['between', 'around', 'evenly', 'none'];
+const OPTIONS_TRANSITION_TYPE = ['none', 'ease', 'linear', 'ease-in', 'ease-out', 'ease-in-out'];
+const OPTIONS_TRANSITION_DURATION = [0, 0.2, 0.5, 1, 2];
 const OPTIONS_FONT_SIZE = ['Inherit', 10, 11, 12, 13, 14, 15, 16, 20, 24, 32, 36, 40, 48, 64, 96, 128];
 const OPTIONS_SIZE = ['fill', 'auto', 50, 100, 150, 250, 500];
 const DEFAULT_BORDER_RADIUS = 0;
@@ -214,6 +216,8 @@ export default function SettingsPanel() {
       <FlexSettings />
       <SpacingSettings />
       <TypographySettings />
+      <FillSettings />
+      <TransitionSettings />
       {isValueIn(selectedElement.name, ElementsName.Section) || <StrokeSettings />}
       <PageSettings />
     </SettingsContext.Provider>
@@ -793,9 +797,9 @@ function TypographySettings() {
             </ChangeElement>
           </div>
           <div>
-            <SubTitle>Fill</SubTitle>
+            <SubTitle>Color On Hover</SubTitle>
             <ChangeElement>
-              <ColorPicker name='backgroundColor' defaultValue={selectedElement.backgroundColor} />
+              <ColorPicker name='colorOnHover' defaultValue={selectedElement.colorOnHover} />
             </ChangeElement>
           </div>
         </GridContainer>
@@ -817,6 +821,65 @@ function TypographySettings() {
         )}
       </CollapsibleSection>
     </TypographyContainer>
+  );
+}
+
+function FillSettings() {
+  const { backgroundColor, backgroundColorOnHover } = useAppSelector((state) => state.editor.selectedElement);
+
+  return (
+    <div>
+      <CollapsibleSection title='Fill'>
+        <GridContainer>
+          <div>
+            <SubTitle>Background Color</SubTitle>
+            <ChangeElement>
+              <ColorPicker name='backgroundColor' defaultValue={backgroundColor} />
+            </ChangeElement>
+          </div>
+          <div>
+            <SubTitle>On Hover</SubTitle>
+            <ChangeElement>
+              <ColorPicker name='backgroundColorOnHover' defaultValue={backgroundColorOnHover} />
+            </ChangeElement>
+          </div>
+        </GridContainer>
+      </CollapsibleSection>
+    </div>
+  );
+}
+
+function TransitionSettings() {
+  const { transitionType, transitionDuration } = useAppSelector((state) => state.editor.selectedElement);
+
+  return (
+    <div>
+      <CollapsibleSection title='Transition'>
+        <GridContainer>
+          <div>
+            <SubTitle>Type</SubTitle>
+            <ChangeElement>
+              <Select
+                name='transitionType'
+                defaultSelect={transitionType || 'none'}
+                options={OPTIONS_TRANSITION_TYPE}
+              />
+            </ChangeElement>
+          </div>
+          <div>
+            <SubTitle>Duration</SubTitle>
+            <ChangeElement>
+              <Select
+                name='transitionDuration'
+                defaultSelect={transitionDuration || 0}
+                editable
+                options={OPTIONS_TRANSITION_DURATION}
+              />
+            </ChangeElement>
+          </div>
+        </GridContainer>
+      </CollapsibleSection>
+    </div>
   );
 }
 

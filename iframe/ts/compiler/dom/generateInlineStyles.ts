@@ -54,7 +54,9 @@ export const generateInlineStyles = ({
     justifyContent,
     flexDirection,
     borderWidth,
-    borderColor
+    borderColor,
+    transitionDuration,
+    transitionType
   } = responsiveProps;
   const shouldTransform =
     (isDefined(left) && isDefined(top)) || isDefined(rotate) || isDefined(scaleX) || isDefined(scaleY);
@@ -94,6 +96,14 @@ export const generateInlineStyles = ({
     if (value) {
       style[key] = value;
     }
+  }
+
+  if (transitionType) {
+    style.transitionTimingFunction = transitionType;
+  }
+
+  if (transitionDuration) {
+    style.transitionDuration = `${transitionDuration}s`;
   }
 
   if (shouldTransform) {

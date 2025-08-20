@@ -11,7 +11,7 @@ const DEFAULT_INPUT_AUTOCOMPLETE = 'off';
 const HTML_ELEMENT_ROLE_HEADING = 'heading';
 
 export const createDomTree = (element: PageElement) => {
-  const { id, content, tag, children, name } = element;
+  const { id, content, tag, children, name, color, colorOnHover, backgroundColorOnHover, backgroundColor } = element;
   const elementNode = document.createElement(tag);
   const isEditable = CONTENT_EDITABLE_ELEMENTS.has(tag);
   const isLinkElement = 'link' in element && elementNode instanceof HTMLAnchorElement;
@@ -24,8 +24,28 @@ export const createDomTree = (element: PageElement) => {
   elementNode.classList.add(SELECTOR_TARGET.replace('.', ''));
   Object.assign(elementNode.style, styles);
 
-  if (content) {
-    elementNode.textContent = content;
+  if (content) elementNode.textContent = content;
+
+  if (backgroundColor) {
+    elementNode.dataset.originalBg = backgroundColor;
+  }
+
+  if (backgroundColorOnHover) {
+    elementNode.dataset.backgroundColorOnHover = backgroundColorOnHover;
+
+    elementNode.setAttribute('onmouseover', `this.style.backgroundColor='${backgroundColorOnHover}'`);
+    elementNode.setAttribute('onmouseout', `this.style.backgroundColor='${backgroundColor}'`);
+  }
+
+  if (color) {
+    elementNode.dataset.originalColor = color;
+  }
+
+  if (colorOnHover) {
+    elementNode.dataset.colorOnHover = colorOnHover;
+
+    elementNode.setAttribute('onmouseover', `this.style.color='${colorOnHover}'`);
+    elementNode.setAttribute('onmouseout', `this.style.color='${color}'`);
   }
 
   if (isLinkElement && element.link) {

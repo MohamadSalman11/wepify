@@ -1,3 +1,5 @@
+import { EditorToIframe } from '@shared/constants';
+import iframeConnection from '@shared/iframeConnection';
 import type { PageElement } from '@shared/typing';
 import { useState } from 'react';
 import type { IconType } from 'react-icons';
@@ -11,11 +13,10 @@ import {
   LuSquare,
   LuTextCursorInput
 } from 'react-icons/lu';
-import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Icon from '../../../components/Icon';
-import { useIframeContext } from '../../../context/IframeContext';
 import { useAppSelector } from '../../../store';
+import { selectCurrentPageElementsTree } from '../editorSlice';
 
 /**
  * Constants
@@ -36,21 +37,18 @@ const ICON_MAP: Record<string, IconType> = {
  */
 
 export default function LayersPanel() {
-  const { pageId } = useParams();
-  const { site, selectedElement } = useAppSelector((state) => state.editor);
-  const page = site.pages.find((p) => p.id === pageId);
+  const selectedElementId = useAppSelector((state) => state.editor.currentElementId);
+  const childrenMap = useAppSelector(selectCurrentPageElementsTree);
+
+  const getChildren = (parentId: string) => childrenMap[parentId] || [];
+  const rootElements = getChildren('root');
 
   return (
     <>
       <Title>Layers</Title>
       <LayerList>
-        {page?.elements.map((element) => (
-          <LayerNode
-            key={element.id}
-            elements={page.elements}
-            element={element}
-            selectedElementId={selectedElement.id}
-          />
+        {rootElements.map((el) => (
+          <LayerNode key={el.id} element={el} getChildren={getChildren} selectedElementId={selectedElementId} />
         ))}
       </LayerList>
     </>
@@ -58,28 +56,28 @@ export default function LayersPanel() {
 }
 
 function LayerNode({
-  elements,
   element,
+  getChildren,
   nested = false,
   selectedElementId
 }: {
-  elements: PageElement[];
   element: PageElement;
+  getChildren: (parentId: string) => PageElement[];
   nested?: boolean;
   selectedElementId: string | null;
 }) {
   const [expanded, setExpanded] = useState(false);
-  const hasChildren = (element.children?.length ?? 0) > 0;
-  const { iframeConnection } = useIframeContext();
+
+  const children: PageElement[] = [];
+  for (const child of getChildren(element.id)) {
+    children.push(child);
+  }
+
+  const hasChildren = children.length > 0;
 
   const handleClick = () => {
-    if (!elements) return;
-
-    if (hasChildren) {
-      setExpanded((prev) => !prev);
-    }
-
-    iframeConnection.changeSelection(element.id);
+    if (hasChildren) setExpanded((prev) => !prev);
+    iframeConnection.send(EditorToIframe.SelectElement, element.id);
   };
 
   return (
@@ -94,11 +92,11 @@ function LayerNode({
 
       {hasChildren && expanded && (
         <NestedList>
-          {element.children?.map((child) => (
+          {children.map((child) => (
             <LayerNode
               key={child.id}
-              elements={elements}
               element={child}
+              getChildren={getChildren}
               nested
               selectedElementId={selectedElementId}
             />

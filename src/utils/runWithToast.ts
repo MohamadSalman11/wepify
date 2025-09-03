@@ -1,5 +1,6 @@
 import toast, { Renderable } from 'react-hot-toast';
 import { ToastMessages } from '../constant';
+import { AppToast } from './appToast';
 
 type RunWithToastProps<T> = {
   startMessage: string;
@@ -7,7 +8,7 @@ type RunWithToastProps<T> = {
   errorMessage?: string;
   icon?: Renderable;
   delay?: number;
-  onExecute: () => Promise<T>;
+  onExecute: () => void;
   onSuccess?: (result: T) => void;
   onFinally?: () => void;
 };
@@ -17,7 +18,7 @@ export const runWithToast = async <T>({
   successMessage,
   errorMessage = ToastMessages.error,
   icon,
-  delay = 0,
+  delay = 1000,
   onExecute,
   onSuccess,
   onFinally
@@ -30,16 +31,16 @@ export const runWithToast = async <T>({
   try {
     const result = await onExecute();
     setTimeout(() => {
-      toast.success(successMessage);
+      AppToast.success(successMessage);
       onSuccess?.(result);
     }, delay);
   } catch {
     setTimeout(() => {
-      toast.error(errorMessage);
+      AppToast.error(errorMessage);
     }, delay);
   } finally {
     setTimeout(() => {
-      toast.dismiss(toastId);
+      AppToast.dismiss(toastId);
       onFinally?.();
     }, delay);
   }

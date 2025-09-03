@@ -1,33 +1,8 @@
-import {
-  DEFAULT_BORDER_COLOR,
-  DEFAULT_BORDER_WIDTH,
-  ElementsName,
-  FONT_WEIGHT_VALUES,
-  OPTIONS_FONT,
-  SPACE_VALUES,
-  Tags
-} from '@shared/constants';
-import { resolveAlignment, reverseResolveAlignment } from '@shared/helpers';
-import type {
-  AlignmentName,
-  AlignmentValue,
-  DeviceType,
-  FlexDirectionOption,
-  GridElement,
-  InputElement,
-  LinkElement,
-  PageElement
-} from '@shared/typing';
-import { isValueIn } from '@shared/utils';
-import {
-  cloneElement,
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  type ChangeEvent,
-  type ReactElement
-} from 'react';
+import { resolveAlignment, reverseResolveAlignment } from '@compiler/utils/resolveAlignment';
+import { EditorToIframe, ElementsName } from '@shared/constants';
+import iframeConnection from '@shared/iframeConnection';
+import type { PageElement, PageElementAttrs, PageElementStyle } from '@shared/typing';
+import { cloneElement, createContext, useContext, type ReactElement } from 'react';
 import {
   LuAlignCenter,
   LuAlignEndHorizontal,
@@ -52,22 +27,25 @@ import {
   LuPanelTop,
   LuRotateCwSquare
 } from 'react-icons/lu';
-import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import AppTooltip from '../../../components/AppTooltip';
 import Input from '../../../components/form/Input';
 import Select from '../../../components/form/Select';
 import Icon from '../../../components/Icon';
-import { useIframeContext } from '../../../context/IframeContext';
 import { useAppSelector } from '../../../store';
-import { flattenElements } from '../../../utils/flattenElements';
-import { getResponsiveValue } from '../../../utils/getResponsiveValue';
 import CollapsibleSection from '../CollapsibleSection';
 import ColorPicker from '../ColorPicker';
+import { selectCurrentElement, selectCurrentPage, selectCurrentPageElements } from '../editorSlice';
+import { useStyle } from '../hooks/useStyle';
 
 /**
  * Constants
  */
+
+const DEFAULT_BORDER_RADIUS = 0;
+const DEFAULT_BORDER_COLOR = '#4a90e2';
+const DEFAULT_BORDER_WIDTH = 2;
+const REGEX_TRAILING_NUMBER_SPLIT = /-(\d+)$/;
 
 const OPTIONS_COLUMN = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const OPTIONS_COLUMN_WIDTH = ['auto', 50, 100, 150, 200, 250, 300];
@@ -76,12 +54,9 @@ const OPTIONS_ROW_GAP = OPTIONS_COLUMN_GAP;
 const OPTIONS_ROW_HEIGHT = OPTIONS_COLUMN_WIDTH;
 const OPTIONS_ROW = OPTIONS_COLUMN;
 const OPTIONS_SPACE = ['between', 'around', 'evenly', 'none'];
-const OPTIONS_TRANSITION_TYPE = ['none', 'ease', 'linear', 'ease-in', 'ease-out', 'ease-in-out'];
-const OPTIONS_TRANSITION_DURATION = [0, 0.2, 0.5, 1, 2];
 const OPTIONS_FONT_SIZE = ['Inherit', 10, 11, 12, 13, 14, 15, 16, 20, 24, 32, 36, 40, 48, 64, 96, 128];
 const OPTIONS_SIZE = ['fill', 'auto', 50, 100, 150, 250, 500];
-const DEFAULT_BORDER_RADIUS = 0;
-const REGEX_TRAILING_NUMBER_SPLIT = /-(\d+)$/;
+const OPTIONS_SPACE_VALUE = new Set(['between', 'around', 'evenly']);
 
 const OPTIONS_BORDER = [
   { side: 'Top', icon: LuPanelTop },
@@ -118,6 +93,30 @@ const OPTIONS_TEXT_ALIGN = [
   { value: 'justify', icon: LuAlignJustify }
 ];
 
+export const OPTIONS_FONT = [
+  'Inherit',
+  'Inter',
+  'JetBrains Mono',
+  'Fira Code',
+  'Lato',
+  'Lora',
+  'Merriweather',
+  'Montserrat',
+  'Nunito',
+  'Open Sans',
+  'Oswald',
+  'Pacifico',
+  'Playfair Display',
+  'Poppins',
+  'Raleway',
+  'Roboto Slab',
+  'Roboto',
+  'Rubik',
+  'Savate',
+  'Source Code Pro',
+  'Ubuntu'
+];
+
 const OPTIONS_INPUT_TYPE = [
   'button',
   'checkbox',
@@ -143,41 +142,32 @@ const OPTIONS_INPUT_TYPE = [
   'week'
 ];
 
-const NUMERIC_PROPS = new Set([
-  'paddingTop',
-  'paddingRight',
-  'paddingBottom',
-  'paddingLeft',
-  'marginTop',
-  'marginRight',
-  'marginBottom',
-  'marginLeft',
-  'borderWidth',
-  'borderRadius',
-  'rowGap',
-  'columnGap'
-]);
-
-/**
- * Context
- */
-
-const SettingsContext = createContext<SettingsContext | null>(null);
-
-const useSettingsContext = () => {
-  const context = useContext(SettingsContext);
-  if (!context) throw new Error('Settings panel components must be used within <SettingsPanel>');
-  return context;
+export const FONT_WEIGHT_VALUES = {
+  Inherit: 'inherit',
+  Thin: '100',
+  ExtraLight: '200',
+  Light: '300',
+  Regular: '400',
+  Medium: '500',
+  SemiBold: '600',
+  Bold: '700',
+  ExtraBold: '800',
+  Black: '900'
 };
 
 /**
  * Types
  */
 
-type BorderSide = 'Top' | 'Right' | 'Bottom' | 'Left';
-type HandleElementChange = (name: string, value: string | number, additionalChanges?: Partial<PageElement>) => void;
+export type AlignmentName = 'alignItems' | 'justifyContent';
+export type AlignmentValue = 'flex-start' | 'flex-end' | 'center';
+export type FlexDirectionOption = 'row' | 'column' | 'row-reverse' | 'column-reverse';
 
-interface SettingsContext {
+type StyleProp = keyof PageElementStyle;
+type BorderSide = 'Top' | 'Right' | 'Bottom' | 'Left';
+type HandleElementChange = (updates: Partial<PageElement>) => void;
+
+interface SettingsContextProps {
   handleElementChange: HandleElementChange;
 }
 
@@ -186,87 +176,55 @@ interface SettingsContext {
  */
 
 export default function SettingsPanel() {
-  const { iframeConnection } = useIframeContext();
-  const { selectedElement, deviceType } = useAppSelector((state) => state.editor);
-
-  const handleElementChange: HandleElementChange = (name, value, additionalChanges) => {
-    const updates = { [name]: value };
-
-    if (isValueIn(selectedElement.name, ElementsName.Grid)) {
-      Object.assign(updates, getSynchronizedGridUpdates(selectedElement as GridElement, name, deviceType));
-    } else {
-      Object.assign(updates, getSynchronizedFlex(selectedElement, name, value, deviceType));
-    }
-
-    Object.assign(updates, getSynchronizedTransform(selectedElement, name, deviceType));
-    Object.assign(updates, getSynchronizedBorder(selectedElement, name));
-    Object.assign(updates, additionalChanges);
-
-    iframeConnection.updateElement(updates);
-  };
+  const selectedElement = useAppSelector(selectCurrentElement);
 
   return (
     <SettingsContext.Provider value={{ handleElementChange }}>
       <SelectorSettings />
       <AlignmentSettings />
       <SizeSettings />
-      {!isValueIn(selectedElement.name, ElementsName.Grid) || <GridSettings />}
-      {isValueIn(selectedElement.name, ElementsName.Link) && <LinkSettings />}
-      {isValueIn(selectedElement.name, ElementsName.Input) && <InputSettings />}
+      <GridSettings />
+      <LinkSettings />
+      <InputSettings />
       <FlexSettings />
       <SpacingSettings />
       <TypographySettings />
       <FillSettings />
-      <TransitionSettings />
-      {isValueIn(selectedElement.name, ElementsName.Section) || <StrokeSettings />}
+      <StrokeSettings />
       <PageSettings />
     </SettingsContext.Provider>
   );
 }
 
-function ChangeElement({
+function PropertyEditor({
   children,
-  minValue,
-  handler
+  styleName,
+  attrName
 }: {
-  children: ReactElement<{
-    onChange?: (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
-  }>;
-  minValue?: number;
-  handler?: (value: string | number) => void;
+  children: ReactElement<typeof Input | typeof Select>;
+  styleName?: StyleProp;
+  attrName?: keyof NonNullable<PageElementAttrs>;
 }) {
   const { handleElementChange } = useSettingsContext();
 
   return cloneElement(children, {
-    onChange: (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      const propName = event.target.name;
-      const isNumber = NUMERIC_PROPS.has(propName);
-      const rawValue = event.target.value;
-      let value: string | number = rawValue;
-
-      handler?.(value);
-
-      if (rawValue === '' && propName !== ElementsName.Link) return;
-
-      if (isNumber) {
-        const parsed = Number(rawValue);
-        if (Number.isNaN(parsed)) return;
-        if (minValue !== undefined && parsed < minValue) return;
-        value = parsed;
+    onChange: (event: any) => {
+      if (styleName) {
+        handleElementChange({ style: { [styleName]: event.target.value } });
       }
 
-      handleElementChange(propName, value);
+      if (attrName) {
+        handleElementChange({ attrs: { [attrName]: event.target.value } });
+      }
     }
   });
 }
 
 function SelectorSettings() {
-  const { pageId } = useParams();
-  const { site, selectedElement } = useAppSelector((state) => state.editor);
-  const page = site.pages.find((p) => p.id === pageId);
-  const { iframeConnection } = useIframeContext();
+  const selectedElement = useAppSelector(selectCurrentElement);
+  const elements = useAppSelector(selectCurrentPageElements);
 
-  const sortedElementIds = flattenElements(page?.elements || [])
+  const sortedElementIds = elements
     .map((el) => el.id)
     .sort((a, b) => {
       const [aBase, aNum] = a.split(REGEX_TRAILING_NUMBER_SPLIT);
@@ -275,10 +233,6 @@ function SelectorSettings() {
       if (aBase !== bBase) return aBase.localeCompare(bBase);
       return Number(aNum) - Number(bNum);
     });
-
-  const handleSelection = (id: string) => {
-    iframeConnection.changeSelection(id);
-  };
 
   return (
     <div>
@@ -289,7 +243,7 @@ function SelectorSettings() {
             name='selector'
             options={sortedElementIds}
             defaultSelect={selectedElement.id}
-            onChange={(event) => handleSelection(event.target.value as string)}
+            onChange={(event) => iframeConnection.send(EditorToIframe.SelectElement, event.target.value)}
           />
         </SelectorContainer>
       </CollapsibleSection>
@@ -298,44 +252,29 @@ function SelectorSettings() {
 }
 
 function SizeSettings() {
+  const style = useStyle();
   const { handleElementChange } = useSettingsContext();
-  const { selectedElement, deviceType } = useAppSelector((state) => state.editor);
-  const disableInput = isValueIn(selectedElement.name, ElementsName.Item, ElementsName.Section);
-  const leftValue = parseNumber(getResponsiveValue(selectedElement.left, deviceType)) ?? 0;
-  const topValue = parseNumber(getResponsiveValue(selectedElement.top, deviceType)) ?? 0;
-  const rotateValue = parseNumber(getResponsiveValue(selectedElement.rotate, deviceType)) ?? 0;
-  const [left, setLeft] = useState(leftValue);
-  const [top, setTop] = useState(topValue);
-  const [rotate, setRotate] = useState(topValue);
-
-  useEffect(() => {
-    setLeft(leftValue);
-    setTop(topValue);
-    setRotate(rotateValue);
-  }, [leftValue, topValue, rotateValue]);
+  const { name } = useAppSelector(selectCurrentElement);
+  const disableInput = [ElementsName.Item, ElementsName.Section].includes(name);
 
   const handleRotate = () => {
-    const current = getResponsiveValue(selectedElement.rotate, deviceType) ?? 0;
+    const current = style.rotate ?? 0;
     let newRotate = current - 90;
     if (newRotate <= -180) newRotate = 180;
-    handleElementChange('rotate', newRotate, { scaleX: 1, scaleY: 1 });
+    handleElementChange('rotate', newRotate);
   };
 
   const handleFlipHorizontal = () => {
-    const currentScaleX = selectedElement.scaleX ?? 1;
+    const currentScaleX = style.scaleX ?? 1;
     const newScaleX = currentScaleX === 1 ? -1 : 1;
     handleElementChange('scaleX', newScaleX);
   };
 
   const handleFlipVertical = () => {
-    const currentScaleY = selectedElement.scaleY ?? 1;
+    const currentScaleY = style.scaleY ?? 1;
     const newScaleY = currentScaleY === 1 ? -1 : 1;
     handleElementChange('scaleY', newScaleY);
   };
-
-  if (isValueIn(selectedElement.name, ElementsName.Item)) {
-    return null;
-  }
 
   return (
     <div>
@@ -343,66 +282,46 @@ function SizeSettings() {
         <GridContainer>
           <SizeRow $disabled={disableInput}>
             <label htmlFor='settings-panel-input-left'>X</label>
-            <ChangeElement handler={setLeft}>
-              <Input
-                id='settings-panel-input-left'
-                name='left'
-                disabled={disableInput}
-                type='number'
-                value={disableInput ? '' : left}
-              />
-            </ChangeElement>
+            <PropertyEditor styleName='left'>
+              <Input id='settings-panel-input-left' disabled={disableInput} type='number' value={style.left ?? 0} />
+            </PropertyEditor>
           </SizeRow>
           <SizeRow $disabled={disableInput}>
             <label htmlFor='settings-panel-input-top'>Y</label>
-            <ChangeElement handler={setTop}>
-              <Input
-                id='settings-panel-input-top'
-                name='top'
-                disabled={disableInput}
-                type='number'
-                value={disableInput ? '' : top}
-              />
-            </ChangeElement>
+            <PropertyEditor styleName='top'>
+              <Input id='settings-panel-input-top' disabled={disableInput} type='number' value={style.top ?? 0} />
+            </PropertyEditor>
           </SizeRow>
           <SizeRow $disabled={disableInput}>
             <label htmlFor='settings-panel-input-width'>W</label>
-            <ChangeElement>
+            <PropertyEditor styleName='width'>
               <Select
                 id='settings-panel-input-width'
-                name='width'
                 editable
                 editInputType='text'
                 options={OPTIONS_SIZE}
                 disabled={disableInput}
-                defaultSelect={disableInput ? '' : parseNumber(getResponsiveValue(selectedElement.width, deviceType))}
+                defaultSelect={style.width}
               />
-            </ChangeElement>
+            </PropertyEditor>
           </SizeRow>
           <SizeRow>
             <label htmlFor='settings-panel-input-height'>H</label>
-            <ChangeElement>
+            <PropertyEditor styleName='height'>
               <Select
                 id='settings-panel-input-height'
-                name='height'
                 editable
                 editInputType='text'
-                options={OPTIONS_SIZE}
-                defaultSelect={parseNumber(getResponsiveValue(selectedElement.height, deviceType))}
+                options={['screen', ...OPTIONS_SIZE]}
+                defaultSelect={style.height}
               />
-            </ChangeElement>
+            </PropertyEditor>
           </SizeRow>
           <SizeRow $disabled={disableInput}>
             <label htmlFor='settings-panel-input-rotate'>R</label>
-            <ChangeElement handler={setRotate}>
-              <Input
-                id='settings-panel-input-rotate'
-                name='rotate'
-                type='number'
-                disabled={disableInput}
-                value={disableInput ? '' : rotate}
-              />
-            </ChangeElement>
+            <PropertyEditor styleName='rotate'>
+              <Input id='settings-panel-input-rotate' type='number' disabled={disableInput} value={style.rotate ?? 0} />
+            </PropertyEditor>
           </SizeRow>
           <RotationContainer>
             <AppTooltip label='Rotate -90°' side='top' sideOffset={5} sizeSmall>
@@ -422,11 +341,11 @@ function SizeSettings() {
 }
 
 function AlignmentSettings() {
-  const { selectedElement, deviceType } = useAppSelector((state) => state.editor);
+  const style = useStyle();
   const { handleElementChange } = useSettingsContext();
-  const justifyContent = getResponsiveValue(selectedElement.justifyContent, deviceType) || 'flex-start';
-  const alignItems = getResponsiveValue(selectedElement.alignItems, deviceType) || 'flex-start';
-  const flexDirection = getResponsiveValue(selectedElement.flexDirection, deviceType) || 'column';
+  const justifyContent = style.justifyContent || 'flex-start';
+  const alignItems = style.alignItems || 'flex-start';
+  const flexDirection = style.flexDirection || 'column';
 
   const [resolvedJustifyName, resolvedJustifyValue] = reverseResolveAlignment(
     'justifyContent',
@@ -440,21 +359,6 @@ function AlignmentSettings() {
     flexDirection
   );
 
-  if (
-    isValueIn(
-      selectedElement.name,
-      ElementsName.Grid,
-      ElementsName.Heading,
-      ElementsName.Text,
-      ElementsName.Link,
-      ElementsName.Image,
-      ElementsName.Input
-    ) ||
-    selectedElement.tag === Tags.Li.toLocaleLowerCase()
-  ) {
-    return null;
-  }
-
   return (
     <div>
       <CollapsibleSection title='Alignment' open>
@@ -464,10 +368,13 @@ function AlignmentSettings() {
               (targetName === resolvedJustifyName && targetValue === resolvedJustifyValue) ||
               (targetName === resolvedAlignName && targetValue === resolvedAlignValue);
 
-            const handleClick = () =>
-              handleElementChange(
-                ...resolveAlignment(targetName as AlignmentName, targetValue as AlignmentValue, flexDirection)
-              );
+            const [alignmentName, alignmentValue] = resolveAlignment(
+              targetName as AlignmentName,
+              targetValue as AlignmentValue,
+              flexDirection
+            );
+
+            const handleClick = () => handleElementChange({ style: { [alignmentName]: alignmentValue } });
 
             return (
               <AppTooltip key={targetName + targetValue} label={label} side='top' sideOffset={5} sizeSmall>
@@ -482,35 +389,15 @@ function AlignmentSettings() {
 }
 
 function FlexSettings() {
-  const { selectedElement, deviceType } = useAppSelector((state) => state.editor);
+  const style = useStyle();
   const { handleElementChange } = useSettingsContext();
-  const rowGap = getResponsiveValue(selectedElement.rowGap, deviceType) ?? 0;
-  const columnGap = getResponsiveValue(selectedElement.columnGap, deviceType) ?? 0;
-  const justifyContent = getResponsiveValue(selectedElement.justifyContent, deviceType);
+  const { justifyContent, columnGap, rowGap, flexDirection } = style;
   const jcValue = justifyContent?.replace(/^space-/, '') || '';
-  const space = SPACE_VALUES.includes(jcValue) ? jcValue : 'none';
-
-  const selectedDisplay: FlexDirectionOption =
-    getResponsiveValue(selectedElement.flexDirection, deviceType) || 'column';
+  const space = OPTIONS_SPACE_VALUE.has(jcValue) ? jcValue : 'none';
 
   const handleSelect = (value: FlexDirectionOption) => {
-    handleElementChange('flexDirection', value);
+    handleElementChange({ style: { flexDirection: value } });
   };
-
-  if (
-    isValueIn(
-      selectedElement.name,
-      ElementsName.Grid,
-      ElementsName.Heading,
-      ElementsName.Text,
-      ElementsName.Link,
-      ElementsName.Input,
-      ElementsName.Image
-    ) ||
-    selectedElement.tag === Tags.Li.toLocaleLowerCase()
-  ) {
-    return null;
-  }
 
   return (
     <div>
@@ -518,21 +405,21 @@ function FlexSettings() {
         <GridContainer>
           <div>
             <SubTitle>Gap X</SubTitle>
-            <ChangeElement>
-              <Select name='columnGap' editable defaultSelect={columnGap} options={OPTIONS_COLUMN_GAP} />
-            </ChangeElement>
+            <PropertyEditor styleName='columnGap'>
+              <Select editable defaultSelect={columnGap || 0} options={OPTIONS_COLUMN_GAP} />
+            </PropertyEditor>
           </div>
           <div>
             <SubTitle>Gap Y</SubTitle>
-            <ChangeElement>
-              <Select name='rowGap' editable defaultSelect={rowGap} options={OPTIONS_ROW_GAP} />
-            </ChangeElement>
+            <PropertyEditor styleName='rowGap'>
+              <Select editable defaultSelect={rowGap || 0} options={OPTIONS_ROW_GAP} />
+            </PropertyEditor>
           </div>
           <div>
             <SubTitle>Space</SubTitle>
-            <ChangeElement>
-              <Select name='justifyContent' defaultSelect={space} options={OPTIONS_SPACE} />
-            </ChangeElement>
+            <PropertyEditor styleName='justifyContent'>
+              <Select defaultSelect={space} options={OPTIONS_SPACE} />
+            </PropertyEditor>
           </div>
           <div>
             <SubTitle>Direction</SubTitle>
@@ -540,7 +427,7 @@ function FlexSettings() {
               {OPTIONS_FLEX_DIRECTION.map(({ value, icon }) => (
                 <AppTooltip key={value} label={value} side='top' sideOffset={5} sizeSmall>
                   <DisplayOptionButton
-                    $active={selectedDisplay === value}
+                    $active={(flexDirection || 'column') === value}
                     onClick={() => handleSelect(value as FlexDirectionOption)}
                   >
                     <Icon icon={icon} size='md' />
@@ -556,69 +443,55 @@ function FlexSettings() {
 }
 
 function SpacingSettings() {
-  const { selectedElement, deviceType } = useAppSelector((state) => state.editor);
-  const {
-    name,
-    marginTop,
-    marginRight,
-    marginBottom,
-    marginLeft,
-    paddingTop,
-    paddingRight,
-    paddingBottom,
-    paddingLeft
-  } = selectedElement;
-
-  if (isValueIn(name, ElementsName.Image)) {
-    return null;
-  }
+  const { marginTop, marginRight, marginBottom, marginLeft, paddingTop, paddingRight, paddingBottom, paddingLeft } =
+    useStyle();
 
   return (
     <div>
       <CollapsibleSection title='Spacing'>
         <SpacingBox>
           <div>
-            <ChangeElement>
-              <input name='marginTop' type='number' value={getResponsiveValue(marginTop, deviceType) ?? 0} />
-            </ChangeElement>
+            <PropertyEditor styleName='marginTop'>
+              <input type='number' value={marginTop ?? 0} />
+            </PropertyEditor>
           </div>
           <PaddingBox>
             <div>
-              <ChangeElement>
-                <input name='paddingTop' type='number' value={getResponsiveValue(paddingTop, deviceType) ?? 0} />
-              </ChangeElement>
+              <PropertyEditor styleName='paddingTop'>
+                <input type='number' value={paddingTop ?? 0} />
+              </PropertyEditor>
             </div>
-            <div></div>
+            <div>&nbsp;</div>
             <div>
-              <ChangeElement>
-                <input name='paddingLeft' type='number' value={getResponsiveValue(paddingLeft, deviceType) ?? 0} />
-              </ChangeElement>
-            </div>
-            <div>
-              <ChangeElement>
-                <input name='paddingRight' type='number' value={getResponsiveValue(paddingRight, deviceType) ?? 0} />
-              </ChangeElement>
+              <PropertyEditor styleName='paddingLeft'>
+                <input type='number' value={paddingLeft ?? 0} />
+              </PropertyEditor>
             </div>
             <div>
-              <ChangeElement>
-                <input name='paddingBottom' type='number' value={getResponsiveValue(paddingBottom, deviceType) ?? 0} />
-              </ChangeElement>
+              <PropertyEditor styleName='paddingRight'>
+                <input type='number' value={paddingRight ?? 0} />
+              </PropertyEditor>
+            </div>
+            <div>
+              <PropertyEditor styleName='paddingBottom'>
+                <input type='number' value={paddingBottom ?? 0} />
+              </PropertyEditor>
             </div>
           </PaddingBox>
           <div>
-            <ChangeElement>
-              <input name='marginLeft' type='number' value={getResponsiveValue(marginLeft, deviceType) ?? 0} />
-            </ChangeElement>
+            <PropertyEditor styleName='marginLeft'>
+              <input type='number' value={marginLeft ?? 0} />
+            </PropertyEditor>
           </div>
           <div>
-            <ChangeElement>
-              <input name='marginRight' type='number' value={getResponsiveValue(marginRight, deviceType) ?? 0} />
-            </ChangeElement>
+            <PropertyEditor styleName='marginRight'>
+              <input type='number' value={marginRight ?? 0} />
+            </PropertyEditor>
           </div>
           <div>
-            <ChangeElement>
-              <input name='marginBottom' type='number' value={getResponsiveValue(marginBottom, deviceType) ?? 0} />
-            </ChangeElement>
+            <PropertyEditor styleName='marginBottom'>
+              <input type='number' value={marginBottom ?? 0} />
+            </PropertyEditor>
           </div>
         </SpacingBox>
       </CollapsibleSection>
@@ -627,8 +500,7 @@ function SpacingSettings() {
 }
 
 function GridSettings() {
-  const { selectedElement, deviceType } = useAppSelector((state) => state.editor);
-  const { columns, rows, columnWidth, rowHeight, columnGap, rowGap } = selectedElement as GridElement;
+  const { columns, rows, columnWidth, rowHeight, columnGap, rowGap } = useStyle();
 
   return (
     <div>
@@ -636,68 +508,39 @@ function GridSettings() {
         <GridContainer>
           <div>
             <SubTitle>Columns</SubTitle>
-            <ChangeElement>
-              <Select
-                name='columns'
-                editable
-                defaultSelect={getResponsiveValue(columns, deviceType)}
-                options={OPTIONS_COLUMN}
-              />
-            </ChangeElement>
+            <PropertyEditor styleName='columns'>
+              <Select editable defaultSelect={columns} options={OPTIONS_COLUMN} />
+            </PropertyEditor>
           </div>
           <div>
             <SubTitle>Rows</SubTitle>
-            <ChangeElement>
-              <Select name='rows' editable defaultSelect={getResponsiveValue(rows, deviceType)} options={OPTIONS_ROW} />
-            </ChangeElement>
+            <PropertyEditor styleName='rows'>
+              <Select editable defaultSelect={rows} options={OPTIONS_ROW} />
+            </PropertyEditor>
           </div>
           <div>
             <SubTitle>Width</SubTitle>
-            <ChangeElement>
-              <Select
-                name='columnWidth'
-                editable
-                editInputType='text'
-                defaultSelect={getResponsiveValue(columnWidth, deviceType)}
-                options={OPTIONS_COLUMN_WIDTH}
-              />
-            </ChangeElement>
+            <PropertyEditor styleName='columnWidth'>
+              <Select editable editInputType='text' defaultSelect={columnWidth} options={OPTIONS_COLUMN_WIDTH} />
+            </PropertyEditor>
           </div>
           <div>
             <SubTitle>Height</SubTitle>
-            <ChangeElement>
-              <Select
-                name='rowHeight'
-                editable
-                editInputType='text'
-                defaultSelect={getResponsiveValue(rowHeight, deviceType)}
-                options={OPTIONS_ROW_HEIGHT}
-              />
-            </ChangeElement>
+            <PropertyEditor styleName='rowHeight'>
+              <Select editable editInputType='text' defaultSelect={rowHeight} options={OPTIONS_ROW_HEIGHT} />
+            </PropertyEditor>
           </div>
           <div>
             <SubTitle>Gap X</SubTitle>
-            <ChangeElement>
-              <Select
-                name='columnGap'
-                editable
-                editInputType='text'
-                defaultSelect={getResponsiveValue(columnGap, deviceType)}
-                options={OPTIONS_COLUMN_GAP}
-              />
-            </ChangeElement>
+            <PropertyEditor styleName='columnGap'>
+              <Select editable editInputType='text' defaultSelect={columnGap} options={OPTIONS_COLUMN_GAP} />
+            </PropertyEditor>
           </div>
           <div>
             <SubTitle>Gap Y</SubTitle>
-            <ChangeElement>
-              <Select
-                name='rowGap'
-                editable
-                editInputType='text'
-                defaultSelect={getResponsiveValue(rowGap, deviceType)}
-                options={OPTIONS_ROW_GAP}
-              />
-            </ChangeElement>
+            <PropertyEditor styleName='rowGap'>
+              <Select editable editInputType='text' defaultSelect={rowGap} options={OPTIONS_ROW_GAP} />
+            </PropertyEditor>
           </div>
         </GridContainer>
       </CollapsibleSection>
@@ -706,15 +549,15 @@ function GridSettings() {
 }
 
 function LinkSettings() {
-  const selectedElement = useAppSelector((state) => state.editor.selectedElement) as LinkElement;
+  const href = useAppSelector(selectCurrentElement).attrs?.href;
 
   return (
     <div>
       <CollapsibleSection title='Link' open>
         <div>
-          <ChangeElement>
-            <Input name='link' type='text' value={selectedElement.link} placeholder='https://example.com' />
-          </ChangeElement>
+          <PropertyEditor attrName='href'>
+            <Input type='text' value={href || ''} placeholder='https://example.com' />
+          </PropertyEditor>
         </div>
       </CollapsibleSection>
     </div>
@@ -722,7 +565,7 @@ function LinkSettings() {
 }
 
 function InputSettings() {
-  const { type, placeholder } = useAppSelector((state) => state.editor.selectedElement) as InputElement;
+  const attrs = useAppSelector(selectCurrentElement).attrs;
 
   return (
     <div>
@@ -730,15 +573,15 @@ function InputSettings() {
         <GridContainer>
           <div>
             <SubTitle>Placeholder</SubTitle>
-            <ChangeElement>
-              <Input name='placeholder' type='text' defaultValue={placeholder} placeholder='E-Mail' />
-            </ChangeElement>
+            <PropertyEditor attrName='placeholder'>
+              <Input type='text' defaultValue={attrs?.placeholder || ''} placeholder='E-Mail' />
+            </PropertyEditor>
           </div>
           <div>
             <SubTitle>Type</SubTitle>
-            <ChangeElement>
-              <Select name='type' editInputType='text' defaultSelect={type} options={OPTIONS_INPUT_TYPE} />
-            </ChangeElement>
+            <PropertyEditor attrName='type'>
+              <Select editInputType='text' defaultSelect={attrs?.type || ''} options={OPTIONS_INPUT_TYPE} />
+            </PropertyEditor>
           </div>
         </GridContainer>
       </CollapsibleSection>
@@ -747,62 +590,40 @@ function InputSettings() {
 }
 
 function TypographySettings() {
-  const { selectedElement, deviceType } = useAppSelector((state) => state.editor);
+  const name = useAppSelector(selectCurrentElement).name;
   const { handleElementChange } = useSettingsContext();
-  const textAlign = getResponsiveValue(selectedElement.textAlign, deviceType);
-  const showTextAlign = isValueIn(selectedElement.name, 'heading', 'text', 'link', 'input');
-
-  if (isValueIn(selectedElement.name, ElementsName.Image)) {
-    return null;
-  }
+  const { textAlign, fontFamily, fontWeight, fontSize, color } = useStyle();
+  const showTextAlign = [ElementsName.Heading, ElementsName.Text, ElementsName.Link, ElementsName.Input].includes(name);
 
   return (
     <TypographyContainer>
       <CollapsibleSection title='Typography'>
         <div>
           <SubTitle>Font Family</SubTitle>
-          <ChangeElement>
-            <Select name='fontFamily' defaultSelect={selectedElement.fontFamily} options={OPTIONS_FONT} />
-          </ChangeElement>
+          <PropertyEditor styleName='fontFamily'>
+            <Select defaultSelect={fontFamily ?? ''} options={OPTIONS_FONT} />
+          </PropertyEditor>
         </div>
         <GridContainer>
           <div>
             <SubTitle>Weight</SubTitle>
-            <ChangeElement>
-              <Select
-                name='fontWeight'
-                defaultSelect={selectedElement.fontWeight}
-                options={Object.keys(FONT_WEIGHT_VALUES)}
-              />
-            </ChangeElement>
+            <PropertyEditor styleName='fontWeight'>
+              <Select defaultSelect={fontWeight ?? ''} options={Object.keys(FONT_WEIGHT_VALUES)} />
+            </PropertyEditor>
           </div>
           <div>
             <SubTitle>Font Size</SubTitle>
-            <ChangeElement>
-              <Select
-                name='fontSize'
-                editable
-                editInputType='text'
-                defaultSelect={getResponsiveValue(selectedElement.fontSize, deviceType)}
-                options={OPTIONS_FONT_SIZE}
-              />
-            </ChangeElement>
+            <PropertyEditor styleName='fontSize'>
+              <Select editable editInputType='text' defaultSelect={fontSize ?? ''} options={OPTIONS_FONT_SIZE} />
+            </PropertyEditor>
           </div>
         </GridContainer>
-        <GridContainer>
-          <div>
-            <SubTitle>Color</SubTitle>
-            <ChangeElement>
-              <ColorPicker name='color' defaultValue={selectedElement.color} />
-            </ChangeElement>
-          </div>
-          <div>
-            <SubTitle>Color On Hover</SubTitle>
-            <ChangeElement>
-              <ColorPicker name='colorOnHover' defaultValue={selectedElement.colorOnHover} />
-            </ChangeElement>
-          </div>
-        </GridContainer>
+        <div>
+          <SubTitle>Color</SubTitle>
+          <PropertyEditor styleName='color'>
+            <ColorPicker defaultValue={color ?? ''} />
+          </PropertyEditor>
+        </div>
         {showTextAlign && (
           <div>
             <SubTitle>Text Align</SubTitle>
@@ -811,8 +632,8 @@ function TypographySettings() {
                 <AppTooltip key={value} label={value} side='top' sideOffset={5} sizeSmall>
                   <Icon
                     icon={icon}
-                    isSelected={textAlign === value}
-                    onClick={() => handleElementChange('textAlign', value)}
+                    isSelected={(textAlign || 'left') === value}
+                    onClick={() => handleElementChange({ style: { textAlign: value } })}
                   />
                 </AppTooltip>
               ))}
@@ -825,59 +646,17 @@ function TypographySettings() {
 }
 
 function FillSettings() {
-  const { backgroundColor, backgroundColorOnHover } = useAppSelector((state) => state.editor.selectedElement);
+  const style = useStyle();
 
   return (
     <div>
       <CollapsibleSection title='Fill'>
-        <GridContainer>
-          <div>
-            <SubTitle>Background Color</SubTitle>
-            <ChangeElement>
-              <ColorPicker name='backgroundColor' defaultValue={backgroundColor} />
-            </ChangeElement>
-          </div>
-          <div>
-            <SubTitle>On Hover</SubTitle>
-            <ChangeElement>
-              <ColorPicker name='backgroundColorOnHover' defaultValue={backgroundColorOnHover} />
-            </ChangeElement>
-          </div>
-        </GridContainer>
-      </CollapsibleSection>
-    </div>
-  );
-}
-
-function TransitionSettings() {
-  const { transitionType, transitionDuration } = useAppSelector((state) => state.editor.selectedElement);
-
-  return (
-    <div>
-      <CollapsibleSection title='Transition'>
-        <GridContainer>
-          <div>
-            <SubTitle>Type</SubTitle>
-            <ChangeElement>
-              <Select
-                name='transitionType'
-                defaultSelect={transitionType || 'none'}
-                options={OPTIONS_TRANSITION_TYPE}
-              />
-            </ChangeElement>
-          </div>
-          <div>
-            <SubTitle>Duration</SubTitle>
-            <ChangeElement>
-              <Select
-                name='transitionDuration'
-                defaultSelect={transitionDuration || 0}
-                editable
-                options={OPTIONS_TRANSITION_DURATION}
-              />
-            </ChangeElement>
-          </div>
-        </GridContainer>
+        <div>
+          <SubTitle>Background Color</SubTitle>
+          <PropertyEditor styleName='backgroundColor'>
+            <ColorPicker defaultValue={style.backgroundColor} />
+          </PropertyEditor>
+        </div>
       </CollapsibleSection>
     </div>
   );
@@ -892,7 +671,7 @@ function StrokeSettings() {
     borderRadius = DEFAULT_BORDER_RADIUS,
     borderColor = DEFAULT_BORDER_COLOR,
     borderWidth = DEFAULT_BORDER_WIDTH
-  } = useAppSelector((state) => state.editor.selectedElement);
+  } = useStyle();
   const { handleElementChange } = useSettingsContext();
 
   const borders = { borderTop, borderRight, borderBottom, borderLeft };
@@ -902,9 +681,9 @@ function StrokeSettings() {
     const currentBorderValue = borders[border as keyof typeof borders];
 
     if (currentBorderValue?.includes('none') || !currentBorderValue) {
-      handleElementChange(border, value);
+      handleElementChange({ style: { [border]: value } });
     } else {
-      handleElementChange(border, 'none');
+      handleElementChange({ style: { [border]: 'none' } });
     }
   };
 
@@ -913,21 +692,21 @@ function StrokeSettings() {
       <CollapsibleSection title='Stroke'>
         <GridContainer>
           <div>
-            <ChangeElement>
-              <ColorPicker name='borderColor' defaultValue={borderColor} />
-            </ChangeElement>
+            <PropertyEditor styleName='borderColor'>
+              <ColorPicker defaultValue={borderColor} />
+            </PropertyEditor>
           </div>
           <StrokeWidthContainer>
             <StrokeLabel>width</StrokeLabel>
-            <ChangeElement minValue={0}>
-              <Input name='borderWidth' type='number' defaultValue={borderWidth} />
-            </ChangeElement>
+            <PropertyEditor styleName='borderWidth'>
+              <Input type='number' defaultValue={borderWidth} />
+            </PropertyEditor>
           </StrokeWidthContainer>
           <StrokeWidthContainer>
             <StrokeLabel>radius</StrokeLabel>
-            <ChangeElement minValue={0}>
-              <Input name='borderRadius' type='number' defaultValue={borderRadius} />
-            </ChangeElement>
+            <PropertyEditor styleName='borderRadius'>
+              <Input type='number' defaultValue={borderRadius} />
+            </PropertyEditor>
           </StrokeWidthContainer>
           <StrokePosition>
             {OPTIONS_BORDER.map(({ side, icon }) => {
@@ -952,8 +731,7 @@ function StrokeSettings() {
 }
 
 function PageSettings() {
-  const { iframeConnection } = useIframeContext();
-  const backgroundColor = useAppSelector((state) => state.page.backgroundColor);
+  const backgroundColor = useAppSelector(selectCurrentPage).backgroundColor;
 
   return (
     <div>
@@ -962,10 +740,9 @@ function PageSettings() {
         <div>
           <div>
             <ColorPicker
-              name='pageBackground'
               defaultValue={backgroundColor}
               onChange={(event) => {
-                iframeConnection.updatePage({ backgroundColor: event.target.value });
+                iframeConnection.send(EditorToIframe.UpdatePage, { backgroundColor: event.target.value as string });
               }}
             />
           </div>
@@ -975,111 +752,20 @@ function PageSettings() {
   );
 }
 
-const parseNumber = (value: number | string | undefined) => {
-  if (!value || typeof value === 'string') return value;
-
-  return Number(value.toFixed(0));
+const handleElementChange: HandleElementChange = (updates) => {
+  iframeConnection.send(EditorToIframe.UpdateElement, updates);
 };
 
-const getSynchronizedGridUpdates = (selectedElement: GridElement, propName: string, deviceType: DeviceType) => {
-  const updates = {} as any;
-  const { rows, columns, rowHeight, columnWidth } = selectedElement;
+const SettingsContext = createContext<SettingsContextProps | null>(null);
 
-  if (isValueIn(propName, 'columnWidth')) {
-    updates.columns = columns[deviceType];
+const useSettingsContext = () => {
+  const context = useContext(SettingsContext);
+
+  if (!context) {
+    throw new Error('Settings panel components must be used within <SettingsPanel>');
   }
 
-  if (isValueIn(propName, 'columns')) {
-    updates.columnWidth = columnWidth[deviceType];
-  }
-
-  if (isValueIn(propName, 'rowHeight')) {
-    updates.rows = rows[deviceType];
-  }
-
-  if (isValueIn(propName, 'rows')) {
-    updates.rowHeight = rowHeight[deviceType];
-  }
-
-  return updates;
-};
-
-const getSynchronizedTransform = (selectedElement: PageElement, propName: string, deviceType: DeviceType) => {
-  const { left, top, rotate, scaleX, scaleY } = selectedElement;
-
-  const values = {
-    left: left?.[deviceType] ?? 0,
-    top: top?.[deviceType] ?? 0,
-    rotate: rotate?.[deviceType] ?? 0,
-    scaleX: scaleX ?? 1,
-    scaleY: scaleY ?? 1
-  };
-
-  return Object.fromEntries(Object.entries(values).filter(([key]) => !isValueIn(propName, key)));
-};
-
-const getSynchronizedFlex = (
-  selectedElement: PageElement,
-  propName: string,
-  value: string | number,
-  deviceType: DeviceType
-) => {
-  const updates: any = {};
-  const { flexDirection, justifyContent, alignItems } = selectedElement;
-
-  if (isValueIn(propName, 'justifyContent', 'alignItems', 'columnGap', 'rowGap')) {
-    updates.display = 'flex';
-    updates.flexDirection = flexDirection?.[deviceType] ?? 'column';
-  }
-
-  if (isValueIn(propName, 'justifyContent') && value === 'none') {
-    updates.justifyContent = 'center';
-  }
-
-  if (isValueIn(propName, 'flexDirection')) {
-    const currentFlexDirection = getResponsiveValue(flexDirection, deviceType);
-    const newFlexDirection = value as FlexDirectionOption;
-    const currentAlignItems = getResponsiveValue(alignItems, deviceType) || 'flex-start';
-    const currentJustifyContent = getResponsiveValue(justifyContent, deviceType) || 'flex-start';
-
-    const [resolvedAlignName, resolvedAlignValue] = resolveAlignment(
-      ...reverseResolveAlignment('alignItems', currentAlignItems as AlignmentValue, currentFlexDirection),
-      newFlexDirection
-    );
-
-    const [resolvedJustifyName, resolvedJustifyValue] = resolveAlignment(
-      ...reverseResolveAlignment('justifyContent', currentJustifyContent as AlignmentValue, currentFlexDirection),
-      newFlexDirection
-    );
-
-    updates.display = 'flex';
-    updates[resolvedAlignName] = resolvedAlignValue;
-    updates[resolvedJustifyName] = resolvedJustifyValue;
-  }
-
-  return updates;
-};
-
-const getSynchronizedBorder = (selectedElement: PageElement, propName: string) => {
-  const updates: any = {};
-  const { borderColor, borderWidth } = selectedElement;
-  const borders = ['borderTop', 'borderRight', 'borderBottom', 'borderLeft'];
-
-  if (isValueIn(propName, 'borderWidth')) {
-    for (const border of borders) {
-      updates[border] = selectedElement[border as keyof PageElement];
-    }
-    updates.borderColor = borderColor;
-  }
-
-  if (isValueIn(propName, 'borderColor')) {
-    for (const border of borders) {
-      updates[border] = selectedElement[border as keyof PageElement];
-    }
-    updates.borderWidth = borderWidth;
-  }
-
-  return updates;
+  return context;
 };
 
 /**
@@ -1200,7 +886,7 @@ const SpacingBox = styled.div`
   input {
     outline: none;
     background-color: transparent;
-    width: 2rem;
+    width: 2.6rem;
     text-align: center;
   }
 `;

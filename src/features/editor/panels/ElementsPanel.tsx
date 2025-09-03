@@ -1,19 +1,17 @@
 import { nanoid } from '@reduxjs/toolkit';
-import { ElementsName } from '@shared/constants';
-import type { InputChangeEvent } from '@shared/typing';
-import { isValueIn } from '@shared/utils';
-import toast from 'react-hot-toast';
+import { EditorToIframe, ElementsName } from '@shared/constants';
+import iframeConnection from '@shared/iframeConnection';
 import { LuImage, LuSearch } from 'react-icons/lu';
-import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import Input from '../../../components/form/Input';
 import Icon from '../../../components/Icon';
-import { useIframeContext } from '../../../context/IframeContext';
+import { StorageKey } from '../../../constant';
 import { useFilePicker } from '../../../hooks/useFilePicker';
-import { useAppSelector } from '../../../store';
+import { useImageUpload } from '../../../hooks/useImageUpload';
+import { AppStorage } from '../../../utils/appStorage';
+import { AppToast } from '../../../utils/appToast';
 import CollapsibleSection from '../CollapsibleSection';
-import { useImageUpload } from '../hooks/useImageUpload';
-import { addImage } from '../slices/editorSlice';
+import { useElementDisable } from '../hooks/useDisabledForElements';
 
 /**
  * Constants
@@ -26,29 +24,16 @@ const ACCEPTED_FILE_TYPE = 'image/*';
  */
 
 export default function ElementsPanel() {
-  const dispatch = useDispatch();
-  const { iframeConnection } = useIframeContext();
-  const selectedElement = useAppSelector((state) => state.editor.selectedElement);
+  const { isDisabled } = useElementDisable();
 
   const handleImageUpload = useImageUpload(
-    (result) => {
-      if (!result) return;
-      iframeConnection.insertElement({ name: ElementsName.Image, additionalProps: { src: result } });
-      dispatch(addImage({ id: nanoid(), dataUrl: result as string }));
+    async (blob: Blob) => {
+      await AppStorage.updateObject(StorageKey.Images, { [nanoid()]: blob });
     },
-    (message) => toast.error(message)
+    (message) => AppToast.error(message)
   );
 
   const { input, openFilePicker } = useFilePicker({ accept: ACCEPTED_FILE_TYPE, onSelect: handleImageUpload });
-
-  const handleSearchElement = (event: InputChangeEvent) => {
-    const id = event.target.value;
-    iframeConnection.changeSelection(id);
-  };
-
-  const handleAddElement = (name: string) => {
-    iframeConnection.insertElement({ name });
-  };
 
   return (
     <>
@@ -61,14 +46,14 @@ export default function ElementsPanel() {
             size='md'
             type='text'
             placeholder='Search by ID'
-            onChange={handleSearchElement}
+            onChange={() => {}}
             onBlur={(event) => (event.target.value = '')}
           />
         </SearchBar>
       </div>
       <div>
         <CollapsibleSection title='Layout' open>
-          <PanelList $disabled={isValueIn(selectedElement.name, ElementsName.Grid, ElementsName.Link)}>
+          <PanelList>
             <LayoutItem data-grid-active>
               <PanelBox onClick={() => handleAddElement(ElementsName.Section)}>
                 <span>&nbsp;</span>
@@ -76,13 +61,13 @@ export default function ElementsPanel() {
               </PanelBox>
               <span>Section</span>
             </LayoutItem>
-            <LayoutItem>
+            <LayoutItem $disabled={isDisabled(ElementsName.Container)}>
               <PanelBox onClick={() => handleAddElement(ElementsName.Container)}>
                 <span>&nbsp;</span>
               </PanelBox>
               <span>Container</span>
             </LayoutItem>
-            <LayoutItem>
+            <LayoutItem $disabled={isDisabled(ElementsName.Grid)}>
               <PanelBox onClick={() => handleAddElement(ElementsName.Grid)}>
                 <span>&nbsp;</span>
                 <span>&nbsp;</span>
@@ -91,7 +76,7 @@ export default function ElementsPanel() {
               </PanelBox>
               <span>Grid</span>
             </LayoutItem>
-            <LayoutItem>
+            <LayoutItem $disabled={isDisabled(ElementsName.List)}>
               <PanelBox onClick={() => handleAddElement(ElementsName.List)}>
                 <span>&nbsp;</span>
                 <span>&nbsp;</span>
@@ -99,7 +84,7 @@ export default function ElementsPanel() {
               </PanelBox>
               <span>List</span>
             </LayoutItem>
-            <LayoutItem $disabled={!isValueIn(selectedElement.name, ElementsName.Grid)} data-grid-active>
+            <LayoutItem $disabled={isDisabled(ElementsName.GridItem)} data-grid-active>
               <PanelBox onClick={() => handleAddElement(ElementsName.GridItem)}>
                 <span>&nbsp;</span>
                 <span>&nbsp;</span>
@@ -108,7 +93,7 @@ export default function ElementsPanel() {
               </PanelBox>
               <span>Grid Item</span>
             </LayoutItem>
-            <LayoutItem $disabled={!isValueIn(selectedElement.name, ElementsName.List)} data-list-active>
+            <LayoutItem $disabled={isDisabled(ElementsName.ListItem)} data-list-active>
               <PanelBox onClick={() => handleAddElement(ElementsName.ListItem)}>
                 <span>&nbsp;</span>
                 <span>&nbsp;</span>
@@ -119,10 +104,9 @@ export default function ElementsPanel() {
           </PanelList>
         </CollapsibleSection>
       </div>
-
       <div>
         <CollapsibleSection title='Text' open>
-          <PanelList $disabled={isValueIn(selectedElement.name, ElementsName.Grid, ElementsName.List)}>
+          <PanelList>
             <TextItem onClick={() => handleAddElement(ElementsName.Heading)}>
               <PanelBox>H</PanelBox>
               <span>Heading</span>
@@ -150,10 +134,9 @@ export default function ElementsPanel() {
           </PanelList>
         </CollapsibleSection>
       </div>
-
       <div>
         <CollapsibleSection title='Media'>
-          <PanelList $disabled={isValueIn(selectedElement.name, ElementsName.Grid)}>
+          <PanelList>
             <MediaItem>
               <PanelBox onClick={openFilePicker}>
                 <Icon icon={LuImage} />
@@ -167,11 +150,15 @@ export default function ElementsPanel() {
   );
 }
 
+const handleAddElement = (name: string) => {
+  iframeConnection.send(EditorToIframe.InsertElement, { name });
+};
+
 /**
  * Styles
  */
 
-const PanelList = styled.ul<{ $disabled?: boolean }>`
+const PanelList = styled.ul`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 2.4rem;
@@ -180,11 +167,6 @@ const PanelList = styled.ul<{ $disabled?: boolean }>`
   li {
     width: fit-content;
     text-align: center;
-  }
-
-  li:not([data-grid-active], [data-list-active]) {
-    opacity: ${({ $disabled }) => ($disabled ? 0.4 : 1)};
-    pointer-events: ${(props) => (props.$disabled ? 'none' : 'auto')};
   }
 
   span {

@@ -1,8 +1,15 @@
-import { cloneElement, useState, type MouseEventHandler, type ReactElement, type ReactNode } from 'react';
+import {
+  cloneElement,
+  createContext,
+  useContext,
+  useState,
+  type MouseEventHandler,
+  type ReactElement,
+  type ReactNode
+} from 'react';
 import { createPortal } from 'react-dom';
 import { LuX } from 'react-icons/lu';
 import styled from 'styled-components';
-import { ModalContext, useModalContext } from '../context/ModalContext';
 import Icon from './Icon';
 
 /**
@@ -13,6 +20,12 @@ type ClickableElement = ReactElement<{
   onClick?: MouseEventHandler;
   onCloseModal?: () => void;
 }>;
+
+interface ModalContextProps {
+  openName: string;
+  close: () => void;
+  open: (name: string) => void;
+}
 
 export type OnCloseModal = () => void;
 
@@ -73,6 +86,18 @@ function Dialog({ children, title }: { children: ClickableElement; title: string
     </StyledDialog>
   );
 }
+
+const ModalContext = createContext<ModalContextProps | null>(null);
+
+export const useModalContext = () => {
+  const context = useContext(ModalContext);
+
+  if (!context) {
+    throw new Error('Modal components must be used within <Modal>');
+  }
+
+  return context;
+};
 
 Modal.Open = Open;
 Modal.Close = Close;

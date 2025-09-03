@@ -1,8 +1,6 @@
-import { nanoid } from '@reduxjs/toolkit';
-import type { PageMetadata, Site } from '@shared/typing';
-import { generateFileNameFromPageName, validateFields } from '@shared/utils';
+import type { PageMetadata } from '@shared/typing';
+import { generateFileNameFromPageName } from '@shared/utils';
 import { useState, type MouseEvent } from 'react';
-import toast from 'react-hot-toast';
 import { LuCopy, LuEllipsis, LuHouse, LuLink, LuPencil, LuSquareMenu, LuTrash2 } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -11,25 +9,14 @@ import Button from '../../../components/Button';
 import Dropdown from '../../../components/Dropdown';
 import Input from '../../../components/form/Input';
 import Icon from '../../../components/Icon';
-import Modal, { type OnCloseModal } from '../../../components/Modal';
-import { Path, StorageKey, ToastMessages } from '../../../constant';
-import { useIframeContext } from '../../../context/IframeContext';
-import { useModalContext } from '../../../context/ModalContext';
+import Modal, { useModalContext, type OnCloseModal } from '../../../components/Modal';
+import { Path, ToastMessages } from '../../../constant';
 import { useAppSelector } from '../../../store';
-import { AppStorage } from '../../../utils/appStorage';
+import { AppToast } from '../../../utils/appToast';
 import { buildPath } from '../../../utils/buildPath';
 import { createNewPage } from '../../../utils/createNewPage';
-import { setIsLoading as setIsLoadingDashboard } from '../../dashboard/slices/dashboardSlice';
-import {
-  addPage,
-  clearEditor,
-  clearSelectedElement,
-  deletePage,
-  setIsIndexPage,
-  setIsLoading as setIsLoadingEditor,
-  updatePageInfo
-} from '../slices/editorSlice';
-import { clearPage } from '../slices/pageSlice';
+import { FormValidator } from '../../../utils/FormValidator';
+import { addPage, deletePage, duplicatePage, selectPagesMetadata, setPageAsIndex, updatePage } from '../editorSlice';
 
 /**
  * Constants
@@ -42,7 +29,7 @@ const MAX_PAGE_NAME_LENGTH = 7;
  */
 
 export default function PagesPanel() {
-  const pagesMetadata = useAppSelector((state) => state.editor.pagesMetadata);
+  const pages = useAppSelector(selectPagesMetadata);
 
   return (
     <>
@@ -57,8 +44,8 @@ export default function PagesPanel() {
         </Modal.Window>
       </Modal>
       <StyledPagesList>
-        {pagesMetadata?.map((page, i) => (
-          <Modal>
+        {pages.map((page, i) => (
+          <Modal key={page.id}>
             <PageItem page={page} index={i} />
           </Modal>
         ))}
@@ -72,13 +59,14 @@ function PageItem({ page, index }: { page: PageMetadata; index: number }) {
   const navigate = useNavigate();
   const { siteId, pageId } = useParams();
   const { open } = useModalContext();
-  const { iframeConnection } = useIframeContext();
   const isActivePage = page.id === pageId;
 
   const handleOpenEditor = (event: MouseEvent<HTMLLIElement>, page: PageMetadata) => {
     const target = event.target as HTMLElement;
 
-    if (page.id === pageId) return;
+    if (page.id === pageId) {
+      return;
+    }
 
     if (!target.closest('svg') && siteId) {
       iframeConnection.initializeState();
@@ -104,7 +92,7 @@ function PageItem({ page, index }: { page: PageMetadata; index: number }) {
               </span>
             </Dropdown.Open>
             <Dropdown.Drop translateX={18} translateY={-15}>
-              <Dropdown.Button icon={LuHouse} onClick={() => dispatch(setIsIndexPage(page.id))}>
+              <Dropdown.Button icon={LuHouse} onClick={() => dispatch(setPageAsIndex(page.id))}>
                 Set as index
               </Dropdown.Button>
               <Modal.Open openName='edit'>
@@ -162,7 +150,7 @@ function PageForm({
   onCloseModal?: OnCloseModal;
   successMessage?: string;
 }) {
-  const site = useAppSelector((state) => state.editor.site);
+  const pages = useAppSelector(selectPagesMetadata);
   const [name, setName] = useState(initialName);
   const [title, setTitle] = useState(initialTitle || initialName);
 
@@ -170,16 +158,16 @@ function PageForm({
     const trimmedName = name.trim();
     const trimmedTitle = title.trim();
 
-    const isValid = validateFields([{ value: trimmedName, emptyMessage: ToastMessages.page.emptyName }]);
+    const validator = new FormValidator([{ value: trimmedName, emptyMessage: ToastMessages.page.emptyName }]);
 
-    if (!isValid) return;
+    if (!validator.validate()) {
+      return;
+    }
 
-    const nameExists = site.pages.some(
-      (p) => p.name.toLowerCase() === trimmedName.toLowerCase() && p.id !== excludePageId
-    );
+    const nameExists = pages.some((p) => p.name.toLowerCase() === trimmedName.toLowerCase() && p.id !== excludePageId);
 
     if (nameExists) {
-      toast.error(ToastMessages.page.duplicateName);
+      AppToast.error(ToastMessages.page.duplicateName);
       return;
     }
 
@@ -187,7 +175,7 @@ function PageForm({
     onCloseModal?.();
 
     if (successMessage) {
-      toast.success(successMessage);
+      AppToast.success(successMessage);
     }
   };
 
@@ -232,7 +220,7 @@ function EditDialog({ page, onCloseModal }: { page: PageMetadata; onCloseModal?:
       successMessage={ToastMessages.page.renamed}
       onCloseModal={onCloseModal}
       onSubmit={(name, title) => {
-        dispatch(updatePageInfo({ id: page.id, name, title }));
+        dispatch(updatePage({ id: page.id, updates: { name, title } }));
       }}
     />
   );
@@ -246,21 +234,8 @@ function DuplicateDialog({ page, onCloseModal }: { page: PageMetadata; onCloseMo
       initialName={`${page.name} (Copy)`}
       initialTitle={`${page.title || page.name} (Copy)`}
       onCloseModal={onCloseModal}
-      onSubmit={async (name, title) => {
-        const site = (await AppStorage.getItem(StorageKey.Site)) as Site;
-        const duplicatedPage = site.pages.find((p) => p.id === page.id);
-
-        if (duplicatedPage) {
-          dispatch(
-            addPage({
-              ...duplicatedPage,
-              name,
-              title,
-              id: nanoid(),
-              isIndex: false
-            })
-          );
-        }
+      onSubmit={(name, title) => {
+        dispatch(duplicatePage({ id: page.id, newName: name, newTitle: title }));
       }}
     />
   );
@@ -278,20 +253,18 @@ function DeleteDialog({
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { pageId } = useParams();
-  const site = useAppSelector((state) => state.editor.site);
+  const pages = useAppSelector(selectPagesMetadata);
 
   const handleDelete = async () => {
     const isDeletingCurrentPage = pageId === page.id;
-    const availablePageId = (site.pages[currentIndex - 1] || site.pages[currentIndex + 1])?.id;
+    const availablePageId = (pages[currentIndex - 1] || pages[currentIndex + 1])?.id;
 
     dispatch(deletePage(page.id));
     onCloseModal?.();
-    toast.success(ToastMessages.page.deleted);
+    AppToast.success(ToastMessages.page.deleted);
 
     if (isDeletingCurrentPage && !availablePageId) {
       dispatch(setIsLoadingDashboard(true));
-
-      await AppStorage.removeItem(StorageKey.Site);
 
       dispatch(clearEditor());
       navigate(Path.Dashboard);
@@ -299,7 +272,7 @@ function DeleteDialog({
     }
 
     if (page.isIndex) {
-      dispatch(setIsIndexPage(availablePageId));
+      dispatch(setPageAsIndex(availablePageId));
     }
 
     if (isDeletingCurrentPage) {
@@ -329,10 +302,10 @@ const handleCopyLink = (pageName: string) => {
   navigator.clipboard
     .writeText(fileName)
     .then(() => {
-      toast.success(ToastMessages.page.linkCopied);
+      AppToast.success(ToastMessages.page.linkCopied);
     })
     .catch(() => {
-      toast.error(ToastMessages.page.linkCopyErr);
+      AppToast.error(ToastMessages.page.linkCopyErr);
     });
 };
 

@@ -1,19 +1,7 @@
 import { nanoid } from '@reduxjs/toolkit';
 import type { SiteMetadata } from '@shared/typing';
-import { validateFields } from '@shared/utils';
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
-import toast from 'react-hot-toast';
-import {
-  LuArrowLeft,
-  LuCopy,
-  LuEllipsis,
-  LuEye,
-  LuLayoutTemplate,
-  LuLoader,
-  LuPencilLine,
-  LuStar,
-  LuTrash2
-} from 'react-icons/lu';
+import { LuCopy, LuEllipsis, LuEye, LuLayoutTemplate, LuLoader, LuPencilLine, LuStar, LuTrash2 } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
@@ -21,33 +9,20 @@ import Button from '../../../components/Button';
 import Dropdown from '../../../components/Dropdown';
 import Input from '../../../components/form/Input';
 import Icon from '../../../components/Icon';
-import Modal, { type OnCloseModal } from '../../../components/Modal';
-import { Breakpoint, EditorPath, Path, TOAST_DELAY_MS, TOAST_DURATION, ToastMessages } from '../../../constant';
-import { useModalContext } from '../../../context/ModalContext';
-import { useAppSelector } from '../../../store';
+import Modal, { useModalContext, type OnCloseModal } from '../../../components/Modal';
+import { Breakpoint, Path, ToastMessages } from '../../../constant';
+import { AppToast } from '../../../utils/appToast';
 import { buildPath } from '../../../utils/buildPath';
 import { formatDate } from '../../../utils/formatDate';
 import { formatSize } from '../../../utils/formatSize';
+import { FormValidator } from '../../../utils/FormValidator';
 import { runWithToast } from '../../../utils/runWithToast';
-import { setActiveSiteById } from '../../../utils/setActiveSiteById';
-import { updateInSitesStorage } from '../../../utils/updateSitesInStorage';
-import { setIsLoading } from '../../editor/slices/editorSlice';
-import {
-  deleteSite,
-  duplicateSite,
-  FilterCriteria,
-  setFilterLabel,
-  setFilters,
-  setIsProcessing,
-  toggleSiteStarred,
-  updateSiteDetails
-} from '../slices/dashboardSlice';
+import { deleteSite, duplicateSite, setProcessing, setSiteStarred, updateSite } from '../dashboardSlice';
 
 /**
  * Constants
  */
 
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const BODY_SCROLL_OFFSET = 75;
 
 const MAX_SITE_NAME_LENGTH = 12;
@@ -58,8 +33,8 @@ const MAX_SITE_DESCRIPTION_LENGTH = 20;
  */
 
 interface EmptyStateMessages {
-  noSitesTitle: string;
-  noSitesInfo: string;
+  title: string;
+  info: string;
 }
 
 /**
@@ -67,41 +42,20 @@ interface EmptyStateMessages {
  */
 
 export default function SitesView({
-  sitesMetadata,
+  sites,
   title,
   emptyStateMessages
 }: {
-  sitesMetadata?: SiteMetadata[];
-  title?: string;
-  emptyStateMessages?: EmptyStateMessages;
+  sites: SiteMetadata[];
+  title: string;
+  emptyStateMessages: EmptyStateMessages;
 }) {
-  const dispatch = useDispatch();
-  const { sitesMetadata: fallbackSites, filters, filterLabel } = useAppSelector((state) => state.dashboard);
-  const sitesToRender = sitesMetadata ?? [...fallbackSites].sort((a, b) => b.createdAt - a.createdAt);
-  const isFiltering = Boolean(filters.modifiedWithinDays || filters.pageRange || filters.sizeRange);
-
-  const handleClearFilter = () => {
-    dispatch(setFilterLabel(''));
-    dispatch(setFilters({}));
-  };
-
   return (
-    <StyledSiteView $isFiltering={isFiltering}>
-      <h2>
-        {isFiltering ? (
-          <FilterHeader>
-            <span onClick={handleClearFilter}>
-              <Icon icon={LuArrowLeft} hover />
-            </span>
-            {filterLabel}
-          </FilterHeader>
-        ) : (
-          title || 'Sites'
-        )}
-      </h2>
+    <StyledSiteView>
+      <h2>{title}</h2>
       <SiteSection>
         <TableHead />
-        <TableBody sitesMetadata={sitesToRender} filters={filters} emptyStateMessages={emptyStateMessages} />
+        <TableBody sites={sites} emptyStateMessages={emptyStateMessages} />
       </SiteSection>
     </StyledSiteView>
   );
@@ -122,17 +76,7 @@ function TableHead() {
   );
 }
 
-function TableBody({
-  sitesMetadata,
-  filters,
-  emptyStateMessages
-}: {
-  sitesMetadata: SiteMetadata[];
-  filters: FilterCriteria;
-  emptyStateMessages?: EmptyStateMessages;
-}) {
-  const now = Date.now();
-  const isFiltering = Boolean(filters.modifiedWithinDays || filters.pageRange || filters.sizeRange);
+function TableBody({ sites, emptyStateMessages }: { sites: SiteMetadata[]; emptyStateMessages: EmptyStateMessages }) {
   const [top, setTop] = useState(0);
   const tableBodyRef = useRef<HTMLDivElement | null>(null);
 
@@ -149,21 +93,7 @@ function TableBody({
     return () => window.removeEventListener('resize', updateTop);
   }, []);
 
-  const filteredSites = isFiltering
-    ? sitesMetadata.filter((site) => {
-        const { sizeKb, pagesCount, lastModified } = site;
-
-        const sizeMatch = !filters.sizeRange || (sizeKb >= filters.sizeRange.min && sizeKb <= filters.sizeRange.max);
-        const pageMatch =
-          !filters.pageRange || (pagesCount >= filters.pageRange.min && pagesCount <= filters.pageRange.max);
-        const modifiedMatch =
-          !filters.modifiedWithinDays || now - lastModified <= filters.modifiedWithinDays * MS_PER_DAY;
-
-        return sizeMatch && pageMatch && modifiedMatch;
-      })
-    : sitesMetadata;
-
-  const noSitesToDisplay = filteredSites.length === 0;
+  const noSitesToDisplay = sites.length === 0;
 
   if (noSitesToDisplay) {
     return (
@@ -171,14 +101,8 @@ function TableBody({
         <article>
           <div>
             <NoResultsWrapper>
-              <NoResultsMessage>
-                {isFiltering ? 'No matching result' : emptyStateMessages?.noSitesTitle || 'No sites available'}
-              </NoResultsMessage>
-              <NoResultsInfo>
-                {isFiltering
-                  ? 'Try adjusting or clearing your filters to find sites.'
-                  : emptyStateMessages?.noSitesInfo || 'Ready to build your website? Add a new site to get started.'}
-              </NoResultsInfo>
+              <NoResultsMessage>{emptyStateMessages.title}</NoResultsMessage>
+              <NoResultsInfo>{emptyStateMessages.info}</NoResultsInfo>
             </NoResultsWrapper>
           </div>
         </article>
@@ -188,46 +112,38 @@ function TableBody({
 
   return (
     <StyledBodySection ref={tableBodyRef} $top={top}>
-      {filteredSites.map((site) => (
+      {sites.map((site) => (
         <Modal key={site.id}>
-          <TableRow siteMetadata={site} />
+          <TableRow site={site} />
         </Modal>
       ))}
     </StyledBodySection>
   );
 }
 
-function TableRow({ siteMetadata }: { siteMetadata: SiteMetadata }) {
+function TableRow({ site }: { site: SiteMetadata }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { open } = useModalContext();
-  const { id, name, description, sizeKb, pagesCount, firstPageId, createdAt, lastModified, isStarred } = siteMetadata;
+  const { id, name, description, sizeKb, pagesCount, createdAt, lastModified, isStarred } = site;
 
   const toggleStar = () => {
-    dispatch(toggleSiteStarred(id));
     const message = isStarred ? ToastMessages.site.removedStar : ToastMessages.site.addedStar;
-    toast.success(message, { duration: TOAST_DURATION });
+
+    dispatch(setSiteStarred({ id, isStarred: !isStarred }));
+    AppToast.success(message);
   };
 
   const handleDuplicateSite = () => {
+    const icon = <StyledLoader icon={LuLoader} color='var(--color-primary)' size='md' />;
+
     runWithToast({
       startMessage: ToastMessages.site.duplicating,
       successMessage: ToastMessages.site.duplicated,
-      icon: <StyledLoader icon={LuLoader} color='var(--color-primary)' size='md' />,
-      delay: TOAST_DELAY_MS,
-      onExecute: async () => {
-        const newId = nanoid();
-        dispatch(setIsProcessing(true));
-
-        await updateInSitesStorage((sites) => {
-          const existing = sites.find((s) => s.id === id);
-          return existing ? [...sites, { ...existing, id: newId }] : sites;
-        });
-
-        return newId;
-      },
-      onSuccess: (newId) => dispatch(duplicateSite({ id, newId })),
-      onFinally: () => dispatch(setIsProcessing(false))
+      icon,
+      onExecute: () => dispatch(setProcessing(true)),
+      onSuccess: () => dispatch(duplicateSite({ id, newId: nanoid() })),
+      onFinally: () => dispatch(setProcessing(false))
     });
   };
 
@@ -235,16 +151,11 @@ function TableRow({ siteMetadata }: { siteMetadata: SiteMetadata }) {
     const target = event.target as HTMLElement;
     if (!target.closest('svg') && !target.closest('li')) {
       dispatch(setIsLoading(true));
-      await setActiveSiteById(id);
       navigate(buildPath(Path.Editor, { siteId: id, pageId: firstPageId }));
     }
   };
 
-  const handlePreviewSite = async () => {
-    dispatch(setIsLoading(true));
-    await setActiveSiteById(id);
-    navigate(`${buildPath(Path.Editor, { siteId: id, pageId: firstPageId })}/${EditorPath.Preview}`);
-  };
+  const handlePreviewSite = () => {};
 
   return (
     <StyledTableRow as='article' onClick={handleRowClick}>
@@ -262,7 +173,7 @@ function TableRow({ siteMetadata }: { siteMetadata: SiteMetadata }) {
           <Icon icon={LuPencilLine} size='md' onClick={() => open('edit')} />
           <Modal.Window name='edit'>
             <Modal.Dialog title='Edit Site'>
-              <EditDialog siteMetadata={siteMetadata} />
+              <EditDialog site={site} />
             </Modal.Dialog>
           </Modal.Window>
           <Icon icon={LuStar} fill={isStarred} size='md' onClick={toggleStar} />
@@ -288,12 +199,12 @@ function TableRow({ siteMetadata }: { siteMetadata: SiteMetadata }) {
         </Dropdown>
         <Modal.Window name='edit'>
           <Modal.Dialog title='Edit Site'>
-            <EditDialog siteMetadata={siteMetadata} />
+            <EditDialog site={site} />
           </Modal.Dialog>
         </Modal.Window>
         <Modal.Window name='delete'>
           <Modal.Dialog title='Delete Site'>
-            <DeleteDialog siteMetadata={siteMetadata} />
+            <DeleteDialog site={site} />
           </Modal.Dialog>
         </Modal.Window>
       </RowActions>
@@ -301,9 +212,9 @@ function TableRow({ siteMetadata }: { siteMetadata: SiteMetadata }) {
   );
 }
 
-function EditDialog({ siteMetadata, onCloseModal }: { siteMetadata: SiteMetadata; onCloseModal?: OnCloseModal }) {
+function EditDialog({ site, onCloseModal }: { site: SiteMetadata; onCloseModal?: OnCloseModal }) {
   const dispatch = useDispatch();
-  const { id, name, description } = siteMetadata;
+  const { id, name, description } = site;
   const [newName, setNewName] = useState(name);
   const [newDescription, setNewDescription] = useState(description);
 
@@ -311,7 +222,7 @@ function EditDialog({ siteMetadata, onCloseModal }: { siteMetadata: SiteMetadata
     const trimmedName = newName.trim();
     const trimmedDescription = newDescription.trim();
 
-    const isValid = validateFields([
+    const formValidator = new FormValidator([
       {
         value: trimmedName,
         emptyMessage: ToastMessages.site.emptyName,
@@ -326,25 +237,24 @@ function EditDialog({ siteMetadata, onCloseModal }: { siteMetadata: SiteMetadata
       }
     ]);
 
-    if (!isValid) return;
+    if (!formValidator.validate()) {
+      return;
+    }
 
     runWithToast({
       startMessage: ToastMessages.site.updating,
       successMessage: ToastMessages.site.updated,
       icon: <StyledLoader icon={LuLoader} color='var(--color-primary)' size='md' />,
-      delay: TOAST_DELAY_MS,
-      onExecute: async () => {
-        dispatch(setIsProcessing(true));
+      onExecute: () => {
         onCloseModal?.();
-
-        await updateInSitesStorage((sites) =>
-          sites.map((s) => (s.id === id ? { ...s, name: trimmedName, description: trimmedDescription } : s))
-        );
-
-        return { id, name: trimmedName, description: trimmedDescription };
+        dispatch(setProcessing(true));
       },
-      onSuccess: ({ id, name, description }) => dispatch(updateSiteDetails({ id, name, description })),
-      onFinally: () => dispatch(setIsProcessing(false))
+      onSuccess: () => {
+        const data = { siteId: id, updates: { description: trimmedDescription, name: trimmedName } };
+        dispatch(updateSite(data));
+      },
+
+      onFinally: () => dispatch(setProcessing(false))
     });
   };
 
@@ -369,26 +279,23 @@ function EditDialog({ siteMetadata, onCloseModal }: { siteMetadata: SiteMetadata
   );
 }
 
-function DeleteDialog({ siteMetadata, onCloseModal }: { siteMetadata: SiteMetadata; onCloseModal?: OnCloseModal }) {
+function DeleteDialog({ site, onCloseModal }: { site: SiteMetadata; onCloseModal?: OnCloseModal }) {
   const dispatch = useDispatch();
-  const { id, name } = siteMetadata;
+  const { id, name } = site;
 
   const handleDelete = () => {
+    const icon = <StyledLoader icon={LuLoader} color='var(--color-red)' size='md' />;
+
     runWithToast({
       startMessage: ToastMessages.site.deleting,
       successMessage: ToastMessages.site.deleted,
-      icon: <StyledLoader icon={LuLoader} color='var(--color-red)' size='md' />,
-      delay: TOAST_DELAY_MS,
-      onExecute: async () => {
-        dispatch(setIsProcessing(true));
+      icon: icon,
+      onExecute: () => {
         onCloseModal?.();
-        await updateInSitesStorage((sites) => sites.filter((s) => s.id !== id));
-        return id;
+        dispatch(setProcessing(true));
       },
-      onSuccess: (deletedId) => dispatch(deleteSite(deletedId)),
-      onFinally: () => {
-        dispatch(setIsProcessing(false));
-      }
+      onSuccess: () => dispatch(deleteSite(id)),
+      onFinally: () => dispatch(setProcessing(false))
     });
   };
 
@@ -411,12 +318,12 @@ function DeleteDialog({ siteMetadata, onCloseModal }: { siteMetadata: SiteMetada
  * Styles
  */
 
-const StyledSiteView = styled.div<{ $isFiltering: boolean }>`
+const StyledSiteView = styled.div`
   width: 100%;
   max-width: 192rem;
   margin-left: auto;
   margin-right: auto;
-  margin-top: ${({ $isFiltering }) => ($isFiltering ? '0' : '5.2rem')};
+  margin-top: 5.2rem;
 
   h2 {
     position: sticky;
@@ -427,12 +334,6 @@ const StyledSiteView = styled.div<{ $isFiltering: boolean }>`
     font-weight: var(--font-weight-regular);
     font-size: 2rem;
   }
-`;
-
-const FilterHeader = styled.div`
-  display: flex;
-  flex-direction: column;
-  row-gap: 2.4rem;
 `;
 
 const SiteSection = styled.section`

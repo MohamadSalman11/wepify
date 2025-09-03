@@ -16,7 +16,7 @@ const DEFAULT_EDIT_INPUT_TYPE = 'number';
 
 interface SelectProps {
   id?: string;
-  name: string;
+  name?: string;
   editable?: boolean;
   editInputType?: 'number' | 'text';
   options: (string | number)[];
@@ -31,7 +31,7 @@ interface SelectProps {
 
 export default function Select({
   id,
-  name,
+  name = '',
   editable,
   editInputType = DEFAULT_EDIT_INPUT_TYPE,
   options,

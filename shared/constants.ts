@@ -1,33 +1,22 @@
-import { createElTemplate } from './helpers';
 import type { PageElement } from './typing';
 
-export const TARGET_ORIGIN = '*';
-export const DEFAULT_BORDER_WIDTH = 2;
-export const DEFAULT_BORDER_COLOR = '#4a90e2';
-export const DEFAULT_PAGE_BACKGROUND_COLOR = '#343c44';
-export const DEFAULT_SCALE_FACTOR = 100;
 export const PAGE_PADDING = 60;
 export const PAGE_PADDING_X = PAGE_PADDING * 2;
 export const ID_FIRST_SECTION = 'section-1';
-export const TAGS_WITHOUT_CHILDREN = new Set(['input', 'img', 'hr', 'br']);
-export const SPACE_VALUES = ['between', 'around', 'evenly'];
-export const UNSAVED_CHANGES_MESSAGE = 'Changes you made may not be saved.';
+export const FONTS_URL = `https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Oswald:wght@200..700&family=Pacifico&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,800&family=Raleway:ital,wght@0,100..900;1,100..900&family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Savate:ital,wght@0,200..900;1,200..900&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap`;
 
-export enum Tags {
-  Section = 'SECTION',
-  Ul = 'UL',
-  Li = 'LI',
-  Input = 'INPUT',
-  Span = 'SPAN',
-  Button = 'BUTTON',
-  A = 'A'
+export enum Device {
+  Monitor = 'monitor',
+  Laptop = 'laptop',
+  Tablet = 'tablet',
+  Smartphone = 'smartphone'
 }
 
 export enum ElementsName {
-  Grid = 'grid',
-  GridItem = 'gridItem',
   Section = 'section',
   Container = 'container',
+  Grid = 'grid',
+  GridItem = 'gridItem',
   Item = 'item',
   Image = 'image',
   Input = 'input',
@@ -40,56 +29,6 @@ export enum ElementsName {
   Button = 'button'
 }
 
-export const OPTIONS_FONT = [
-  'Inherit',
-  'Inter',
-  'JetBrains Mono',
-  'Fira Code',
-  'Lato',
-  'Lora',
-  'Merriweather',
-  'Montserrat',
-  'Nunito',
-  'Open Sans',
-  'Oswald',
-  'Pacifico',
-  'Playfair Display',
-  'Poppins',
-  'Raleway',
-  'Roboto Slab',
-  'Roboto',
-  'Rubik',
-  'Savate',
-  'Source Code Pro',
-  'Ubuntu'
-];
-
-export const FONT_WEIGHT_VALUES = {
-  Inherit: 'inherit',
-  Thin: '100',
-  ExtraLight: '200',
-  Light: '300',
-  Regular: '400',
-  Medium: '500',
-  SemiBold: '600',
-  Bold: '700',
-  ExtraBold: '800',
-  Black: '900'
-} as const;
-
-export const FONT_WEIGHT_NAMES = {
-  inherit: 'Inherit',
-  '100': 'Thin',
-  '200': 'ExtraLight',
-  '300': 'Light',
-  '400': 'Regular',
-  '500': 'Medium',
-  '600': 'SemiBold',
-  '700': 'Bold',
-  '800': 'ExtraBold',
-  '900': 'Black'
-} as const;
-
 export const SCREEN_SIZES = {
   monitor: { width: 1920, height: 1080 },
   laptop: { width: 1280, height: 800 },
@@ -97,170 +36,252 @@ export const SCREEN_SIZES = {
   smartphone: { width: 375, height: 667 }
 } as const;
 
-export const RESPONSIVE_PROPS = new Set([
-  'width',
-  'height',
-  'left',
-  'top',
-  'fontSize',
-  'rotate',
-  'textAlign',
-  'flexDirection',
-  'justifyContent',
-  'alignItems',
-  'paddingTop',
-  'paddingRight',
-  'paddingBottom',
-  'paddingLeft',
-  'marginTop',
-  'marginRight',
-  'marginBottom',
-  'marginLeft',
-  'columns',
-  'columnWidth',
-  'columnGap',
-  'rows',
-  'rowHeight',
-  'rowGap'
-]);
+export enum EditorToIframe {
+  RenderPage = 'RENDER_PAGE',
+  UpdatePage = 'UPDATE_PAGE',
+  DeviceChanged = 'DEVICE_CHANGED',
+  InsertElement = 'INSERT_ELEMENT',
+  UpdateElement = 'EDITOR_UPDATE_ELEMENT',
+  SelectElement = 'EDITOR_SELECT_ELEMENT'
+}
 
-export const ELEMENTS_TEMPLATE: Record<string, Partial<PageElement>> = {
-  section: createElTemplate({
+export enum IframeToEditor {
+  IframeReady = 'IFRAME_READY',
+  PageUpdated = 'PAGE_UPDATED',
+  StoreElement = 'STORE_ELEMENT',
+  UpdateElement = 'IFRAME_UPDATE_ELEMENT',
+  SelectElement = 'IFRAME_SELECT_ELEMENT',
+  DeleteElement = 'DELETE_ELEMENT'
+}
+
+export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
+  section: {
+    id: '',
     tag: 'section',
-    name: 'section',
-    fontFamily: 'Inter',
-    left: { monitor: 0 },
-    top: { monitor: 0 },
-    width: { monitor: 'fill' },
-    height: { monitor: 'fill' },
-    backgroundColor: '#fff'
-  }),
-  container: createElTemplate({
+    name: ElementsName.Section,
+    moveable: false,
+    focusable: false,
+    contentEditable: false,
+    style: {
+      width: 'fill',
+      height: 'screen',
+      fontSize: 20,
+      fontFamily: 'Inter',
+      color: '#000000',
+      backgroundColor: '#fff'
+    }
+  },
+  container: {
+    id: '',
     tag: 'div',
-    name: 'container',
-    width: { monitor: 150 },
-    height: { monitor: 100 },
-    backgroundColor: '#313334'
-  }),
-  grid: createElTemplate({
+    name: ElementsName.Container,
+    moveable: true,
+    focusable: false,
+    contentEditable: false,
+    style: {
+      width: 150,
+      height: 100,
+      fontFamily: 'Inherit',
+      fontSize: 20,
+      color: '#000000',
+      backgroundColor: '#313334'
+    }
+  },
+  grid: {
+    id: '',
     tag: 'div',
-    name: 'grid',
-    width: { monitor: 500 },
-    height: { monitor: 250 },
-    backgroundColor: '#343C44',
-    display: 'grid',
-    columnGap: { monitor: 12 },
-    rowGap: { monitor: 12 },
-    columnWidth: { monitor: 'auto' },
-    rowHeight: { monitor: 'auto' },
-    columns: { monitor: 2 },
-    rows: { monitor: 2 },
-    paddingTop: { monitor: 12 },
-    paddingRight: { monitor: 12 },
-    paddingBottom: { monitor: 12 },
-    paddingLeft: { monitor: 12 }
-  }),
-  gridItem: createElTemplate({
+    name: ElementsName.Grid,
+    moveable: true,
+    focusable: false,
+    contentEditable: false,
+    style: {
+      width: 500,
+      height: 250,
+      fontSize: 20,
+      fontFamily: 'Inherit',
+      backgroundColor: '#343C44',
+      color: '#000000',
+      display: 'grid',
+      columnGap: 12,
+      rowGap: 12,
+      columnWidth: 'auto',
+      rowHeight: 'auto',
+      columns: 2,
+      rows: 2,
+      paddingTop: 12,
+      paddingRight: 12,
+      paddingBottom: 12,
+      paddingLeft: 12
+    }
+  },
+  gridItem: {
+    id: '',
     tag: 'div',
-    name: 'item',
-    fontFamily: 'Inherit',
-    fontWeight: 'Inherit',
-    fontSize: { monitor: 'Inherit' },
-    backgroundColor: '#b8e986'
-  }),
-  list: createElTemplate({
+    name: ElementsName.Item,
+    moveable: false,
+    focusable: false,
+    contentEditable: false,
+    style: {
+      fontFamily: 'Inherit',
+      fontWeight: 'Inherit',
+      fontSize: 'Inherit',
+      backgroundColor: '#b8e986',
+      color: '#000000'
+    }
+  },
+  list: {
+    id: '',
     tag: 'ul',
-    name: 'list',
-    width: { monitor: 'auto' },
-    height: { monitor: 'auto' },
-    paddingTop: { monitor: 24 },
-    paddingRight: { monitor: 32 },
-    paddingLeft: { monitor: 32 },
-    paddingBottom: { monitor: 24 }
-  }),
-  listItem: createElTemplate({
+    name: ElementsName.List,
+    moveable: true,
+    focusable: false,
+    contentEditable: false,
+    style: {
+      fontSize: 20,
+      fontFamily: 'Inherit',
+      width: 'auto',
+      height: 'auto',
+      paddingTop: 24,
+      paddingRight: 32,
+      paddingLeft: 32,
+      paddingBottom: 24,
+      color: '#000000'
+    }
+  },
+  listItem: {
+    id: '',
     tag: 'li',
-    name: 'item',
-    fontFamily: 'Inherit',
-    fontWeight: 'Inherit',
-    fontSize: { monitor: 'Inherit' },
-    content: 'list item'
-  }),
-  heading: createElTemplate({
+    name: ElementsName.Item,
+    moveable: false,
+    focusable: true,
+    contentEditable: true,
+    content: 'list item',
+    style: {
+      fontFamily: 'Inherit',
+      fontWeight: 'Inherit',
+      fontSize: 'Inherit',
+      color: '#000000'
+    }
+  },
+  heading: {
+    id: '',
     tag: 'span',
-    name: 'heading',
-    fontWeight: 'Bold',
-    width: { monitor: 'auto' },
-    height: { monitor: 'auto' },
-    fontSize: { monitor: 32 },
-    paddingTop: { monitor: 12 },
-    paddingRight: { monitor: 16 },
-    paddingLeft: { monitor: 16 },
-    paddingBottom: { monitor: 12 },
-    content: 'First heading'
-  }),
-  text: createElTemplate({
+    name: ElementsName.Heading,
+    moveable: true,
+    focusable: true,
+    contentEditable: true,
+    content: 'First heading',
+    style: {
+      fontSize: 32,
+      fontFamily: 'Inherit',
+      fontWeight: 'Bold',
+      color: '#000000',
+      width: 'auto',
+      height: 'auto',
+      paddingTop: 12,
+      paddingRight: 16,
+      paddingLeft: 16,
+      paddingBottom: 12
+    }
+  },
+  text: {
+    id: '',
     tag: 'p',
-    name: 'text',
-    width: { monitor: 'auto' },
-    height: { monitor: 'auto' },
-    fontSize: { monitor: 18 },
-    paddingTop: { monitor: 12 },
-    paddingRight: { monitor: 16 },
-    paddingLeft: { monitor: 16 },
-    paddingBottom: { monitor: 12 },
-    content: 'Your description goes here'
-  }),
-  link: createElTemplate({
+    name: ElementsName.Text,
+    moveable: true,
+    focusable: true,
+    contentEditable: true,
+    content: 'Your description goes here',
+    style: {
+      width: 'auto',
+      height: 'auto',
+      fontSize: 18,
+      fontFamily: 'Inherit',
+      color: '#000000',
+      paddingTop: 12,
+      paddingRight: 16,
+      paddingLeft: 16,
+      paddingBottom: 12
+    }
+  },
+  link: {
+    id: '',
     tag: 'a',
-    name: 'link',
-    color: '#1352F1',
-    width: { monitor: 'auto' },
-    height: { monitor: 'auto' },
-    paddingTop: { monitor: 12 },
-    paddingRight: { monitor: 16 },
-    paddingLeft: { monitor: 16 },
-    paddingBottom: { monitor: 12 },
-    link: '',
-    content: 'Your text link'
-  }),
-  button: createElTemplate({
+    name: ElementsName.Link,
+    moveable: true,
+    focusable: true,
+    contentEditable: true,
+    content: 'Your text link',
+    style: {
+      fontSize: 20,
+      fontFamily: 'Inherit',
+      color: '#1352F1',
+      width: 'auto',
+      height: 'auto',
+      paddingTop: 12,
+      paddingRight: 16,
+      paddingLeft: 16,
+      paddingBottom: 12
+    },
+    attrs: {
+      href: ''
+    }
+  },
+  button: {
+    id: '',
     tag: 'button',
-    name: 'button',
-    fontSize: { monitor: 18 },
-    width: { monitor: 150 },
-    height: { monitor: 'auto' },
+    name: ElementsName.Button,
+    moveable: true,
+    focusable: true,
+    contentEditable: true,
     content: 'text',
-    backgroundColor: '#f4f8f8',
-    borderRadius: 16,
-    borderTop: '2px solid #6597f7',
-    borderRight: '2px solid #6597f7',
-    borderBottom: '2px solid #6597f7',
-    borderLeft: '2px solid #6597f7',
-    paddingTop: { monitor: 12 },
-    paddingRight: { monitor: 12 },
-    paddingLeft: { monitor: 12 },
-    paddingBottom: { monitor: 12 }
-  }),
-  input: createElTemplate({
+    style: {
+      fontSize: 18,
+      fontFamily: 'Inherit',
+      width: 150,
+      height: 'auto',
+      backgroundColor: '#f4f8f8',
+      color: '#000000',
+      borderRadius: 16,
+      paddingTop: 12,
+      paddingRight: 12,
+      paddingLeft: 12,
+      paddingBottom: 12
+    }
+  },
+  input: {
+    id: '',
     tag: 'input',
-    name: 'input',
-    type: 'email',
-    placeholder: 'E-Mail',
-    width: { monitor: 150 },
-    height: { monitor: 'auto' },
-    fontSize: { monitor: 14 },
-    paddingTop: { monitor: 6 },
-    paddingRight: { monitor: 6 },
-    paddingLeft: { monitor: 6 },
-    paddingBottom: { monitor: 6 }
-  }),
+    name: ElementsName.Input,
+    moveable: true,
+    focusable: true,
+    contentEditable: false,
+    style: {
+      fontSize: 14,
+      fontFamily: 'Inherit',
+      color: '#000000',
+      width: 150,
+      height: 'auto',
+      paddingTop: 6,
+      paddingRight: 6,
+      paddingLeft: 6,
+      paddingBottom: 6
+    },
+    attrs: {
+      type: 'email',
+      placeholder: 'E-Mail'
+    }
+  },
   image: {
+    id: '',
     tag: 'img',
-    name: 'image',
-    width: { monitor: 'auto' },
-    height: { monitor: 'auto' },
-    left: { monitor: 0 },
-    top: { monitor: 0 }
+    name: ElementsName.Image,
+    moveable: true,
+    focusable: false,
+    contentEditable: false,
+    style: {
+      width: 'auto',
+      height: 'auto'
+    }
   }
-};
+} as const;

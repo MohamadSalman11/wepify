@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
-import { TOAST_DURATION, ToastMessages } from '../constant';
+import { ToastMessages } from '../constant';
+import { AppToast } from '../utils/appToast';
 
 export const useNetworkStatus = (showToast = true) => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -10,7 +10,7 @@ export const useNetworkStatus = (showToast = true) => {
       setIsOnline(false);
 
       if (showToast) {
-        toast.error(ToastMessages.network.offline, { duration: TOAST_DURATION });
+        AppToast.error(ToastMessages.network.offline);
       }
     };
 
@@ -18,7 +18,7 @@ export const useNetworkStatus = (showToast = true) => {
       setIsOnline(true);
 
       if (showToast) {
-        toast.success(ToastMessages.network.online, { duration: TOAST_DURATION });
+        AppToast.success(ToastMessages.network.online);
       }
     };
 

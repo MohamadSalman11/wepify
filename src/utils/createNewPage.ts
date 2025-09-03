@@ -1,14 +1,15 @@
 import { nanoid } from '@reduxjs/toolkit';
-import { DEFAULT_PAGE_BACKGROUND_COLOR, ELEMENTS_TEMPLATE, ID_FIRST_SECTION } from '@shared/constants';
-import type { PageElement, SitePage } from '@shared/typing';
+import { ELEMENTS_TEMPLATE, ID_FIRST_SECTION } from '@shared/constants';
+import type { Page } from '@shared/typing';
 
 const DEFAULT_TITLE = 'Untitled';
+export const DEFAULT_PAGE_BACKGROUND_COLOR = '#343c44';
 
-export const createNewPage = (name: string, title?: string): SitePage => ({
+export const createNewPage = (name: string, title?: string): Page => ({
   id: nanoid(),
   name,
   title: title || DEFAULT_TITLE,
   isIndex: false,
   backgroundColor: DEFAULT_PAGE_BACKGROUND_COLOR,
-  elements: [{ ...ELEMENTS_TEMPLATE.section, id: ID_FIRST_SECTION } as PageElement]
+  elements: { [ID_FIRST_SECTION]: { ...ELEMENTS_TEMPLATE.section, id: ID_FIRST_SECTION } }
 });

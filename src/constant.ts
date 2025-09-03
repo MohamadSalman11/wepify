@@ -1,5 +1,4 @@
-export const TOAST_DURATION = 5000;
-export const TOAST_DELAY_MS = 1000;
+export const MESSAGE_UNSAVED_CHANGES = 'Changes you made may not be saved.';
 
 export enum Path {
   Home = '/',
@@ -30,8 +29,6 @@ export enum LoadingMessages {
 
 export enum StorageKey {
   Sites = 'sites',
-  SitesMetaData = 'sitesMetadata',
-  Site = 'site',
   Images = 'images'
 }
 
@@ -70,6 +67,9 @@ export const ToastMessages = {
     linkCopyErr: 'Failed to copy page link',
     emptyName: 'Page name cannot be empty',
     duplicateName: 'A page with this name already exists. Please choose a different name'
+  },
+  image: {
+    used: 'This image is used in one of the pages and cannot be deleted'
   },
   network: {
     offline: 'You are currently offline. Some features may be unavailable',

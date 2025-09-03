@@ -1,5 +1,5 @@
-import { UNSAVED_CHANGES_MESSAGE } from '@shared/constants';
 import { cloneElement, DOMAttributes, MouseEvent, ReactElement } from 'react';
+import { MESSAGE_UNSAVED_CHANGES } from '../constant';
 import { useAppSelector } from '../store';
 
 /**
@@ -22,9 +22,8 @@ export default function ConfirmNavigation({ children, onConfirmed }: ConfirmNavi
     event.preventDefault();
     event.stopPropagation();
 
-    if (isStoring) {
-      const confirmed = globalThis.confirm(UNSAVED_CHANGES_MESSAGE);
-      if (!confirmed) return;
+    if (isStoring && !globalThis.confirm(MESSAGE_UNSAVED_CHANGES)) {
+      return;
     }
 
     onConfirmed();

@@ -5,8 +5,8 @@ import { ThemeProvider } from 'styled-components';
 import NotFound from './components/NotFound';
 import RequireDesktop from './components/RequiredDesktop';
 import { DashboardPath, EditorPath, Path } from './constant';
+import HomeSites from './features/dashboard/main/HomeSites';
 import RecentSites from './features/dashboard/main/RecentSites';
-import SitesView from './features/dashboard/main/SitesView';
 import StarredSites from './features/dashboard/main/StarredSites';
 import { PanelProvider } from './features/editor/context/PanelContext';
 import Panel from './features/editor/panels';
@@ -34,7 +34,7 @@ function App() {
                   </RequireDesktop>
                 }
               >
-                <Route index element={<SitesView />} />
+                <Route index element={<HomeSites />} />
                 <Route path={DashboardPath.Recent} element={<RecentSites />} />
                 <Route path={DashboardPath.Starred} element={<StarredSites />} />
               </Route>

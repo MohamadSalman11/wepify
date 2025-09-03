@@ -30,7 +30,7 @@ const DEFAULT_TRANSLATE_Y = 0;
 
 type ClickableElement = ReactElement<{ onClick?: MouseEventHandler; ref: RefObject<HTMLElement | null> }>;
 
-interface DropdownContext {
+interface DropdownContextProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   toggleRef: RefObject<HTMLElement | null>;
@@ -40,18 +40,6 @@ interface Position {
   top: number;
   left: number;
 }
-
-/**
- * Context
- */
-
-const DropdownContext = createContext<DropdownContext | null>(null);
-
-const useDropdownContext = () => {
-  const context = useContext(DropdownContext);
-  if (!context) throw new Error('Dropdown components must be used within <Dropdown>');
-  return context;
-};
 
 /**
  * Component definition
@@ -139,6 +127,18 @@ function Button({
     </li>
   );
 }
+
+const DropdownContext = createContext<DropdownContextProps | null>(null);
+
+const useDropdownContext = () => {
+  const context = useContext(DropdownContext);
+
+  if (!context) {
+    throw new Error('Dropdown components must be used within <Dropdown>');
+  }
+
+  return context;
+};
 
 Dropdown.Open = Open;
 Dropdown.Drop = Drop;

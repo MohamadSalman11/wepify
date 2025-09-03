@@ -1,31 +1,60 @@
-import { Outlet, useLocation } from 'react-router-dom';
+import { SiteMetadata } from '@shared/typing';
+import { useState } from 'react';
+import { LuArrowLeft } from 'react-icons/lu';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { DashboardPath } from '../../../constant';
-import { useAppSelector } from '../../../store';
+import Icon from '../../../components/Icon';
+import { DashboardPath, Path } from '../../../constant';
 import SearchBox from './SearchBox';
+import SitesView from './SitesView';
 
 /**
  * Constants
  */
 
-const SEARCHBOX_EXCLUDE_PATHS = new Set([DashboardPath.Recent, DashboardPath.Starred]);
+const EXCLUDED_SEARCH_PATHS = new Set([DashboardPath.Recent, DashboardPath.Starred]);
+
+const EMPTY_STATE_FILTERED_SITES = {
+  title: 'No matching result',
+  info: 'Try adjusting or clearing your filters to find sites.'
+};
 
 /**
  * Component definition
  */
 
-export default function Main() {
+export default function MainDashboard() {
   const { pathname } = useLocation();
-  const { filters } = useAppSelector((state) => state.dashboard);
-  const hasActiveFilters = Object.keys(filters).length > 0;
-  const lastPathSegment = pathname.split('/').findLast((segment) => segment.length > 0) ?? '';
-  const hideSearch = SEARCHBOX_EXCLUDE_PATHS.has(lastPathSegment as DashboardPath);
+  const navigate = useNavigate();
+  const [filteredSites, setFilteredSites] = useState<SiteMetadata[]>([]);
+  const [filterLabel, setFilterLabel] = useState<string>('');
+  const [isFiltering, setIsFiltering] = useState<boolean>(false);
+  const lastPathSegment = pathname.split('/').findLast(Boolean) ?? '';
+  const hideSearchBox = isFiltering || EXCLUDED_SEARCH_PATHS.has(lastPathSegment as DashboardPath);
+
+  const handleBackClick = () => {
+    navigate(Path.Dashboard);
+    setIsFiltering(false);
+  };
 
   return (
-    <StyledMain>
-      {hasActiveFilters || hideSearch || <SearchBox />}
-      <Outlet />
-    </StyledMain>
+    <Container>
+      {hideSearchBox ? (
+        <Icon icon={LuArrowLeft} hover onClick={handleBackClick} />
+      ) : (
+        <SearchBox
+          setFilteredSites={setFilteredSites}
+          setFilterLabel={setFilterLabel}
+          setIsFiltering={setIsFiltering}
+        />
+      )}
+
+      {isFiltering ? (
+        <SitesView sites={filteredSites} title={filterLabel} emptyStateMessages={EMPTY_STATE_FILTERED_SITES} />
+      ) : (
+        <Outlet />
+      )}
+    </Container>
   );
 }
 
@@ -33,7 +62,7 @@ export default function Main() {
  * Styles
  */
 
-const StyledMain = styled.main`
+const Container = styled.main`
   padding: 2.4rem;
   flex-grow: 1;
   height: 88vh;

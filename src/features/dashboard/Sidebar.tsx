@@ -1,25 +1,23 @@
 import { nanoid } from '@reduxjs/toolkit';
-import type { BaseElement, PageElement, RequiredKeys, Site, SitePage } from '@shared/typing';
-import toast from 'react-hot-toast';
+import type { Page, PageElement, RequiredKeys, Site } from '@shared/typing';
 import { LuClock4, LuCloud, LuFileDown, LuFilePlus, LuHouse, LuLoader, LuStar } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from '../../components/Button';
 import Icon from '../../components/Icon';
-import { DashboardPath, Path, StorageKey, TOAST_DELAY_MS, ToastMessages } from '../../constant';
+import { DashboardPath, Path, StorageKey, ToastMessages } from '../../constant';
 import { useFilePicker } from '../../hooks/useFilePicker';
 import { useAppSelector } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
+import { AppToast } from '../../utils/appToast';
 import { buildPath } from '../../utils/buildPath';
 import { createNewPage } from '../../utils/createNewPage';
 import { formatSize } from '../../utils/formatSize';
 import { runWithToast } from '../../utils/runWithToast';
 import { toSiteMetadata } from '../../utils/toSiteMetadata';
-import { updateInSitesStorage } from '../../utils/updateSitesInStorage';
-import { setIsLoading } from '../editor/slices/editorSlice';
 import { StyledLoader } from './main/SitesView';
-import { addSite, setIsProcessing } from './slices/dashboardSlice';
+import { selectSitesArray } from './slices/dashboardSlice';
 
 /**
  * Constants
@@ -33,13 +31,17 @@ const ACCEPTED_FILE_TYPE = '.json';
  * Types
  */
 
-const ELEMENT_SCHEMA: Record<RequiredKeys<BaseElement>, string> = {
+const ELEMENT_SCHEMA: Record<RequiredKeys<PageElement>, string> = {
   id: 'string',
   tag: 'string',
-  name: 'string'
+  name: 'string',
+  contentEditable: 'boolean',
+  focusable: 'boolean',
+  moveable: 'boolean',
+  style: 'object'
 };
 
-const PAGE_SCHEMA: Omit<Record<keyof SitePage, string>, 'id'> = {
+const PAGE_SCHEMA: Omit<Record<keyof Page, string>, 'id'> = {
   name: 'string',
   title: 'string',
   isIndex: 'boolean',
@@ -63,15 +65,15 @@ const SITE_SCHEMA: Omit<Record<keyof Site, string>, 'id'> = {
 export default function Sidebar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const sitesMetadata = useAppSelector((state) => state.dashboard.sitesMetadata);
-  const totalSize = formatSize(sitesMetadata.reduce((acc, curr) => acc + curr.sizeKb, 0));
+  const sites = useAppSelector(selectSitesArray);
+  const totalSize = formatSize(sites.reduce((acc, cur) => acc + cur.sizeKb, 0));
   const { input, openFilePicker } = useFilePicker({ accept: ACCEPTED_FILE_TYPE, onSelect: handleUploadSiteJson });
 
   const handleDesignNewSite = async () => {
     const siteId = nanoid();
     const page = createNewPage(DEFAULT_NAME);
 
-    toast.dismiss();
+    AppToast.dismiss();
 
     page.isIndex = true;
 
@@ -82,11 +84,11 @@ export default function Sidebar() {
       createdAt: Date.now(),
       lastModified: Date.now(),
       isStarred: false,
-      pages: [page]
+      pages: { [page.id]: page }
     };
 
-    dispatch(setIsLoading(true));
-    await AppStorage.setItem(StorageKey.Site, site);
+    // dispatch(setIsLoading(true));
+    await AppStorage.updateObject(StorageKey.Sites, { [siteId]: site });
     navigate(buildPath(Path.Editor, { siteId, pageId: page.id }));
   };
 
@@ -97,9 +99,8 @@ export default function Sidebar() {
       successMessage: ToastMessages.site.imported,
       errorMessage: ToastMessages.site.importFailed,
       icon: <StyledLoader icon={LuLoader} color='var(--color-primary)' size='md' />,
-      delay: TOAST_DELAY_MS,
       onExecute: async () => {
-        dispatch(setIsProcessing(true));
+        // dispatch(setIsProcessing(true));
 
         const text = await file.text();
         const parsedSite: Site & { __WARNING__?: string } = JSON.parse(text);
@@ -113,10 +114,8 @@ export default function Sidebar() {
         const importedSite = {
           ...parsedSite,
           id: nanoid(),
-          pages: parsedSite.pages.map((page: SitePage) => ({ ...page, id: nanoid() }))
+          pages: parsedSite.pages.map((page: Page) => ({ ...page, id: nanoid() }))
         };
-
-        await updateInSitesStorage((sites) => [...sites, importedSite]);
 
         dispatch(addSite(toSiteMetadata(importedSite)));
 
@@ -155,13 +154,13 @@ export default function Sidebar() {
         </NavList>
       </nav>
       <TotalSize>
-        <Icon icon={LuCloud} /> Total size: {sitesMetadata.length > 0 ? totalSize : '0 KB'}
+        <Icon icon={LuCloud} /> Total size: {totalSize}
       </TotalSize>
     </StyledSidebar>
   );
 }
 
-const validate = (obj: Site | SitePage | PageElement, schema: Record<string, string>): boolean => {
+const validate = (obj: Site | Page | PageElement, schema: Record<string, string>): boolean => {
   if (typeof obj !== 'object' || obj === null) return false;
 
   return Object.entries(schema).every(([key, type]) => {
@@ -186,7 +185,7 @@ const validateSiteJson = (site: Site): boolean =>
   validate(site, SITE_SCHEMA) &&
   Array.isArray(site.pages) &&
   site.pages.every(
-    (page: SitePage) =>
+    (page: Page) =>
       validate(page, PAGE_SCHEMA) && Array.isArray(page.elements) && page.elements.every((el) => isValidElement(el))
   );
 

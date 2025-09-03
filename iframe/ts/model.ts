@@ -6,7 +6,6 @@ export const state: {
   target: HTMLElement | null;
   targetName: string | null;
   initRender: boolean;
-  isSitePreviewMode: boolean;
   scaleFactor: number;
   deviceType: DeviceType;
   lastCopiedEl: HTMLElement | null;
@@ -16,33 +15,10 @@ export const state: {
   target: null,
   targetName: null,
   initRender: true,
-  isSitePreviewMode: false,
   scaleFactor: 100,
   deviceType: 'tablet',
   lastCopiedEl: null,
   longPressTimer: null
-};
-
-export const getTarget = (): HTMLElement => {
-  if (!state.target) throw new Error('No current target set');
-  return state.target;
-};
-
-export const getMoveableInstance = (): Moveable => {
-  if (!state.moveable) throw new Error('No Moveable instance set');
-  return state.moveable;
-};
-
-export const changeTarget = (newTarget: HTMLElement, name: string) => {
-  state.target = null;
-  state.targetName = null;
-
-  if (state.moveable) {
-    state.moveable.target = null;
-  }
-
-  state.target = newTarget;
-  state.targetName = name;
 };
 
 export const initializeState = () => {
@@ -54,7 +30,6 @@ export const initializeState = () => {
   state.target = null;
   state.targetName = null;
   state.initRender = true;
-  state.isSitePreviewMode = false;
   state.scaleFactor = 100;
   state.deviceType = 'tablet';
   state.longPressTimer = null;

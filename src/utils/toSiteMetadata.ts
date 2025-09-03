@@ -1,7 +1,17 @@
 import { Site } from '@shared/typing';
-import { calculateSiteSize } from './calculateSiteSize';
 
 export const toSiteMetadata = (site: Site) => {
+  const pagesCount = Object.keys(site.pages).length;
+  let sizeBytes = new Blob([JSON.stringify(site)]).size;
+
+  for (const page of Object.values(site.pages)) {
+    for (const el of Object.values(page.elements)) {
+      if ('blobId' in el && el.blobId && 'size' in el && typeof el.size === 'number') {
+        sizeBytes += el.size;
+      }
+    }
+  }
+
   return {
     id: site.id,
     name: site.name,
@@ -9,8 +19,7 @@ export const toSiteMetadata = (site: Site) => {
     createdAt: site.createdAt,
     lastModified: site.lastModified,
     isStarred: site.isStarred,
-    sizeKb: calculateSiteSize(site, 'kb'),
-    pagesCount: site.pages.length,
-    firstPageId: site.pages[0].id
+    pagesCount,
+    sizeKb: Math.round(sizeBytes / 1024)
   };
 };

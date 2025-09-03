@@ -1,234 +1,63 @@
-import { TARGET_ORIGIN } from '@shared/constants';
-import {
-  DeviceType,
-  MessageFromIframe,
-  MessageFromIframeData,
-  MessageToIframe,
-  PageElement,
-  Site
-} from '@shared/typing';
-import { generateFileNameFromPageName } from '@shared/utils';
-import { useCallback, useEffect, useMemo, useState, type RefObject } from 'react';
+import { EditorToIframe, IframeToEditor } from '@shared/constants';
+import iframeConnection from '@shared/iframeConnection';
+import { useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { EditorPath } from '../../../constant';
-import { useAppSelector } from '../../../store';
+import { AppDispatch, useAppSelector } from '../../../store';
 import {
   addElement,
-  deleteElementInSite,
-  selectElement,
-  setDeviceType,
-  setIsDownloadingSite,
-  setLastCopiedElement,
-  updateElementInSite,
-  updatePageInSite,
-  updateSelectElement
-} from '../slices/editorSlice';
-import { setBackground } from '../slices/pageSlice';
+  deleteElement,
+  selectCurrentPage,
+  selectCurrentPageElements,
+  selectCurrentPageId,
+  setCurrentElement,
+  updateElement,
+  updatePage
+} from '../editorSlice';
 
-const PAGE_NAME_INDEX = 'index';
-const PAGE_PATH_SEGMENT_REGEX = /\/pages\/[^/]+/;
+export const useIframeConnection = () => {
+  const dispatch: AppDispatch = useDispatch();
+  const currentPageId = useAppSelector(selectCurrentPageId);
+  const elements = useAppSelector(selectCurrentPageElements);
+  const deviceSimulator = useAppSelector((state) => state.editor.deviceSimulator);
+  const pageBackgroundColor = useAppSelector(selectCurrentPage).backgroundColor;
+  const elementsRef = useRef(elements);
 
-export const useIframeConnection = (iframeRef: RefObject<HTMLIFrameElement | null>) => {
-  const dispatch = useDispatch();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [iframeReady, setIframeReady] = useState(false);
-  const pagesMetadata = useAppSelector((state) => state.editor.pagesMetadata);
-  const lastCopiedElement = useAppSelector((state) => state.editor.lastCopiedElement);
-
-  const postMessageToIframe = useCallback(
-    (message: Record<string, any>) => {
-      const iframeWindow = iframeRef.current?.contentWindow;
-      if (iframeWindow) {
-        iframeWindow.postMessage(message, TARGET_ORIGIN);
-      }
-    },
-    [iframeRef]
-  );
-
-  const renderElements = useCallback(
-    (
-      elements: PageElement[],
-      isPreview: boolean,
-      deviceType: DeviceType,
-      scaleFactor: number,
-      backgroundColor: string
-    ) => {
-      postMessageToIframe({
-        type: MessageToIframe.RenderElements,
-        payload: { isPreview, elements, deviceType, scaleFactor, backgroundColor }
-      });
-    },
-    [postMessageToIframe]
-  );
-
-  const insertElement = useCallback(
-    ({
-      name,
-      element,
-      additionalProps
-    }: {
-      name?: string;
-      element?: PageElement;
-      additionalProps?: Record<string, any>;
-    }) => {
-      postMessageToIframe({ type: MessageToIframe.InsertElement, payload: { name, element, additionalProps } });
-    },
-    [postMessageToIframe]
-  );
-
-  const updateElement = useCallback(
-    (updates: Record<string, any>) => {
-      postMessageToIframe({ type: MessageToIframe.UpdateElement, payload: { updates } });
-    },
-    [postMessageToIframe]
-  );
-
-  const updatePage = useCallback(
-    (updates: Record<string, any>) => {
-      postMessageToIframe({ type: MessageToIframe.UpdatePage, payload: { updates } });
-    },
-    [postMessageToIframe]
-  );
-
-  const deleteElement = useCallback(() => {
-    postMessageToIframe({ type: MessageToIframe.DeleteElement });
-  }, [postMessageToIframe]);
-
-  const changeSelection = useCallback(
-    (id: string) => {
-      postMessageToIframe({ type: MessageToIframe.ChangeSelection, payload: id });
-    },
-    [postMessageToIframe]
-  );
-
-  const downloadSite = useCallback(
-    (site: Site, shouldMinify: boolean) => {
-      postMessageToIframe({ type: MessageToIframe.DownloadSite, payload: { site, shouldMinify } });
-    },
-    [postMessageToIframe]
-  );
-
-  const initializeState = useCallback(() => {
-    postMessageToIframe({ type: MessageToIframe.InitializeState });
-  }, [postMessageToIframe]);
+  elementsRef.current = elements;
 
   useEffect(() => {
-    const handleMessage = async (event: MessageEvent) => {
-      const data: MessageFromIframeData = event.data;
-
-      switch (data.type) {
-        case MessageFromIframe.IframeReady: {
-          setIframeReady(true);
-          break;
-        }
-        case MessageFromIframe.BreakpointChanged: {
-          dispatch(setDeviceType(data.payload.newDeviceType));
-          break;
-        }
-        case MessageFromIframe.SelectionChanged: {
-          dispatch(selectElement(data.payload));
-          break;
-        }
-        case MessageFromIframe.ElementUpdated: {
-          const { id, fields } = data.payload;
-
-          dispatch(updateSelectElement(fields));
-
-          dispatch(
-            updateElementInSite({
-              elementId: id,
-              updates: fields
-            })
-          );
-          break;
-        }
-        case MessageFromIframe.PageUpdated: {
-          const { updates } = data.payload;
-
-          if (updates.backgroundColor) {
-            dispatch(setBackground(updates.backgroundColor));
-          }
-
-          dispatch(updatePageInSite(updates));
-          break;
-        }
-        case MessageFromIframe.ElementInserted: {
-          const { element, parentId, domIndex } = data.payload;
-          dispatch(addElement({ newElement: element, parentElementId: parentId, domIndex }));
-          break;
-        }
-        case MessageFromIframe.ElementDeleted: {
-          dispatch(deleteElementInSite(data.payload));
-          break;
-        }
-        case MessageFromIframe.SiteDownloaded: {
-          dispatch(setIsDownloadingSite(false));
-          break;
-        }
-        case MessageFromIframe.CopyElement: {
-          dispatch(setLastCopiedElement());
-          break;
-        }
-        case MessageFromIframe.PasteElement: {
-          if (!lastCopiedElement) return;
-
-          insertElement({ element: lastCopiedElement });
-          break;
-        }
-        case MessageFromIframe.NavigateToPage: {
-          const pageFileName = data.payload;
-          let isNavigated = false;
-
-          for (const page of pagesMetadata) {
-            const pageName = page.isIndex ? PAGE_NAME_INDEX : page.name;
-            const generatedFileName = generateFileNameFromPageName(pageName);
-
-            if (generatedFileName === pageFileName) {
-              isNavigated = true;
-              const currentPath = location.pathname;
-              const updatedPath = currentPath.replace(PAGE_PATH_SEGMENT_REGEX, `/${EditorPath.Pages}/${page.id}`);
-
-              navigate(updatedPath);
-              break;
-            }
-          }
-
-          if (!isNavigated) {
-            window.open(pageFileName, '_blank', 'noopener,noreferrer');
-          }
-          break;
-        }
-      }
+    const handleIframeReady = () => {
+      const payload = { elements: elementsRef.current, deviceSimulator, backgroundColor: pageBackgroundColor };
+      iframeConnection.send(EditorToIframe.RenderPage, payload);
     };
 
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [dispatch, navigate, insertElement, iframeRef, pagesMetadata, lastCopiedElement, location.pathname]);
+    iframeConnection.on(IframeToEditor.IframeReady, handleIframeReady);
 
-  return useMemo(
-    () => ({
-      iframeReady,
-      renderElements,
-      updateElement,
-      insertElement,
-      changeSelection,
-      deleteElement,
-      downloadSite,
-      updatePage,
-      initializeState
-    }),
-    [
-      iframeReady,
-      renderElements,
-      updateElement,
-      insertElement,
-      changeSelection,
-      deleteElement,
-      downloadSite,
-      updatePage,
-      initializeState
-    ]
-  );
+    return () => iframeConnection.off(IframeToEditor.IframeReady);
+  }, [deviceSimulator, pageBackgroundColor]);
+
+  useEffect(() => {
+    const payload = { deviceSimulator, elements: elementsRef.current };
+    iframeConnection.send(EditorToIframe.DeviceChanged, payload);
+
+    return () => iframeConnection.off(EditorToIframe.DeviceChanged);
+  }, [deviceSimulator]);
+
+  useEffect(() => {
+    iframeConnection.on(IframeToEditor.SelectElement, (payload) => dispatch(setCurrentElement(payload)));
+    iframeConnection.on(IframeToEditor.StoreElement, (payload) => dispatch(addElement(payload)));
+    iframeConnection.on(IframeToEditor.UpdateElement, (payload) => dispatch(updateElement(payload)));
+    iframeConnection.on(IframeToEditor.DeleteElement, (payload) => dispatch(deleteElement(payload)));
+
+    iframeConnection.on(IframeToEditor.PageUpdated, (payload) =>
+      dispatch(updatePage({ id: currentPageId as string, updates: payload }))
+    );
+
+    return () => {
+      iframeConnection.off(IframeToEditor.SelectElement);
+      iframeConnection.off(IframeToEditor.StoreElement);
+      iframeConnection.off(IframeToEditor.UpdateElement);
+      iframeConnection.off(IframeToEditor.DeleteElement);
+      iframeConnection.off(IframeToEditor.PageUpdated);
+    };
+  }, [dispatch, currentPageId]);
 };

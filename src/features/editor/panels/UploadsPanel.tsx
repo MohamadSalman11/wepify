@@ -1,19 +1,16 @@
-import { nanoid } from '@reduxjs/toolkit';
-import { ElementsName } from '@shared/constants';
-import { Image } from '@shared/typing';
-import { MouseEvent } from 'react';
-import toast from 'react-hot-toast';
+import { EditorToIframe, ElementsName } from '@shared/constants';
+import iframeConnection from '@shared/iframeConnection';
+import { Dispatch, MouseEvent, RefObject, useEffect, useRef, useState } from 'react';
 import { LuTrash2 } from 'react-icons/lu';
 import Masonry from 'react-masonry-css';
-import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import Button from '../../../components/Button';
 import Icon from '../../../components/Icon';
-import { useIframeContext } from '../../../context/IframeContext';
-import { useFilePicker } from '../../../hooks/useFilePicker';
+import { StorageKey, ToastMessages } from '../../../constant';
 import { useAppSelector } from '../../../store';
-import { useImageUpload } from '../hooks/useImageUpload';
-import { addImage, deleteImage } from '../slices/editorSlice';
+import { AppStorage } from '../../../utils/appStorage';
+import { AppToast } from '../../../utils/appToast';
+import { selectCurrentSite } from '../editorSlice';
 
 /**
  * Constants
@@ -22,55 +19,117 @@ import { addImage, deleteImage } from '../slices/editorSlice';
 const ACCEPTED_FILE_TYPE = 'image/*';
 
 /**
+ * Types
+ */
+
+interface Image {
+  id: string;
+  blob: Blob;
+  url: string;
+}
+
+/**
  * Component definition
  */
 
 export default function UploadsPanel() {
-  const dispatch = useDispatch();
-  const { iframeConnection } = useIframeContext();
-  const images = useAppSelector((state) => state.editor.images);
+  const [images, setImages] = useState<Image[]>([]);
+  const urlsRef = useRef<string[]>([]);
 
-  const handleImageUpload = useImageUpload(
-    (result) => {
-      if (!result) return;
-      iframeConnection.insertElement({ name: ElementsName.Image, additionalProps: { src: result } });
-      dispatch(addImage({ id: nanoid(), dataUrl: result as string }));
-    },
-    (message) => toast.error(message)
-  );
+  useEffect(() => {
+    const loadImages = async () => {
+      const stored = await AppStorage.get<Record<string, Blob>>(StorageKey.Images, {});
+      const imgs: Image[] = [];
 
-  const { input, openFilePicker } = useFilePicker({ accept: ACCEPTED_FILE_TYPE, onSelect: handleImageUpload });
+      for (const [id, blob] of Object.entries(stored)) {
+        const url = URL.createObjectURL(blob);
+        urlsRef.current.push(url);
+        imgs.push({ id, blob, url });
+      }
 
-  const handleDeleteImage = (event: MouseEvent<HTMLSpanElement>, img: Image) => {
-    event.stopPropagation();
-    dispatch(deleteImage(img.id));
-  };
+      setImages(imgs);
+    };
+
+    loadImages();
+
+    const urlsToRevoke = [...urlsRef.current];
+
+    return () => {
+      for (const url of urlsToRevoke) {
+        URL.revokeObjectURL(url);
+      }
+    };
+  }, []);
 
   return (
     <>
-      {input}
-      <Button fullWidth onClick={openFilePicker}>
+      <Button fullWidth onClick={() => {}}>
         Upload File
       </Button>
       {images.length === 0 && <EmptyMessage>No images uploaded yet</EmptyMessage>}
       <MasonryGrid breakpointCols={2} className='masonry-grid' columnClassName='masonry-grid_column'>
-        {images?.map((img, i) => (
-          <MediaItem
-            key={img.id}
-            onClick={() =>
-              iframeConnection.insertElement({ name: ElementsName.Image, additionalProps: { src: img.dataUrl } })
-            }
-          >
-            <img src={img.dataUrl || ''} alt={`uploaded image ${i + 1}`} loading='lazy' />
-            <span onClick={(event) => handleDeleteImage(event, img)}>
-              <Icon icon={LuTrash2} color='var(--color-white)' />
-            </span>
-          </MediaItem>
-        ))}
+        {images?.map((img, i) => <MediaItem img={img} index={i} urlsRef={urlsRef} setImages={setImages} />)}
       </MasonryGrid>
     </>
   );
 }
+
+function MediaItem({
+  img,
+  index,
+  urlsRef,
+  setImages
+}: {
+  img: Image;
+  index: number;
+  urlsRef: RefObject<string[]>;
+  setImages: Dispatch<React.SetStateAction<Image[]>>;
+}) {
+  const site = useAppSelector(selectCurrentSite);
+
+  const handleDeleteImage = (event: MouseEvent<HTMLSpanElement>) => {
+    event.stopPropagation();
+
+    const { id, url } = img;
+
+    const pages = site ? Object.values(site.pages) : [];
+    const elements = pages.flatMap((page) => Object.values(page.elements));
+    const used = elements.some((el) => 'blobId' in el && el.blobId === id);
+
+    if (used) {
+      AppToast.error(ToastMessages.image.used);
+      return;
+    }
+
+    setImages((prev) => prev.filter((img) => img.id !== id));
+
+    URL.revokeObjectURL(url);
+    urlsRef.current = urlsRef.current.filter((u) => u !== url);
+    AppStorage.deleteFromObject(StorageKey.Images, id);
+  };
+
+  return (
+    <StyledMediaItem key={img.id} onClick={() => handleAddMediaItem(img)}>
+      <img src={img.url} alt={`uploaded image ${index + 1}`} loading='lazy' />
+      <span onClick={handleDeleteImage}>
+        <Icon icon={LuTrash2} color='var(--color-white)' />
+      </span>
+    </StyledMediaItem>
+  );
+}
+
+const handleAddMediaItem = (img: Image) => {
+  const payload = {
+    name: ElementsName.Image,
+    additionalProps: {
+      blobId: img.id,
+      url: img.url,
+      size: img.blob.size
+    }
+  };
+
+  iframeConnection.send(EditorToIframe.InsertElement, payload);
+};
 
 /**
  * Styles
@@ -103,7 +162,7 @@ const MasonryGrid = styled(Masonry)`
   }
 `;
 
-const MediaItem = styled.div`
+const StyledMediaItem = styled.div`
   position: relative;
   border-radius: var(--border-radius-md);
   overflow: hidden;

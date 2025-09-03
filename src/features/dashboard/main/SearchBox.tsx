@@ -1,8 +1,7 @@
-import type { InputChangeEvent, SiteMetadata } from '@shared/typing';
-import { useRef, useState, type ReactNode } from 'react';
+import type { SiteMetadata } from '@shared/typing';
+import { ChangeEvent, Dispatch, SetStateAction, useRef, useState, type ReactNode } from 'react';
 import type { IconType } from 'react-icons';
 import { LuCalendar, LuChevronDown, LuFileStack, LuHardDrive, LuLayoutTemplate, LuSearch, LuX } from 'react-icons/lu';
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 import Dropdown from '../../../components/Dropdown';
@@ -13,12 +12,13 @@ import useOutsideClick from '../../../hooks/useOutsideClick';
 import { useAppSelector } from '../../../store';
 import { buildPath } from '../../../utils/buildPath';
 import { formatDate } from '../../../utils/formatDate';
-import { setActiveSiteById } from '../../../utils/setActiveSiteById';
-import { setFilterLabel, setFilters, type FilterCriteria } from '../slices/dashboardSlice';
+import { selectSitesArray } from '../dashboardSlice';
 
 /**
  * Constants
  */
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 const OPTIONS_SIZE = [
   { label: '< 500 KB', min: 0, max: 500 },
@@ -45,20 +45,44 @@ const OPTIONS_MODIFIED = [
 ];
 
 /**
+ * Types
+ */
+
+interface FilterCriteria {
+  sizeRange?: {
+    min: number;
+    max: number;
+  };
+  pageRange?: {
+    min: number;
+    max: number;
+  };
+  modifiedWithinDays?: number;
+}
+
+/**
  * Component definition
  */
 
-export default function SearchBox() {
-  const sitesMetadata = useAppSelector((state) => state.dashboard.sitesMetadata);
+export default function SearchBox({
+  setFilteredSites,
+  setFilterLabel,
+  setIsFiltering
+}: {
+  setFilteredSites: Dispatch<SetStateAction<SiteMetadata[]>>;
+  setFilterLabel: Dispatch<SetStateAction<string>>;
+  setIsFiltering: Dispatch<SetStateAction<boolean>>;
+}) {
+  const sites = useAppSelector(selectSitesArray);
   const [matchedSites, setMatchedSites] = useState<SiteMetadata[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const isSearchResultVisible = isSearching;
 
-  const handleSearch = (event: InputChangeEvent) => {
+  const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
     const search = event.target.value.toLowerCase();
     const matchSites = search
-      ? sitesMetadata.filter(
+      ? sites.filter(
           (site) => site.name.toLowerCase().includes(search) || site.description.toLowerCase().includes(search)
         )
       : [];
@@ -82,7 +106,7 @@ export default function SearchBox() {
         {isSearching && <Icon icon={LuX} onClick={clearSearch} />}
       </Searchbar>
       {isSearchResultVisible && <SearchResults matchedSites={matchedSites} />}
-      <FilterList />
+      <FilterList setFilteredSites={setFilteredSites} setFilterLabel={setFilterLabel} setIsFiltering={setIsFiltering} />
     </StyledSearchBox>
   );
 }
@@ -92,7 +116,6 @@ function SearchResults({ matchedSites }: { matchedSites: SiteMetadata[] }) {
   const isNoResult = matchedSites.length === 0;
 
   const handleOpenEditor = async (site: SiteMetadata) => {
-    await setActiveSiteById(site.id);
     navigate(buildPath(Path.Editor, { siteId: site.id, pageId: site.firstPageId }));
   };
 
@@ -120,12 +143,34 @@ function SearchResults({ matchedSites }: { matchedSites: SiteMetadata[] }) {
   );
 }
 
-function FilterList() {
-  const dispatch = useDispatch();
+function FilterList({
+  setFilteredSites,
+  setFilterLabel,
+  setIsFiltering
+}: {
+  setFilteredSites: Dispatch<SetStateAction<SiteMetadata[]>>;
+  setFilterLabel: Dispatch<SetStateAction<string>>;
+  setIsFiltering: Dispatch<SetStateAction<boolean>>;
+}) {
+  const sites = useAppSelector(selectSitesArray);
+  const now = Date.now();
 
-  const handleFilter = (filter: Partial<FilterCriteria>, label: string) => {
-    dispatch(setFilters(filter));
-    dispatch(setFilterLabel(label));
+  const handleFilter = (filters: Partial<FilterCriteria>, label: string) => {
+    const matchedSites = sites.filter((site) => {
+      const { sizeKb, pagesCount, lastModified } = site;
+
+      const sizeMatch = !filters.sizeRange || (sizeKb >= filters.sizeRange.min && sizeKb <= filters.sizeRange.max);
+      const pageMatch =
+        !filters.pageRange || (pagesCount >= filters.pageRange.min && pagesCount <= filters.pageRange.max);
+      const modifiedMatch =
+        !filters.modifiedWithinDays || now - lastModified <= filters.modifiedWithinDays * MS_PER_DAY;
+
+      return sizeMatch && pageMatch && modifiedMatch;
+    });
+
+    setFilterLabel(label);
+    setIsFiltering(true);
+    setFilteredSites(matchedSites);
   };
 
   return (

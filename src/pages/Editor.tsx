@@ -1,47 +1,50 @@
-import { useRef } from 'react';
+import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { Outlet, useLocation } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { Outlet, useLocation, useParams } from 'react-router-dom';
 import styled, { css } from 'styled-components';
-import { IframeContext } from '../context/IframeContext';
 import Canvas from '../features/editor/Canvas';
 import { usePanel } from '../features/editor/context/PanelContext';
 import Header from '../features/editor/Header';
-import { useIframeConnection } from '../features/editor/hooks/useIframeConnection';
 import Panel from '../features/editor/panels';
 import Sidebar from '../features/editor/Sidebar';
+import { loadSiteFromStorage } from '../features/editor/slices/editorSlice';
+import { AppDispatch } from '../store';
 
 /**
  * Component definition
  */
 
 export default function Editor() {
+  const dispatch: AppDispatch = useDispatch();
   const location = useLocation();
+  const { siteId } = useParams();
   const { leftPanelOpen } = usePanel();
   const isPreview = location.pathname.endsWith('/preview');
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const iframeConnection = useIframeConnection(iframeRef);
+
+  useEffect(() => {
+    if (siteId) {
+      dispatch(loadSiteFromStorage(siteId));
+    }
+  }, [dispatch, siteId]);
 
   if (isPreview) {
     return (
-      <IframeContext.Provider value={{ iframeRef, iframeConnection }}>
-        <StyledEditor $isPreview={isPreview}>
-          <Outlet />
-        </StyledEditor>
-      </IframeContext.Provider>
+      <StyledEditor $isPreview={isPreview}>
+        <Outlet />
+      </StyledEditor>
     );
   }
 
   return (
-    <IframeContext.Provider value={{ iframeRef, iframeConnection }}>
-      <StyledEditor $leftPanelOpen={leftPanelOpen}>
-        <Toaster position='top-center' reverseOrder={false} />
-        <Sidebar />
-        <Header />
-        {leftPanelOpen && <Outlet />}
-        <Canvas isPreview={isPreview} />
-        <Panel panel='settings' sectioned borderDir='left' />
-      </StyledEditor>
-    </IframeContext.Provider>
+    <StyledEditor $leftPanelOpen={leftPanelOpen}>
+      <Toaster position='top-center' reverseOrder={false} />
+      <Sidebar />
+      <Header />
+      {leftPanelOpen && <Outlet />}
+      <Canvas />
+      <Panel panel='settings' sectioned borderDir='left' />
+    </StyledEditor>
   );
 }
 
@@ -49,11 +52,12 @@ export default function Editor() {
  * Styles
  */
 
-const StyledEditor = styled.div<{ $isPreview?: boolean; $leftPanelOpen?: boolean }>`
+const StyledEditor = styled.div<{ $leftPanelOpen?: boolean; $isPreview?: boolean }>`
   width: 100%;
   height: 100vh;
   overflow: hidden;
   user-select: none;
+
   ${({ $isPreview, $leftPanelOpen }) =>
     !$isPreview &&
     css`

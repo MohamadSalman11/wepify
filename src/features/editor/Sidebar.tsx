@@ -7,7 +7,6 @@ import Divider from '../../components/divider';
 import Icon from '../../components/Icon';
 import Logo from '../../components/Logo';
 import { EditorPath, Path } from '../../constant';
-import { setIsLoading } from '../dashboard/slices/dashboardSlice';
 import { usePanel } from './context/PanelContext';
 
 /**

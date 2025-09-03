@@ -1,7 +1,6 @@
-import { InputChangeEvent } from '@shared/typing';
 import { colorToHex } from '@shared/utils';
 import Sketch from '@uiw/react-color-sketch';
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Input from '../../components/form/Input';
 import useOutsideClick from '../../hooks/useOutsideClick';
@@ -36,16 +35,15 @@ const PRESET_COLORS = [
  */
 
 interface ColorPickerProps {
-  name: string;
   defaultValue?: string;
-  onChange?: (event: { target: { value: string | number; name: string } }) => void;
+  onChange?: (event: { target: { value: string | number } }) => void;
 }
 
 /**
  * Component definition
  */
 
-export default function ColorPicker({ name, defaultValue, onChange }: ColorPickerProps) {
+export default function ColorPicker({ defaultValue, onChange }: ColorPickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [hex, setHex] = useState(defaultValue || DEFAULT_COLOR);
   const colorPickerRef = useOutsideClick<HTMLDivElement>(() => setIsOpen(false));
@@ -54,11 +52,11 @@ export default function ColorPicker({ name, defaultValue, onChange }: ColorPicke
     setHex(defaultValue || DEFAULT_COLOR);
   }, [defaultValue]);
 
-  const handleHexInputChange = (event: InputChangeEvent) => {
+  const handleHexInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value.trim();
     const hex = value.startsWith('#') ? value : `#${value}`;
     setHex(hex);
-    onChange?.({ target: { value: hex, name } });
+    onChange?.({ target: { value: hex } });
   };
 
   const handleSketchColorChange = (color: Record<string, any>) => {
@@ -79,13 +77,13 @@ export default function ColorPicker({ name, defaultValue, onChange }: ColorPicke
     const hex = colorToHex(cssColor);
 
     setHex(hex);
-    onChange?.({ target: { value: hex, name } });
+    onChange?.({ target: { value: hex } });
   };
   return (
     <div ref={colorPickerRef}>
       <Preview onClick={() => setIsOpen(!isOpen)}>
         <PreviewBox style={{ backgroundColor: hex }} />
-        <PreviewInput name={name} type='text' value={hex} onChange={handleHexInputChange} />
+        <PreviewInput type='text' value={hex} onChange={handleHexInputChange} />
       </Preview>
       {isOpen && <StyledSketch presetColors={PRESET_COLORS} color={hex} onChange={handleSketchColorChange} />}
     </div>

@@ -1,4 +1,3 @@
-// Constants
 const HOME_PATH = '/';
 const MAX_TIMEOUT = 10_000;
 const MIN_DISPLAY_TIME = 2000;

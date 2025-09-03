@@ -21,7 +21,7 @@
   display: none !important;
 }
 
-#iframe-root[data-is-preview='false'] .select-item {
+[data-selected-item] {
   position: relative;
   z-index: 999;
   box-shadow: 0 0 0 3px #3e7df5;
@@ -32,7 +32,7 @@
   user-select: none;
 }
 
-#iframe-root[data-is-preview='false'] {
+#iframe-root {
   transform: translateZ(0);
   transform-style: preserve-3d;
   backface-visibility: hidden;
@@ -78,7 +78,7 @@ html::-webkit-scrollbar-thumb:hover {
   background-color: #a3aebc;
 }
 
-#iframe-root[data-is-preview='false'] section:not(.select-section) {
+section:not([data-selected-section]) {
   transition: background-color 0.2s;
   cursor: pointer;
 
@@ -87,12 +87,12 @@ html::-webkit-scrollbar-thumb:hover {
   }
 }
 
-#iframe-root[data-is-preview='false'] section {
+section {
   position: relative;
   counter-increment: section-counter;
 }
 
-#iframe-root[data-is-preview='false'] section::after {
+section::after {
   display: block;
   display: flex;
   position: absolute;
@@ -109,12 +109,12 @@ html::-webkit-scrollbar-thumb:hover {
   font-size: 10px;
 }
 
-#iframe-root[data-is-preview='false'] .select-section::after {
+[data-selected-section]::after {
   background-color: #3e7df5;
   color: #fff;
 }
 
-.context-menu {
+#context-menu {
   position: fixed;
   z-index: 100000;
   margin: 0;
@@ -130,7 +130,7 @@ html::-webkit-scrollbar-thumb:hover {
   list-style: none;
 }
 
-.context-menu li {
+#context-menu li {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -140,11 +140,11 @@ html::-webkit-scrollbar-thumb:hover {
   user-select: none;
 }
 
-.context-menu li img {
+#context-menu li img {
   width: 16px;
   height: 16px;
 }
 
-.context-menu li:hover {
+#context-menu li:hover {
   background-color: #f2f4f7;
 }

@@ -1,8 +1,7 @@
-import { ComponentType } from 'react';
+import { ComponentType, createContext, ReactNode, useContext, useState } from 'react';
 import { LuChevronLeft } from 'react-icons/lu';
 import styled, { css } from 'styled-components';
 import Icon from '../../../components/Icon';
-import { usePanel } from '../context/PanelContext';
 import ElementsPanel from './ElementsPanel';
 import LayersPanel from './LayersPanel';
 import PagesPanel from './PagesPanel';
@@ -36,6 +35,11 @@ interface PanelProps {
   borderDir?: BorderDirection;
 }
 
+interface PanelContextProps {
+  leftPanelOpen: boolean;
+  setLeftPanelOpen: (val: boolean) => void;
+}
+
 /**
  * Component definition
  */
@@ -61,6 +65,23 @@ export default function Panel({ panel, sectioned = false, borderDir = DEFAULT_BO
     </StyledPanel>
   );
 }
+
+const PanelContext = createContext<PanelContextProps | null>(null);
+
+export const PanelProvider = ({ children }: { children: ReactNode }) => {
+  const [leftPanelOpen, setLeftPanelOpen] = useState(true);
+  return <PanelContext.Provider value={{ leftPanelOpen, setLeftPanelOpen }}>{children}</PanelContext.Provider>;
+};
+
+export const usePanel = () => {
+  const context = useContext(PanelContext);
+
+  if (!context) {
+    throw new Error('usePanel must be used within a <PanelProvider>');
+  }
+
+  return context;
+};
 
 /**
  * Styles

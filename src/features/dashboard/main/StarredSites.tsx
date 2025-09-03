@@ -1,22 +1,23 @@
 import { useAppSelector } from '../../../store';
+import { selectSitesArray } from '../dashboardSlice';
 import SitesView from './SitesView';
+
+/**
+ * Constants
+ */
+
+const EMPTY_STATE_STARRED_SITES = {
+  title: 'No starred sites yet',
+  info: 'Star your favorite sites to access them quickly here.'
+};
 
 /**
  * Component definition
  */
 
 export default function StarredSites() {
-  const sitesMetadata = useAppSelector((state) => state.dashboard.sitesMetadata);
-  const starredSites = sitesMetadata.filter((site) => site.isStarred);
+  const sites = useAppSelector(selectSitesArray);
+  const starredSites = sites.filter((site) => site.isStarred);
 
-  return (
-    <SitesView
-      sitesMetadata={starredSites}
-      title='Starred'
-      emptyStateMessages={{
-        noSitesTitle: 'No starred sites yet',
-        noSitesInfo: 'Star your favorite sites to access them quickly here.'
-      }}
-    />
-  );
+  return <SitesView sites={starredSites} title='Starred' emptyStateMessages={EMPTY_STATE_STARRED_SITES} />;
 }

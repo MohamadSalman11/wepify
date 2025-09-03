@@ -1,17 +1,25 @@
-import { useCallback, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { DomTreeBuilder } from '@compiler/dom/DomTreeBuilder';
+import { HTMLMinifier } from '@compiler/minifier/HTMLMinifier';
+import { CSSGenerator } from '@compiler/style/CSSGenerator';
+import { buildHtmlTemplate } from '@compiler/utils/buildHtmlTemplate';
+import styleCSS from '@iframe/style.css?raw';
+import { PageMetadata } from '@shared/typing';
+import { generateFileNameFromPageName } from '@shared/utils';
+import { useEffect, useState } from 'react';
+import { NavigateFunction, useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from '../../components/Button';
-import { EditorPath } from '../../constant';
+import { EditorPath, Path } from '../../constant';
 import { useAppSelector } from '../../store';
-import Canvas from './Canvas';
-import { setIsLoading } from './slices/editorSlice';
-import { setHasOriginSize } from './slices/pageSlice';
+import { selectPagesMetadata } from './editorSlice';
 
 /**
  * Constants
  */
+
+const SELECTOR_ANCHOR = 'a';
+const LINK_TARGET = '_blank';
+const LINK_TARGET_OPTIONS = 'noopener,noreferrer';
 
 const KEY_CLOSE_PREVIEW = 'Escape';
 const SCREEN_SIZE_INSTRUCTIONS = 'Press F12 (or Cmd+Option+I on Mac) to preview this page on different screen sizes.';
@@ -21,40 +29,81 @@ const SCREEN_SIZE_INSTRUCTIONS = 'Press F12 (or Cmd+Option+I on Mac) to preview 
  */
 
 export default function Preview() {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
-  const isLoading = useAppSelector((state) => state.editor.isLoading);
-
-  const handleClose = useCallback(() => {
-    const newPath = location.pathname.replace(new RegExp(`${EditorPath.Preview}$`), EditorPath.Elements);
-    dispatch(setHasOriginSize(false));
-    navigate(newPath);
-    dispatch(setIsLoading(true));
-  }, [dispatch, location.pathname, navigate]);
+  const { siteId, pageId } = useParams();
+  const pagesMetadata = useAppSelector(selectPagesMetadata);
+  const page = useAppSelector((state) => state.editor.currentSite?.pages[pageId || '']);
+  const [htmlString, setHtmlString] = useState<string>('');
 
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (isLoading) return;
-      if (event.key === KEY_CLOSE_PREVIEW) handleClose();
+    if (!page?.elements) {
+      return;
+    }
+
+    const generateHtml = async () => {
+      const domTreeBuilder = new DomTreeBuilder(Object.values(page.elements));
+      const cssGenerator = new CSSGenerator({ [page.id]: page });
+
+      const bodyContent = domTreeBuilder.domTree.map((el) => el.outerHTML).join('');
+      const pageCssMap = cssGenerator.buildPageCssMap();
+      const { normalCSS, mediaCSS } = pageCssMap[page.id];
+
+      const fullHTML = buildHtmlTemplate({ title: page.title, bodyContent, style: [styleCSS, normalCSS, mediaCSS] });
+      const htmlMinifier = new HTMLMinifier(fullHTML);
+      const cleanedHTML = await htmlMinifier.cleanUp();
+
+      setHtmlString(cleanedHTML);
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleClose, isLoading]);
+    generateHtml();
+  }, [page]);
+
+  const handleIframeLoad = (iframe: HTMLIFrameElement | null) => {
+    const doc = iframe?.contentDocument;
+    doc?.addEventListener('click', createLinkHandler(pagesMetadata, navigate, siteId!));
+  };
 
   return (
     <>
       <ButtonContainer>
+        <title>{page?.title}</title>
         <StyledButton onClick={() => alert(SCREEN_SIZE_INSTRUCTIONS)}>Preview on Screen Sizes</StyledButton>
-        <StyledButton variation='danger' onClick={handleClose}>
+        <StyledButton variation='danger' onClick={() => {}}>
           Close Preview
         </StyledButton>
       </ButtonContainer>
-      <Canvas isPreview />
+      {htmlString && (
+        <IframePreview
+          srcDoc={htmlString}
+          title='HTML Preview'
+          onLoad={(event) => handleIframeLoad(event.target as HTMLIFrameElement)}
+        />
+      )}
     </>
   );
 }
+
+const createLinkHandler =
+  (pagesMetadata: PageMetadata[], navigate: NavigateFunction, siteId: string) => (event: MouseEvent) => {
+    const href = (event.target as HTMLElement)?.closest(SELECTOR_ANCHOR)?.getAttribute('href');
+
+    if (!href) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const cleanedHref = href.replace(/^\.?\//, '');
+    const targetPage = pagesMetadata.find(
+      (p) => generateFileNameFromPageName(p.isIndex ? 'index' : p.name) === cleanedHref
+    );
+
+    if (targetPage) {
+      navigate(`/${Path.Editor}/sites/${siteId}/pages/${targetPage.id}/${EditorPath.Preview}`);
+    } else {
+      window.open(href, LINK_TARGET, LINK_TARGET_OPTIONS);
+    }
+  };
 
 /**
  * Styles
@@ -76,4 +125,12 @@ const StyledButton = styled(Button).attrs({
   pill: true
 })`
   box-shadow: var(--box-shadow-2);
+`;
+
+const IframePreview = styled.iframe`
+  width: 100%;
+  height: 100vh;
+  border: none;
+  margin-top: 0;
+  padding: 0;
 `;

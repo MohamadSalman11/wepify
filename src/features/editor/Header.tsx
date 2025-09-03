@@ -1,5 +1,5 @@
-import { PAGE_PADDING_X, SCREEN_SIZES } from '@shared/constants';
-import type { Site } from '@shared/typing';
+import { SCREEN_SIZES } from '@shared/constants';
+import { DeviceType } from '@shared/typing';
 import type { IconType } from 'react-icons';
 import { BsCloudCheck } from 'react-icons/bs';
 import {
@@ -22,13 +22,9 @@ import Divider from '../../components/divider';
 import Dropdown from '../../components/Dropdown';
 import Input from '../../components/form/Input';
 import Icon from '../../components/Icon';
-import { Breakpoint, EditorPath, StorageKey } from '../../constant';
-import { useIframeContext } from '../../context/IframeContext';
+import { Breakpoint, EditorPath } from '../../constant';
 import { useAppSelector } from '../../store';
-import { AppStorage } from '../../utils/appStorage';
-import { calculateScaleToFit } from '../../utils/calculateScaleToFit';
-import { clearLastDeletedElement, setDeviceType, setIsDownloadingSite, setIsLoading } from './slices/editorSlice';
-import { setScale, setSize } from './slices/pageSlice';
+import { selectCurrentSite, setDeviceSimulator } from './slices/editorSlice';
 
 /**
  * Constants
@@ -36,7 +32,7 @@ import { setScale, setSize } from './slices/pageSlice';
 
 const PUBLISH_LINK = 'https://app.netlify.com/drop';
 
-const DEVICES = [
+const DEVICES: { icon: IconType; type: DeviceType }[] = [
   {
     icon: LuMonitor,
     type: 'monitor'
@@ -60,110 +56,53 @@ const DEVICES = [
  */
 
 type Size = { width: number; height: number };
-type DeviceType = keyof typeof SCREEN_SIZES;
 
 /**
  * Component definition
  */
 
 export default function Header() {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { iframeConnection } = useIframeContext();
-  const { site, lastDeletedElement, isDownloadingSite, isStoring, deviceType } = useAppSelector(
-    (state) => state.editor
-  );
-  const { originWidth, originHeight } = useAppSelector((state) => state.page);
-
-  const handleDownloadSite = async (shouldMinify: boolean) => {
-    dispatch(setIsDownloadingSite(true));
-    const site = await AppStorage.getItem<Site>(StorageKey.Site);
-    iframeConnection.downloadSite(site, shouldMinify);
-  };
-
-  const handleSitePreview = () => {
-    dispatch(
-      setScale(
-        calculateScaleToFit(
-          { width: originWidth, height: originHeight },
-          { width: SCREEN_SIZES.tablet.width + PAGE_PADDING_X, height: SCREEN_SIZES.tablet.height }
-        )
-      )
-    );
-    dispatch(setIsLoading(true));
-    navigate(EditorPath.Preview);
-  };
-
-  const handleRecoverDeletedElement = () => {
-    if (lastDeletedElement) {
-      iframeConnection.insertElement({ element: lastDeletedElement });
-      dispatch(clearLastDeletedElement());
-    }
-  };
+  const site = useAppSelector(selectCurrentSite);
 
   return (
     <StyledHeader>
       <DesignInfo>
-        <span>{site.name}</span>
-        <p>{site.description}</p>
+        <span>{site?.name}</span>
+        <p>{site?.description}</p>
       </DesignInfo>
-      <DevicePreviewControls>
-        {DEVICES.map(({ icon, type }) => (
-          <DevicePreviewButton
-            key={type}
-            icon={icon}
-            deviceType={type}
-            isActive={deviceType === type}
-            setActiveDevice={() => dispatch(setDeviceType(type))}
-            screenSize={SCREEN_SIZES[type]}
-          />
-        ))}
-        <SizeInputs>
-          <div>
-            <label htmlFor='preview-input-width'>W</label>
-            <Input id='preview-input-width' placeholder={`${SCREEN_SIZES[deviceType].width}px`} disabled />
-          </div>
-          <div>
-            <label htmlFor='preview-input-height'>H</label>
-            <Input id='preview-input-height' placeholder={`${SCREEN_SIZES[deviceType].height}px`} disabled />
-          </div>
-        </SizeInputs>
-      </DevicePreviewControls>
-
-      <EditorActions>
-        {isStoring ? <StyledRefreshIcon icon={LuRefreshCw} /> : <StyledCloudIcon icon={BsCloudCheck} fill />}
-        <Divider rotate={90} width={30} />
-        <Icon
-          icon={LuRotateCcwSquare}
-          disabled={!lastDeletedElement}
-          tooltipLabel='Recover Deleted Element'
-          onClick={handleRecoverDeletedElement}
-        />
-        <Divider rotate={90} width={30} />
-        <ConfirmNavigation onConfirmed={handleSitePreview}>
-          <Icon icon={LuEye} hover tooltipLabel='Preview Site' />
-        </ConfirmNavigation>
-        <Divider rotate={90} width={30} />
-        <Dropdown>
-          <Dropdown.Open>
-            <Button variation='secondary' disabled={isDownloadingSite}>
-              Download
-            </Button>
-          </Dropdown.Open>
-          <Dropdown.Drop>
-            <Dropdown.Button icon={LuFileMinus} onClick={() => handleDownloadSite(true)}>
-              Download Minified
-            </Dropdown.Button>
-            <Dropdown.Button icon={LuFileCode2} onClick={() => handleDownloadSite(false)}>
-              Download Readable
-            </Dropdown.Button>
-          </Dropdown.Drop>
-        </Dropdown>
-        <Button asLink href={PUBLISH_LINK} target='_blank'>
-          Publish
-        </Button>
-      </EditorActions>
+      <DevicePreviewControls />
+      <EditorActions />
     </StyledHeader>
+  );
+}
+
+function DevicePreviewControls() {
+  const dispatch = useDispatch();
+  const deviceSimulator = useAppSelector((state) => state.editor.deviceSimulator);
+
+  return (
+    <StyledDevicePreviewControls>
+      {DEVICES.map(({ icon, type }) => (
+        <DevicePreviewButton
+          key={type}
+          icon={icon}
+          deviceType={type}
+          isActive={deviceSimulator.type === type}
+          setActiveDevice={() => dispatch(setDeviceSimulator({ type, ...SCREEN_SIZES[type] }))}
+          screenSize={SCREEN_SIZES[type]}
+        />
+      ))}
+      <SizeInputs>
+        <div>
+          <label htmlFor='preview-input-width'>W</label>
+          <Input id='preview-input-width' placeholder={`${SCREEN_SIZES[deviceSimulator.type].width}px`} disabled />
+        </div>
+        <div>
+          <label htmlFor='preview-input-height'>H</label>
+          <Input id='preview-input-height' placeholder={`${SCREEN_SIZES[deviceSimulator.type].height}px`} disabled />
+        </div>
+      </SizeInputs>
+    </StyledDevicePreviewControls>
   );
 }
 
@@ -182,17 +121,9 @@ function DevicePreviewButton({
   setActiveDevice: (device: DeviceType) => void;
 }) {
   const dispatch = useDispatch();
-  const { originWidth, originHeight } = useAppSelector((state) => state.page);
-
-  const setCanvasSize = (size: Size, scaleFactor: number = 100) => {
-    dispatch(setSize({ width: size.width, height: size.height }));
-    dispatch(setScale(scaleFactor));
-  };
 
   const handleClick = () => {
-    const scaleVal = calculateScaleToFit({ width: originWidth, height: originHeight }, screenSize);
-    setCanvasSize(screenSize, scaleVal);
-    dispatch(setDeviceType(deviceType));
+    dispatch(setDeviceSimulator({ type: deviceType, ...screenSize }));
     setActiveDevice(deviceType);
   };
 
@@ -206,6 +137,54 @@ function DevicePreviewButton({
       tooltipSideOffset={10}
       onClick={handleClick}
     />
+  );
+}
+
+function EditorActions() {
+  const navigate = useNavigate();
+
+  const handleSitePreview = () => {
+    navigate(EditorPath.Preview);
+  };
+
+  return (
+    <StyledEditorActions>
+      {/* {isStoring ? <StyledRefreshIcon icon={LuRefreshCw} /> : <StyledCloudIcon icon={BsCloudCheck} fill />} */}
+      {false ? <StyledRefreshIcon icon={LuRefreshCw} /> : <StyledCloudIcon icon={BsCloudCheck} fill />}
+      <Divider rotate={90} width={30} />
+      <Icon
+        icon={LuRotateCcwSquare}
+        // disabled={!lastDeletedElement}
+        tooltipLabel='Recover Deleted Element'
+        onClick={() => {}}
+      />
+      <Divider rotate={90} width={30} />
+      <ConfirmNavigation onConfirmed={handleSitePreview}>
+        <Icon icon={LuEye} hover tooltipLabel='Preview Site' />
+      </ConfirmNavigation>
+      <Divider rotate={90} width={30} />
+      <Dropdown>
+        <Dropdown.Open>
+          {/* <Button variation='secondary' disabled={isDownloadingSite}>
+              Download
+            </Button> */}
+          <Button variation='secondary' disabled={false}>
+            Download
+          </Button>
+        </Dropdown.Open>
+        <Dropdown.Drop>
+          <Dropdown.Button icon={LuFileMinus} onClick={() => {}}>
+            Download Minified
+          </Dropdown.Button>
+          <Dropdown.Button icon={LuFileCode2} onClick={() => {}}>
+            Download Readable
+          </Dropdown.Button>
+        </Dropdown.Drop>
+      </Dropdown>
+      <Button asLink href={PUBLISH_LINK} target='_blank'>
+        Publish
+      </Button>
+    </StyledEditorActions>
   );
 }
 
@@ -262,7 +241,7 @@ const StyledHeader = styled.header`
   }
 `;
 
-const DevicePreviewControls = styled.div`
+const StyledDevicePreviewControls = styled.div`
   display: flex;
   column-gap: 4.4rem;
   align-items: center;
@@ -295,7 +274,7 @@ const SizeInputs = styled.div`
   }
 `;
 
-const EditorActions = styled.div`
+const StyledEditorActions = styled.div`
   display: flex;
   column-gap: 2.4rem;
   align-items: center;

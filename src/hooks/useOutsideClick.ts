@@ -1,5 +1,7 @@
 import { useEffect, useRef, type RefObject } from 'react';
 
+const SELECTOR_IFRAME = 'iframe';
+
 export const useOutsideClick = <T extends HTMLElement = HTMLElement>(
   handler: () => void,
   containerRef?: RefObject<HTMLElement | null>,
@@ -18,7 +20,7 @@ export const useOutsideClick = <T extends HTMLElement = HTMLElement>(
       }
     };
 
-    const iframe = document.querySelector('iframe');
+    const iframe = document.querySelector(SELECTOR_IFRAME);
     const iframeDoc = iframe?.contentDocument || iframe?.contentWindow?.document;
     const listenTarget = containerRef?.current || document;
 

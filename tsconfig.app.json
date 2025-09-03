@@ -13,8 +13,10 @@
     "jsx": "react-jsx",
     "strict": true,
     "paths": {
-      "@shared/*": ["./shared/*"]
+      "@shared/*": ["./shared/*"],
+      "@compiler/*": ["./compiler/*"],
+      "@iframe/*": ["./iframe/*"]
     }
   },
-  "include": ["src", "iframe", "shared"]
+  "include": ["src", "iframe", "shared", "compiler"]
 }

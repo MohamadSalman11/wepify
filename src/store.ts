@@ -1,18 +1,20 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { useSelector, type TypedUseSelectorHook } from 'react-redux';
+import dashboardMiddleware from './features/dashboard/dashboardMiddleware';
 import dashboardReducer from './features/dashboard/slices/dashboardSlice';
-import editorReducer, { editorMiddleware } from './features/editor/slices/editorSlice';
-import pageReducer from './features/editor/slices/pageSlice';
+import editorMiddleware from './features/editor/editorMiddleware';
+import editorReducer from './features/editor/editorSlice';
 
 const store = configureStore({
   reducer: {
-    page: pageReducer,
     dashboard: dashboardReducer,
     editor: editorReducer
   },
   middleware: (getDefaultMiddleware) =>
-    [...getDefaultMiddleware(), editorMiddleware] as ReturnType<typeof getDefaultMiddleware>
+    [...getDefaultMiddleware(), editorMiddleware, dashboardMiddleware] as ReturnType<typeof getDefaultMiddleware>
 });
 
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
 export const useAppSelector: TypedUseSelectorHook<ReturnType<typeof store.getState>> = useSelector;
 export default store;

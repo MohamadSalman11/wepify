@@ -4,6 +4,7 @@ import Divider from '../../components/divider';
 import Logo from '../../components/Logo';
 import { Path } from '../../constant';
 import { useAppSelector } from '../../store';
+import { selectSitesArray } from './slices/dashboardSlice';
 
 /**
  * Component definition
@@ -11,13 +12,13 @@ import { useAppSelector } from '../../store';
 
 export default function Header() {
   const navigate = useNavigate();
-  const sitesMetadata = useAppSelector((state) => state.dashboard.sitesMetadata);
+  const sites = useAppSelector(selectSitesArray);
 
   return (
     <StyledHeader>
       <Logo withText onClick={() => navigate(Path.Home)} />
       <HeaderInfo>
-        <SiteCountBadge>{sitesMetadata.length}</SiteCountBadge>
+        <SiteCountBadge>{sites.length}</SiteCountBadge>
         <Divider rotate={90} width={30} color='var(--color-gray-light-2)' />
         <span>Welcome back 👋</span>
       </HeaderInfo>

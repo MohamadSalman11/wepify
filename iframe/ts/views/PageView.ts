@@ -14,20 +14,20 @@ type Size = { width: number; height: number };
  */
 
 class PageView {
+  private rootEl: HTMLDivElement | null = document.querySelector(SELECTOR_ROOT);
+
   // public
   renderElements = (elements: PageElement[], device?: DeviceType) => {
-    const container = document.querySelector(SELECTOR_ROOT);
-
-    if (!container) {
+    if (!this.rootEl) {
       return;
     }
 
-    container.innerHTML = '';
+    this.rootEl.innerHTML = '';
 
     const domTreeBuilder = new DomTreeBuilder(elements, device);
 
     for (const domEl of domTreeBuilder.domTree) {
-      container.append(domEl);
+      this.rootEl.append(domEl);
     }
   };
 

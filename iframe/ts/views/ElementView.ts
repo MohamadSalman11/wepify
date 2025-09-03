@@ -17,38 +17,37 @@ const TAG_SECTION = 'SECTION';
  */
 
 class ElementView {
-  domElement!: HTMLElement;
+  private domEl!: HTMLElement;
+  private rootEl: HTMLDivElement | null = document.querySelector(SELECTOR_ROOT);
 
-  render = (domElement: HTMLElement, parentId?: string) => {
-    const rootElement = document.querySelector(SELECTOR_ROOT);
+  render = (domEl: HTMLElement, parentId?: string) => {
+    this.domEl = domEl;
 
-    this.domElement = domElement;
-
-    if (domElement.tagName === TAG_SECTION) {
-      rootElement?.append(domElement);
+    if (domEl.tagName === TAG_SECTION) {
+      this.rootEl?.append(domEl);
       return;
     }
 
-    const parent = (parentId && document.querySelector(`#${parentId}`)) || rootElement;
+    const parent = (parentId && document.querySelector(`#${parentId}`)) || this.rootEl;
     if (!parent) return;
 
-    parent.append(domElement);
+    parent.append(domEl);
   };
 
   adjustGridColumns(newColumns: number, size: number | 'auto') {
-    this.domElement.style.gridTemplateColumns = `repeat(${newColumns}, ${size === 'auto' ? '1fr' : `${size}px`})`;
+    this.domEl.style.gridTemplateColumns = `repeat(${newColumns}, ${size === 'auto' ? '1fr' : `${size}px`})`;
   }
 
   applyStyles(styles: Partial<CSSStyleDeclaration>) {
-    Object.assign(this.domElement.style, styles);
+    Object.assign(this.domEl.style, styles);
   }
 
   updateAttributes(updates: PageElementAttrs) {
     const { href, type, placeholder } = updates;
 
-    if (href !== undefined && this.domElement instanceof HTMLAnchorElement) this.domElement.href = href;
-    if (type && this.domElement instanceof HTMLInputElement) this.domElement.type = type;
-    if (placeholder && this.domElement instanceof HTMLInputElement) this.domElement.placeholder = placeholder;
+    if (href !== undefined && this.domEl instanceof HTMLAnchorElement) this.domEl.href = href;
+    if (type && this.domEl instanceof HTMLInputElement) this.domEl.type = type;
+    if (placeholder && this.domEl instanceof HTMLInputElement) this.domEl.placeholder = placeholder;
   }
 
   click(el: HTMLElement) {
@@ -61,11 +60,11 @@ class ElementView {
   }
 
   set(el: HTMLElement) {
-    this.domElement = el;
+    this.domEl = el;
   }
 
   scrollIntoView(block: 'start' | 'center' = 'center') {
-    this.domElement.scrollIntoView({ block });
+    this.domEl.scrollIntoView({ block });
   }
 
   updateSelection(newTarget: HTMLElement) {

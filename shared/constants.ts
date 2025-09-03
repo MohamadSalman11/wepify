@@ -51,6 +51,8 @@ export enum IframeToEditor {
   StoreElement = 'STORE_ELEMENT',
   UpdateElement = 'IFRAME_UPDATE_ELEMENT',
   SelectElement = 'IFRAME_SELECT_ELEMENT',
+  CopyElement = 'COPY_ELEMENT',
+  PasteElement = 'PASTE_ELEMENT',
   DeleteElement = 'DELETE_ELEMENT'
 }
 

@@ -11,6 +11,13 @@ const controlDocumentClick = (event: globalThis.MouseEvent) => {
   elementController.handleDocumentClick(event);
 };
 
+const handleDomContentLoaded = () => {
+  iframeConnection.send(IframeToEditor.IframeReady, {
+    width: document.body.clientWidth,
+    height: document.body.clientHeight
+  });
+};
+
 iframeConnection.on(EditorToIframe.RenderPage, (payload) => {
   pageController.render(payload);
 });
@@ -39,11 +46,6 @@ iframeConnection.on(EditorToIframe.UpdateElement, (payload) => {
 document.addEventListener('click', controlDocumentClick);
 document.addEventListener('contextmenu', contextMenuController.show.bind(contextMenuController));
 document.addEventListener('keydown', keyboardController.handleKeydown);
-document.addEventListener('DOMContentLoaded', () =>
-  iframeConnection.send(IframeToEditor.IframeReady, {
-    width: document.body.clientWidth,
-    height: document.body.clientHeight
-  })
-);
+document.addEventListener('DOMContentLoaded', handleDomContentLoaded);
 document.addEventListener('touchstart', contextMenuController.handleTouchStart, { passive: false });
 document.addEventListener('touchend', contextMenuController.handleTouchEnd);

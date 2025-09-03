@@ -23,6 +23,8 @@ interface PageData {
  */
 
 class PageController {
+  private bodyEl: HTMLBodyElement | null = document.querySelector('body');
+
   // public
   render(pageData: PageData) {
     state.scaleFactor = pageData.scaleFactor;
@@ -30,10 +32,6 @@ class PageController {
     pageView.renderElements(pageData.elements, pageData.deviceSimulator.type);
     pageView.setBackground(pageData.backgroundColor);
     pageView.setDeviceSimulator(pageData.deviceSimulator);
-
-    if (state.moveable) {
-      state.moveable.target = null;
-    }
 
     const target = document.querySelector(SELECTOR_SECTION);
 
@@ -53,13 +51,11 @@ class PageController {
   }
 
   update(updates: { backgroundColor: string }) {
-    const body = document.querySelector('body');
-
-    if (!body) {
+    if (!this.bodyEl) {
       return;
     }
 
-    Object.assign(body.style, updates);
+    Object.assign(this.bodyEl.style, updates);
 
     if (state.initRender) return;
 

@@ -1,7 +1,7 @@
-import { createDomTreeFromPageElements } from '@compiler/dom/createDomTreeFromPageElements';
-import { CSSGenerator } from '@compiler/utils/CSSGenerator';
-import { minifyCSS } from '@compiler/utils/minifyCSS';
-import { cleanUpHTML, minifyHTML } from '@compiler/utils/minifyHTML';
+import { DomTreeBuilder } from '@compiler/dom/DomTreeBuilder';
+import { CSSMinifier } from '@compiler/minifier/CSSMinifier';
+import { HTMLMinifier } from '@compiler/minifier/HTMLMinifier';
+import { CSSGenerator } from '@compiler/style/CSSGenerator';
 import iframeConnection from '@shared/iframeConnection';
 import { Page, Site } from '@shared/typing';
 import JSZip from 'jszip';
@@ -92,13 +92,13 @@ class SiteExportController {
   private addCssFiles(site: Site) {
     const folder = this.zip.folder(Folders.Root)!;
 
-    folder.file(File.StyleCSS, this.shouldMinify ? minifyCSS(cssFile) : cssFile);
+    folder.file(File.StyleCSS, this.shouldMinify ? new CSSMinifier(cssFile).minify() : cssFile);
 
     const pageCssMap = new CSSGenerator(site.pages).buildPageCssMap();
 
     for (const [pageId, cssData] of Object.entries(pageCssMap)) {
-      const indexCssFinal = this.shouldMinify ? minifyCSS(cssData.normalCSS) : cssData.normalCSS;
-      const responsiveCssFinal = this.shouldMinify ? minifyCSS(cssData.mediaCSS) : cssData.mediaCSS;
+      const indexCssFinal = this.shouldMinify ? new CSSMinifier(cssData.normalCSS).minify() : cssData.normalCSS;
+      const responsiveCssFinal = this.shouldMinify ? new CSSMinifier(cssData.mediaCSS).minify() : cssData.mediaCSS;
 
       folder.file(`${pageId}_index.css`, indexCssFinal);
       folder.file(`${pageId}_responsive.css`, responsiveCssFinal);
@@ -118,21 +118,20 @@ class SiteExportController {
 
     doc.head.insertAdjacentHTML('beforeend', pageCssLinks);
 
-    const domTree = createDomTreeFromPageElements(Object.values(page.elements));
+    const domTreeBuilder = new DomTreeBuilder(Object.values(page.elements));
 
-    for (const domEl of domTree) {
+    for (const domEl of domTreeBuilder.domTree) {
       doc.body.append(domEl);
     }
 
     this.processImages(doc);
 
-    const html = this.shouldMinify
-      ? await minifyHTML(doc.documentElement.outerHTML)
-      : await cleanUpHTML(doc.documentElement.outerHTML);
+    const htmlMinifier = new HTMLMinifier(doc.documentElement.outerHTML);
+    const html = this.shouldMinify ? await htmlMinifier.minify() : await htmlMinifier.cleanUp();
 
     const fileName = page.isIndex ? File.IndexPage : `${page.name.toLowerCase().replace(/\s+/g, '_')}.html`;
-
     const folder = this.zip.folder(Folders.Root)!;
+
     folder.file(fileName, html);
   }
 

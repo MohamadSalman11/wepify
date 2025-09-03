@@ -1,4 +1,4 @@
-import { ContextMenuAction, ID_CONTEXT_MENU, SELECTOR_CONTEXT_MENU } from '../contextMenu';
+import { ContextMenuAction, ID_CONTEXT_MENU, SELECTOR_CONTEXT_MENU } from '../constants';
 
 /**
  * Constants
@@ -11,17 +11,17 @@ const SELECTOR_BODY = 'body';
  */
 
 class ContextMenuView {
-  renderContextMenu(x: number, y: number) {
-    const bodyEl = document.querySelector(SELECTOR_BODY);
+  private bodyEl: HTMLBodyElement | null = document.querySelector(SELECTOR_BODY);
 
-    if (!bodyEl) {
+  renderContextMenu(x: number, y: number) {
+    if (!this.bodyEl) {
       return;
     }
 
     const existing = document.querySelector(SELECTOR_CONTEXT_MENU);
     existing?.remove();
 
-    bodyEl.insertAdjacentHTML('beforeend', this.generateMarkup(x, y));
+    this.bodyEl.insertAdjacentHTML('beforeend', this.generateMarkup(x, y));
   }
 
   removeContextMenu() {

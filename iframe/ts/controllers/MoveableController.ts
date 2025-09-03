@@ -1,7 +1,7 @@
 import { extractTransform } from '@compiler/utils/extractTransform';
 import { PAGE_PADDING, PAGE_PADDING_X } from '@shared/constants';
 import Moveable, { MoveableProps, OnDrag, OnResize, OnRotate } from 'moveable';
-import { SELECTOR_ROOT, SELECTOR_TARGET } from '../constants';
+import { SELECTOR_ROOT } from '../constants';
 import { state } from '../model';
 import { getVerticalBorderSum } from '../utils/getVerticalBorderSum';
 import dragButtonView from '../views/dragButtonView';
@@ -75,7 +75,7 @@ class MoveableController {
   }
 
   initGuidelines() {
-    this.moveable.elementGuidelines = [...document.querySelectorAll(SELECTOR_TARGET)];
+    this.moveable.elementGuidelines = [...(document.querySelector(SELECTOR_ROOT)?.querySelectorAll('*') || [])];
     this.moveable.horizontalGuidelines = [0, document.body.clientWidth / 2, document.body.clientWidth];
     this.moveable.verticalGuidelines = [0, document.body.clientHeight / 2, document.body.clientHeight];
   }

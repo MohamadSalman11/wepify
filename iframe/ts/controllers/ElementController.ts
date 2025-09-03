@@ -1,6 +1,9 @@
+import { DomCreator } from '@compiler/dom/DomCreator';
+import { StyleGenerator } from '@compiler/style/StyleGenerator';
 import { resolveStyleDependencies } from '@compiler/utils/resolveStyleDependencies';
 import { ElementsName, ID_FIRST_SECTION, IframeToEditor } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
+import { PageElement, PageElementStyle } from '@shared/typing';
 import { SELECTOR_SECTION } from '../constants';
 import { createNewElement } from '../utils/createNewElement';
 import elementView from '../views/elementView';
@@ -35,22 +38,20 @@ class ElementController {
   private currentElName!: string;
 
   // Public
-  insert({
-    name,
-    pageEl,
-    additionalProps
-  }: {
-    name?: string;
-    pageEl?: PageElement & Partial<LastDeletedElement>;
-    additionalProps?: Record<string, any>;
-  }) {
-    if (pageEl) {
-      this.restoreExistingEl(pageEl);
-    } else if (name) {
-      this.insertNewEl(name, additionalProps);
-    }
+  insert({ name, additionalProps }: { name: string; additionalProps?: Record<string, any> }) {
+    const newPageEl = createNewElement(name, additionalProps);
+    const domEl = new DomCreator(newPageEl as PageElement).domElement;
+    const resolvedParentId = this.resolveParentId();
+
+    elementView.render(domEl, resolvedParentId);
+    elementView.click(domEl);
 
     moveableController.addElementToGuidelines(this.currentEl);
+
+    iframeConnection.send(IframeToEditor.StoreElement, {
+      ...newPageEl,
+      parentId: resolvedParentId
+    });
   }
 
   update(updates: Partial<PageElement>) {
@@ -59,7 +60,7 @@ class ElementController {
       : undefined;
 
     if (finalStyle) {
-      elementView.applyStyles(generateInlineStyle(finalStyle));
+      elementView.applyStyles(new StyleGenerator(finalStyle as PageElementStyle).generate());
     }
 
     if (updates.attrs) {
@@ -92,9 +93,6 @@ class ElementController {
     elementView.click(sectionEl as HTMLElement);
 
     const updatedIdsMap = this.assignUniqueIdsToDomElementTree(parentEl);
-
-    console.log('Updated IDs Map:', updatedIdsMap);
-    console.log('Deleted IDs:', deletedIds);
 
     iframeConnection.send('DELETE_ELEMENT', {
       updatedIdsMap,
@@ -132,11 +130,11 @@ class ElementController {
   }
 
   copy() {
-    iframeConnection.send('COPY_ELEMENT');
+    iframeConnection.send(IframeToEditor.CopyElement);
   }
 
   paste() {
-    iframeConnection.send('PASTE_ELEMENT');
+    iframeConnection.send(IframeToEditor.PasteElement);
   }
 
   set(el: HTMLElement) {
@@ -176,42 +174,8 @@ class ElementController {
   }
 
   // Private
-  private insertNewEl(name: string, additionalProps?: Record<string, any>) {
-    const newPageEl = createNewElement(name, additionalProps);
-    const domEl = createDomFromPageElement(newPageEl as PageElement, 'laptop');
-    const resolvedParentId = this.resolveParentId();
-
-    elementView.render(domEl, resolvedParentId);
-    elementView.click(domEl);
-
-    iframeConnection.send(IframeToEditor.StoreElement, {
-      ...newPageEl,
-      parentId: resolvedParentId
-    });
-  }
-
-  private restoreExistingEl(deletedPageEl: PageElement & Partial<LastDeletedElement>) {
-    const { parentId, domIndex } = deletedPageEl;
-    const domEl = createDomTree(deletedPageEl);
-    const resolvedParentId = this.resolveParentId(parentId);
-
-    deletedPageEl.parentId = undefined;
-
-    elementView.render(domEl, resolvedParentId, domIndex);
-    this.assignUniqueIdsToDomElementTree(domEl);
-
-    elementView.click(domEl);
-    elementView.scrollIntoView(this.getScrollAlignment());
-
-    iframeConnection.send('ELEMENT_INSERTED', {
-      element: deletedPageEl as PageElement,
-      parentId: resolvedParentId,
-      domIndex: domIndex
-    });
-  }
-
   private maybeFocus(newEl: HTMLElement) {
-    const isFocusable = hasDataset(newEl, DATASET_FOCUSABLE);
+    const isFocusable = this.hasDataset(newEl, DATASET_FOCUSABLE);
 
     if (isFocusable) {
       elementView.focus(newEl);
@@ -219,7 +183,7 @@ class ElementController {
   }
 
   private resolveParentId(proposedParentId?: string): string {
-    const canHaveChildren = !hasDataset(this.currentEl, DATASET_CANNOT_HAVE_CHILDREN);
+    const canHaveChildren = !this.hasDataset(this.currentEl, DATASET_CANNOT_HAVE_CHILDREN);
 
     if (canHaveChildren) {
       return proposedParentId || this.currentEl.id;
@@ -285,7 +249,7 @@ class ElementController {
   }
 
   private syncContentEditable(newEl: HTMLElement) {
-    const isContentEditable = hasDataset(newEl, DATASET_CONTENT_EDITABLE);
+    const isContentEditable = this.hasDataset(newEl, DATASET_CONTENT_EDITABLE);
 
     if (isContentEditable) {
       newEl.contentEditable = 'true';
@@ -295,7 +259,7 @@ class ElementController {
   }
 
   private updateMoveableTarget() {
-    const notMoveable = hasDataset(this.currentEl, DATASET_NOT_MOVEABLE);
+    const notMoveable = this.hasDataset(this.currentEl, DATASET_NOT_MOVEABLE);
 
     if (notMoveable) {
       moveableController.clearTarget();

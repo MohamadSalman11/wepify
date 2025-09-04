@@ -9,7 +9,6 @@ import {
   LuLaptop,
   LuMonitor,
   LuRefreshCw,
-  LuRotateCcwSquare,
   LuSmartphone,
   LuTablet
 } from 'react-icons/lu';
@@ -151,13 +150,6 @@ function EditorActions() {
     <StyledEditorActions>
       {/* {isStoring ? <StyledRefreshIcon icon={LuRefreshCw} /> : <StyledCloudIcon icon={BsCloudCheck} fill />} */}
       {false ? <StyledRefreshIcon icon={LuRefreshCw} /> : <StyledCloudIcon icon={BsCloudCheck} fill />}
-      <Divider rotate={90} width={30} />
-      <Icon
-        icon={LuRotateCcwSquare}
-        // disabled={!lastDeletedElement}
-        tooltipLabel='Recover Deleted Element'
-        onClick={() => {}}
-      />
       <Divider rotate={90} width={30} />
       <ConfirmNavigation onConfirmed={handleSitePreview}>
         <Icon icon={LuEye} hover tooltipLabel='Preview Site' />

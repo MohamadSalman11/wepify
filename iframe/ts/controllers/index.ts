@@ -1,5 +1,6 @@
 import { EditorToIframe, IframeToEditor } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
+import pageView from '../views/pageView';
 import contextMenuController from './contextMenuController';
 import elementController from './elementController';
 import keyboardController from './keyboardController';
@@ -38,7 +39,7 @@ iframeConnection.on(EditorToIframe.UpdateElement, (payload) => {
 });
 
 iframeConnection.on(EditorToIframe.DeviceChanged, (payload) => {
-  pageController.render(payload);
+  pageView.setDeviceSimulator(payload.deviceSimulator);
 });
 
 document.addEventListener('click', controlDocumentClick);

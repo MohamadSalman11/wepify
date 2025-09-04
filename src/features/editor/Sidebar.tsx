@@ -1,3 +1,5 @@
+import { EditorToIframe } from '@shared/constants';
+import iframeConnection from '@shared/iframeConnection';
 import { LuFile, LuImage, LuLayers3, LuLogOut, LuPlus } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
@@ -7,6 +9,7 @@ import Divider from '../../components/divider';
 import Icon from '../../components/Icon';
 import Logo from '../../components/Logo';
 import { EditorPath, Path } from '../../constant';
+import { useAppSelector } from '../../store';
 import { usePanel } from './panels';
 
 /**
@@ -28,10 +31,16 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { leftPanelOpen, setLeftPanelOpen } = usePanel();
+  const deviceSimulator = useAppSelector((state) => state.editor.deviceSimulator);
 
   const handleLogout = () => {
     dispatch(setIsLoading(true));
     navigate(Path.Dashboard);
+  };
+
+  const handleOpenLeftPanel = () => {
+    setLeftPanelOpen(true);
+    iframeConnection.send(EditorToIframe.DeviceChanged, { deviceSimulator });
   };
 
   return (
@@ -50,7 +59,7 @@ export default function Sidebar() {
                   tooltipLabel={getTooltipLabel(to)}
                   tooltipSide='right'
                   tooltipSideOffset={10}
-                  onClick={() => setLeftPanelOpen(true)}
+                  onClick={handleOpenLeftPanel}
                 />
               </NavLink>
             </li>

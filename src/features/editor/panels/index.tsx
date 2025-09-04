@@ -1,7 +1,10 @@
+import { EditorToIframe } from '@shared/constants';
+import iframeConnection from '@shared/iframeConnection';
 import { ComponentType, createContext, ReactNode, useContext, useState } from 'react';
 import { LuChevronLeft } from 'react-icons/lu';
 import styled, { css } from 'styled-components';
 import Icon from '../../../components/Icon';
+import { useAppSelector } from '../../../store';
 import ElementsPanel from './ElementsPanel';
 import LayersPanel from './LayersPanel';
 import PagesPanel from './PagesPanel';
@@ -46,16 +49,18 @@ interface PanelContextProps {
 
 export default function Panel({ panel, sectioned = false, borderDir = DEFAULT_BORDER_DIRECTION }: PanelProps) {
   const PanelComponent = PANEL_COMPONENTS[panel];
-  const { leftPanelOpen, setLeftPanelOpen } = usePanel();
+  const { setLeftPanelOpen } = usePanel();
+  const deviceSimulator = useAppSelector((state) => state.editor.deviceSimulator);
+
+  const handleCloseLeftPanel = () => {
+    setLeftPanelOpen(false);
+    iframeConnection.send(EditorToIframe.DeviceChanged, { deviceSimulator });
+  };
 
   return (
     <StyledPanel $sectioned={sectioned} $borderDir={borderDir}>
       {panel === 'settings' || (
-        <StyledButton
-          onClick={() => {
-            setLeftPanelOpen(!leftPanelOpen);
-          }}
-        >
+        <StyledButton onClick={handleCloseLeftPanel}>
           <Icon icon={LuChevronLeft} size='md' />
         </StyledButton>
       )}

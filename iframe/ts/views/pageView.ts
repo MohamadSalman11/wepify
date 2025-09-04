@@ -2,6 +2,13 @@ import { DomTreeBuilder } from '@compiler/dom/DomTreeBuilder';
 import { PAGE_PADDING_X } from '@shared/constants';
 import { DeviceSimulator, DeviceType, PageElement } from '@shared/typing';
 import { SELECTOR_ROOT } from '../constants';
+import { state } from '../model';
+
+/**
+ * Types
+ */
+
+type Size = { width: number; height: number };
 
 /**
  * Class definition
@@ -35,17 +42,35 @@ class PageView {
     page.style.backgroundColor = color;
   }
 
-  setDeviceSimulator(deviceSimulator: DeviceSimulator, scaleFactor: number) {
+  setDeviceSimulator(deviceSimulator: DeviceSimulator) {
     const page = document.querySelector(SELECTOR_ROOT) as HTMLIFrameElement;
 
     if (!page) {
       return;
     }
 
+    const scaleFactor = this.calculateScaleFactorToFit(
+      { width: document.body.clientWidth, height: document.body.clientHeight },
+      deviceSimulator
+    );
+
+    state.scaleFactor = scaleFactor;
     page.style.width = `${deviceSimulator.width + PAGE_PADDING_X}px`;
     page.style.height = `${deviceSimulator.height}px`;
     page.style.scale = String(scaleFactor);
     page.style.transformOrigin = 'top left';
+  }
+
+  // private
+  private calculateScaleFactorToFit(containerSize: Size, deviceSize: Size) {
+    const needsScaling = deviceSize.width > containerSize.width;
+
+    if (needsScaling) {
+      const scaleX = containerSize.width / (deviceSize.width + PAGE_PADDING_X);
+      return Math.min(scaleX, 1);
+    }
+
+    return 1;
   }
 }
 

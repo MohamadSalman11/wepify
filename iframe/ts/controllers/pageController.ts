@@ -1,4 +1,4 @@
-import { IframeToEditor, PAGE_PADDING_X } from '@shared/constants';
+import { IframeToEditor } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
 import { DeviceSimulator, PageElement } from '@shared/typing';
 import { SELECTOR_DRAG_BUTTON, SELECTOR_SECTION } from '../constants';
@@ -11,15 +11,10 @@ import moveableController from './moveableController';
  * Types
  */
 
-interface Size {
-  width: number;
-  height: number;
-}
-
 interface PageData {
   elements: PageElement[];
   deviceSimulator: DeviceSimulator;
-  backgroundColor?: string;
+  backgroundColor: string;
 }
 
 /**
@@ -33,18 +28,9 @@ class PageController {
   render(pageData: PageData) {
     const { elements, deviceSimulator } = pageData;
 
-    const scaleFactor = this.calculateScaleFactor(
-      { width: document.body.clientWidth, height: document.body.clientHeight },
-      deviceSimulator
-    );
-
-    state.scaleFactor = scaleFactor;
+    pageView.setBackground(pageData.backgroundColor);
+    pageView.setDeviceSimulator(deviceSimulator);
     pageView.renderElements(elements, deviceSimulator.type);
-    pageView.setDeviceSimulator(deviceSimulator, scaleFactor);
-
-    if (pageData.backgroundColor) {
-      pageView.setBackground(pageData.backgroundColor);
-    }
 
     const target = document.querySelector(SELECTOR_SECTION);
 
@@ -75,18 +61,6 @@ class PageController {
     if (state.initRender) return;
 
     iframeConnection.send(IframeToEditor.PageUpdated, updates);
-  }
-
-  // private
-  private calculateScaleFactor(containerSize: Size, deviceSize: Size) {
-    const needsScaling = deviceSize.width > containerSize.width;
-
-    if (needsScaling) {
-      const scaleX = containerSize.width / (deviceSize.width + PAGE_PADDING_X);
-      return Math.min(scaleX, 1);
-    }
-
-    return 1;
   }
 }
 

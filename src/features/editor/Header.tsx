@@ -1,4 +1,4 @@
-import { SCREEN_SIZES } from '@shared/constants';
+import { Device, SCREEN_SIZES } from '@shared/constants';
 import { DeviceType } from '@shared/typing';
 import type { IconType } from 'react-icons';
 import { BsCloudCheck } from 'react-icons/bs';
@@ -33,19 +33,19 @@ const PUBLISH_LINK = 'https://app.netlify.com/drop';
 const DEVICES: { icon: IconType; type: DeviceType }[] = [
   {
     icon: LuMonitor,
-    type: 'monitor'
+    type: Device.Monitor
   },
   {
     icon: LuLaptop,
-    type: 'laptop'
+    type: Device.Laptop
   },
   {
     icon: LuTablet,
-    type: 'tablet'
+    type: Device.Tablet
   },
   {
     icon: LuSmartphone,
-    type: 'smartphone'
+    type: Device.Smartphone
   }
 ] as const;
 
@@ -171,13 +171,13 @@ function EditorActions() {
 
 const getTooltipLabel = (deviceType: DeviceType) => {
   switch (deviceType) {
-    case 'monitor':
+    case Device.Monitor:
       return 'Edit for Desktop version';
-    case 'laptop':
+    case Device.Laptop:
       return 'Edit for Laptop version';
-    case 'tablet':
+    case Device.Tablet:
       return 'Edit for Tablet version';
-    case 'smartphone':
+    case Device.Smartphone:
       return 'Edit for Smartphone version';
     default:
       return 'Edit view';

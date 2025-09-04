@@ -14,7 +14,7 @@ const dashboardMiddleware: Middleware = (store) => (next) => async (action: any)
 
   if (action.type === updateSite.type) {
     const { siteId, updates } = action.payload;
-    await AppStorage.updateObject<Site>(StorageKey.Sites, { [siteId]: updates });
+    await AppStorage.updateObject<Site>(StorageKey.Sites, siteId, updates);
   }
 
   if (action.type === deleteSite.type) {
@@ -28,7 +28,7 @@ const dashboardMiddleware: Middleware = (store) => (next) => async (action: any)
     const sitesStorage = await AppStorage.get<Record<string, Site>>(StorageKey.Sites, {});
 
     if (sitesStorage[id]) {
-      await AppStorage.addToObject<Record<string, Site>>(StorageKey.Sites, newId, {
+      await AppStorage.addToObject(StorageKey.Sites, newId, {
         ...sitesStorage[id],
         id: newId,
         createdAt,
@@ -39,7 +39,7 @@ const dashboardMiddleware: Middleware = (store) => (next) => async (action: any)
 
   if (action.type === setSiteStarred.type) {
     const { id, isStarred } = action.payload;
-    await AppStorage.updateObject<Site>(StorageKey.Sites, { [id]: { isStarred } });
+    await AppStorage.updateObject<Site>(StorageKey.Sites, id, { isStarred: isStarred });
   }
 
   return result;

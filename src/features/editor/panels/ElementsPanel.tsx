@@ -28,7 +28,7 @@ export default function ElementsPanel() {
 
   const handleImageUpload = useImageUpload(
     async (blob: Blob) => {
-      await AppStorage.updateObject(StorageKey.Images, { [nanoid()]: blob });
+      await AppStorage.updateObject(StorageKey.Images, nanoid(), blob);
     },
     (message) => AppToast.error(message)
   );

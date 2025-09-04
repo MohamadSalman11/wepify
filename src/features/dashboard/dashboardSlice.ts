@@ -38,6 +38,7 @@ const dashboardSlice = createSlice({
   reducers: {
     updateSite(state, action: PayloadAction<{ siteId: string; updates: Partial<SiteMetadata> }>) {
       const { siteId, updates } = action.payload;
+
       if (state.sites[siteId]) {
         state.sites[siteId] = { ...state.sites[siteId], ...updates };
       }

@@ -18,24 +18,29 @@ export const AppStorage = {
   },
 
   async addToObject<T extends Record<string, any>>(key: StorageKey, id: string, value: any) {
-    const current = (await this.get<T>(key, {} as T)) as Record<string, any>;
+    const items = (await this.get<T>(key, {} as T)) as Record<string, any>;
 
-    if (!(id in current)) {
-      current[id] = value;
-      await this.set(key, current as T);
+    if (!(id in items)) {
+      items[id] = value;
+      await this.set(key, items as T);
     }
   },
 
-  async updateObject<T extends Record<string, any>>(key: StorageKey, updates: Partial<T>) {
-    const current = (await this.get<T>(key, {} as T)) as T;
-    await this.set(key, { ...current, ...updates });
+  async updateObject<T extends Record<string, any>>(key: StorageKey, id: string, updates: Partial<T>) {
+    const items = (await this.get<Record<string, T>>(key, {})) as Record<string, T>;
+
+    const currentItem = items[id] || ({} as T);
+    const newItem = { ...currentItem, ...updates };
+
+    await this.set(key, { ...items, [id]: newItem });
   },
 
   async deleteFromObject<T extends Record<string, any>>(key: StorageKey, id: string) {
-    const current = (await this.get<T>(key, {} as T)) as T;
-    if (id in current) {
-      delete current[id];
-      await this.set(key, current);
+    const items = (await this.get<T>(key, {} as T)) as T;
+
+    if (id in items) {
+      delete items[id];
+      await this.set(key, items);
     }
   }
 };

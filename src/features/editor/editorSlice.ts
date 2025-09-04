@@ -74,7 +74,7 @@ const initialState: EditorState = {
   currentElementId: ID_FIRST_SECTION,
   loading: false,
   error: undefined,
-  deviceSimulator: { type: 'tablet', width: SCREEN_SIZES.tablet.width, height: SCREEN_SIZES.tablet.height }
+  deviceSimulator: { type: Device.Monitor, width: SCREEN_SIZES.monitor.width, height: SCREEN_SIZES.monitor.height }
 };
 
 const editorSlice = createSlice({

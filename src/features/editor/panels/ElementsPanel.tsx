@@ -11,7 +11,7 @@ import { useImageUpload } from '../../../hooks/useImageUpload';
 import { AppStorage } from '../../../utils/appStorage';
 import { AppToast } from '../../../utils/appToast';
 import CollapsibleSection from '../CollapsibleSection';
-import { useElementDisable } from '../hooks/useDisabledForElements';
+import { useElementDisable } from '../hooks/useElementDisable';
 
 /**
  * Constants

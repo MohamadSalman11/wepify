@@ -176,7 +176,7 @@ interface SettingsContextProps {
  */
 
 export default function SettingsPanel() {
-  const selectedElement = useAppSelector(selectCurrentElement);
+  const selectedElementName = useAppSelector(selectCurrentElement).name;
 
   return (
     <SettingsContext.Provider value={{ handleElementChange }}>

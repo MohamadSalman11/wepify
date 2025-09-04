@@ -3,22 +3,61 @@ import { ElementsName } from '@shared/constants';
 import { useAppSelector } from '../../../store';
 import { selectCurrentElement } from '../editorSlice';
 
+const DEFAULT_BLACKLIST_MEDIA = [ElementsName.Image];
+const DEFAULT_BLACKLIST_LAYOUT = [ElementsName.Grid, ElementsName.List, ElementsName.ListItem];
+
+const DEFAULT_BLACKLIST_TEXT = [
+  ElementsName.Heading,
+  ElementsName.Text,
+  ElementsName.Link,
+  ElementsName.Button,
+  ElementsName.Input
+];
+
+const DEFAULT_BLACKLIST = [...DEFAULT_BLACKLIST_LAYOUT, ...DEFAULT_BLACKLIST_TEXT, ...DEFAULT_BLACKLIST_MEDIA];
+
+const ELEMENT_DISABLED_RULES: Partial<Record<ElementsName, DisabledRule>> = {
+  [ElementsName.Container]: {
+    blacklist: DEFAULT_BLACKLIST
+  },
+  [ElementsName.List]: {
+    blacklist: DEFAULT_BLACKLIST
+  },
+  [ElementsName.Heading]: {
+    blacklist: DEFAULT_BLACKLIST
+  },
+  [ElementsName.Text]: {
+    blacklist: DEFAULT_BLACKLIST
+  },
+  [ElementsName.Link]: {
+    blacklist: DEFAULT_BLACKLIST
+  },
+  [ElementsName.Button]: {
+    blacklist: DEFAULT_BLACKLIST
+  },
+  [ElementsName.Input]: {
+    blacklist: DEFAULT_BLACKLIST
+  },
+  [ElementsName.Grid]: {
+    blacklist: DEFAULT_BLACKLIST
+  },
+  [ElementsName.GridItem]: {
+    whitelist: [ElementsName.Grid],
+    blacklist: [ElementsName.ListItem, ...DEFAULT_BLACKLIST_TEXT]
+  },
+  [ElementsName.ListItem]: { whitelist: [ElementsName.List] }
+};
+
 type DisabledRule = {
   whitelist?: ElementsName[]; // only enabled for these
   blacklist?: ElementsName[]; // disabled for these
 };
 
-const ELEMENT_DISABLED_RULES: Record<ElementsName, DisabledRule> = {
-  [ElementsName.Container]: { blacklist: [ElementsName.Grid, ElementsName.Link] },
-  [ElementsName.GridItem]: { whitelist: [ElementsName.Grid] },
-  [ElementsName.ListItem]: { whitelist: [ElementsName.List] }
-};
-
 export const useElementDisable = () => {
-  const selectedElement = useAppSelector(selectCurrentElement);
+  const selectedElementName = useAppSelector(selectCurrentElement).name;
 
   const isDisabled = (feature: ElementsName) => {
-    if (!selectedElement.name) {
+    if (!selectedElementName) {
       return true;
     }
 
@@ -29,8 +68,8 @@ export const useElementDisable = () => {
     }
 
     return rule.whitelist
-      ? !rule.whitelist.includes(selectedElement.name)
-      : rule.blacklist?.includes(selectedElement.name);
+      ? !rule.whitelist.includes(selectedElementName)
+      : rule.blacklist?.includes(selectedElementName);
   };
 
   return { isDisabled };

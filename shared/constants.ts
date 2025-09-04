@@ -119,7 +119,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
   gridItem: {
     id: '',
     tag: 'div',
-    name: ElementsName.Item,
+    name: ElementsName.GridItem,
     moveable: false,
     focusable: false,
     contentEditable: false,
@@ -153,7 +153,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
   listItem: {
     id: '',
     tag: 'li',
-    name: ElementsName.Item,
+    name: ElementsName.ListItem,
     moveable: false,
     focusable: true,
     contentEditable: true,

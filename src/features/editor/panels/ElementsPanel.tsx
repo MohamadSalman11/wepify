@@ -107,25 +107,28 @@ export default function ElementsPanel() {
       <div>
         <CollapsibleSection title='Text' open>
           <PanelList>
-            <TextItem onClick={() => handleAddElement(ElementsName.Heading)}>
+            <TextItem
+              $disabled={isDisabled(ElementsName.Heading)}
+              onClick={() => handleAddElement(ElementsName.Heading)}
+            >
               <PanelBox>H</PanelBox>
               <span>Heading</span>
             </TextItem>
-            <TextItem onClick={() => handleAddElement(ElementsName.Text)}>
+            <TextItem $disabled={isDisabled(ElementsName.Text)} onClick={() => handleAddElement(ElementsName.Text)}>
               <PanelBox>Text</PanelBox>
               <span>Text Block</span>
             </TextItem>
-            <TextItem onClick={() => handleAddElement(ElementsName.Link)}>
+            <TextItem $disabled={isDisabled(ElementsName.Link)} onClick={() => handleAddElement(ElementsName.Link)}>
               <PanelBox>Link</PanelBox>
               <span>Text Link</span>
             </TextItem>
-            <TextItem onClick={() => handleAddElement(ElementsName.Button)}>
+            <TextItem $disabled={isDisabled(ElementsName.Button)} onClick={() => handleAddElement(ElementsName.Button)}>
               <PanelBox>
                 <span>Button</span>
               </PanelBox>
               <span>Button</span>
             </TextItem>
-            <TextItem onClick={() => handleAddElement(ElementsName.Input)}>
+            <TextItem $disabled={isDisabled(ElementsName.Input)} onClick={() => handleAddElement(ElementsName.Input)}>
               <PanelBox>
                 <span>&nbsp;</span>
               </PanelBox>
@@ -174,10 +177,12 @@ const PanelList = styled.ul`
   }
 `;
 
-const LayoutItem = styled.li<{ $disabled?: boolean }>`
-  opacity: ${({ $disabled }) => ($disabled ? 0.3 : 1)};
-  pointer-events: ${(props) => (props.$disabled ? 'none' : 'auto')};
+const PanelItem = styled.li<{ $disabled?: boolean }>`
+  opacity: ${({ $disabled }) => ($disabled ? 0.4 : 1)};
+  pointer-events: ${({ $disabled }) => ($disabled ? 'none' : 'auto')};
+`;
 
+const LayoutItem = styled(PanelItem)`
   div {
     display: grid;
     grid-template-rows: repeat(4, 1fr);
@@ -231,7 +236,7 @@ const LayoutItem = styled.li<{ $disabled?: boolean }>`
   }
 `;
 
-const TextItem = styled.li`
+const TextItem = styled(PanelItem)`
   div {
     display: flex;
     justify-content: center;
@@ -277,7 +282,7 @@ const TextItem = styled.li`
   }
 `;
 
-const MediaItem = styled.li`
+const MediaItem = styled(PanelItem)`
   div {
     display: flex;
     justify-content: center;

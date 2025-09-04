@@ -2,7 +2,7 @@ import { Middleware } from '@reduxjs/toolkit';
 import { Site } from '@shared/typing';
 import { StorageKey } from '../../constant';
 import { AppStorage } from '../../utils/appStorage';
-import { deleteSite, duplicateSite, setSiteStarred, updateSite } from './slices/dashboardSlice';
+import { deleteSite, duplicateSite, setSiteStarred, updateSite } from './dashboardSlice';
 
 const dashboardMiddleware: Middleware = (store) => (next) => async (action: any) => {
   const result = next(action);

@@ -1,7 +1,7 @@
 import { getMergedResponsiveStyle } from '@compiler/utils/getMergedResponsiveStyle';
 import { PageElementStyle } from '@shared/typing';
 import { useAppSelector } from '../../../store';
-import { selectCurrentElement } from '../slices/editorSlice';
+import { selectCurrentElement } from '../editorSlice';
 
 export const useStyle = (): PageElementStyle => {
   const el = useAppSelector(selectCurrentElement);

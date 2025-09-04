@@ -3,10 +3,10 @@ import { Toaster } from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 import styled, { css } from 'styled-components';
 import LoadingScreen from '../components/LoadingScreen';
+import { loadSitesFromStorage } from '../features/dashboard/dashboardSlice';
 import Header from '../features/dashboard/Header';
 import Main from '../features/dashboard/main/Main';
 import Sidebar from '../features/dashboard/Sidebar';
-import { loadSitesFromStorage } from '../features/dashboard/slices/dashboardSlice';
 import { AppDispatch, useAppSelector } from '../store';
 
 /**

@@ -7,7 +7,7 @@ import Divider from '../../components/divider';
 import Icon from '../../components/Icon';
 import Logo from '../../components/Logo';
 import { EditorPath, Path } from '../../constant';
-import { usePanel } from './context/PanelContext';
+import { usePanel } from './panels';
 
 /**
  * Constants

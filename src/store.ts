@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { useSelector, type TypedUseSelectorHook } from 'react-redux';
 import dashboardMiddleware from './features/dashboard/dashboardMiddleware';
-import dashboardReducer from './features/dashboard/slices/dashboardSlice';
+import dashboardReducer from './features/dashboard/dashboardSlice';
 import editorMiddleware from './features/editor/editorMiddleware';
 import editorReducer from './features/editor/editorSlice';
 

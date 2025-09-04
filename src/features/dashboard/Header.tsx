@@ -4,7 +4,7 @@ import Divider from '../../components/divider';
 import Logo from '../../components/Logo';
 import { Path } from '../../constant';
 import { useAppSelector } from '../../store';
-import { selectSitesArray } from './slices/dashboardSlice';
+import { selectSitesArray } from './dashboardSlice';
 
 /**
  * Component definition

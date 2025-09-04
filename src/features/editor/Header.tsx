@@ -24,7 +24,7 @@ import Input from '../../components/form/Input';
 import Icon from '../../components/Icon';
 import { Breakpoint, EditorPath } from '../../constant';
 import { useAppSelector } from '../../store';
-import { selectCurrentSite, setDeviceSimulator } from './slices/editorSlice';
+import { selectCurrentSite, setDeviceSimulator } from './editorSlice';
 
 /**
  * Constants

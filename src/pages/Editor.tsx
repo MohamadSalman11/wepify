@@ -4,11 +4,10 @@ import { useDispatch } from 'react-redux';
 import { Outlet, useLocation, useParams } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 import Canvas from '../features/editor/Canvas';
-import { usePanel } from '../features/editor/context/PanelContext';
+import { loadSiteFromStorage } from '../features/editor/editorSlice';
 import Header from '../features/editor/Header';
-import Panel from '../features/editor/panels';
+import Panel, { usePanel } from '../features/editor/panels';
 import Sidebar from '../features/editor/Sidebar';
-import { loadSiteFromStorage } from '../features/editor/slices/editorSlice';
 import { AppDispatch } from '../store';
 
 /**

@@ -24,6 +24,10 @@ export const useElementDisable = () => {
 
     const rule = ELEMENT_DISABLED_RULES[feature];
 
+    if (!rule) {
+      return true;
+    }
+
     return rule.whitelist
       ? !rule.whitelist.includes(selectedElement.name)
       : rule.blacklist?.includes(selectedElement.name);

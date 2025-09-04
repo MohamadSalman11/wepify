@@ -20,6 +20,10 @@ export const useElementDisable = () => {
 
     const rule = SETTINGS_RULES[setting];
 
+    if (!rule) {
+      return true;
+    }
+
     return rule.whitelist
       ? !rule.whitelist.includes(selectedElement.name)
       : rule.blacklist?.includes(selectedElement.name);

@@ -12,6 +12,8 @@ export const toSiteMetadata = (site: Site) => {
     }
   }
 
+  const firstPage = Object.values(site.pages).find((p) => p.isIndex) || Object.values(site.pages)[0];
+
   return {
     id: site.id,
     name: site.name,
@@ -19,6 +21,7 @@ export const toSiteMetadata = (site: Site) => {
     createdAt: site.createdAt,
     lastModified: site.lastModified,
     isStarred: site.isStarred,
+    firstPageId: firstPage.id,
     pagesCount,
     sizeKb: Math.round(sizeBytes / 1024)
   };

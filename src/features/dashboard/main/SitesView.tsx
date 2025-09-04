@@ -149,9 +149,9 @@ function TableRow({ site }: { site: SiteMetadata }) {
 
   const handleRowClick = async (event: MouseEvent<HTMLElement>) => {
     const target = event.target as HTMLElement;
+
     if (!target.closest('svg') && !target.closest('li')) {
-      dispatch(setIsLoading(true));
-      navigate(buildPath(Path.Editor, { siteId: id, pageId: firstPageId }));
+      navigate(buildPath(Path.Editor, { siteId: id, pageId: site.firstPageId }));
     }
   };
 

@@ -19,7 +19,6 @@ import Button from '../../components/Button';
 import ConfirmNavigation from '../../components/ConfirmNavigation';
 import Divider from '../../components/divider';
 import Dropdown from '../../components/Dropdown';
-import Input from '../../components/form/Input';
 import Icon from '../../components/Icon';
 import { Breakpoint, EditorPath } from '../../constant';
 import { useAppSelector } from '../../store';
@@ -91,16 +90,6 @@ function DevicePreviewControls() {
           screenSize={SCREEN_SIZES[type]}
         />
       ))}
-      <SizeInputs>
-        <div>
-          <label htmlFor='preview-input-width'>W</label>
-          <Input id='preview-input-width' placeholder={`${SCREEN_SIZES[deviceSimulator.type].width}px`} disabled />
-        </div>
-        <div>
-          <label htmlFor='preview-input-height'>H</label>
-          <Input id='preview-input-height' placeholder={`${SCREEN_SIZES[deviceSimulator.type].height}px`} disabled />
-        </div>
-      </SizeInputs>
     </StyledDevicePreviewControls>
   );
 }
@@ -222,13 +211,8 @@ const StyledHeader = styled.header`
 
     &:nth-child(2) {
       justify-content: center;
-      min-width: 54rem;
-      max-width: 54rem;
-
-      @media (max-width: ${Breakpoint.laptop}em) {
-        min-width: 45rem;
-        max-width: 45rem;
-      }
+      min-width: 42rem;
+      max-width: 42rem;
     }
   }
 `;
@@ -240,29 +224,6 @@ const StyledDevicePreviewControls = styled.div`
 
   @media (max-width: ${Breakpoint.laptop}em) {
     column-gap: 2.4rem;
-  }
-`;
-
-const SizeInputs = styled.div`
-  display: flex;
-  align-items: center;
-  column-gap: 1.6rem;
-
-  & > div {
-    display: flex;
-    column-gap: 0.8rem;
-    align-items: center;
-  }
-
-  input {
-    cursor: default !important;
-    padding-right: 1.2rem;
-    padding-left: 1.2rem;
-    text-align: center;
-  }
-
-  label {
-    color: var(--color-gray-light);
   }
 `;
 

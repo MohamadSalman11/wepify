@@ -36,7 +36,7 @@ import { useAppSelector } from '../../../store';
 import CollapsibleSection from '../CollapsibleSection';
 import ColorPicker from '../ColorPicker';
 import { selectCurrentElement, selectCurrentPage, selectCurrentPageElements } from '../editorSlice';
-import { useSettingsVisibility } from '../hooks/useSettingsVisibility';
+import { Settings, useSettingsVisibility } from '../hooks/useSettingsVisibility';
 import { useStyle } from '../hooks/useStyle';
 
 /**
@@ -155,20 +155,6 @@ export const FONT_WEIGHT_VALUES = {
   ExtraBold: '800',
   Black: '900'
 };
-
-export enum Settings {
-  Alignment = 'alignment',
-  Size = 'size',
-  Link = 'link',
-  Input = 'input',
-  Grid = 'grid',
-  Flex = 'flex',
-  Space = 'space',
-  Typography = 'typography',
-  Fill = 'fill',
-  Stroke = 'stroke',
-  Page = 'page'
-}
 
 /**
  * Types

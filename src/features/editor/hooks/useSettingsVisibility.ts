@@ -1,7 +1,20 @@
 import { ElementsName } from '@shared/constants';
 import { useAppSelector } from '../../../store';
 import { selectCurrentElement } from '../editorSlice';
-import { Settings } from '../panels/SettingsPanel';
+
+export enum Settings {
+  Alignment = 'alignment',
+  Size = 'size',
+  Link = 'link',
+  Input = 'input',
+  Grid = 'grid',
+  Flex = 'flex',
+  Space = 'space',
+  Typography = 'typography',
+  Fill = 'fill',
+  Stroke = 'stroke',
+  Page = 'page'
+}
 
 const ELEMENTS_MEDIA = [ElementsName.Image];
 

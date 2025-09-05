@@ -130,6 +130,7 @@ function DevicePreviewButton({
 
 function EditorActions() {
   const navigate = useNavigate();
+  const storing = useAppSelector((state) => state.editor.storing);
 
   const handleSitePreview = () => {
     navigate(EditorPath.Preview);
@@ -137,8 +138,7 @@ function EditorActions() {
 
   return (
     <StyledEditorActions>
-      {/* {isStoring ? <StyledRefreshIcon icon={LuRefreshCw} /> : <StyledCloudIcon icon={BsCloudCheck} fill />} */}
-      {false ? <StyledRefreshIcon icon={LuRefreshCw} /> : <StyledCloudIcon icon={BsCloudCheck} fill />}
+      {storing ? <StyledRefreshIcon icon={LuRefreshCw} /> : <StyledCloudIcon icon={BsCloudCheck} fill />}
       <Divider rotate={90} width={30} />
       <ConfirmNavigation onConfirmed={handleSitePreview}>
         <Icon icon={LuEye} hover tooltipLabel='Preview Site' />

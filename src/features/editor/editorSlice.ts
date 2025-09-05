@@ -64,6 +64,7 @@ interface EditorState {
   currentPageId: string | null;
   currentElementId: string;
   loading: boolean;
+  storing: boolean;
   error?: string;
   deviceSimulator: DeviceSimulator;
 }
@@ -73,6 +74,7 @@ const initialState: EditorState = {
   currentPageId: null,
   currentElementId: ID_FIRST_SECTION,
   loading: false,
+  storing: false,
   error: undefined,
   deviceSimulator: { type: Device.Monitor, width: SCREEN_SIZES.monitor.width, height: SCREEN_SIZES.monitor.height }
 };
@@ -214,6 +216,9 @@ const editorSlice = createSlice({
       }
 
       state.currentSite.pages[action.payload].isIndex = true;
+    },
+    setStoring(state, action: PayloadAction<boolean>) {
+      state.storing = action.payload;
     }
   },
   extraReducers: (builder) => {
@@ -306,6 +311,7 @@ export const {
   setCurrentElement,
   updateElement,
   setDeviceSimulator,
-  setPageAsIndex
+  setPageAsIndex,
+  setStoring
 } = editorSlice.actions;
 export default editorSlice.reducer;

@@ -1,6 +1,7 @@
 import { Middleware } from '@reduxjs/toolkit';
 import { Site } from '@shared/typing';
 import { StorageKey } from '../../constant';
+import { AppDispatch } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
 import { debounce } from '../../utils/debounce';
 import {
@@ -10,6 +11,7 @@ import {
   deletePage,
   duplicatePage,
   setPageAsIndex,
+  setStoring,
   updateElement,
   updatePage
 } from './editorSlice';
@@ -25,19 +27,22 @@ const SYNC_ACTIONS = new Set([
   setPageAsIndex.type
 ]);
 
-const saveSiteDebounced = debounce(async (site: Site) => {
+const saveSiteDebounced = debounce(async (site: Site, dispatch: AppDispatch) => {
   await AppStorage.updateObject(StorageKey.Sites, site.id, site);
-}, 500);
+  dispatch(setStoring(false));
+}, 1000);
 
 const editorMiddleware: Middleware = (store) => (next) => (action: any) => {
   const result = next(action);
 
   if (SYNC_ACTIONS.has(action.type)) {
+    store.dispatch(setStoring(true));
+
     const state = store.getState();
     const currentSite = state.editor.currentSite;
 
     if (currentSite) {
-      saveSiteDebounced(currentSite);
+      saveSiteDebounced(currentSite, store.dispatch);
     }
   }
 

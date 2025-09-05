@@ -27,7 +27,8 @@ const REGEX = {
   MULTIPLE_AMPERSANDS: /[&]{2,}/g,
   QUESTION_MARK_AMPERSAND: /\?&/,
   TRAILING_AMPERSAND: /&$/,
-  A_TAG_ATTRS_TO_REMOVE: /\s(?:target|spellcheck|data-name)(?:=["'][^"']*["'])?/g
+  ATTRS_TO_REMOVE:
+    /\s(?:target|spellcheck|data-name|data-not-moveable|data-focusable|data-content-editable|data-can-not-have-children)(?:=["'][^"']*["'])?/g
 };
 
 /**
@@ -62,8 +63,8 @@ export class HTMLMinifier {
       .replace(REGEX.GOOGLE_FONTS_LINK, `<link href="${fontsURL}" rel="stylesheet">`)
       .replace(REGEX.CLASS_ATTRIBUTE, this.filterClasses)
       .replace(REGEX.CONTENTEDITABLE, '')
-      .replace(REGEX.A_TAG_ATTRS_TO_REMOVE, '')
-      .replace(REGEX.STYLE_TAG_WITH_STYLE_ATTR, this.removeInlineStyle);
+      .replace(REGEX.STYLE_TAG_WITH_STYLE_ATTR, this.removeInlineStyle)
+      .replace(REGEX.ATTRS_TO_REMOVE, '');
 
     return await prettier.format(cleanedHTML, this.getPrettierOptions());
   }

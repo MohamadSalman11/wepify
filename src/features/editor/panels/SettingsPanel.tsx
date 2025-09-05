@@ -255,8 +255,8 @@ function SelectorSettings() {
 function SizeSettings() {
   const style = useStyle();
   const { handleElementChange } = useSettingsContext();
-  const { name } = useAppSelector(selectCurrentElement);
-  const disableInput = [ElementsName.Item, ElementsName.Section].includes(name);
+  const name = useAppSelector(selectCurrentElement).name;
+  const disableInput = [ElementsName.Section].includes(name);
 
   const handleRotate = () => {
     const current = style.rotate ?? 0;
@@ -293,7 +293,7 @@ function SizeSettings() {
               <Input id='settings-panel-input-top' disabled={disableInput} type='number' value={style.top ?? 0} />
             </PropertyEditor>
           </SizeRow>
-          <SizeRow $disabled={disableInput}>
+          <SizeRow>
             <label htmlFor='settings-panel-input-width'>W</label>
             <PropertyEditor styleName='width'>
               <Select
@@ -301,7 +301,6 @@ function SizeSettings() {
                 editable
                 editInputType='text'
                 options={OPTIONS_SIZE}
-                disabled={disableInput}
                 defaultSelect={style.width}
               />
             </PropertyEditor>

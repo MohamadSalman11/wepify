@@ -16,8 +16,7 @@ import { buildPath } from '../../../utils/buildPath';
 import { formatDate } from '../../../utils/formatDate';
 import { formatSize } from '../../../utils/formatSize';
 import { FormValidator } from '../../../utils/FormValidator';
-import { runWithToast } from '../../../utils/runWithToast';
-import { deleteSite, duplicateSite, setProcessing, setSiteStarred, updateSite } from '../dashboardSlice';
+import { deleteSite, duplicateSite, setSiteStarred, updateSite } from '../dashboardSlice';
 
 /**
  * Constants
@@ -137,14 +136,8 @@ function TableRow({ site }: { site: SiteMetadata }) {
   const handleDuplicateSite = () => {
     const icon = <StyledLoader icon={LuLoader} color='var(--color-primary)' size='md' />;
 
-    runWithToast({
-      startMessage: ToastMessages.site.duplicating,
-      successMessage: ToastMessages.site.duplicated,
-      icon,
-      onExecute: () => dispatch(setProcessing(true)),
-      onSuccess: () => dispatch(duplicateSite({ id, newId: nanoid() })),
-      onFinally: () => dispatch(setProcessing(false))
-    });
+    AppToast.custom(ToastMessages.site.duplicating, { icon });
+    dispatch(duplicateSite({ id, newId: nanoid() }));
   };
 
   const handleRowClick = async (event: MouseEvent<HTMLElement>) => {
@@ -241,21 +234,11 @@ function EditDialog({ site, onCloseModal }: { site: SiteMetadata; onCloseModal?:
       return;
     }
 
-    runWithToast({
-      startMessage: ToastMessages.site.updating,
-      successMessage: ToastMessages.site.updated,
-      icon: <StyledLoader icon={LuLoader} color='var(--color-primary)' size='md' />,
-      onExecute: () => {
-        onCloseModal?.();
-        dispatch(setProcessing(true));
-      },
-      onSuccess: () => {
-        const data = { siteId: id, updates: { description: trimmedDescription, name: trimmedName } };
-        dispatch(updateSite(data));
-      },
+    const icon = <StyledLoader icon={LuLoader} color='var(--color-primary)' size='md' />;
 
-      onFinally: () => dispatch(setProcessing(false))
-    });
+    AppToast.custom(ToastMessages.site.updating, { icon });
+    onCloseModal?.();
+    dispatch(updateSite({ siteId: id, updates: { description: trimmedDescription, name: trimmedName } }));
   };
 
   return (
@@ -286,17 +269,9 @@ function DeleteDialog({ site, onCloseModal }: { site: SiteMetadata; onCloseModal
   const handleDelete = () => {
     const icon = <StyledLoader icon={LuLoader} color='var(--color-red)' size='md' />;
 
-    runWithToast({
-      startMessage: ToastMessages.site.deleting,
-      successMessage: ToastMessages.site.deleted,
-      icon: icon,
-      onExecute: () => {
-        onCloseModal?.();
-        dispatch(setProcessing(true));
-      },
-      onSuccess: () => dispatch(deleteSite(id)),
-      onFinally: () => dispatch(setProcessing(false))
-    });
+    AppToast.custom(ToastMessages.site.deleting, { icon });
+    onCloseModal?.();
+    dispatch(deleteSite(id));
   };
 
   return (

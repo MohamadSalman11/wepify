@@ -14,7 +14,6 @@ import { AppToast } from '../../utils/appToast';
 import { buildPath } from '../../utils/buildPath';
 import { createNewPage } from '../../utils/createNewPage';
 import { formatSize } from '../../utils/formatSize';
-import { runWithToast } from '../../utils/runWithToast';
 import { toSiteMetadata } from '../../utils/toSiteMetadata';
 import { selectSitesArray } from './dashboardSlice';
 import { StyledLoader } from './main/SitesView';

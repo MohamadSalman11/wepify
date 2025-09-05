@@ -1,8 +1,15 @@
 import { Middleware } from '@reduxjs/toolkit';
 import { Site } from '@shared/typing';
-import { StorageKey } from '../../constant';
+import { StorageKey, ToastMessages } from '../../constant';
 import { AppStorage } from '../../utils/appStorage';
-import { deleteSite, duplicateSite, setSiteStarred, updateSite } from './dashboardSlice';
+import { AppToast } from '../../utils/appToast';
+import { deleteSite, duplicateSite, setProcessing, setSiteStarred, updateSite } from './dashboardSlice';
+
+export const ToastMap = {
+  [updateSite.type]: () => AppToast.success(ToastMessages.site.updated),
+  [deleteSite.type]: () => AppToast.success(ToastMessages.site.deleted),
+  [duplicateSite.type]: () => AppToast.success(ToastMessages.site.duplicated)
+};
 
 const dashboardMiddleware: Middleware = (store) => (next) => async (action: any) => {
   const result = next(action);
@@ -11,6 +18,8 @@ const dashboardMiddleware: Middleware = (store) => (next) => async (action: any)
   if (!actionsToSync.includes(action.type)) {
     return result;
   }
+
+  store.dispatch(setProcessing(true));
 
   if (action.type === updateSite.type) {
     const { siteId, updates } = action.payload;
@@ -41,6 +50,13 @@ const dashboardMiddleware: Middleware = (store) => (next) => async (action: any)
     const { id, isStarred } = action.payload;
     await AppStorage.updateObject<Site>(StorageKey.Sites, id, { isStarred: isStarred });
   }
+
+  setTimeout(() => {
+    const toastFn = ToastMap[action.type as keyof typeof ToastMap];
+
+    store.dispatch(setProcessing(false));
+    toastFn?.();
+  }, 1000);
 
   return result;
 };

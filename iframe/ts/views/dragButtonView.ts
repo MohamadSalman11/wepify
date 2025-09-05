@@ -16,17 +16,21 @@ const SELECTOR_MOVEABLE_CONTROL = '.moveable-control';
 
 class DragButtonView {
   private button!: HTMLImageElement;
-  private moveableControlEl = document.querySelector(SELECTOR_MOVEABLE_CONTROL);
 
   // public
   render() {
     const img = document.createElement('img');
+    const moveableControlEl = document.querySelector(SELECTOR_MOVEABLE_CONTROL);
+
+    if (!moveableControlEl) {
+      return;
+    }
 
     img.src = moveIcon;
     img.id = SELECTOR_DRAG_BUTTON_ID;
 
     this.button = img;
-    this.moveableControlEl?.append(img);
+    moveableControlEl.append(img);
   }
 
   move(elementHeight: number, scaleFactor: number = DEFAULT_SCALE_FACTOR, borderWidth?: number) {

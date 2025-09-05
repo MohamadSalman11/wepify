@@ -24,9 +24,6 @@ const DATASET_CANNOT_HAVE_CHILDREN = 'canNotHaveChildren';
 const SCROLL_ALIGN_START = 'start';
 const SCROLL_ALIGN_CENTER = 'center';
 
-const Z_INDEX_INCREMENT = 1;
-const Z_INDEX_DECREMENT = 1;
-
 const PARSE_INT_RADIX = 10;
 
 /**
@@ -120,13 +117,27 @@ class ElementController {
       return;
     }
 
-    const extremeSiblingZIndex = this.getExtremeSiblingZIndex(parentEl, shouldBringToFront);
+    const all = [...parentEl.children] as HTMLElement[];
 
-    const newZIndex = shouldBringToFront
-      ? extremeSiblingZIndex + Z_INDEX_INCREMENT
-      : extremeSiblingZIndex - Z_INDEX_DECREMENT;
+    const others = all
+      .filter((el) => el !== this.currentEl)
+      .sort((a, b) => {
+        const zA = Number.parseInt(getComputedStyle(a).zIndex || '0', PARSE_INT_RADIX);
+        const zB = Number.parseInt(getComputedStyle(b).zIndex || '0', PARSE_INT_RADIX);
+        return zA - zB;
+      });
 
-    this.update({ style: { zIndex: newZIndex } });
+    if (shouldBringToFront) {
+      for (const [index, el] of others.entries()) {
+        el.style.zIndex = String(index);
+      }
+      this.update({ style: { zIndex: others.length } });
+    } else {
+      this.update({ style: { zIndex: 0 } });
+      for (const [index, el] of others.entries()) {
+        el.style.zIndex = String(index + 1);
+      }
+    }
   }
 
   copy() {
@@ -231,21 +242,6 @@ class ElementController {
     }
 
     return updatedIdsMap;
-  }
-
-  private getExtremeSiblingZIndex(parentEl: HTMLElement, bringToFront: boolean): number {
-    let extremeZIndex = 0;
-
-    for (const sibling of parentEl.children) {
-      const zIndexStr = globalThis.getComputedStyle(sibling).zIndex || '0';
-      const zIndex = Number.parseInt(zIndexStr, PARSE_INT_RADIX);
-
-      if (!Number.isNaN(zIndex)) {
-        extremeZIndex = bringToFront ? Math.max(extremeZIndex, zIndex) : Math.min(extremeZIndex, zIndex);
-      }
-    }
-
-    return extremeZIndex;
   }
 
   private syncContentEditable(newEl: HTMLElement) {

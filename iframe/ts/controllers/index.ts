@@ -4,6 +4,7 @@ import pageView from '../views/pageView';
 import contextMenuController from './contextMenuController';
 import elementController from './elementController';
 import keyboardController from './keyboardController';
+import moveableController from './moveableController';
 import pageController from './pageController';
 
 const controlDocumentClick = (event: globalThis.MouseEvent) => {
@@ -40,6 +41,7 @@ iframeConnection.on(EditorToIframe.UpdateElement, (payload) => {
 
 iframeConnection.on(EditorToIframe.DeviceChanged, (payload) => {
   pageView.setDeviceSimulator(payload.deviceSimulator);
+  moveableController.clearTarget();
 });
 
 document.addEventListener('click', controlDocumentClick);

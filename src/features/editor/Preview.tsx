@@ -61,7 +61,12 @@ export default function Preview() {
       const pageCssMap = cssGenerator.buildPageCssMap();
       const { normalCSS, mediaCSS } = pageCssMap[page.id];
 
-      const fullHTML = buildHtmlTemplate({ title: page.title, bodyContent, style: [styleCSS, normalCSS, mediaCSS] });
+      const fullHTML = await buildHtmlTemplate({
+        title: page.title,
+        bodyContent,
+        style: [styleCSS, normalCSS, mediaCSS]
+      });
+
       const htmlMinifier = new HTMLMinifier(fullHTML);
       const cleanedHTML = await htmlMinifier.cleanUp();
 

@@ -1,3 +1,4 @@
+import { CSSMinifier } from '@compiler/minifier/CSSMinifier';
 import { FONTS_URL } from '@shared/constants';
 
 interface HtmlTemplateOptions {
@@ -7,7 +8,9 @@ interface HtmlTemplateOptions {
 }
 
 export const buildHtmlTemplate = ({ title = 'Untitled', bodyContent = '', style = [] }: HtmlTemplateOptions) => {
-  const combinedStyle = style.length > 0 ? `<style>${style.join('\n')}</style>` : '';
+  const combinedCSS = style.join('\n');
+  const minifiedCSS = combinedCSS ? new CSSMinifier(combinedCSS).minify() : '';
+  const combinedStyle = minifiedCSS ? `<style>${minifiedCSS}</style>` : '';
 
   return `
   <!DOCTYPE html>

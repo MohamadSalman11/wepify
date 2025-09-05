@@ -46,6 +46,10 @@ export class CSSGenerator {
     for (const [pageId, page] of Object.entries(this.pages)) {
       const normalStyles: SelectorStyles = {};
 
+      if (page.backgroundColor) {
+        normalStyles['body'] = { backgroundColor: page.backgroundColor };
+      }
+
       for (const el of Object.values(page.elements)) {
         const { normalStyles: nStyles, mediaStylesMap } = this.extractStyles(el);
 

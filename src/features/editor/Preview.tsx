@@ -11,6 +11,7 @@ import styled from 'styled-components';
 import Button from '../../components/Button';
 import { EditorPath, Path } from '../../constant';
 import { useAppSelector } from '../../store';
+import { buildPath } from '../../utils/buildPath';
 import { selectPagesMetadata } from './editorSlice';
 
 /**
@@ -99,7 +100,7 @@ const createLinkHandler =
     );
 
     if (targetPage) {
-      navigate(`/${Path.Editor}/sites/${siteId}/pages/${targetPage.id}/${EditorPath.Preview}`);
+      navigate(`${buildPath(Path.Editor, { siteId, pageId: targetPage.id })}${EditorPath.Preview}`);
     } else {
       window.open(href, LINK_TARGET, LINK_TARGET_OPTIONS);
     }

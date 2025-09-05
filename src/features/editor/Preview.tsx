@@ -35,6 +35,7 @@ export default function Preview() {
   const pagesMetadata = useAppSelector(selectPagesMetadata);
   const page = useAppSelector((state) => state.editor.currentSite?.pages[pageId || '']);
   const [htmlString, setHtmlString] = useState<string>('');
+  const [iframeUrl, setIframeUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!page?.elements) {
@@ -59,6 +60,21 @@ export default function Preview() {
     generateHtml();
   }, [page]);
 
+  useEffect(() => {
+    if (!htmlString) {
+      return;
+    }
+
+    const blob = new Blob([htmlString], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+
+    setIframeUrl(url);
+
+    return () => {
+      URL.revokeObjectURL(url);
+    };
+  }, [htmlString]);
+
   const handleIframeLoad = (iframe: HTMLIFrameElement | null) => {
     const doc = iframe?.contentDocument;
     doc?.addEventListener('click', createLinkHandler(pagesMetadata, navigate, siteId!));
@@ -75,7 +91,7 @@ export default function Preview() {
       </ButtonContainer>
       {htmlString && (
         <IframePreview
-          srcDoc={htmlString}
+          src={iframeUrl || ''}
           title='HTML Preview'
           onLoad={(event) => handleIframeLoad(event.target as HTMLIFrameElement)}
         />

@@ -91,7 +91,7 @@ class ElementController {
 
     const updatedIdsMap = this.assignUniqueIdsToDomElementTree(parentEl);
 
-    iframeConnection.send('DELETE_ELEMENT', {
+    iframeConnection.send(IframeToEditor.DeleteElement, {
       updatedIdsMap,
       deletedIds
     });

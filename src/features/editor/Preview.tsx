@@ -31,11 +31,22 @@ const SCREEN_SIZE_INSTRUCTIONS = 'Press F12 (or Cmd+Option+I on Mac) to preview 
 
 export default function Preview() {
   const navigate = useNavigate();
-  const { siteId, pageId } = useParams();
+  const { siteId = '', pageId = '' } = useParams();
   const pagesMetadata = useAppSelector(selectPagesMetadata);
   const page = useAppSelector((state) => state.editor.currentSite?.pages[pageId || '']);
   const [htmlString, setHtmlString] = useState<string>('');
   const [iframeUrl, setIframeUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === KEY_CLOSE_PREVIEW) {
+        navigate(buildPath(Path.Editor, { siteId, pageId }));
+      }
+    };
+
+    globalThis.addEventListener('keydown', handleEscape);
+    return () => globalThis.removeEventListener('keydown', handleEscape);
+  }, [navigate, siteId, pageId]);
 
   useEffect(() => {
     if (!page?.elements) {
@@ -85,7 +96,7 @@ export default function Preview() {
       <ButtonContainer>
         <title>{page?.title}</title>
         <StyledButton onClick={() => alert(SCREEN_SIZE_INSTRUCTIONS)}>Preview on Screen Sizes</StyledButton>
-        <StyledButton variation='danger' onClick={() => {}}>
+        <StyledButton variation='danger' onClick={() => navigate(buildPath(Path.Editor, { siteId, pageId }))}>
           Close Preview
         </StyledButton>
       </ButtonContainer>

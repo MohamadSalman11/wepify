@@ -1,12 +1,11 @@
-// hooks/useDisabledForElement.ts
 import { ElementsName } from '@shared/constants';
 import { useAppSelector } from '../../../store';
 import { selectCurrentElement } from '../editorSlice';
 
-const DEFAULT_BLACKLIST_MEDIA = [ElementsName.Image];
-const DEFAULT_BLACKLIST_LAYOUT = [ElementsName.Grid, ElementsName.List, ElementsName.ListItem];
+const ELEMENTS_MEDIA = [ElementsName.Image];
+const ELEMENTS_LAYOUT = [ElementsName.Grid, ElementsName.List, ElementsName.ListItem];
 
-const DEFAULT_BLACKLIST_TEXT = [
+const ELEMENTS_TEXT = [
   ElementsName.Heading,
   ElementsName.Text,
   ElementsName.Link,
@@ -14,37 +13,18 @@ const DEFAULT_BLACKLIST_TEXT = [
   ElementsName.Input
 ];
 
-const DEFAULT_BLACKLIST = [...DEFAULT_BLACKLIST_LAYOUT, ...DEFAULT_BLACKLIST_TEXT, ...DEFAULT_BLACKLIST_MEDIA];
+const ELEMENTS_ALL = [...ELEMENTS_LAYOUT, ...ELEMENTS_TEXT, ...ELEMENTS_MEDIA];
 
 const ELEMENT_DISABLED_RULES: Partial<Record<ElementsName, DisabledRule>> = {
-  [ElementsName.Container]: {
-    blacklist: DEFAULT_BLACKLIST
-  },
-  [ElementsName.List]: {
-    blacklist: DEFAULT_BLACKLIST
-  },
-  [ElementsName.Heading]: {
-    blacklist: DEFAULT_BLACKLIST
-  },
-  [ElementsName.Text]: {
-    blacklist: DEFAULT_BLACKLIST
-  },
-  [ElementsName.Link]: {
-    blacklist: DEFAULT_BLACKLIST
-  },
-  [ElementsName.Button]: {
-    blacklist: DEFAULT_BLACKLIST
-  },
-  [ElementsName.Input]: {
-    blacklist: DEFAULT_BLACKLIST
-  },
-  [ElementsName.Grid]: {
-    blacklist: DEFAULT_BLACKLIST
-  },
-  [ElementsName.GridItem]: {
-    whitelist: [ElementsName.Grid],
-    blacklist: [ElementsName.ListItem, ...DEFAULT_BLACKLIST_TEXT]
-  },
+  [ElementsName.Container]: { blacklist: ELEMENTS_ALL },
+  [ElementsName.List]: { blacklist: ELEMENTS_ALL },
+  [ElementsName.Heading]: { blacklist: ELEMENTS_ALL },
+  [ElementsName.Text]: { blacklist: ELEMENTS_ALL },
+  [ElementsName.Link]: { blacklist: ELEMENTS_ALL },
+  [ElementsName.Button]: { blacklist: ELEMENTS_ALL },
+  [ElementsName.Input]: { blacklist: ELEMENTS_ALL },
+  [ElementsName.Grid]: { blacklist: ELEMENTS_ALL },
+  [ElementsName.GridItem]: { whitelist: [ElementsName.Grid], blacklist: [ElementsName.ListItem, ...ELEMENTS_TEXT] },
   [ElementsName.ListItem]: { whitelist: [ElementsName.List] }
 };
 

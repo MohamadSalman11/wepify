@@ -25,6 +25,7 @@ export interface Page {
 }
 
 export type SiteMetadata = Omit<Site, 'pages'> & {
+  firstPageId: string;
   sizeKb: number;
   pagesCount: number;
 };

@@ -36,6 +36,7 @@ import { useAppSelector } from '../../../store';
 import CollapsibleSection from '../CollapsibleSection';
 import ColorPicker from '../ColorPicker';
 import { selectCurrentElement, selectCurrentPage, selectCurrentPageElements } from '../editorSlice';
+import { useSettingsVisibility } from '../hooks/useSettingsVisibility';
 import { useStyle } from '../hooks/useStyle';
 
 /**
@@ -155,6 +156,20 @@ export const FONT_WEIGHT_VALUES = {
   Black: '900'
 };
 
+export enum Settings {
+  Alignment = 'alignment',
+  Size = 'size',
+  Link = 'link',
+  Input = 'input',
+  Grid = 'grid',
+  Flex = 'flex',
+  Space = 'space',
+  Typography = 'typography',
+  Fill = 'fill',
+  Stroke = 'stroke',
+  Page = 'page'
+}
+
 /**
  * Types
  */
@@ -176,20 +191,20 @@ interface SettingsContextProps {
  */
 
 export default function SettingsPanel() {
-  const selectedElementName = useAppSelector(selectCurrentElement).name;
+  const { isVisible } = useSettingsVisibility();
 
   return (
     <SettingsContext.Provider value={{ handleElementChange }}>
       <SelectorSettings />
-      <AlignmentSettings />
-      <SizeSettings />
-      <GridSettings />
-      <LinkSettings />
-      <InputSettings />
-      <FlexSettings />
-      <SpacingSettings />
-      <TypographySettings />
-      <FillSettings />
+      {isVisible(Settings.Alignment) || <AlignmentSettings />}
+      {isVisible(Settings.Size) || <SizeSettings />}
+      {isVisible(Settings.Link) || <LinkSettings />}
+      {isVisible(Settings.Input) || <InputSettings />}
+      {isVisible(Settings.Grid) || <GridSettings />}
+      {isVisible(Settings.Flex) || <FlexSettings />}
+      {isVisible(Settings.Space) || <SpaceSettings />}
+      {isVisible(Settings.Typography) || <TypographySettings />}
+      {isVisible(Settings.Fill) || <FillSettings />}
       <StrokeSettings />
       <PageSettings />
     </SettingsContext.Provider>
@@ -442,14 +457,14 @@ function FlexSettings() {
   );
 }
 
-function SpacingSettings() {
+function SpaceSettings() {
   const { marginTop, marginRight, marginBottom, marginLeft, paddingTop, paddingRight, paddingBottom, paddingLeft } =
     useStyle();
 
   return (
     <div>
       <CollapsibleSection title='Spacing'>
-        <SpacingBox>
+        <SpaceBox>
           <div>
             <PropertyEditor styleName='marginTop'>
               <input type='number' value={marginTop ?? 0} />
@@ -493,7 +508,7 @@ function SpacingSettings() {
               <input type='number' value={marginBottom ?? 0} />
             </PropertyEditor>
           </div>
-        </SpacingBox>
+        </SpaceBox>
       </CollapsibleSection>
     </div>
   );
@@ -837,7 +852,7 @@ const TypographyContainer = styled.div`
   row-gap: 3.2rem;
 `;
 
-const SpacingBox = styled.div`
+const SpaceBox = styled.div`
   width: 100%;
   height: 17rem;
   display: grid;

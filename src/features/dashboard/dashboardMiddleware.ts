@@ -13,13 +13,16 @@ export const ToastMap = {
 
 const dashboardMiddleware: Middleware = (store) => (next) => async (action: any) => {
   const result = next(action);
-  const actionsToSync = [updateSite.type, deleteSite.type, duplicateSite.type, setSiteStarred.type];
+  const actionsToSync = [updateSite.type, deleteSite.type, duplicateSite.type];
+  const actionsWithoutProcessing = [setSiteStarred.type];
 
-  if (!actionsToSync.includes(action.type)) {
+  if (![...actionsToSync, ...actionsWithoutProcessing].includes(action.type)) {
     return result;
   }
 
-  store.dispatch(setProcessing(true));
+  if (actionsToSync.includes(action.type)) {
+    store.dispatch(setProcessing(true));
+  }
 
   if (action.type === updateSite.type) {
     const { siteId, updates } = action.payload;
@@ -51,12 +54,13 @@ const dashboardMiddleware: Middleware = (store) => (next) => async (action: any)
     await AppStorage.updateObject<Site>(StorageKey.Sites, id, { isStarred: isStarred });
   }
 
-  setTimeout(() => {
-    const toastFn = ToastMap[action.type as keyof typeof ToastMap];
-
-    store.dispatch(setProcessing(false));
-    toastFn?.();
-  }, 1000);
+  if (actionsToSync.includes(action.type)) {
+    setTimeout(() => {
+      const toastFn = ToastMap[action.type as keyof typeof ToastMap];
+      store.dispatch(setProcessing(false));
+      toastFn?.();
+    }, 1000);
+  }
 
   return result;
 };

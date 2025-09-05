@@ -102,7 +102,7 @@ export default function Preview() {
       </ButtonContainer>
       {htmlString && (
         <IframePreview
-          src={iframeUrl || ''}
+          src={iframeUrl || undefined}
           title='HTML Preview'
           onLoad={(event) => handleIframeLoad(event.target as HTMLIFrameElement)}
         />

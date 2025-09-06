@@ -217,7 +217,7 @@ class ElementController {
     const baseName = el.dataset.name;
 
     if (!baseName) {
-      return;
+      return updatedIdsMap;
     }
 
     const sameElements = [...document.querySelectorAll(`[id^="${baseName}-"]`)];
@@ -243,6 +243,8 @@ class ElementController {
       const childMap = this.assignUniqueIdsToDomElementTree(child);
       Object.assign(updatedIdsMap, childMap);
     }
+
+    return updatedIdsMap;
   }
 
   private syncContentEditable(newEl: HTMLElement) {

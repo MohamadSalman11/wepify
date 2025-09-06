@@ -45,7 +45,7 @@ export const loadSiteFromStorage = createAsyncThunk(
 
     const site = sites[siteId];
     const currentPage = site.pages[pageId];
-    const storedImages = await AppStorage.get<Record<string, Blob>>(StorageKey.Sites, {});
+    const storedImages = await AppStorage.get<Record<string, Blob>>(StorageKey.Images, {});
 
     for (const el of Object.values(currentPage.elements)) {
       if ('blobId' in el && typeof el.blobId === 'string') {
@@ -77,7 +77,7 @@ const initialState: EditorState = {
   currentPageId: null,
   currentElementId: ID_FIRST_SECTION,
   copiedElement: [],
-  loading: false,
+  loading: true,
   storing: false,
   error: undefined,
   deviceSimulator: { type: Device.Monitor, width: SCREEN_SIZES.monitor.width, height: SCREEN_SIZES.monitor.height }

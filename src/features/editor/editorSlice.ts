@@ -1,4 +1,4 @@
-import { getMergedResponsiveStyle } from '@compiler/utils/getMergedResponsiveStyle';
+import { applyResponsiveUpdates } from '@compiler/utils/applyResponsiveUpdates';
 import {
   createAsyncThunk,
   createSelector,
@@ -9,7 +9,7 @@ import {
   PayloadAction
 } from '@reduxjs/toolkit';
 import { Device, ElementsName, ID_FIRST_SECTION, SCREEN_SIZES } from '@shared/constants';
-import { DeviceSimulator, ImageElement, Page, PageElement, PageElementStyle, Site } from '@shared/typing';
+import { DeviceSimulator, ImageElement, Page, PageElement, Site } from '@shared/typing';
 import { StorageKey } from '../../constant';
 import { RootState } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
@@ -184,26 +184,17 @@ const editorSlice = createSlice({
       const element = page?.elements[id];
       const device = state.deviceSimulator.type;
 
-      if (!element) return;
+      if (!element) {
+        return;
+      }
 
       element.attrs = { ...element.attrs, ...updates.attrs };
 
       if (device === Device.Monitor) {
         element.style = { ...element.style, ...updates.style };
-        return;
       }
 
-      element.responsive ??= {};
-      const deviceStyle = (element.responsive[device] ??= {});
-      const effectiveStyle = getMergedResponsiveStyle(element.style, element.responsive, device);
-
-      for (const key of Object.keys(updates.style || {}) as (keyof PageElementStyle)[]) {
-        const value = updates.style![key] as any;
-        if (value === effectiveStyle[key]) delete deviceStyle[key];
-        else deviceStyle[key] = value;
-      }
-
-      if (Object.keys(deviceStyle).length === 0) delete element.responsive[device];
+      applyResponsiveUpdates(element, updates, device);
     },
     copyElement(state) {
       const pages = state.currentSite?.pages;

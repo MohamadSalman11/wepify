@@ -6,7 +6,8 @@ const RESPONSIVE_DEVICE: ResponsiveDeviceType[] = [Device.Laptop, Device.Tablet,
 export const getMergedResponsiveStyle = (
   baseStyle: PageElementStyle,
   responsive: PageElement['responsive'],
-  device: DeviceType
+  device: DeviceType,
+  includeDevice: boolean = true
 ): PageElementStyle => {
   if (device === Device.Monitor) {
     return baseStyle;
@@ -14,11 +15,11 @@ export const getMergedResponsiveStyle = (
 
   let merged = { ...baseStyle };
   const deviceIndex = RESPONSIVE_DEVICE.indexOf(device as ResponsiveDeviceType);
+  const limit = includeDevice ? deviceIndex : deviceIndex - 1;
 
-  for (let i = 0; i <= deviceIndex; i++) {
+  for (let i = 0; i <= limit; i++) {
     const responsiveDevice = RESPONSIVE_DEVICE[i];
     merged = { ...merged, ...responsive?.[responsiveDevice] };
   }
-
   return merged;
 };

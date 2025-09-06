@@ -210,12 +210,18 @@ function PropertyEditor({
 
   return cloneElement(children, {
     onChange: (event: any) => {
+      let value: string | number = event.target.value;
+
+      if (event.target.type === 'number') {
+        value = value === '' ? '' : Number(value);
+      }
+
       if (styleName) {
-        handleElementChange({ style: { [styleName]: event.target.value } });
+        handleElementChange({ style: { [styleName]: value } });
       }
 
       if (attrName) {
-        handleElementChange({ attrs: { [attrName]: event.target.value } });
+        handleElementChange({ attrs: { [attrName]: value } });
       }
     }
   });

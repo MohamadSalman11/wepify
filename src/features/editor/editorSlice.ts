@@ -34,32 +34,32 @@ const EMPTY_PAGE: Page = {
   backgroundColor: ''
 };
 
-export const loadSiteFromStorage = createAsyncThunk('editor/loadSiteFromStorage', async (id: string) => {
-  const sites = await AppStorage.get<Record<string, Site>>(StorageKey.Sites);
+export const loadSiteFromStorage = createAsyncThunk(
+  'editor/loadSiteFromStorage',
+  async ({ siteId, pageId }: { siteId: string; pageId: string }) => {
+    const sites = await AppStorage.get<Record<string, Site>>(StorageKey.Sites);
 
-  if (!sites || !sites[id]) {
-    throw new Error('Site not found');
-  }
+    if (!sites || !sites[siteId]) {
+      throw new Error('Site not found');
+    }
 
-  const site = sites[id];
-  const currentPageId = Object.keys(site.pages)[0];
-  const currentPage = site.pages[currentPageId];
-  const storedImages = await AppStorage.get<Record<string, Blob>>(StorageKey.Sites, {});
+    const site = sites[siteId];
+    const currentPage = site.pages[pageId];
+    const storedImages = await AppStorage.get<Record<string, Blob>>(StorageKey.Sites, {});
 
-  console.log(site);
+    for (const el of Object.values(currentPage.elements)) {
+      if ('blobId' in el && typeof el.blobId === 'string') {
+        const blob = storedImages[el.blobId];
 
-  for (const el of Object.values(currentPage.elements)) {
-    if ('blobId' in el && typeof el.blobId === 'string') {
-      const blob = storedImages[el.blobId];
-
-      if (blob) {
-        (el as ImageElement).url = URL.createObjectURL(blob);
+        if (blob) {
+          (el as ImageElement).url = URL.createObjectURL(blob);
+        }
       }
     }
-  }
 
-  return site;
-});
+    return { site, pageId };
+  }
+);
 
 interface EditorState {
   currentSite: Site | null;
@@ -246,10 +246,10 @@ const editorSlice = createSlice({
         state.loading = true;
         state.error = undefined;
       })
-      .addCase(loadSiteFromStorage.fulfilled, (state, action: PayloadAction<Site>) => {
+      .addCase(loadSiteFromStorage.fulfilled, (state, action: PayloadAction<{ site: Site; pageId: string }>) => {
         state.loading = false;
-        state.currentSite = action.payload;
-        state.currentPageId = Object.keys(action.payload.pages)[0];
+        state.currentSite = action.payload.site;
+        state.currentPageId = action.payload.pageId;
       })
       .addCase(loadSiteFromStorage.rejected, (state, action) => {
         state.loading = false;

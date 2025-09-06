@@ -1,6 +1,6 @@
 import { EditorToIframe, IframeToEditor } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch, useAppSelector } from '../../../store';
 import {
@@ -22,26 +22,30 @@ export const useIframeConnection = () => {
   const deviceSimulator = useAppSelector((state) => state.editor.deviceSimulator);
   const copiedElement = useAppSelector((state) => state.editor.copiedElement);
   const pageBackgroundColor = useAppSelector(selectCurrentPage).backgroundColor;
+  const hasMounted = useRef(false);
   const elementsRef = useRef(elements);
 
   elementsRef.current = elements;
 
-  useEffect(() => {
-    const handleIframeReady = () => {
-      const payload = { elements: elementsRef.current, deviceSimulator, backgroundColor: pageBackgroundColor };
-      iframeConnection.send(EditorToIframe.RenderPage, payload);
-    };
-
-    iframeConnection.on(IframeToEditor.IframeReady, handleIframeReady);
-
-    return () => iframeConnection.off(IframeToEditor.IframeReady);
+  const renderPageInIframe = useCallback(() => {
+    const payload = { elements: elementsRef.current, deviceSimulator, backgroundColor: pageBackgroundColor };
+    iframeConnection.send(EditorToIframe.RenderPage, payload);
   }, [deviceSimulator, pageBackgroundColor]);
 
   useEffect(() => {
-    iframeConnection.send(EditorToIframe.DeviceChanged, { deviceSimulator, elements: elementsRef.current });
+    iframeConnection.on(IframeToEditor.IframeReady, renderPageInIframe);
 
-    return () => iframeConnection.off(EditorToIframe.DeviceChanged);
-  }, [deviceSimulator]);
+    return () => iframeConnection.off(IframeToEditor.IframeReady);
+  }, [renderPageInIframe]);
+
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return;
+    }
+
+    renderPageInIframe();
+  }, [renderPageInIframe, currentPageId]);
 
   useEffect(() => {
     iframeConnection.on(IframeToEditor.PasteElement, () => {

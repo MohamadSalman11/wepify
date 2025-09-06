@@ -39,8 +39,10 @@ export default function Sidebar() {
   };
 
   const handleOpenLeftPanel = () => {
-    setLeftPanelOpen(true);
-    iframeConnection.send(EditorToIframe.DeviceChanged, { deviceSimulator });
+    if (!leftPanelOpen) {
+      setLeftPanelOpen(true);
+      iframeConnection.send(EditorToIframe.DeviceChanged, { deviceSimulator });
+    }
   };
 
   return (

@@ -1,4 +1,5 @@
-import { Device, SCREEN_SIZES } from '@shared/constants';
+import { Device, EditorToIframe, SCREEN_SIZES } from '@shared/constants';
+import iframeConnection from '@shared/iframeConnection';
 import { DeviceType } from '@shared/typing';
 import type { IconType } from 'react-icons';
 import { BsCloudCheck } from 'react-icons/bs';
@@ -22,7 +23,7 @@ import Dropdown from '../../components/Dropdown';
 import Icon from '../../components/Icon';
 import { Breakpoint, EditorPath } from '../../constant';
 import { useAppSelector } from '../../store';
-import { selectCurrentSite, setDeviceSimulator } from './editorSlice';
+import { selectCurrentPageElements, selectCurrentSite, setDeviceSimulator } from './editorSlice';
 
 /**
  * Constants
@@ -109,10 +110,14 @@ function DevicePreviewButton({
   setActiveDevice: (device: DeviceType) => void;
 }) {
   const dispatch = useDispatch();
+  const elements = useAppSelector(selectCurrentPageElements);
 
   const handleClick = () => {
-    dispatch(setDeviceSimulator({ type: deviceType, ...screenSize }));
+    const deviceSimulator = { type: deviceType, ...screenSize };
+
+    dispatch(setDeviceSimulator(deviceSimulator));
     setActiveDevice(deviceType);
+    iframeConnection.send(EditorToIframe.DeviceChanged, { deviceSimulator, elements });
   };
 
   return (

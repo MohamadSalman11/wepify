@@ -17,15 +17,15 @@ import { AppDispatch } from '../store';
 export default function Editor() {
   const dispatch: AppDispatch = useDispatch();
   const location = useLocation();
-  const { siteId } = useParams();
+  const { siteId, pageId } = useParams();
   const { leftPanelOpen } = usePanel();
   const isPreview = location.pathname.endsWith('/preview');
 
   useEffect(() => {
-    if (siteId) {
-      dispatch(loadSiteFromStorage(siteId));
+    if (siteId && pageId) {
+      dispatch(loadSiteFromStorage({ siteId, pageId }));
     }
-  }, [dispatch, siteId]);
+  }, [dispatch, siteId, pageId]);
 
   if (isPreview) {
     return (

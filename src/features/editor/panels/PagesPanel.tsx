@@ -69,10 +69,6 @@ function PageItem({ page, index }: { page: PageMetadata; index: number }) {
     }
 
     if (!target.closest('svg') && siteId) {
-      iframeConnection.initializeState();
-      dispatch(setIsLoadingEditor(true));
-      dispatch(clearPage());
-      dispatch(clearSelectedElement());
       navigate(buildPath(Path.Editor, { siteId, pageId: page.id }));
     }
   };

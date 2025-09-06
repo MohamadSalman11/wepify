@@ -114,7 +114,7 @@ function MediaItem({
     <StyledMediaItem key={img.id} onClick={() => handleAddMediaItem(img)}>
       <img src={img.url} alt={`uploaded image ${index + 1}`} loading='lazy' />
       <span onClick={handleDeleteImage}>
-        <Icon icon={LuTrash2} color='var(--color-white)' />
+        <Icon icon={LuTrash2} color='var(--color-gray)' />
       </span>
     </StyledMediaItem>
   );
@@ -178,15 +178,19 @@ const StyledMediaItem = styled.div`
     object-fit: contain;
   }
 
-  svg {
+  > span {
     position: absolute;
-    top: 8px;
+    top: 5px;
     right: 8px;
     transform: translateY(-4rem);
     transition: transform 0.2s ease-in-out;
+    box-shadow: var(--box-shadow);
+    border-radius: var(--border-radius-sm);
+    background-color: var(--color-white);
+    padding: 0.4rem;
   }
 
-  &:hover svg {
+  &:hover > span {
     transform: translateY(0);
   }
 `;

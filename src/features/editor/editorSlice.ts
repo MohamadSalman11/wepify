@@ -46,6 +46,8 @@ export const loadSiteFromStorage = createAsyncThunk('editor/loadSiteFromStorage'
   const currentPage = site.pages[currentPageId];
   const storedImages = await AppStorage.get<Record<string, Blob>>(StorageKey.Sites, {});
 
+  console.log(site);
+
   for (const el of Object.values(currentPage.elements)) {
     if ('blobId' in el && typeof el.blobId === 'string') {
       const blob = storedImages[el.blobId];

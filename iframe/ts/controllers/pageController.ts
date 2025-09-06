@@ -16,7 +16,7 @@ import moveableController from './moveableController';
 interface PageData {
   elements: PageElement[];
   deviceSimulator: DeviceSimulator;
-  backgroundColor: string;
+  backgroundColor?: string;
 }
 
 /**
@@ -28,11 +28,14 @@ class PageController {
 
   // public
   render(pageData: PageData) {
-    const { elements, deviceSimulator } = pageData;
+    const { elements, deviceSimulator, backgroundColor } = pageData;
 
-    pageView.setBackground(pageData.backgroundColor);
     pageView.setDeviceSimulator(deviceSimulator);
     pageView.renderElements(elements, deviceSimulator.type);
+
+    if (backgroundColor) {
+      pageView.setBackground(backgroundColor);
+    }
 
     const target = document.querySelector(SELECTOR_SECTION);
 

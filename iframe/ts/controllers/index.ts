@@ -1,6 +1,5 @@
 import { EditorToIframe, IframeToEditor } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
-import { PageElement } from '@shared/typing';
 import pageView from '../views/pageView';
 import contextMenuController from './contextMenuController';
 import elementController from './elementController';
@@ -32,7 +31,7 @@ iframeConnection.on(EditorToIframe.InsertElement, (payload) => {
   elementController.insert(payload);
 });
 
-iframeConnection.on(EditorToIframe.InsertElements, (payload: PageElement[]) => {
+iframeConnection.on(EditorToIframe.InsertElements, (payload) => {
   pageController.renderElements(payload);
 });
 
@@ -45,7 +44,12 @@ iframeConnection.on(EditorToIframe.UpdateElement, (payload) => {
 });
 
 iframeConnection.on(EditorToIframe.DeviceChanged, (payload) => {
-  pageView.setDeviceSimulator(payload.deviceSimulator);
+  if (payload.elements) {
+    pageController.render(payload);
+  } else {
+    pageView.setDeviceSimulator(payload.deviceSimulator);
+  }
+
   moveableController.clearTarget();
 });
 

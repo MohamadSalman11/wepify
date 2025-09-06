@@ -38,7 +38,7 @@ export const useIframeConnection = () => {
   }, [deviceSimulator, pageBackgroundColor]);
 
   useEffect(() => {
-    iframeConnection.send(EditorToIframe.DeviceChanged, { deviceSimulator });
+    iframeConnection.send(EditorToIframe.DeviceChanged, { deviceSimulator, elements: elementsRef.current });
 
     return () => iframeConnection.off(EditorToIframe.DeviceChanged);
   }, [deviceSimulator]);

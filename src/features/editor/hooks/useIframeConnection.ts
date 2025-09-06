@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch, useAppSelector } from '../../../store';
 import {
   addElement,
+  copyElement,
   deleteElement,
   selectCurrentPage,
   selectCurrentPageElements,
@@ -19,6 +20,7 @@ export const useIframeConnection = () => {
   const currentPageId = useAppSelector(selectCurrentPageId);
   const elements = useAppSelector(selectCurrentPageElements);
   const deviceSimulator = useAppSelector((state) => state.editor.deviceSimulator);
+  const copiedElement = useAppSelector((state) => state.editor.copiedElement);
   const pageBackgroundColor = useAppSelector(selectCurrentPage).backgroundColor;
   const elementsRef = useRef(elements);
 
@@ -42,16 +44,24 @@ export const useIframeConnection = () => {
   }, [deviceSimulator]);
 
   useEffect(() => {
+    iframeConnection.on(IframeToEditor.PasteElement, () => {
+      iframeConnection.send(EditorToIframe.InsertElements, copiedElement);
+    });
+  }, [copiedElement]);
+
+  useEffect(() => {
+    iframeConnection.on(IframeToEditor.CopyElement, () => dispatch(copyElement()));
     iframeConnection.on(IframeToEditor.SelectElement, (payload) => dispatch(setCurrentElement(payload)));
     iframeConnection.on(IframeToEditor.StoreElement, (payload) => dispatch(addElement(payload)));
     iframeConnection.on(IframeToEditor.UpdateElement, (payload) => dispatch(updateElement(payload)));
     iframeConnection.on(IframeToEditor.DeleteElement, (payload) => dispatch(deleteElement(payload)));
 
-    iframeConnection.on(IframeToEditor.PageUpdated, (payload) =>
-      dispatch(updatePage({ id: currentPageId as string, updates: payload }))
-    );
+    iframeConnection.on(IframeToEditor.PageUpdated, (payload) => {
+      dispatch(updatePage({ id: currentPageId as string, updates: payload }));
+    });
 
     return () => {
+      iframeConnection.off(IframeToEditor.CopyElement);
       iframeConnection.off(IframeToEditor.SelectElement);
       iframeConnection.off(IframeToEditor.StoreElement);
       iframeConnection.off(IframeToEditor.UpdateElement);

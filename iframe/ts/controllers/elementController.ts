@@ -212,10 +212,13 @@ class ElementController {
     return ids;
   }
 
-  private assignUniqueIdsToDomElementTree(el: HTMLElement): Record<string, { newId?: string; parentId?: string }> {
+  private assignUniqueIdsToDomElementTree(el: HTMLElement) {
     const updatedIdsMap: Record<string, { newId?: string; parentId?: string }> = {};
     const baseName = el.dataset.name;
-    if (!baseName) return updatedIdsMap;
+
+    if (!baseName) {
+      return;
+    }
 
     const sameElements = [...document.querySelectorAll(`[id^="${baseName}-"]`)];
     let index = 1;
@@ -240,8 +243,6 @@ class ElementController {
       const childMap = this.assignUniqueIdsToDomElementTree(child);
       Object.assign(updatedIdsMap, childMap);
     }
-
-    return updatedIdsMap;
   }
 
   private syncContentEditable(newEl: HTMLElement) {

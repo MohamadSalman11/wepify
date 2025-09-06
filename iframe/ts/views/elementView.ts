@@ -29,9 +29,8 @@ class ElementView {
     }
 
     const parent = (parentId && document.querySelector(`#${parentId}`)) || this.rootEl;
-    if (!parent) return;
 
-    parent.append(domEl);
+    parent?.append(domEl);
   };
 
   adjustGridColumns(newColumns: number, size: number | 'auto') {

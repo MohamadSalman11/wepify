@@ -41,6 +41,7 @@ export enum EditorToIframe {
   UpdatePage = 'UPDATE_PAGE',
   DeviceChanged = 'DEVICE_CHANGED',
   InsertElement = 'INSERT_ELEMENT',
+  InsertElements = 'INSERT_ELEMENTS',
   UpdateElement = 'EDITOR_UPDATE_ELEMENT',
   SelectElement = 'EDITOR_SELECT_ELEMENT'
 }

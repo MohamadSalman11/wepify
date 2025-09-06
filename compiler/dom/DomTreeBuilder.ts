@@ -29,9 +29,18 @@ export class DomTreeBuilder {
   }
 
   private organizeByParent() {
+    const elementIds = new Set(this.elements.map((e) => e.id));
+
     for (const element of this.elements) {
-      const parentId =
-        element.name === ElementsName.Section ? TOP_LEVEL_PARENT_KEY : (element.parentId ?? TOP_LEVEL_PARENT_KEY);
+      let parentId: string;
+
+      if (element.name === ElementsName.Section) {
+        parentId = TOP_LEVEL_PARENT_KEY;
+      } else if (element.parentId && elementIds.has(element.parentId)) {
+        parentId = element.parentId;
+      } else {
+        parentId = TOP_LEVEL_PARENT_KEY;
+      }
 
       if (!this.childrenByParent[parentId]) {
         this.childrenByParent[parentId] = [];
@@ -40,7 +49,6 @@ export class DomTreeBuilder {
       this.childrenByParent[parentId].push(element);
     }
   }
-
   private buildDomForParent(parentId: string): HTMLElement[] {
     const childElements = this.childrenByParent[parentId] || [];
     const domElements: HTMLElement[] = [];

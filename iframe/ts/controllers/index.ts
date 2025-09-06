@@ -1,5 +1,6 @@
 import { EditorToIframe, IframeToEditor } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
+import { PageElement } from '@shared/typing';
 import pageView from '../views/pageView';
 import contextMenuController from './contextMenuController';
 import elementController from './elementController';
@@ -29,6 +30,10 @@ iframeConnection.on(EditorToIframe.UpdatePage, (payload) => {
 
 iframeConnection.on(EditorToIframe.InsertElement, (payload) => {
   elementController.insert(payload);
+});
+
+iframeConnection.on(EditorToIframe.InsertElements, (payload: PageElement[]) => {
+  pageController.renderElements(payload);
 });
 
 iframeConnection.on(EditorToIframe.SelectElement, (payload) => {

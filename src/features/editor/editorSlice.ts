@@ -63,6 +63,7 @@ interface EditorState {
   currentSite: Site | null;
   currentPageId: string | null;
   currentElementId: string;
+  copiedElement: PageElement[];
   loading: boolean;
   storing: boolean;
   error?: string;
@@ -73,6 +74,7 @@ const initialState: EditorState = {
   currentSite: null,
   currentPageId: null,
   currentElementId: ID_FIRST_SECTION,
+  copiedElement: [],
   loading: false,
   storing: false,
   error: undefined,
@@ -201,6 +203,30 @@ const editorSlice = createSlice({
 
       if (Object.keys(deviceStyle).length === 0) delete element.responsive[device];
     },
+    copyElement(state) {
+      const pages = state.currentSite?.pages;
+      const currentPageId = state.currentPageId;
+
+      if (!pages || !currentPageId) {
+        return;
+      }
+
+      const page = pages[currentPageId];
+      const copiedParentIds = new Set<string>();
+
+      const copiedElements = Object.values(page.elements).filter((element) => {
+        const parentId = element.parentId || '';
+
+        if (copiedParentIds.has(parentId) || element.id === state.currentElementId) {
+          copiedParentIds.add(element.id);
+          return true;
+        }
+
+        return false;
+      });
+
+      state.copiedElement = copiedElements;
+    },
     setDeviceSimulator(state, action: PayloadAction<DeviceSimulator>) {
       const { type, width, height } = action.payload;
 
@@ -310,6 +336,7 @@ export const {
   deleteElement,
   setCurrentElement,
   updateElement,
+  copyElement,
   setDeviceSimulator,
   setPageAsIndex,
   setStoring

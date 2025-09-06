@@ -28,7 +28,12 @@ export default function ElementsPanel() {
 
   const handleImageUpload = useImageUpload(
     async (blob: Blob) => {
-      await AppStorage.updateObject(StorageKey.Images, nanoid(), blob);
+      const id = nanoid();
+      const url = URL.createObjectURL(blob);
+      const additionalProps = { blobId: id, url, size: blob.size };
+
+      iframeConnection.send(EditorToIframe.InsertElement, { name: ElementsName.Image, additionalProps });
+      await AppStorage.addToObject(StorageKey.Images, id, blob);
     },
     (message) => AppToast.error(message)
   );

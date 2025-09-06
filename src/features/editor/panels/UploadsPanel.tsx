@@ -68,7 +68,9 @@ export default function UploadsPanel() {
       </Button>
       {images.length === 0 && <EmptyMessage>No images uploaded yet</EmptyMessage>}
       <MasonryGrid breakpointCols={2} className='masonry-grid' columnClassName='masonry-grid_column'>
-        {images?.map((img, i) => <MediaItem img={img} index={i} urlsRef={urlsRef} setImages={setImages} />)}
+        {images?.map((img, i) => (
+          <MediaItem key={img.id} img={img} index={i} urlsRef={urlsRef} setImages={setImages} />
+        ))}
       </MasonryGrid>
     </>
   );

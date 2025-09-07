@@ -98,7 +98,7 @@ const StyledSketch = styled(Sketch)`
   position: absolute;
   right: 35rem;
   bottom: 10rem;
-  background-color: var(--color-black-light-2) !important;
+  background-color: var(--color-white) !important;
 
   [class^='w-color-editable-input'] {
     color: var(--color-gray) !important;

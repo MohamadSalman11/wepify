@@ -148,7 +148,7 @@ const createLinkHandler =
     );
 
     if (targetPage) {
-      navigate(`${buildPath(Path.Editor, { siteId, pageId: targetPage.id })}${EditorPath.Preview}`);
+      navigate(`${buildPath(Path.Editor, { siteId, pageId: targetPage.id })}/${EditorPath.Preview}`);
     } else {
       window.open(href, LINK_TARGET, LINK_TARGET_OPTIONS);
     }

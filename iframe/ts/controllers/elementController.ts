@@ -106,8 +106,7 @@ class ElementController {
 
     elementView.click(el);
     elementView.scrollIntoView(this.getScrollAlignment());
-
-    // iframeConnection.send(MessageFromIframe.SelectionChanged, domToPageElement(el) as PageElement);
+    iframeConnection.send(IframeToEditor.SelectElement, id);
   }
 
   bringToFrontOrSendToBack(shouldBringToFront: boolean) {

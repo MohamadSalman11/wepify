@@ -1,6 +1,7 @@
 import { nanoid } from '@reduxjs/toolkit';
 import { EditorToIframe, ElementsName } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
+import { ChangeEvent } from 'react';
 import { LuImage, LuSearch } from 'react-icons/lu';
 import styled from 'styled-components';
 import Input from '../../../components/form/Input';
@@ -51,7 +52,7 @@ export default function ElementsPanel() {
             size='md'
             type='text'
             placeholder='Search by ID'
-            onChange={() => {}}
+            onChange={handleSearchElement}
             onBlur={(event) => (event.target.value = '')}
           />
         </SearchBar>
@@ -160,6 +161,11 @@ export default function ElementsPanel() {
 
 const handleAddElement = (name: string) => {
   iframeConnection.send(EditorToIframe.InsertElement, { name });
+};
+
+const handleSearchElement = (event: ChangeEvent<HTMLInputElement>) => {
+  const id = event.target.value;
+  iframeConnection.send(EditorToIframe.SelectElement, id);
 };
 
 /**

@@ -9,10 +9,11 @@ import {
   PayloadAction
 } from '@reduxjs/toolkit';
 import { Device, ElementsName, ID_FIRST_SECTION, SCREEN_SIZES } from '@shared/constants';
-import { DeviceSimulator, ImageElement, Page, PageElement, Site } from '@shared/typing';
+import { DeviceSimulator, Page, PageElement, Site } from '@shared/typing';
 import { StorageKey } from '../../constant';
 import { RootState } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
+import { mapBlobsToElements } from '../../utils/mapBlobsToElements';
 
 const EMPTY_ELEMENT: PageElement = {
   id: '',
@@ -34,6 +35,17 @@ const EMPTY_PAGE: Page = {
   backgroundColor: ''
 };
 
+const initialState: EditorState = {
+  currentSite: null,
+  currentPageId: null,
+  currentElementId: ID_FIRST_SECTION,
+  copiedElement: [],
+  loading: true,
+  storing: false,
+  error: undefined,
+  deviceSimulator: { type: Device.Monitor, width: SCREEN_SIZES.monitor.width, height: SCREEN_SIZES.monitor.height }
+};
+
 export const loadSiteFromStorage = createAsyncThunk(
   'editor/loadSiteFromStorage',
   async ({ siteId, pageId }: { siteId: string; pageId: string }) => {
@@ -47,15 +59,7 @@ export const loadSiteFromStorage = createAsyncThunk(
     const currentPage = site.pages[pageId];
     const storedImages = await AppStorage.get<Record<string, Blob>>(StorageKey.Images, {});
 
-    for (const el of Object.values(currentPage.elements)) {
-      if ('blobId' in el && typeof el.blobId === 'string') {
-        const blob = storedImages[el.blobId];
-
-        if (blob) {
-          (el as ImageElement).url = URL.createObjectURL(blob);
-        }
-      }
-    }
+    mapBlobsToElements(currentPage.elements, storedImages);
 
     return { site, pageId };
   }
@@ -71,17 +75,6 @@ interface EditorState {
   error?: string;
   deviceSimulator: DeviceSimulator;
 }
-
-const initialState: EditorState = {
-  currentSite: null,
-  currentPageId: null,
-  currentElementId: ID_FIRST_SECTION,
-  copiedElement: [],
-  loading: true,
-  storing: false,
-  error: undefined,
-  deviceSimulator: { type: Device.Monitor, width: SCREEN_SIZES.monitor.width, height: SCREEN_SIZES.monitor.height }
-};
 
 const editorSlice = createSlice({
   name: 'editor',

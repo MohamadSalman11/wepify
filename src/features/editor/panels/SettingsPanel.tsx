@@ -298,7 +298,7 @@ function SizeSettings() {
                 id='settings-panel-input-left'
                 disabled={disableInput}
                 type='number'
-                value={parseNumber(style.left ?? 0)}
+                value={parseNumber(style.left)}
               />
             </PropertyEditor>
           </SizeRow>
@@ -309,7 +309,7 @@ function SizeSettings() {
                 id='settings-panel-input-top'
                 disabled={disableInput}
                 type='number'
-                value={parseNumber(style.top ?? 0)}
+                value={parseNumber(style.top)}
               />
             </PropertyEditor>
           </SizeRow>
@@ -321,7 +321,7 @@ function SizeSettings() {
                 editable
                 editInputType='text'
                 options={OPTIONS_SIZE}
-                defaultSelect={parseNumber(style.width ?? 0)}
+                defaultSelect={parseNumber(style.width)}
               />
             </PropertyEditor>
           </SizeRow>
@@ -333,7 +333,7 @@ function SizeSettings() {
                 editable
                 editInputType='text'
                 options={['screen', ...OPTIONS_SIZE]}
-                defaultSelect={parseNumber(style.height ?? 0)}
+                defaultSelect={parseNumber(style.height)}
               />
             </PropertyEditor>
           </SizeRow>
@@ -344,7 +344,7 @@ function SizeSettings() {
                 id='settings-panel-input-rotate'
                 type='number'
                 disabled={disableInput}
-                value={parseNumber(style.rotate ?? 0)}
+                value={parseNumber(style.rotate)}
               />
             </PropertyEditor>
           </SizeRow>
@@ -431,13 +431,13 @@ function FlexSettings() {
           <div>
             <SubTitle>Gap X</SubTitle>
             <PropertyEditor styleName='columnGap'>
-              <Select editable defaultSelect={columnGap || 0} options={OPTIONS_COLUMN_GAP} />
+              <Select editable defaultSelect={parseNumber(columnGap)} options={OPTIONS_COLUMN_GAP} />
             </PropertyEditor>
           </div>
           <div>
             <SubTitle>Gap Y</SubTitle>
             <PropertyEditor styleName='rowGap'>
-              <Select editable defaultSelect={rowGap || 0} options={OPTIONS_ROW_GAP} />
+              <Select editable defaultSelect={parseNumber(rowGap)} options={OPTIONS_ROW_GAP} />
             </PropertyEditor>
           </div>
           <div>
@@ -477,45 +477,45 @@ function SpaceSettings() {
         <SpaceBox>
           <div>
             <PropertyEditor styleName='marginTop'>
-              <input type='number' value={marginTop ?? 0} />
+              <input type='number' value={parseNumber(marginTop)} />
             </PropertyEditor>
           </div>
           <PaddingBox>
             <div>
               <PropertyEditor styleName='paddingTop'>
-                <input type='number' value={paddingTop ?? 0} />
+                <input type='number' value={parseNumber(paddingTop)} />
               </PropertyEditor>
             </div>
             <div>&nbsp;</div>
             <div>
               <PropertyEditor styleName='paddingLeft'>
-                <input type='number' value={paddingLeft ?? 0} />
+                <input type='number' value={parseNumber(paddingLeft)} />
               </PropertyEditor>
             </div>
             <div>
               <PropertyEditor styleName='paddingRight'>
-                <input type='number' value={paddingRight ?? 0} />
+                <input type='number' value={parseNumber(paddingRight)} />
               </PropertyEditor>
             </div>
             <div>
               <PropertyEditor styleName='paddingBottom'>
-                <input type='number' value={paddingBottom ?? 0} />
+                <input type='number' value={parseNumber(paddingBottom)} />
               </PropertyEditor>
             </div>
           </PaddingBox>
           <div>
             <PropertyEditor styleName='marginLeft'>
-              <input type='number' value={marginLeft ?? 0} />
+              <input type='number' value={parseNumber(marginLeft)} />
             </PropertyEditor>
           </div>
           <div>
             <PropertyEditor styleName='marginRight'>
-              <input type='number' value={marginRight ?? 0} />
+              <input type='number' value={parseNumber(marginRight)} />
             </PropertyEditor>
           </div>
           <div>
             <PropertyEditor styleName='marginBottom'>
-              <input type='number' value={marginBottom ?? 0} />
+              <input type='number' value={parseNumber(marginBottom)} />
             </PropertyEditor>
           </div>
         </SpaceBox>
@@ -534,37 +534,52 @@ function GridSettings() {
           <div>
             <SubTitle>Columns</SubTitle>
             <PropertyEditor styleName='columns'>
-              <Select editable defaultSelect={columns} options={OPTIONS_COLUMN} />
+              <Select editable defaultSelect={parseNumber(columns)} options={OPTIONS_COLUMN} />
             </PropertyEditor>
           </div>
           <div>
             <SubTitle>Rows</SubTitle>
             <PropertyEditor styleName='rows'>
-              <Select editable defaultSelect={rows} options={OPTIONS_ROW} />
+              <Select editable defaultSelect={parseNumber(rows)} options={OPTIONS_ROW} />
             </PropertyEditor>
           </div>
           <div>
             <SubTitle>Width</SubTitle>
             <PropertyEditor styleName='columnWidth'>
-              <Select editable editInputType='text' defaultSelect={columnWidth} options={OPTIONS_COLUMN_WIDTH} />
+              <Select
+                editable
+                editInputType='text'
+                defaultSelect={parseNumber(columnWidth)}
+                options={OPTIONS_COLUMN_WIDTH}
+              />
             </PropertyEditor>
           </div>
           <div>
             <SubTitle>Height</SubTitle>
             <PropertyEditor styleName='rowHeight'>
-              <Select editable editInputType='text' defaultSelect={rowHeight} options={OPTIONS_ROW_HEIGHT} />
+              <Select
+                editable
+                editInputType='text'
+                defaultSelect={parseNumber(rowHeight)}
+                options={OPTIONS_ROW_HEIGHT}
+              />
             </PropertyEditor>
           </div>
           <div>
             <SubTitle>Gap X</SubTitle>
             <PropertyEditor styleName='columnGap'>
-              <Select editable editInputType='text' defaultSelect={columnGap} options={OPTIONS_COLUMN_GAP} />
+              <Select
+                editable
+                editInputType='text'
+                defaultSelect={parseNumber(columnGap)}
+                options={OPTIONS_COLUMN_GAP}
+              />
             </PropertyEditor>
           </div>
           <div>
             <SubTitle>Gap Y</SubTitle>
             <PropertyEditor styleName='rowGap'>
-              <Select editable editInputType='text' defaultSelect={rowGap} options={OPTIONS_ROW_GAP} />
+              <Select editable editInputType='text' defaultSelect={parseNumber(rowGap)} options={OPTIONS_ROW_GAP} />
             </PropertyEditor>
           </div>
         </GridContainer>
@@ -639,7 +654,7 @@ function TypographySettings() {
           <div>
             <SubTitle>Font Size</SubTitle>
             <PropertyEditor styleName='fontSize'>
-              <Select editable editInputType='text' defaultSelect={fontSize ?? ''} options={OPTIONS_FONT_SIZE} />
+              <Select editable editInputType='text' defaultSelect={parseNumber(fontSize)} options={OPTIONS_FONT_SIZE} />
             </PropertyEditor>
           </div>
         </GridContainer>
@@ -724,13 +739,13 @@ function StrokeSettings() {
           <StrokeWidthContainer>
             <StrokeLabel>width</StrokeLabel>
             <PropertyEditor styleName='borderWidth'>
-              <Input type='number' defaultValue={borderWidth} />
+              <Input type='number' defaultValue={parseNumber(borderWidth)} />
             </PropertyEditor>
           </StrokeWidthContainer>
           <StrokeWidthContainer>
             <StrokeLabel>radius</StrokeLabel>
             <PropertyEditor styleName='borderRadius'>
-              <Input type='number' defaultValue={borderRadius} />
+              <Input type='number' defaultValue={parseNumber(borderRadius)} />
             </PropertyEditor>
           </StrokeWidthContainer>
           <StrokePosition>
@@ -777,18 +792,23 @@ function PageSettings() {
   );
 }
 
-const parseNumber = (value: number | string) => {
-  if (typeof value === 'string') {
+const parseNumber = (value: number | string | undefined) => {
+  if (value === undefined) {
+    return 0;
+  }
+
+  if (typeof value === 'string' && Number.isNaN(Number.parseFloat(value))) {
     return value;
   }
 
-  const parts = value.toString().split('.');
+  const parsedValue = typeof value === 'string' ? Number.parseFloat(value) : value;
+  const parts = parsedValue.toString().split('.');
 
   if (parts.length > 1 && parts[1].length > 2) {
-    return value.toFixed(2);
+    return parsedValue.toFixed(2);
   }
 
-  return value;
+  return parsedValue;
 };
 
 const handleElementChange: HandleElementChange = (updates) => {

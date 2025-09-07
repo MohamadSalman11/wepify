@@ -146,7 +146,7 @@ export default function ElementsPanel() {
       <div>
         <CollapsibleSection title='Media'>
           <PanelList>
-            <MediaItem>
+            <MediaItem $disabled={isDisabled(ElementsName.Image)}>
               <PanelBox onClick={openFilePicker}>
                 <Icon icon={LuImage} />
               </PanelBox>

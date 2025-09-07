@@ -1,6 +1,7 @@
+import { useBeforeUnload } from 'react-router-dom';
 import styled from 'styled-components';
 import LoadingScreen from '../../components/LoadingScreen';
-import { LoadingMessages } from '../../constant';
+import { LoadingMessages, MESSAGE_UNSAVED_CHANGES } from '../../constant';
 import { useNetworkStatus } from '../../hooks/useNetworkStatus';
 import { useAppSelector } from '../../store';
 import { useIframeConnection } from './hooks/useIframeConnection';
@@ -16,11 +17,19 @@ const IFRAME_TITLE = 'Site Preview';
  * Component definition
  */
 
-export default function Canvas() {
+export default function Canvas({ isPreview }: { isPreview: boolean }) {
   const loading = useAppSelector((state) => state.editor.loading);
+  const storing = useAppSelector((state) => state.editor.storing);
 
   useNetworkStatus();
   useIframeConnection();
+
+  useBeforeUnload((event) => {
+    if (storing && !isPreview) {
+      event.preventDefault();
+      event.returnValue = MESSAGE_UNSAVED_CHANGES;
+    }
+  });
 
   return (
     <StyledCanvas id='canvas'>

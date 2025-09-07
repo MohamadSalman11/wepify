@@ -1,7 +1,6 @@
 import { EditorToIframe } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
 import { LuFile, LuImage, LuLayers3, LuLogOut, LuPlus } from 'react-icons/lu';
-import { useDispatch } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import ConfirmNavigation from '../../components/ConfirmNavigation';
@@ -29,12 +28,10 @@ const NAV_ITEMS = [
 
 export default function Sidebar() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const { leftPanelOpen, setLeftPanelOpen } = usePanel();
   const deviceSimulator = useAppSelector((state) => state.editor.deviceSimulator);
 
   const handleLogout = () => {
-    dispatch(setIsLoading(true));
     navigate(Path.Dashboard);
   };
 

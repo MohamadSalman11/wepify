@@ -16,13 +16,13 @@ interface ConfirmNavigationProps {
  */
 
 export default function ConfirmNavigation({ children, onConfirmed }: ConfirmNavigationProps) {
-  const isStoring = useAppSelector((state) => state.editor.isStoring);
+  const storing = useAppSelector((state) => state.editor.storing);
 
   const handleClick = (event: MouseEvent<HTMLElement>) => {
     event.preventDefault();
     event.stopPropagation();
 
-    if (isStoring && !globalThis.confirm(MESSAGE_UNSAVED_CHANGES)) {
+    if (storing && !globalThis.confirm(MESSAGE_UNSAVED_CHANGES)) {
       return;
     }
 

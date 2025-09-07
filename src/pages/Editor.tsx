@@ -41,7 +41,7 @@ export default function Editor() {
       <Sidebar />
       <Header />
       {leftPanelOpen && <Outlet />}
-      <Canvas />
+      <Canvas isPreview={isPreview} />
       <Panel panel='settings' sectioned borderDir='left' />
     </StyledEditor>
   );

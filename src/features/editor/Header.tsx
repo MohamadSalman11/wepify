@@ -23,7 +23,7 @@ import Dropdown from '../../components/Dropdown';
 import Icon from '../../components/Icon';
 import { Breakpoint, EditorPath } from '../../constant';
 import { useAppSelector } from '../../store';
-import { selectCurrentPageElements, selectCurrentSite, setDeviceSimulator } from './editorSlice';
+import { selectCurrentPageElements, selectCurrentSite, setDeviceSimulator, setLoading } from './editorSlice';
 
 /**
  * Constants
@@ -134,10 +134,12 @@ function DevicePreviewButton({
 }
 
 function EditorActions() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const storing = useAppSelector((state) => state.editor.storing);
 
   const handleSitePreview = () => {
+    dispatch(setLoading(true));
     navigate(EditorPath.Preview);
   };
 

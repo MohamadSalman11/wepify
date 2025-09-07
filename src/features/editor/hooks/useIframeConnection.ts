@@ -11,6 +11,7 @@ import {
   selectCurrentPageElements,
   selectCurrentPageId,
   setCurrentElement,
+  setLoading,
   updateElement,
   updatePage
 } from '../editorSlice';
@@ -29,8 +30,17 @@ export const useIframeConnection = () => {
 
   const renderPageInIframe = useCallback(() => {
     const payload = { elements: elementsRef.current, deviceSimulator, backgroundColor: pageBackgroundColor };
+
+    const handlePageRendered = () => {
+      setTimeout(() => {
+        dispatch(setLoading(false));
+        iframeConnection.send(EditorToIframe.DeviceChanged, { deviceSimulator });
+      }, 1000);
+    };
+
     iframeConnection.send(EditorToIframe.RenderPage, payload);
-  }, [deviceSimulator, pageBackgroundColor]);
+    iframeConnection.on(IframeToEditor.PageRendered, handlePageRendered);
+  }, [dispatch, deviceSimulator, pageBackgroundColor]);
 
   useEffect(() => {
     iframeConnection.on(IframeToEditor.IframeReady, renderPageInIframe);

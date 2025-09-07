@@ -1,5 +1,8 @@
 import styled from 'styled-components';
+import LoadingScreen from '../../components/LoadingScreen';
+import { LoadingMessages } from '../../constant';
 import { useNetworkStatus } from '../../hooks/useNetworkStatus';
+import { useAppSelector } from '../../store';
 import { useIframeConnection } from './hooks/useIframeConnection';
 
 /**
@@ -14,12 +17,20 @@ const IFRAME_TITLE = 'Site Preview';
  */
 
 export default function Canvas() {
+  const loading = useAppSelector((state) => state.editor.loading);
+
   useNetworkStatus();
   useIframeConnection();
 
   return (
     <StyledCanvas id='canvas'>
       <iframe src={IFRAME_SRC} title={IFRAME_TITLE} />
+      {loading && (
+        <>
+          <title>{LoadingMessages.Editor}</title>
+          <LoadingScreen text={LoadingMessages.Editor} />
+        </>
+      )}
     </StyledCanvas>
   );
 }

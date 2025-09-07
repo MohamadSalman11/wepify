@@ -5,14 +5,16 @@ import { buildHtmlTemplate } from '@compiler/utils/buildHtmlTemplate';
 import styleCSS from '@iframe/style.css?raw';
 import { PageMetadata } from '@shared/typing';
 import { generateFileNameFromPageName } from '@shared/utils';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { NavigateFunction, useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from '../../components/Button';
-import { EditorPath, Path } from '../../constant';
+import LoadingScreen from '../../components/LoadingScreen';
+import { EditorPath, LoadingMessages, Path } from '../../constant';
 import { useAppSelector } from '../../store';
 import { buildPath } from '../../utils/buildPath';
-import { selectPagesMetadata } from './editorSlice';
+import { selectPagesMetadata, setLoading } from './editorSlice';
 
 /**
  * Constants
@@ -30,23 +32,30 @@ const SCREEN_SIZE_INSTRUCTIONS = 'Press F12 (or Cmd+Option+I on Mac) to preview 
  */
 
 export default function Preview() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { siteId = '', pageId = '' } = useParams();
   const pagesMetadata = useAppSelector(selectPagesMetadata);
   const page = useAppSelector((state) => state.editor.currentSite?.pages[pageId || '']);
+  const loading = useAppSelector((state) => state.editor.loading);
   const [htmlString, setHtmlString] = useState<string>('');
   const [iframeUrl, setIframeUrl] = useState<string | null>(null);
 
+  const handleClosePreview = useCallback(() => {
+    dispatch(setLoading(true));
+    navigate(buildPath(Path.Editor, { siteId, pageId }));
+  }, [dispatch, navigate, siteId, pageId]);
+
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === KEY_CLOSE_PREVIEW) {
-        navigate(buildPath(Path.Editor, { siteId, pageId }));
+      if (event.key === KEY_CLOSE_PREVIEW && !loading) {
+        handleClosePreview();
       }
     };
 
     globalThis.addEventListener('keydown', handleEscape);
     return () => globalThis.removeEventListener('keydown', handleEscape);
-  }, [navigate, siteId, pageId]);
+  }, [navigate, handleClosePreview, loading]);
 
   useEffect(() => {
     if (!page?.elements) {
@@ -61,7 +70,7 @@ export default function Preview() {
       const pageCssMap = cssGenerator.buildPageCssMap();
       const { normalCSS, mediaCSS } = pageCssMap[page.id];
 
-      const fullHTML = await buildHtmlTemplate({
+      const fullHTML = buildHtmlTemplate({
         title: page.title,
         bodyContent,
         style: [styleCSS, normalCSS, mediaCSS]
@@ -89,11 +98,12 @@ export default function Preview() {
     return () => {
       URL.revokeObjectURL(url);
     };
-  }, [htmlString]);
+  }, [dispatch, htmlString]);
 
   const handleIframeLoad = (iframe: HTMLIFrameElement | null) => {
     const doc = iframe?.contentDocument;
     doc?.addEventListener('click', createLinkHandler(pagesMetadata, navigate, siteId!));
+    setTimeout(() => dispatch(setLoading(false)), 1000);
   };
 
   return (
@@ -101,7 +111,7 @@ export default function Preview() {
       <ButtonContainer>
         <title>{page?.title}</title>
         <StyledButton onClick={() => alert(SCREEN_SIZE_INSTRUCTIONS)}>Preview on Screen Sizes</StyledButton>
-        <StyledButton variation='danger' onClick={() => navigate(buildPath(Path.Editor, { siteId, pageId }))}>
+        <StyledButton variation='danger' onClick={handleClosePreview}>
           Close Preview
         </StyledButton>
       </ButtonContainer>
@@ -111,6 +121,12 @@ export default function Preview() {
           title='HTML Preview'
           onLoad={(event) => handleIframeLoad(event.target as HTMLIFrameElement)}
         />
+      )}
+      {loading && (
+        <>
+          <title>{LoadingMessages.SitePreview}</title>
+          <LoadingScreen text={LoadingMessages.SitePreview} />
+        </>
       )}
     </>
   );

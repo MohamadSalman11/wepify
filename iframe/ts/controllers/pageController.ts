@@ -30,7 +30,6 @@ class PageController {
   render(pageData: PageData) {
     const { elements, deviceSimulator, backgroundColor } = pageData;
 
-    pageView.setDeviceSimulator(deviceSimulator);
     pageView.renderElements(elements, deviceSimulator.type);
 
     if (backgroundColor) {
@@ -54,6 +53,7 @@ class PageController {
     }
 
     moveableController.setDragTarget(document.querySelector(SELECTOR_DRAG_BUTTON) as SVGAElement);
+    iframeConnection.send(IframeToEditor.PageRendered);
   }
 
   update(updates: { backgroundColor: string }) {

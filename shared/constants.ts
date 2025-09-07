@@ -49,6 +49,7 @@ export enum EditorToIframe {
 export enum IframeToEditor {
   IframeReady = 'IFRAME_READY',
   PageUpdated = 'PAGE_UPDATED',
+  PageRendered = 'PAGE_RENDERED',
   StoreElement = 'STORE_ELEMENT',
   UpdateElement = 'IFRAME_UPDATE_ELEMENT',
   SelectElement = 'IFRAME_SELECT_ELEMENT',

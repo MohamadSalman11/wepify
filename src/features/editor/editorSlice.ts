@@ -61,6 +61,8 @@ export const loadSiteFromStorage = createAsyncThunk(
 
     mapBlobsToElements(currentPage.elements, storedImages);
 
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     return { site, pageId };
   }
 );
@@ -231,6 +233,9 @@ const editorSlice = createSlice({
     },
     setStoring(state, action: PayloadAction<boolean>) {
       state.storing = action.payload;
+    },
+    setLoading(state, action: PayloadAction<boolean>) {
+      state.loading = action.payload;
     }
   },
   extraReducers: (builder) => {
@@ -240,7 +245,6 @@ const editorSlice = createSlice({
         state.error = undefined;
       })
       .addCase(loadSiteFromStorage.fulfilled, (state, action: PayloadAction<{ site: Site; pageId: string }>) => {
-        state.loading = false;
         state.currentSite = action.payload.site;
         state.currentPageId = action.payload.pageId;
       })
@@ -325,6 +329,7 @@ export const {
   copyElement,
   setDeviceSimulator,
   setPageAsIndex,
-  setStoring
+  setStoring,
+  setLoading
 } = editorSlice.actions;
 export default editorSlice.reducer;

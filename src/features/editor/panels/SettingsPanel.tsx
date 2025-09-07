@@ -212,8 +212,12 @@ function PropertyEditor({
     onChange: (event: any) => {
       let value: string | number = event.target.value;
 
-      if (event.target.type === 'number') {
-        value = value === '' ? '' : Number(value);
+      if (typeof value === 'string' && value.trim() === '') {
+        return;
+      }
+
+      if (!Number.isNaN(Number(value))) {
+        value = Number(value);
       }
 
       if (styleName) {

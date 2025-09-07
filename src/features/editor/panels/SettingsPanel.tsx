@@ -2,7 +2,7 @@ import { resolveAlignment, reverseResolveAlignment } from '@compiler/utils/resol
 import { EditorToIframe, ElementsName } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
 import type { PageElement, PageElementAttrs, PageElementStyle } from '@shared/typing';
-import { cloneElement, createContext, useContext, type ReactElement } from 'react';
+import { cloneElement, createContext, useContext, useEffect, useState, type ReactElement } from 'react';
 import {
   LuAlignCenter,
   LuAlignEndHorizontal,
@@ -208,11 +208,22 @@ function PropertyEditor({
 }) {
   const { handleElementChange } = useSettingsContext();
 
+  const [localValue, setLocalValue] = useState('');
+
+  useEffect(() => {
+    setLocalValue(children.props.value ?? '');
+  }, [children.props.value]);
+
   return cloneElement(children, {
+    value: localValue,
     onChange: (event: any) => {
       let value: string | number = event.target.value;
+      const isEmpty = typeof value === 'string' && value.trim() === '';
+      const isLinkInput = attrName !== 'href';
 
-      if (typeof value === 'string' && value.trim() === '') {
+      setLocalValue(value);
+
+      if (isEmpty && isLinkInput) {
         return;
       }
 

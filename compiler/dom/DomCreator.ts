@@ -46,7 +46,11 @@ export class DomCreator {
     if (focusable) domEl.dataset.focusable = '';
     if (!moveable) domEl.dataset.notMoveable = '';
     if (attrs) Object.assign(domEl, attrs);
-    if (url && domEl instanceof HTMLImageElement) domEl.src = url;
+
+    if (url && domEl instanceof HTMLImageElement) {
+      domEl.src = url;
+      domEl.addEventListener('load', () => domEl.click());
+    }
   }
 
   private getMergedStyle() {

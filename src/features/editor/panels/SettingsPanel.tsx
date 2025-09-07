@@ -290,13 +290,23 @@ function SizeSettings() {
           <SizeRow $disabled={disableInput}>
             <label htmlFor='settings-panel-input-left'>X</label>
             <PropertyEditor styleName='left'>
-              <Input id='settings-panel-input-left' disabled={disableInput} type='number' value={style.left ?? 0} />
+              <Input
+                id='settings-panel-input-left'
+                disabled={disableInput}
+                type='number'
+                value={parseNumber(style.left ?? 0)}
+              />
             </PropertyEditor>
           </SizeRow>
           <SizeRow $disabled={disableInput}>
             <label htmlFor='settings-panel-input-top'>Y</label>
             <PropertyEditor styleName='top'>
-              <Input id='settings-panel-input-top' disabled={disableInput} type='number' value={style.top ?? 0} />
+              <Input
+                id='settings-panel-input-top'
+                disabled={disableInput}
+                type='number'
+                value={parseNumber(style.top ?? 0)}
+              />
             </PropertyEditor>
           </SizeRow>
           <SizeRow>
@@ -307,7 +317,7 @@ function SizeSettings() {
                 editable
                 editInputType='text'
                 options={OPTIONS_SIZE}
-                defaultSelect={style.width}
+                defaultSelect={parseNumber(style.width ?? 0)}
               />
             </PropertyEditor>
           </SizeRow>
@@ -319,14 +329,19 @@ function SizeSettings() {
                 editable
                 editInputType='text'
                 options={['screen', ...OPTIONS_SIZE]}
-                defaultSelect={style.height}
+                defaultSelect={parseNumber(style.height ?? 0)}
               />
             </PropertyEditor>
           </SizeRow>
           <SizeRow $disabled={disableInput}>
             <label htmlFor='settings-panel-input-rotate'>R</label>
             <PropertyEditor styleName='rotate'>
-              <Input id='settings-panel-input-rotate' type='number' disabled={disableInput} value={style.rotate ?? 0} />
+              <Input
+                id='settings-panel-input-rotate'
+                type='number'
+                disabled={disableInput}
+                value={parseNumber(style.rotate ?? 0)}
+              />
             </PropertyEditor>
           </SizeRow>
           <RotationContainer>
@@ -757,6 +772,20 @@ function PageSettings() {
     </div>
   );
 }
+
+const parseNumber = (value: number | string) => {
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  const parts = value.toString().split('.');
+
+  if (parts.length > 1 && parts[1].length > 2) {
+    return value.toFixed(2);
+  }
+
+  return value;
+};
 
 const handleElementChange: HandleElementChange = (updates) => {
   iframeConnection.send(EditorToIframe.UpdateElement, updates);

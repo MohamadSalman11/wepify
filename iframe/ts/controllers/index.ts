@@ -12,6 +12,10 @@ const controlDocumentClick = (event: globalThis.MouseEvent) => {
   elementController.handleDocumentClick(event);
 };
 
+const controlInputChange = (event: Event) => {
+  elementController.handleInputChange(event);
+};
+
 const handleDomContentLoaded = () => {
   iframeConnection.send(IframeToEditor.IframeReady, {
     width: document.body.clientWidth,
@@ -53,6 +57,7 @@ iframeConnection.on(EditorToIframe.DeviceChanged, (payload) => {
   moveableController.clearTarget();
 });
 
+document.addEventListener('input', controlInputChange);
 document.addEventListener('click', controlDocumentClick);
 document.addEventListener('contextmenu', contextMenuController.show.bind(contextMenuController));
 document.addEventListener('keydown', keyboardController.handleKeydown);

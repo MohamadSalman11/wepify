@@ -183,6 +183,10 @@ const editorSlice = createSlice({
         return;
       }
 
+      if (updates.content) {
+        element.content = updates.content;
+      }
+
       element.attrs = { ...element.attrs, ...updates.attrs };
 
       if (device === Device.Monitor) {

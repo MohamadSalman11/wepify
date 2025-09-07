@@ -160,6 +160,19 @@ class ElementController {
     elementView.updateSelection(el);
   }
 
+  handleInputChange(event: Event) {
+    const target = event.target as HTMLElement;
+    const isInput = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;
+
+    if (isInput) {
+      return;
+    }
+
+    const value = target.textContent ?? '';
+
+    this.update({ content: value });
+  }
+
   handleDocumentClick(event: globalThis.MouseEvent) {
     event.stopPropagation();
 

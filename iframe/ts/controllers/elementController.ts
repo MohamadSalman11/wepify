@@ -176,6 +176,7 @@ class ElementController {
   handleDocumentClick(event: globalThis.MouseEvent) {
     event.stopPropagation();
 
+    const oldEl = this.currentEl;
     const newEl = (event.target as HTMLElement)?.closest('[data-name]') as HTMLElement | null;
     const newElName = newEl?.dataset.name;
     const currentEl = this.currentEl;
@@ -189,7 +190,7 @@ class ElementController {
       return;
     }
 
-    this.syncContentEditable(newEl);
+    this.syncContentEditable(oldEl, newEl);
     this.maybeFocus(newEl);
 
     this.updateMoveableTarget();
@@ -259,13 +260,13 @@ class ElementController {
     return updatedIdsMap;
   }
 
-  private syncContentEditable(newEl: HTMLElement) {
+  private syncContentEditable(oldEl: HTMLElement, newEl: HTMLElement) {
     const isContentEditable = this.hasDataset(newEl, DATASET_CONTENT_EDITABLE);
 
     if (isContentEditable) {
       newEl.contentEditable = 'true';
-    } else if (this.currentEl.hasAttribute(ATTR_CONTENT_EDITABLE)) {
-      this.currentEl.removeAttribute(ATTR_CONTENT_EDITABLE);
+    } else if (oldEl.hasAttribute(ATTR_CONTENT_EDITABLE)) {
+      oldEl.removeAttribute(ATTR_CONTENT_EDITABLE);
     }
   }
 

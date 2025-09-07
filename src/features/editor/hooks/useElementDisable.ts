@@ -23,6 +23,7 @@ const ELEMENT_DISABLED_RULES: Partial<Record<ElementsName, DisabledRule>> = {
   [ElementsName.Link]: { blacklist: ELEMENTS_ALL },
   [ElementsName.Button]: { blacklist: ELEMENTS_ALL },
   [ElementsName.Input]: { blacklist: ELEMENTS_ALL },
+  [ElementsName.Image]: { blacklist: ELEMENTS_ALL },
   [ElementsName.Grid]: { blacklist: ELEMENTS_ALL },
   [ElementsName.GridItem]: { whitelist: [ElementsName.Grid], blacklist: [ElementsName.ListItem, ...ELEMENTS_TEXT] },
   [ElementsName.ListItem]: { whitelist: [ElementsName.List] }

@@ -625,7 +625,7 @@ function InputSettings() {
           <div>
             <SubTitle>Placeholder</SubTitle>
             <PropertyEditor attrName='placeholder'>
-              <Input type='text' defaultValue={attrs?.placeholder || ''} placeholder='E-Mail' />
+              <Input type='text' value={attrs?.placeholder || ''} />
             </PropertyEditor>
           </div>
           <div>

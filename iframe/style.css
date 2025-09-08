@@ -17,8 +17,10 @@ body {
   list-style-position: inside;
 }
 
-input {
+input,
+button {
   outline: none;
+  border: none;
 }
 
 input::placeholder {
@@ -42,8 +44,4 @@ ul {
 button,
 a {
   cursor: pointer;
-}
-
-button {
-  border: none;
 }

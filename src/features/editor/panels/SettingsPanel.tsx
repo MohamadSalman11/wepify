@@ -44,7 +44,7 @@ import { useStyle } from '../hooks/useStyle';
  */
 
 const DEFAULT_BORDER_RADIUS = 0;
-const DEFAULT_BORDER_COLOR = '#4a90e2';
+const DEFAULT_BORDER_COLOR = '#3e7df5';
 const DEFAULT_BORDER_WIDTH = 2;
 const REGEX_TRAILING_NUMBER_SPLIT = /-(\d+)$/;
 

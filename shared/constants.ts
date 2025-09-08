@@ -266,10 +266,17 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
       color: '#000000',
       width: 150,
       height: 'auto',
+      borderRadius: 12,
       paddingTop: 6,
       paddingRight: 6,
       paddingLeft: 6,
-      paddingBottom: 6
+      paddingBottom: 6,
+      borderColor: '#3e7df5',
+      borderWidth: 2,
+      borderTop: '2px solid #3e7df5',
+      borderRight: '2px solid #3e7df5',
+      borderBottom: '2px solid #3e7df5',
+      borderLeft: '2px solid #3e7df5'
     },
     attrs: {
       type: 'email',

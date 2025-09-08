@@ -57,7 +57,6 @@ html {
   transform-style: preserve-3d;
   backface-visibility: hidden;
   will-change: transform;
-  overflow-x: hidden;
   scrollbar-color: #bec9d5 #fff;
 }
 

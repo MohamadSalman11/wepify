@@ -20,7 +20,7 @@ import Dropdown from '../../../components/Dropdown';
 import Input from '../../../components/form/Input';
 import Icon from '../../../components/Icon';
 import Modal, { useModalContext, type OnCloseModal } from '../../../components/Modal';
-import { Breakpoint, Path, StorageKey, ToastMessages } from '../../../constant';
+import { Breakpoint, EditorPath, Path, StorageKey, ToastMessages } from '../../../constant';
 import SiteExporter from '../../../SiteExporter';
 import { AppStorage } from '../../../utils/appStorage';
 import { AppToast } from '../../../utils/appToast';
@@ -178,7 +178,9 @@ function TableRow({ site }: { site: SiteMetadata }) {
     }
   };
 
-  const handlePreviewSite = () => {};
+  const handlePreviewSite = () => {
+    navigate(`${buildPath(Path.Editor, { siteId: site.id, pageId: site.firstPageId })}/${EditorPath.Preview}`);
+  };
 
   return (
     <StyledTableRow as='article' onClick={handleRowClick}>

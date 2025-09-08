@@ -339,6 +339,10 @@ const StyledPageItem = styled.li<{ $active: boolean }>`
       transform: translateY(0);
     }
 
+    & > span {
+      white-space: nowrap;
+    }
+
     div {
       display: flex;
       position: absolute;

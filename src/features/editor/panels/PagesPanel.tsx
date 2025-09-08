@@ -22,7 +22,7 @@ import { addPage, deletePage, duplicatePage, selectPagesMetadata, setPageAsIndex
  * Constants
  */
 
-const MAX_PAGE_NAME_LENGTH = 7;
+const MAX_PAGE_NAME_LENGTH = 6;
 const CLASS_BUTTON_PAGE_ACTIONS = 'page-actions-button';
 const SELECTOR_BUTTON_PAGE_ACTIONS = `.${CLASS_BUTTON_PAGE_ACTIONS}`;
 
@@ -80,7 +80,7 @@ function PageItem({ page, index }: { page: PageMetadata; index: number }) {
       <div>
         <Icon icon={LuSquareMenu} color={isActivePage ? 'var(--color-white)' : 'var(--color-gray)'} />
         <span>
-          {page.name.length > MAX_PAGE_NAME_LENGTH ? `${page.name.slice(0, MAX_PAGE_NAME_LENGTH)}...` : page.name}
+          {page.name.length > MAX_PAGE_NAME_LENGTH ? `${page.name.slice(0, MAX_PAGE_NAME_LENGTH)}..` : page.name}
         </span>
         <div>
           <Dropdown>

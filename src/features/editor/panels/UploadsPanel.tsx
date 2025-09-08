@@ -1,3 +1,4 @@
+import { nanoid } from '@reduxjs/toolkit';
 import { EditorToIframe, ElementsName } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
 import { Dispatch, MouseEvent, RefObject, useEffect, useRef, useState } from 'react';
@@ -7,6 +8,8 @@ import styled from 'styled-components';
 import Button from '../../../components/Button';
 import Icon from '../../../components/Icon';
 import { StorageKey, ToastMessages } from '../../../constant';
+import { useFilePicker } from '../../../hooks/useFilePicker';
+import { useImageUpload } from '../../../hooks/useImageUpload';
 import { useAppSelector } from '../../../store';
 import { AppStorage } from '../../../utils/appStorage';
 import { AppToast } from '../../../utils/appToast';
@@ -33,11 +36,35 @@ interface Image {
  */
 
 export default function UploadsPanel() {
+  const [loadingImages, setLoadingImages] = useState(true);
+  const [uploading, setUploading] = useState(false);
   const [images, setImages] = useState<Image[]>([]);
   const urlsRef = useRef<string[]>([]);
 
+  const handleImageUpload = useImageUpload(
+    async (blob: Blob) => {
+      try {
+        const id = nanoid();
+        await AppStorage.addToObject(StorageKey.Images, id, blob);
+
+        const url = URL.createObjectURL(blob);
+        urlsRef.current.push(url);
+
+        setImages((prev) => [...prev, { id, blob, url }]);
+      } finally {
+        setUploading(false);
+      }
+    },
+    (message: string) => {
+      setUploading(false);
+      AppToast.error(message);
+    }
+  );
+
   useEffect(() => {
     const loadImages = async () => {
+      setLoadingImages(true);
+
       const stored = await AppStorage.get<Record<string, Blob>>(StorageKey.Images, {});
       const imgs: Image[] = [];
 
@@ -47,7 +74,10 @@ export default function UploadsPanel() {
         imgs.push({ id, blob, url });
       }
 
-      setImages(imgs);
+      setTimeout(() => {
+        setImages(imgs);
+        setLoadingImages(false);
+      }, 300);
     };
 
     loadImages();
@@ -61,12 +91,33 @@ export default function UploadsPanel() {
     };
   }, []);
 
+  const { input, openFilePicker } = useFilePicker({
+    accept: ACCEPTED_FILE_TYPE,
+    onSelect: async (file) => {
+      setUploading(true);
+      await handleImageUpload(file);
+    }
+  });
+
   return (
     <>
-      <Button fullWidth onClick={() => {}}>
-        Upload File
+      {input}
+      <Button fullWidth onClick={openFilePicker} disabled={uploading}>
+        {uploading ? 'Uploading...' : 'Upload File'}
       </Button>
-      {images.length === 0 && <EmptyMessage>No images uploaded yet</EmptyMessage>}
+      {images.length === 0 && (
+        <EmptyMessage>
+          {loadingImages ? (
+            <LoadingDots>
+              <span></span>
+              <span></span>
+              <span></span>
+            </LoadingDots>
+          ) : (
+            'No images uploaded yet'
+          )}
+        </EmptyMessage>
+      )}
       <MasonryGrid breakpointCols={2} className='masonry-grid' columnClassName='masonry-grid_column'>
         {images?.map((img, i) => (
           <MediaItem key={img.id} img={img} index={i} urlsRef={urlsRef} setImages={setImages} />
@@ -200,4 +251,40 @@ const EmptyMessage = styled.p`
   text-align: center;
   color: var(--color-gray-light);
   font-size: 1.2rem;
+`;
+
+const LoadingDots = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 4.8rem;
+
+  span {
+    display: block;
+    animation: bounce 0.6s infinite alternate;
+    border-radius: 50%;
+    background-color: var(--color-gray);
+    width: 0.8rem;
+    height: 0.8rem;
+  }
+
+  span:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  span:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  @keyframes bounce {
+    0% {
+      transform: translateY(0);
+      opacity: 0.6;
+    }
+    100% {
+      transform: translateY(-10px);
+      opacity: 1;
+    }
+  }
 `;

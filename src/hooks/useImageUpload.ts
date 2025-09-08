@@ -15,7 +15,7 @@ export const IMAGE_COMPRESSION_OPTIONS = {
 export const useImageUpload = (onLoaded: (result: Blob) => void, onError?: (message: string) => void) => {
   const handleImageUpload = async (file: File) => {
     if (file.size > MAX_SIZE_IN_BYTES) {
-      AppToast.error(MESSAGE_SIZE_EXCEED);
+      onError?.(MESSAGE_SIZE_EXCEED);
       return;
     }
 

@@ -71,7 +71,7 @@ export const ToastMessages = {
     saving: 'Cannot switch pages while the site is being saved'
   },
   image: {
-    used: 'This image is used in one of the pages and cannot be deleted'
+    used: 'This image is used in one of the sites or pages and cannot be deleted'
   },
   network: {
     offline: 'You are currently offline. Some features may be unavailable',

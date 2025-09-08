@@ -23,6 +23,8 @@ import { addPage, deletePage, duplicatePage, selectPagesMetadata, setPageAsIndex
  */
 
 const MAX_PAGE_NAME_LENGTH = 7;
+const CLASS_BUTTON_PAGE_ACTIONS = 'page-actions-button';
+const SELECTOR_BUTTON_PAGE_ACTIONS = `.${CLASS_BUTTON_PAGE_ACTIONS}`;
 
 /**
  * Component definition
@@ -68,7 +70,7 @@ function PageItem({ page, index }: { page: PageMetadata; index: number }) {
       return;
     }
 
-    if (!target.closest('svg') && siteId) {
+    if (!target.closest(SELECTOR_BUTTON_PAGE_ACTIONS) && siteId) {
       navigate(buildPath(Path.Editor, { siteId, pageId: page.id }));
     }
   };
@@ -83,7 +85,7 @@ function PageItem({ page, index }: { page: PageMetadata; index: number }) {
         <div>
           <Dropdown>
             <Dropdown.Open>
-              <span>
+              <span className={CLASS_BUTTON_PAGE_ACTIONS}>
                 <Icon icon={LuEllipsis} size='md' />
               </span>
             </Dropdown.Open>

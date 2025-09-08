@@ -266,5 +266,7 @@ const StyledRefreshIcon = styled(Icon)`
 `;
 
 const StyledCloudIcon = styled(Icon)`
-  stroke-width: 0.03rem;
+  svg {
+    stroke-width: 0.2px;
+  }
 `;

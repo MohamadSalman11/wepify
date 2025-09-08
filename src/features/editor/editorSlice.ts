@@ -131,10 +131,15 @@ const editorSlice = createSlice({
 
       state.currentSite.pages[newId] = duplicatedPage;
     },
-    deletePage(state, action: PayloadAction<string>) {
-      if (!state.currentSite || !state.currentSite.pages[action.payload]) return;
+    deletePage(state, action: PayloadAction<{ id: string; nextPageId: string }>) {
+      const { id, nextPageId } = action.payload;
 
-      delete state.currentSite.pages[action.payload];
+      if (!state.currentSite || !state.currentSite.pages[id]) {
+        return;
+      }
+
+      state.currentPageId = nextPageId;
+      delete state.currentSite.pages[id];
     },
     addElement(state, action: PayloadAction<PageElement>) {
       if (!state.currentSite || !state.currentPageId) return;

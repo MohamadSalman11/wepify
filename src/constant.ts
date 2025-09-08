@@ -62,10 +62,11 @@ export const ToastMessages = {
   },
   page: {
     updated: 'Page updated successfully',
-    deleted: 'Page deleted successfully',
     linkCopied: 'Page link copied',
     linkCopyErr: 'Failed to copy page link',
     emptyName: 'Page name cannot be empty',
+    cannotDeleteLast: 'This is the only page and cannot be deleted',
+    switch: 'Switch to another page before deleting the current one',
     duplicateName: 'A page with this name already exists. Please choose a different name'
   },
   image: {

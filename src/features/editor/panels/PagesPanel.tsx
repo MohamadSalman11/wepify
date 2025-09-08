@@ -249,34 +249,26 @@ function DeleteDialog({
   onCloseModal?: OnCloseModal;
 }) {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { pageId } = useParams();
+  const { pageId = '' } = useParams();
   const pages = useAppSelector(selectPagesMetadata);
 
   const handleDelete = async () => {
     const isDeletingCurrentPage = pageId === page.id;
     const availablePageId = (pages[currentIndex - 1] || pages[currentIndex + 1])?.id;
 
-    dispatch(deletePage(page.id));
     onCloseModal?.();
-    AppToast.success(ToastMessages.page.deleted);
 
     if (isDeletingCurrentPage && !availablePageId) {
-      dispatch(setIsLoadingDashboard(true));
-
-      dispatch(clearEditor());
-      navigate(Path.Dashboard);
+      AppToast.error(ToastMessages.page.cannotDeleteLast);
       return;
     }
 
-    if (page.isIndex) {
-      dispatch(setPageAsIndex(availablePageId));
+    if (isDeletingCurrentPage) {
+      AppToast.error(ToastMessages.page.switch);
+      return;
     }
 
-    if (isDeletingCurrentPage) {
-      dispatch(setIsLoadingEditor(true));
-      navigate(buildPath(Path.Editor, { siteId: site.id, pageId: availablePageId }));
-    }
+    dispatch(deletePage({ id: page.id, nextPageId: availablePageId }));
   };
 
   return (

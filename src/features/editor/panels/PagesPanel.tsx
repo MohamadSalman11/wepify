@@ -59,6 +59,7 @@ export default function PagesPanel() {
 function PageItem({ page, index }: { page: PageMetadata; index: number }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const storing = useAppSelector((state) => state.editor.storing);
   const { siteId, pageId } = useParams();
   const { open } = useModalContext();
   const isActivePage = page.id === pageId;
@@ -67,6 +68,11 @@ function PageItem({ page, index }: { page: PageMetadata; index: number }) {
     const target = event.target as HTMLElement;
 
     if (page.id === pageId) {
+      return;
+    }
+
+    if (storing) {
+      AppToast.error(ToastMessages.page.saving);
       return;
     }
 

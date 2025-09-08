@@ -67,7 +67,8 @@ export const ToastMessages = {
     emptyName: 'Page name cannot be empty',
     cannotDeleteLast: 'This is the only page and cannot be deleted',
     switch: 'Switch to another page before deleting the current one',
-    duplicateName: 'A page with this name already exists. Please choose a different name'
+    duplicateName: 'A page with this name already exists. Please choose a different name',
+    saving: 'Cannot switch pages while the site is being saved'
   },
   image: {
     used: 'This image is used in one of the pages and cannot be deleted'

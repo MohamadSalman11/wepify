@@ -9,7 +9,10 @@ import { OPTIONS_FONT } from '../../src/features/editor/panels/SettingsPanel';
 
 const PRETTIER_PARSER = 'html';
 const PRETTIER_PRINT_WIDTH = 80;
+
 const TAG_BODY = 'BODY';
+const SELECTOR_SPAN = 'button';
+const SELECTOR_BUTTON = 'button';
 
 const REGEX = {
   SCRIPT_MODULE_INLINE: /<script\s+type="module"[^>]*>[\s\S]*?<\/script>/g,
@@ -57,7 +60,12 @@ export class HTMLMinifier {
 
     fontsURL = this.removeFonts(fontsURL, unusedFonts);
 
-    const cleanedHTML = this.html
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = this.html;
+
+    this.removeButtonSpans(tempDiv);
+
+    const cleanedHTML = tempDiv.innerHTML
       .replace(REGEX.SCRIPT_MODULE_INLINE, '')
       .replace(REGEX.SCRIPT_MODULE_SELF_CLOSING, '')
       .replace(REGEX.GOOGLE_FONTS_LINK, `<link href="${fontsURL}" rel="stylesheet">`)
@@ -68,7 +76,6 @@ export class HTMLMinifier {
 
     return await prettier.format(cleanedHTML, this.getPrettierOptions());
   }
-
   // private
   private filterClasses(_match: string, classes: string): string {
     const trimmedClasses = classes.split(REGEX.WHITESPACE).filter(Boolean).join(' ');
@@ -89,6 +96,15 @@ export class HTMLMinifier {
       printWidth: PRETTIER_PRINT_WIDTH,
       plugins: [parserHtml]
     };
+  }
+
+  private removeButtonSpans(container: HTMLElement) {
+    for (const btn of container.querySelectorAll(SELECTOR_BUTTON)) {
+      for (const span of btn.querySelectorAll(SELECTOR_SPAN)) {
+        btn.textContent = span.textContent;
+        span.remove();
+      }
+    }
   }
 
   private removeFonts(url: string, fontsToRemove: string[]): string {

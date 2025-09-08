@@ -16,6 +16,18 @@ const controlInputChange = (event: Event) => {
   elementController.handleInputChange(event);
 };
 
+const controlEditableButton = (e: KeyboardEvent) => {
+  const active = document.activeElement as HTMLElement;
+  const isEditableSpanInButton = active?.isContentEditable && active.closest('button');
+  const isSpaceOrEnter = e.key === ' ' || e.key === 'Enter';
+
+  if (isEditableSpanInButton && isSpaceOrEnter) {
+    e.preventDefault();
+    const insertText = e.key === ' ' ? ' ' : '\n';
+    document.execCommand('insertText', false, insertText);
+  }
+};
+
 const handleDomContentLoaded = () => {
   iframeConnection.send(IframeToEditor.IframeReady, {
     width: document.body.clientWidth,
@@ -59,6 +71,7 @@ iframeConnection.on(EditorToIframe.DeviceChanged, (payload) => {
 
 document.addEventListener('input', controlInputChange);
 document.addEventListener('click', controlDocumentClick);
+document.addEventListener('keydown', controlEditableButton);
 document.addEventListener('contextmenu', contextMenuController.show.bind(contextMenuController));
 document.addEventListener('keydown', keyboardController.handleKeydown);
 document.addEventListener('DOMContentLoaded', handleDomContentLoaded);

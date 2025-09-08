@@ -148,3 +148,7 @@ section::after {
 #context-menu li:hover {
   background-color: #f2f4f7;
 }
+
+button span {
+  display: block;
+}

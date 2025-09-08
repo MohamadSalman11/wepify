@@ -36,6 +36,10 @@ const dashboardSlice = createSlice({
   name: 'dashboard',
   initialState,
   reducers: {
+    addSite(state, action: PayloadAction<SiteMetadata>) {
+      const site = action.payload;
+      state.sites[site.id] = site;
+    },
     updateSite(state, action: PayloadAction<{ siteId: string; updates: Partial<SiteMetadata> }>) {
       const { siteId, updates } = action.payload;
 
@@ -94,5 +98,5 @@ export const selectSitesArray = createSelector([selectSitesObject], (sitesObj): 
   Object.values(sitesObj)
 );
 
-export const { updateSite, deleteSite, duplicateSite, setSiteStarred, setProcessing } = dashboardSlice.actions;
+export const { addSite, updateSite, deleteSite, duplicateSite, setSiteStarred, setProcessing } = dashboardSlice.actions;
 export default dashboardSlice.reducer;

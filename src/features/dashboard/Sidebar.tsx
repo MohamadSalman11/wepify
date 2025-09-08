@@ -1,5 +1,5 @@
 import { nanoid } from '@reduxjs/toolkit';
-import type { Page, PageElement, RequiredKeys, Site } from '@shared/typing';
+import type { JsType, Page, PageElement, RequiredKeys, Site } from '@shared/typing';
 import { LuClock4, LuCloud, LuFileDown, LuFilePlus, LuHouse, LuLoader, LuStar } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
@@ -15,7 +15,8 @@ import { buildPath } from '../../utils/buildPath';
 import { createNewPage } from '../../utils/createNewPage';
 import { formatSize } from '../../utils/formatSize';
 import { toSiteMetadata } from '../../utils/toSiteMetadata';
-import { selectSitesArray } from './dashboardSlice';
+import { setLoading } from '../editor/editorSlice';
+import { addSite, selectSitesArray, setProcessing } from './dashboardSlice';
 import { StyledLoader } from './main/SitesView';
 
 /**
@@ -30,7 +31,7 @@ const ACCEPTED_FILE_TYPE = '.json';
  * Types
  */
 
-const ELEMENT_SCHEMA: Record<RequiredKeys<PageElement>, string> = {
+const ELEMENT_SCHEMA: Record<RequiredKeys<PageElement>, JsType> = {
   id: 'string',
   tag: 'string',
   name: 'string',
@@ -40,18 +41,25 @@ const ELEMENT_SCHEMA: Record<RequiredKeys<PageElement>, string> = {
   style: 'object'
 };
 
-const PAGE_SCHEMA: Omit<Record<keyof Page, string>, 'id'> = {
+const ELEMENT_SCHEMA_OPTIONAL: Partial<Record<keyof PageElement, JsType>> = {
+  parentId: 'string',
+  content: 'string',
+  attrs: 'object',
+  responsive: 'object'
+};
+
+const PAGE_SCHEMA: Omit<Record<keyof Page, JsType>, 'id'> = {
   name: 'string',
   title: 'string',
   isIndex: 'boolean',
-  elements: 'array',
+  elements: 'object',
   backgroundColor: 'string'
 };
 
-const SITE_SCHEMA: Omit<Record<keyof Site, string>, 'id'> = {
+const SITE_SCHEMA: Omit<Record<keyof Site, JsType>, 'id'> = {
   name: 'string',
   description: 'string',
-  pages: 'array',
+  pages: 'object',
   createdAt: 'number',
   lastModified: 'number',
   isStarred: 'boolean'
@@ -72,8 +80,6 @@ export default function Sidebar() {
     const siteId = nanoid();
     const page = createNewPage(DEFAULT_NAME);
 
-    AppToast.dismiss();
-
     page.isIndex = true;
 
     const site: Site = {
@@ -86,42 +92,47 @@ export default function Sidebar() {
       pages: { [page.id]: page }
     };
 
-    // dispatch(setIsLoading(true));
+    dispatch(setLoading(true));
     await AppStorage.addToObject(StorageKey.Sites, siteId, site);
     navigate(buildPath(Path.Editor, { siteId, pageId: page.id }));
   };
 
   // Keep as function declaration to prevent "used before its declaration" error
   async function handleUploadSiteJson(file: File) {
-    runWithToast({
-      startMessage: ToastMessages.site.importing,
-      successMessage: ToastMessages.site.imported,
-      errorMessage: ToastMessages.site.importFailed,
-      icon: <StyledLoader icon={LuLoader} color='var(--color-primary)' size='md' />,
-      onExecute: async () => {
-        // dispatch(setIsProcessing(true));
+    try {
+      const icon = <StyledLoader icon={LuLoader} color='var(--color-primary)' size='md' />;
 
-        const text = await file.text();
-        const parsedSite: Site & { __WARNING__?: string } = JSON.parse(text);
+      dispatch(setProcessing(true));
+      AppToast.custom(ToastMessages.site.importing, { icon });
 
-        if (!validateSiteJson(parsedSite)) {
-          throw new Error(ToastMessages.site.importInvalid);
-        }
+      const siteId = nanoid();
+      const pagesWithNewIds: Record<string, Page> = {};
+      const text = await file.text();
+      const parsedSite: Site & { __WARNING__?: string } = JSON.parse(text);
 
-        delete parsedSite.__WARNING__;
+      delete parsedSite.__WARNING__;
 
-        const importedSite = {
-          ...parsedSite,
-          id: nanoid(),
-          pages: parsedSite.pages.map((page: Page) => ({ ...page, id: nanoid() }))
-        };
+      for (const key in parsedSite.pages) {
+        const page = parsedSite.pages[key];
+        const newId = nanoid();
+        pagesWithNewIds[newId] = { ...page, id: newId };
+      }
 
-        dispatch(addSite(toSiteMetadata(importedSite)));
+      if (!validateSiteJson(parsedSite)) {
+        throw new Error(ToastMessages.site.importInvalid);
+      }
 
-        return importedSite;
-      },
-      onFinally: () => dispatch(setIsProcessing(false))
-    });
+      const importedSite = {
+        ...parsedSite,
+        id: siteId,
+        pages: pagesWithNewIds
+      };
+
+      dispatch({ type: addSite.type, payload: toSiteMetadata(importedSite), meta: { rawSite: importedSite } });
+    } catch (error: any) {
+      AppToast.error(error.message || ToastMessages.site.importFailed);
+      dispatch(setProcessing(false));
+    }
   }
 
   return (
@@ -172,21 +183,28 @@ const validate = (obj: Site | Page | PageElement, schema: Record<string, string>
 const isValidElement = (el: PageElement): boolean => {
   if (!validate(el, ELEMENT_SCHEMA)) return false;
 
-  if ('children' in el) {
-    if (!Array.isArray(el.children)) return false;
-    return el.children.every((child) => isValidElement(child));
+  for (const [key, type] of Object.entries(ELEMENT_SCHEMA_OPTIONAL)) {
+    if (key in el && typeof el[key as keyof PageElement] !== type) return false;
   }
 
   return true;
 };
 
-const validateSiteJson = (site: Site): boolean =>
-  validate(site, SITE_SCHEMA) &&
-  Array.isArray(site.pages) &&
-  site.pages.every(
-    (page: Page) =>
-      validate(page, PAGE_SCHEMA) && Array.isArray(page.elements) && page.elements.every((el) => isValidElement(el))
-  );
+const validateSiteJson = (site: Site): boolean => {
+  if (!validate(site, SITE_SCHEMA)) return false;
+
+  for (const pageId in site.pages) {
+    const page = site.pages[pageId];
+    if (!validate(page, PAGE_SCHEMA)) return false;
+
+    for (const elId in page.elements) {
+      const el = page.elements[elId];
+      if (!isValidElement(el)) return false;
+    }
+  }
+
+  return true;
+};
 
 /**
  * Styles

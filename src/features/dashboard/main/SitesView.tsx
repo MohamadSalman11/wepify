@@ -164,7 +164,7 @@ function TableRow({ site }: { site: SiteMetadata }) {
     const icon = <StyledLoader icon={LuLoader} color='var(--color-primary)' size='md' />;
 
     dispatch(setProcessing(true));
-    AppToast.custom(ToastMessages.site.downloading, { icon, duration: Infinity });
+    AppToast.custom(ToastMessages.site.downloading, { icon });
 
     const sites = await AppStorage.get(StorageKey.Sites, {});
     const siteToDownload = sites[site.id as keyof typeof sites];

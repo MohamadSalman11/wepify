@@ -8,7 +8,7 @@ import { loadSiteFromStorage } from '../features/editor/editorSlice';
 import Header from '../features/editor/Header';
 import Panel, { usePanel } from '../features/editor/panels';
 import Sidebar from '../features/editor/Sidebar';
-import { AppDispatch } from '../store';
+import { AppDispatch, useAppSelector } from '../store';
 
 /**
  * Component definition
@@ -20,6 +20,7 @@ export default function Editor() {
   const { siteId, pageId } = useParams();
   const { leftPanelOpen } = usePanel();
   const isPreview = location.pathname.endsWith('/preview');
+  const loading = useAppSelector((state) => state.editor.loading);
 
   useEffect(() => {
     if (siteId && pageId) {
@@ -37,7 +38,7 @@ export default function Editor() {
 
   return (
     <StyledEditor $leftPanelOpen={leftPanelOpen}>
-      <Toaster position='top-center' reverseOrder={false} />
+      {loading || <Toaster position='top-center' reverseOrder={false} />}
       <Sidebar />
       <Header />
       {leftPanelOpen && <Outlet />}

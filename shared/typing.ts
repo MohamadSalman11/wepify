@@ -101,6 +101,8 @@ export type PageElementAttrs = Partial<{
   href: string;
 }>;
 
+export type JsType = 'string' | 'number' | 'boolean' | 'object' | 'undefined' | 'function' | 'symbol' | 'bigint';
+
 export type RequiredKeys<T> = {
   [K in keyof T]-?: Record<string, any> extends Pick<T, K> ? never : K;
 }[keyof T];

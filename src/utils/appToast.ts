@@ -16,7 +16,7 @@ export const AppToast = {
   },
   custom(message: string, options?: ToastOptions) {
     AppToast.dismiss();
-    toast(message, { ...DEFAULT_OPTIONS, ...options });
+    toast(message, { ...DEFAULT_OPTIONS, duration: Infinity, ...options });
   },
   dismiss(id?: string) {
     toast.dismiss(id);

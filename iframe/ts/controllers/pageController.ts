@@ -38,7 +38,7 @@ class PageController {
 
     const target = document.querySelector(SELECTOR_SECTION);
 
-    if (!target || isDeviceChanged) {
+    if (!target) {
       return;
     }
 
@@ -53,7 +53,10 @@ class PageController {
     }
 
     moveableController.setDragTarget(document.querySelector(SELECTOR_DRAG_BUTTON) as SVGAElement);
-    iframeConnection.send(IframeToEditor.PageRendered);
+
+    if (!isDeviceChanged) {
+      iframeConnection.send(IframeToEditor.PageRendered);
+    }
   }
 
   update(updates: { backgroundColor: string }) {

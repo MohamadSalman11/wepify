@@ -22,6 +22,7 @@ import Divider from '../../components/divider';
 import Dropdown from '../../components/Dropdown';
 import Icon from '../../components/Icon';
 import { Breakpoint, EditorPath } from '../../constant';
+import SiteExporter from '../../SiteExporter';
 import { useAppSelector } from '../../store';
 import { selectCurrentPageElements, selectCurrentSite, setDeviceSimulator, setLoading } from './editorSlice';
 
@@ -136,6 +137,7 @@ function DevicePreviewButton({
 function EditorActions() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const site = useAppSelector(selectCurrentSite);
   const storing = useAppSelector((state) => state.editor.storing);
 
   const handleSitePreview = () => {
@@ -153,18 +155,13 @@ function EditorActions() {
       <Divider rotate={90} width={30} />
       <Dropdown>
         <Dropdown.Open>
-          {/* <Button variation='secondary' disabled={isDownloadingSite}>
-              Download
-            </Button> */}
-          <Button variation='secondary' disabled={false}>
-            Download
-          </Button>
+          <Button variation='secondary'>Download</Button>
         </Dropdown.Open>
         <Dropdown.Drop>
-          <Dropdown.Button icon={LuFileMinus} onClick={() => {}}>
+          <Dropdown.Button icon={LuFileMinus} onClick={() => new SiteExporter(site, true).downloadZip()}>
             Download Minified
           </Dropdown.Button>
-          <Dropdown.Button icon={LuFileCode2} onClick={() => {}}>
+          <Dropdown.Button icon={LuFileCode2} onClick={() => new SiteExporter(site, false).downloadZip()}>
             Download Readable
           </Dropdown.Button>
         </Dropdown.Drop>

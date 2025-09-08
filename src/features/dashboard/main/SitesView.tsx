@@ -1,7 +1,17 @@
 import { nanoid } from '@reduxjs/toolkit';
-import type { SiteMetadata } from '@shared/typing';
+import type { Site, SiteMetadata } from '@shared/typing';
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
-import { LuCopy, LuEllipsis, LuEye, LuLayoutTemplate, LuLoader, LuPencilLine, LuStar, LuTrash2 } from 'react-icons/lu';
+import {
+  LuCopy,
+  LuDownload,
+  LuEllipsis,
+  LuEye,
+  LuLayoutTemplate,
+  LuLoader,
+  LuPencilLine,
+  LuStar,
+  LuTrash2
+} from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
@@ -10,13 +20,15 @@ import Dropdown from '../../../components/Dropdown';
 import Input from '../../../components/form/Input';
 import Icon from '../../../components/Icon';
 import Modal, { useModalContext, type OnCloseModal } from '../../../components/Modal';
-import { Breakpoint, Path, ToastMessages } from '../../../constant';
+import { Breakpoint, Path, StorageKey, ToastMessages } from '../../../constant';
+import SiteExporter from '../../../SiteExporter';
+import { AppStorage } from '../../../utils/appStorage';
 import { AppToast } from '../../../utils/appToast';
 import { buildPath } from '../../../utils/buildPath';
 import { formatDate } from '../../../utils/formatDate';
 import { formatSize } from '../../../utils/formatSize';
 import { FormValidator } from '../../../utils/FormValidator';
-import { deleteSite, duplicateSite, setSiteStarred, updateSite } from '../dashboardSlice';
+import { deleteSite, duplicateSite, setProcessing, setSiteStarred, updateSite } from '../dashboardSlice';
 
 /**
  * Constants
@@ -148,6 +160,24 @@ function TableRow({ site }: { site: SiteMetadata }) {
     }
   };
 
+  const handleSiteDownload = async () => {
+    const icon = <StyledLoader icon={LuLoader} color='var(--color-primary)' size='md' />;
+
+    dispatch(setProcessing(true));
+    AppToast.custom(ToastMessages.site.downloading, { icon, duration: Infinity });
+
+    const sites = await AppStorage.get(StorageKey.Sites, {});
+    const siteToDownload = sites[site.id as keyof typeof sites];
+
+    if (siteToDownload) {
+      setTimeout(() => {
+        AppToast.dismiss();
+        dispatch(setProcessing(false));
+        new SiteExporter(siteToDownload as Site, true).downloadZip();
+      }, 1000);
+    }
+  };
+
   const handlePreviewSite = () => {};
 
   return (
@@ -163,6 +193,7 @@ function TableRow({ site }: { site: SiteMetadata }) {
       <RowActions>
         <ActionGroup>
           <Icon icon={LuEye} size='md' onClick={handlePreviewSite} />
+          <Icon icon={LuDownload} size='md' onClick={handleSiteDownload} />
           <Icon icon={LuPencilLine} size='md' onClick={() => open('edit')} />
           <Modal.Window name='edit'>
             <Modal.Dialog title='Edit Site'>
@@ -178,6 +209,9 @@ function TableRow({ site }: { site: SiteMetadata }) {
           <Dropdown.Drop translateX={-80} translateY={-12}>
             <Dropdown.Button onClick={handlePreviewSite} icon={LuEye}>
               Preview
+            </Dropdown.Button>
+            <Dropdown.Button icon={LuDownload} onClick={handleSiteDownload}>
+              Download
             </Dropdown.Button>
             <Dropdown.Button icon={LuPencilLine} onClick={() => open('edit')}>
               Edit

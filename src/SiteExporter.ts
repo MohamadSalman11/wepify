@@ -2,11 +2,10 @@ import { DomTreeBuilder } from '@compiler/dom/DomTreeBuilder';
 import { CSSMinifier } from '@compiler/minifier/CSSMinifier';
 import { HTMLMinifier } from '@compiler/minifier/HTMLMinifier';
 import { CSSGenerator } from '@compiler/style/CSSGenerator';
-import iframeConnection from '@shared/iframeConnection';
+import cssFile from '@iframe/style.css?raw';
+import { ElementsName } from '@shared/constants';
 import { Page, Site } from '@shared/typing';
 import JSZip from 'jszip';
-import cssFile from '../../style.css?raw';
-import { downloadBlob } from '../utils/downloadBlob';
 import favicon from '/favicon.ico';
 
 /**
@@ -50,7 +49,7 @@ const DOCUMENT_HEAD_TEMPLATE = `
  * Class definition
  */
 
-class SiteExportController {
+class SiteExporter {
   private zip: JSZip;
   private imageCount = DEFAULT_IMAGES_COUNT;
 
@@ -65,8 +64,6 @@ class SiteExportController {
 
   downloadZip = async () => {
     await this.exportSite();
-
-    iframeConnection.send('SITE_DOWNLOADED');
   };
 
   private async exportSite() {
@@ -86,7 +83,16 @@ class SiteExportController {
     this.zip.file(File.SiteJson, JSON.stringify({ __WARNING__: SITE_JSON_WARNING, ...this.site }, null, 2));
 
     const content = await this.zip.generateAsync({ type: 'blob' });
-    downloadBlob(content, File.ZipDownload);
+    this.downloadBlob(content, File.ZipDownload);
+  }
+
+  private downloadBlob(blob: Blob, fileName: string) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement(ElementsName.A);
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   private addCssFiles(site: Site) {
@@ -154,4 +160,4 @@ class SiteExportController {
   }
 }
 
-export default SiteExportController;
+export default SiteExporter;

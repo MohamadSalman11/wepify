@@ -46,6 +46,7 @@ export const ToastMessages = {
     updating: 'Updating site...',
     deleting: 'Deleting site...',
     importing: 'Importing site...',
+    downloading: 'Downloading site...',
     addedStar: 'Site added to starred',
     removedStar: 'Site removed from starred',
     updated: 'Site updated successfully',

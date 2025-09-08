@@ -35,6 +35,16 @@ const EMPTY_PAGE: Page = {
   backgroundColor: ''
 };
 
+export const EMPTY_SITE: Site = {
+  id: '',
+  name: '',
+  description: '',
+  createdAt: Date.now(),
+  lastModified: Date.now(),
+  isStarred: false,
+  pages: {}
+};
+
 const initialState: EditorState = {
   currentSite: null,
   currentPageId: null,
@@ -291,7 +301,7 @@ const createFieldsBasedSelector = <T>(keys: (keyof T)[]) =>
     return true;
   });
 
-export const selectCurrentSite = (state: RootState) => state.editor.currentSite;
+export const selectCurrentSite = (state: RootState) => state.editor.currentSite || EMPTY_SITE;
 export const selectCurrentPageId = (state: RootState) => state.editor.currentPageId;
 
 export const selectCurrentPage = createSelector([selectCurrentSite, selectCurrentPageId], (site, pageId) => {

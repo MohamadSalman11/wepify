@@ -276,8 +276,6 @@ function SelectorSettings() {
 function SizeSettings() {
   const style = useStyle();
   const { handleElementChange } = useSettingsContext();
-  const name = useAppSelector(selectCurrentElement).name;
-  const disableInput = [ElementsName.Section].includes(name);
 
   const handleRotate = () => {
     const current = style.rotate ?? 0;
@@ -302,26 +300,16 @@ function SizeSettings() {
     <div>
       <CollapsibleSection title='Size' open>
         <GridContainer>
-          <SizeRow $disabled={disableInput}>
+          <SizeRow>
             <label htmlFor='settings-panel-input-left'>X</label>
             <PropertyEditor styleName='left'>
-              <Input
-                id='settings-panel-input-left'
-                disabled={disableInput}
-                type='number'
-                value={parseNumber(style.left)}
-              />
+              <Input id='settings-panel-input-left' type='number' value={parseNumber(style.left)} />
             </PropertyEditor>
           </SizeRow>
-          <SizeRow $disabled={disableInput}>
+          <SizeRow>
             <label htmlFor='settings-panel-input-top'>Y</label>
             <PropertyEditor styleName='top'>
-              <Input
-                id='settings-panel-input-top'
-                disabled={disableInput}
-                type='number'
-                value={parseNumber(style.top)}
-              />
+              <Input id='settings-panel-input-top' type='number' value={parseNumber(style.top)} />
             </PropertyEditor>
           </SizeRow>
           <SizeRow>
@@ -348,26 +336,21 @@ function SizeSettings() {
               />
             </PropertyEditor>
           </SizeRow>
-          <SizeRow $disabled={disableInput}>
+          <SizeRow>
             <label htmlFor='settings-panel-input-rotate'>R</label>
             <PropertyEditor styleName='rotate'>
-              <Input
-                id='settings-panel-input-rotate'
-                type='number'
-                disabled={disableInput}
-                value={parseNumber(style.rotate)}
-              />
+              <Input id='settings-panel-input-rotate' type='number' value={parseNumber(style.rotate)} />
             </PropertyEditor>
           </SizeRow>
           <RotationContainer>
             <AppTooltip label='Rotate -90°' side='top' sideOffset={5} sizeSmall>
-              <Icon icon={LuRotateCwSquare} disabled={disableInput} onClick={handleRotate} />
+              <Icon icon={LuRotateCwSquare} onClick={handleRotate} />
             </AppTooltip>
             <AppTooltip label='Flip Horizontal' side='top' sideOffset={5} sizeSmall>
-              <Icon icon={LuFlipHorizontal2} disabled={disableInput} onClick={handleFlipHorizontal} />
+              <Icon icon={LuFlipHorizontal2} onClick={handleFlipHorizontal} />
             </AppTooltip>
             <AppTooltip label='Flip Vertical' side='top' sideOffset={5} sizeSmall>
-              <Icon icon={LuFlipVertical2} disabled={disableInput} onClick={handleFlipVertical} />
+              <Icon icon={LuFlipVertical2} onClick={handleFlipVertical} />
             </AppTooltip>
           </RotationContainer>
         </GridContainer>

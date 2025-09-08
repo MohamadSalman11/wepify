@@ -61,7 +61,7 @@ iframeConnection.on(EditorToIframe.UpdateElement, (payload) => {
 
 iframeConnection.on(EditorToIframe.DeviceChanged, (payload) => {
   if (payload.elements) {
-    pageController.render(payload);
+    pageController.render(payload, true);
   }
 
   pageView.setDeviceSimulator(payload.deviceSimulator);

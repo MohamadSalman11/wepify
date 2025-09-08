@@ -27,7 +27,7 @@ class PageController {
   private bodyEl: HTMLBodyElement | null = document.querySelector('body');
 
   // public
-  render(pageData: PageData) {
+  render(pageData: PageData, isDeviceChanged?: boolean) {
     const { elements, deviceSimulator, backgroundColor } = pageData;
 
     pageView.renderElements(elements, deviceSimulator.type);
@@ -38,7 +38,7 @@ class PageController {
 
     const target = document.querySelector(SELECTOR_SECTION);
 
-    if (!target) {
+    if (!target || isDeviceChanged) {
       return;
     }
 

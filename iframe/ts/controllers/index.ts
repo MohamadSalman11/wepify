@@ -1,5 +1,6 @@
 import { EditorToIframe, IframeToEditor } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
+import { state } from '../model';
 import pageView from '../views/pageView';
 import contextMenuController from './contextMenuController';
 import elementController from './elementController';
@@ -26,6 +27,11 @@ const controlEditableButton = (event: KeyboardEvent) => {
     const insertText = event.key === ' ' ? ' ' : '\n';
     document.execCommand('insertText', false, insertText);
   }
+};
+
+const handleWindowResize = () => {
+  moveableController.clearTarget();
+  setTimeout(() => pageView.setDeviceSimulator(state.deviceSimulator));
 };
 
 const handleWindowLoad = () => {
@@ -64,10 +70,12 @@ iframeConnection.on(EditorToIframe.DeviceChanged, (payload) => {
     pageController.render(payload, true);
   }
 
+  state.deviceSimulator = payload.deviceSimulator;
   pageView.setDeviceSimulator(payload.deviceSimulator);
   moveableController.clearTarget();
 });
 
+window.addEventListener('resize', handleWindowResize);
 window.addEventListener('load', handleWindowLoad);
 document.addEventListener('input', controlInputChange);
 document.addEventListener('click', controlDocumentClick);

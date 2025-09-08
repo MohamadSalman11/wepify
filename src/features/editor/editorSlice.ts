@@ -42,6 +42,8 @@ const initialState: EditorState = {
   copiedElement: [],
   loading: true,
   storing: false,
+  dataLoaded: false,
+  iframeReady: false,
   error: undefined,
   deviceSimulator: { type: Device.Monitor, width: SCREEN_SIZES.monitor.width, height: SCREEN_SIZES.monitor.height }
 };
@@ -74,6 +76,8 @@ interface EditorState {
   copiedElement: PageElement[];
   loading: boolean;
   storing: boolean;
+  dataLoaded: boolean;
+  iframeReady: boolean;
   error?: string;
   deviceSimulator: DeviceSimulator;
 }
@@ -106,7 +110,6 @@ const editorSlice = createSlice({
 
       const page = action.payload;
       state.currentSite.pages[page.id] = page;
-      state.currentPageId = page.id;
     },
     duplicatePage(state, action: PayloadAction<{ id: string; newName: string; newTitle: string }>) {
       if (!state.currentSite || !action.payload.id) return;
@@ -240,17 +243,22 @@ const editorSlice = createSlice({
     },
     setLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
+    },
+    setIframeReady(state, action) {
+      state.iframeReady = action.payload;
     }
   },
   extraReducers: (builder) => {
     builder
       .addCase(loadSiteFromStorage.pending, (state) => {
+        state.dataLoaded = false;
         state.loading = true;
         state.error = undefined;
       })
       .addCase(loadSiteFromStorage.fulfilled, (state, action: PayloadAction<{ site: Site; pageId: string }>) => {
         state.currentSite = action.payload.site;
         state.currentPageId = action.payload.pageId;
+        state.dataLoaded = true;
       })
       .addCase(loadSiteFromStorage.rejected, (state, action) => {
         state.loading = false;
@@ -334,6 +342,7 @@ export const {
   setDeviceSimulator,
   setPageAsIndex,
   setStoring,
-  setLoading
+  setLoading,
+  setIframeReady
 } = editorSlice.actions;
 export default editorSlice.reducer;

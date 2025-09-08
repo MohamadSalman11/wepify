@@ -11,6 +11,7 @@ import {
   selectCurrentPageElements,
   selectCurrentPageId,
   setCurrentElement,
+  setIframeReady,
   setLoading,
   updateElement,
   updatePage
@@ -18,44 +19,54 @@ import {
 
 export const useIframeConnection = () => {
   const dispatch: AppDispatch = useDispatch();
-  const currentPageId = useAppSelector(selectCurrentPageId);
+  const pageId = useAppSelector(selectCurrentPageId);
   const elements = useAppSelector(selectCurrentPageElements);
   const deviceSimulator = useAppSelector((state) => state.editor.deviceSimulator);
+  const dataLoaded = useAppSelector((state) => state.editor.dataLoaded);
+  const iframeReady = useAppSelector((state) => state.editor.iframeReady);
   const copiedElement = useAppSelector((state) => state.editor.copiedElement);
   const pageBackgroundColor = useAppSelector(selectCurrentPage).backgroundColor;
-  const hasMounted = useRef(false);
   const elementsRef = useRef(elements);
+  const deviceSimulatorRef = useRef(deviceSimulator);
+  const backgroundColorRef = useRef(pageBackgroundColor);
 
   elementsRef.current = elements;
 
+  useEffect(() => {
+    deviceSimulatorRef.current = deviceSimulator;
+  }, [deviceSimulator]);
+
+  useEffect(() => {
+    backgroundColorRef.current = pageBackgroundColor;
+  }, [pageBackgroundColor]);
+
   const renderPageInIframe = useCallback(() => {
-    const payload = { elements: elementsRef.current, deviceSimulator, backgroundColor: pageBackgroundColor };
+    const payload = {
+      elements: elementsRef.current,
+      deviceSimulator: deviceSimulatorRef.current,
+      backgroundColor: backgroundColorRef.current
+    };
 
     const handlePageRendered = () => {
       setTimeout(() => {
         dispatch(setLoading(false));
-        iframeConnection.send(EditorToIframe.DeviceChanged, { deviceSimulator });
+        iframeConnection.send(EditorToIframe.DeviceChanged, { deviceSimulator: deviceSimulatorRef.current });
       }, 1000);
     };
 
     iframeConnection.send(EditorToIframe.RenderPage, payload);
     iframeConnection.on(IframeToEditor.PageRendered, handlePageRendered);
-  }, [dispatch, deviceSimulator, pageBackgroundColor]);
+  }, [dispatch]);
 
   useEffect(() => {
-    iframeConnection.on(IframeToEditor.IframeReady, renderPageInIframe);
+    iframeConnection.on(IframeToEditor.IframeReady, () => dispatch(setIframeReady(true)));
 
-    return () => iframeConnection.off(IframeToEditor.IframeReady);
-  }, [renderPageInIframe]);
-
-  useEffect(() => {
-    if (!hasMounted.current) {
-      hasMounted.current = true;
-      return;
+    if (iframeReady && dataLoaded) {
+      renderPageInIframe();
     }
 
-    renderPageInIframe();
-  }, [renderPageInIframe, currentPageId]);
+    return () => iframeConnection.off(IframeToEditor.IframeReady);
+  }, [dispatch, renderPageInIframe, dataLoaded, iframeReady, pageId]);
 
   useEffect(() => {
     iframeConnection.on(IframeToEditor.PasteElement, () => {
@@ -71,7 +82,7 @@ export const useIframeConnection = () => {
     iframeConnection.on(IframeToEditor.DeleteElement, (payload) => dispatch(deleteElement(payload)));
 
     iframeConnection.on(IframeToEditor.PageUpdated, (payload) => {
-      dispatch(updatePage({ id: currentPageId as string, updates: payload }));
+      dispatch(updatePage({ id: pageId as string, updates: payload }));
     });
 
     return () => {
@@ -82,5 +93,5 @@ export const useIframeConnection = () => {
       iframeConnection.off(IframeToEditor.DeleteElement);
       iframeConnection.off(IframeToEditor.PageUpdated);
     };
-  }, [dispatch, currentPageId]);
+  }, [dispatch, pageId]);
 };

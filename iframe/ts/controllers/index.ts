@@ -16,19 +16,19 @@ const controlInputChange = (event: Event) => {
   elementController.handleInputChange(event);
 };
 
-const controlEditableButton = (e: KeyboardEvent) => {
+const controlEditableButton = (event: KeyboardEvent) => {
   const active = document.activeElement as HTMLElement;
   const isEditableSpanInButton = active?.isContentEditable && active.closest('button');
-  const isSpaceOrEnter = e.key === ' ' || e.key === 'Enter';
+  const isSpaceOrEnter = event.key === ' ' || event.key === 'Enter';
 
   if (isEditableSpanInButton && isSpaceOrEnter) {
-    e.preventDefault();
-    const insertText = e.key === ' ' ? ' ' : '\n';
+    event.preventDefault();
+    const insertText = event.key === ' ' ? ' ' : '\n';
     document.execCommand('insertText', false, insertText);
   }
 };
 
-const handleDomContentLoaded = () => {
+const handleWindowLoad = () => {
   iframeConnection.send(IframeToEditor.IframeReady, {
     width: document.body.clientWidth,
     height: document.body.clientHeight
@@ -62,18 +62,17 @@ iframeConnection.on(EditorToIframe.UpdateElement, (payload) => {
 iframeConnection.on(EditorToIframe.DeviceChanged, (payload) => {
   if (payload.elements) {
     pageController.render(payload);
-  } else {
-    pageView.setDeviceSimulator(payload.deviceSimulator);
   }
 
+  pageView.setDeviceSimulator(payload.deviceSimulator);
   moveableController.clearTarget();
 });
 
+window.addEventListener('load', handleWindowLoad);
 document.addEventListener('input', controlInputChange);
 document.addEventListener('click', controlDocumentClick);
 document.addEventListener('keydown', controlEditableButton);
 document.addEventListener('contextmenu', contextMenuController.show.bind(contextMenuController));
 document.addEventListener('keydown', keyboardController.handleKeydown);
-document.addEventListener('DOMContentLoaded', handleDomContentLoaded);
 document.addEventListener('touchstart', contextMenuController.handleTouchStart, { passive: false });
 document.addEventListener('touchend', contextMenuController.handleTouchEnd);

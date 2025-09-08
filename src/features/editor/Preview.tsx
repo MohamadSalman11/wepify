@@ -14,7 +14,7 @@ import LoadingScreen from '../../components/LoadingScreen';
 import { EditorPath, LoadingMessages, Path } from '../../constant';
 import { useAppSelector } from '../../store';
 import { buildPath } from '../../utils/buildPath';
-import { selectPagesMetadata, setLoading } from './editorSlice';
+import { selectPagesMetadata, setIframeReady, setLoading } from './editorSlice';
 
 /**
  * Constants
@@ -43,6 +43,7 @@ export default function Preview() {
 
   const handleClosePreview = useCallback(() => {
     dispatch(setLoading(true));
+    dispatch(setIframeReady(false));
     navigate(buildPath(Path.Editor, { siteId, pageId }));
   }, [dispatch, navigate, siteId, pageId]);
 

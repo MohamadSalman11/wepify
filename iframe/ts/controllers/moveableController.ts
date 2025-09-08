@@ -72,6 +72,10 @@ class MoveableController {
 
   updateRect() {
     this.moveable.updateRect();
+
+    if (this.moveable.target) {
+      this.setTarget(this.moveable.target as HTMLElement);
+    }
   }
 
   initGuidelines() {

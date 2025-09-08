@@ -213,7 +213,7 @@ function EditDialog({ page, onCloseModal }: { page: PageMetadata; onCloseModal?:
       initialName={page.name}
       initialTitle={page.title}
       excludePageId={page.id}
-      successMessage={ToastMessages.page.renamed}
+      successMessage={ToastMessages.page.updated}
       onCloseModal={onCloseModal}
       onSubmit={(name, title) => {
         dispatch(updatePage({ id: page.id, updates: { name, title } }));

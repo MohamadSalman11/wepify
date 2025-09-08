@@ -733,13 +733,13 @@ function StrokeSettings() {
           <StrokeWidthContainer>
             <StrokeLabel>width</StrokeLabel>
             <PropertyEditor styleName='borderWidth'>
-              <Input type='number' defaultValue={parseNumber(borderWidth)} />
+              <Input type='number' value={borderWidth} />
             </PropertyEditor>
           </StrokeWidthContainer>
           <StrokeWidthContainer>
             <StrokeLabel>radius</StrokeLabel>
             <PropertyEditor styleName='borderRadius'>
-              <Input type='number' defaultValue={parseNumber(borderRadius)} />
+              <Input type='number' value={borderRadius} />
             </PropertyEditor>
           </StrokeWidthContainer>
           <StrokePosition>

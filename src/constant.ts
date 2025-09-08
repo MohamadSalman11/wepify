@@ -61,7 +61,7 @@ export const ToastMessages = {
     descriptionTooLong: 'Site description cannot exceed 20 characters'
   },
   page: {
-    renamed: 'Page name changed successfully',
+    updated: 'Page updated successfully',
     deleted: 'Page deleted successfully',
     linkCopied: 'Page link copied',
     linkCopyErr: 'Failed to copy page link',

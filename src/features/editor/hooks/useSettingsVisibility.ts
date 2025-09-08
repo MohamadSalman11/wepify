@@ -44,7 +44,6 @@ const SETTINGS_RULES: Record<string, VisibilityRule> = {
   [Settings.Input]: { whitelist: [ElementsName.Input] },
   [Settings.Grid]: { whitelist: [ElementsName.Grid] },
   [Settings.Flex]: { blacklist: [ElementsName.Grid, ElementsName.ListItem, ...ELEMENTS_TEXT, ...ELEMENTS_MEDIA] },
-  [Settings.Space]: { blacklist: [...ELEMENTS_MEDIA] },
   [Settings.Typography]: { blacklist: [...ELEMENTS_MEDIA] },
   [Settings.Fill]: { blacklist: [...ELEMENTS_MEDIA] }
 };

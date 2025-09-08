@@ -283,19 +283,19 @@ function SizeSettings() {
     const current = style.rotate ?? 0;
     let newRotate = current - 90;
     if (newRotate <= -180) newRotate = 180;
-    handleElementChange('rotate', newRotate);
+    handleElementChange({ style: { rotate: newRotate } });
   };
 
   const handleFlipHorizontal = () => {
     const currentScaleX = style.scaleX ?? 1;
     const newScaleX = currentScaleX === 1 ? -1 : 1;
-    handleElementChange('scaleX', newScaleX);
+    handleElementChange({ style: { scaleX: newScaleX } });
   };
 
   const handleFlipVertical = () => {
     const currentScaleY = style.scaleY ?? 1;
     const newScaleY = currentScaleY === 1 ? -1 : 1;
-    handleElementChange('scaleY', newScaleY);
+    handleElementChange({ style: { scaleY: newScaleY } });
   };
 
   return (

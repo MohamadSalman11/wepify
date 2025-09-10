@@ -10,6 +10,7 @@ export enum ContextMenuAction {
   Paste = 'paste',
   BringToFront = 'bring-to-front',
   SendToBack = 'send-to-back',
+  AllowOverlap = 'allow-overlap',
   Delete = 'delete'
 }
 

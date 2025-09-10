@@ -31,8 +31,8 @@ const PARSE_INT_RADIX = 10;
  */
 
 class ElementController {
-  private currentEl!: HTMLElement;
-  private currentElName!: string;
+  currentEl!: HTMLElement;
+  currentElName!: string;
 
   // Public
   insert({ name, additionalProps }: { name: string; additionalProps?: Record<string, any> }) {
@@ -44,6 +44,12 @@ class ElementController {
     elementView.click(domEl);
 
     moveableController.addElementToGuidelines(this.currentEl);
+
+    if (name === ElementsName.Image) {
+      (domEl as HTMLImageElement).addEventListener('load', () => {
+        moveableController.setTarget(domEl);
+      });
+    }
 
     iframeConnection.send(IframeToEditor.StoreElement, {
       ...newPageEl,
@@ -73,7 +79,6 @@ class ElementController {
   }
 
   delete() {
-    const targetEl = this.currentEl;
     const targetId = this.currentEl.id;
     const parentEl = this.currentEl.parentElement;
     const isSectionEl = this.currentElName === ElementsName.Section;
@@ -84,17 +89,14 @@ class ElementController {
       return;
     }
 
-    const deletedIds = this.collectDeletedIds(targetEl);
-
     this.currentEl.remove();
     elementView.click(sectionEl as HTMLElement);
 
-    const updatedIdsMap = this.assignUniqueIdsToDomElementTree(parentEl);
+    iframeConnection.send(IframeToEditor.DeleteElement, targetId);
+  }
 
-    iframeConnection.send(IframeToEditor.DeleteElement, {
-      updatedIdsMap,
-      deletedIds
-    });
+  allowOverlap() {
+    this.update({ style: { position: 'absolute' } });
   }
 
   select(id: string) {
@@ -215,49 +217,6 @@ class ElementController {
 
     return (this.currentEl.parentElement || this.currentEl.closest(SELECTOR_SECTION) || { id: SELECTOR_FIRST_SECTION })
       .id;
-  }
-
-  private collectDeletedIds(el: HTMLElement): string[] {
-    const ids: string[] = [el.id];
-    for (const child of [...el.children] as HTMLElement[]) {
-      ids.push(...this.collectDeletedIds(child));
-    }
-    return ids;
-  }
-
-  private assignUniqueIdsToDomElementTree(el: HTMLElement) {
-    const updatedIdsMap: Record<string, { newId?: string; parentId?: string }> = {};
-    const baseName = el.dataset.name;
-
-    if (!baseName) {
-      return updatedIdsMap;
-    }
-
-    const sameElements = [...document.querySelectorAll(`[id^="${baseName}-"]`)];
-    let index = 1;
-
-    for (const sameEl of sameElements) {
-      const oldId = sameEl.id;
-      const newId = `${baseName}-${index++}`;
-
-      if (oldId !== newId) {
-        updatedIdsMap[oldId] = updatedIdsMap[oldId] || {};
-        updatedIdsMap[oldId].newId = newId;
-        sameEl.id = newId;
-
-        for (const child of [...sameEl.children] as HTMLElement[]) {
-          updatedIdsMap[child.id] = updatedIdsMap[child.id] || {};
-          updatedIdsMap[child.id].parentId = newId;
-        }
-      }
-    }
-
-    for (const child of [...el.children] as HTMLElement[]) {
-      const childMap = this.assignUniqueIdsToDomElementTree(child);
-      Object.assign(updatedIdsMap, childMap);
-    }
-
-    return updatedIdsMap;
   }
 
   private syncContentEditable(oldEl: HTMLElement, newEl: HTMLElement) {

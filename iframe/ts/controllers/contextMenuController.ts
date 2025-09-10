@@ -8,12 +8,14 @@ import elementController from './elementController';
  */
 
 const SELECTOR_LIST_ITEM = 'li';
+const SELECTOR_MOVEABLE_CONTROL_BOX = '.moveable-control-box';
 const LONG_PRESS_DURATION = 500;
 
 const actions: Record<ContextMenuAction, () => void> = {
   [ContextMenuAction.Copy]: () => elementController.copy(),
   [ContextMenuAction.Paste]: () => elementController.paste(),
   [ContextMenuAction.Delete]: () => elementController.delete(),
+  [ContextMenuAction.AllowOverlap]: () => elementController.allowOverlap(),
   [ContextMenuAction.BringToFront]: () => elementController.bringToFrontOrSendToBack(true),
   [ContextMenuAction.SendToBack]: () => elementController.bringToFrontOrSendToBack(false)
 };
@@ -27,9 +29,10 @@ class ContextMenuController {
   show(event: MouseEvent | TouchEvent) {
     event.preventDefault();
 
-    const closestSection = (event.target as Element).closest(SELECTOR_SECTION);
+    const closestSection = (event.target as HTMLElement).closest(SELECTOR_SECTION);
+    const moveableControlBox = (event.target as HTMLElement).closest(SELECTOR_MOVEABLE_CONTROL_BOX);
 
-    if (!closestSection) {
+    if (!closestSection && !moveableControlBox) {
       return;
     }
 

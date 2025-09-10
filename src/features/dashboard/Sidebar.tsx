@@ -11,6 +11,7 @@ import { useFilePicker } from '../../hooks/useFilePicker';
 import { useAppSelector } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
 import { AppToast } from '../../utils/appToast';
+import { base64ToFile } from '../../utils/base64ToFile';
 import { buildPath } from '../../utils/buildPath';
 import { createNewPage } from '../../utils/createNewPage';
 import { formatSize } from '../../utils/formatSize';
@@ -108,9 +109,7 @@ export default function Sidebar() {
       const siteId = nanoid();
       const pagesWithNewIds: Record<string, Page> = {};
       const text = await file.text();
-      const parsedSite: Site & { __WARNING__?: string } = JSON.parse(text);
-
-      delete parsedSite.__WARNING__;
+      const parsedSite: Site & { __WARNING__?: string; images?: Record<string, string> } = JSON.parse(text);
 
       for (const key in parsedSite.pages) {
         const page = parsedSite.pages[key];
@@ -121,6 +120,25 @@ export default function Sidebar() {
       if (!validateSiteJson(parsedSite)) {
         throw new Error(ToastMessages.site.importInvalid);
       }
+
+      const importedImages = parsedSite.images || {};
+      const storedImages = (await AppStorage.get<Record<string, Blob>>(StorageKey.Images)) || {};
+      const newImagesMap: Record<string, Blob> = { ...storedImages };
+
+      for (const [oldBlobId, base64] of Object.entries(importedImages)) {
+        if (!storedImages[oldBlobId]) {
+          const file = await base64ToFile(base64);
+
+          if (file) {
+            newImagesMap[oldBlobId] = file;
+          }
+        }
+      }
+
+      await AppStorage.set(StorageKey.Images, newImagesMap);
+
+      delete parsedSite.__WARNING__;
+      delete parsedSite.images;
 
       const importedSite = {
         ...parsedSite,

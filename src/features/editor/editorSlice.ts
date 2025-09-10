@@ -69,7 +69,7 @@ export const loadSiteFromStorage = createAsyncThunk(
 
     const site = sites[siteId];
     const currentPage = site.pages[pageId];
-    const storedImages = await AppStorage.get<Record<string, Blob>>(StorageKey.Images, {});
+    const storedImages = await AppStorage.get<Record<string, File>>(StorageKey.Images, {});
 
     mapBlobsToElements(currentPage.elements, storedImages);
 
@@ -162,32 +162,19 @@ const editorSlice = createSlice({
     setCurrentElement(state, action: PayloadAction<string>) {
       state.currentElementId = action.payload;
     },
-    deleteElement(
-      state,
-      action: PayloadAction<{
-        deletedIds: string[];
-        updatedIdsMap: Record<string, { newId?: string; parentId?: string }>;
-      }>
-    ) {
+    deleteElement(state, action: PayloadAction<string>) {
       if (!state.currentSite || !state.currentPageId) return;
 
+      const deletedElId = action.payload;
+      const parentIds = new Set<string>([deletedElId]);
       const page = state.currentSite.pages[state.currentPageId];
-      const { deletedIds, updatedIdsMap } = action.payload;
 
-      for (const id of deletedIds) {
-        delete page.elements[id];
-      }
+      delete page.elements[deletedElId];
 
-      for (const [oldId, { newId, parentId }] of Object.entries(updatedIdsMap)) {
-        const el = page.elements[oldId];
-        if (!el) continue;
-
-        if (newId) el.id = newId;
-        if (parentId) el.parentId = parentId;
-
-        if (newId) {
-          page.elements[newId] = el;
-          if (oldId !== newId) delete page.elements[oldId];
+      for (const id of Object.keys(page.elements)) {
+        if (parentIds.has(page.elements[id].parentId || '')) {
+          parentIds.add(id);
+          delete page.elements[id];
         }
       }
     },

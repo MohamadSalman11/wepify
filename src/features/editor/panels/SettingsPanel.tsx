@@ -33,6 +33,7 @@ import Input from '../../../components/form/Input';
 import Select from '../../../components/form/Select';
 import Icon from '../../../components/Icon';
 import { useAppSelector } from '../../../store';
+import { generateElementDisplayMap } from '../../../utils/generateElementDisplayMap';
 import CollapsibleSection from '../CollapsibleSection';
 import ColorPicker from '../ColorPicker';
 import { selectCurrentElement, selectCurrentPage, selectCurrentPageElements } from '../editorSlice';
@@ -112,9 +113,11 @@ export const OPTIONS_FONT = [
   'Raleway',
   'Roboto Slab',
   'Roboto',
+  'Anta',
   'Rubik',
   'Savate',
   'Source Code Pro',
+  'Amatic SC',
   'Ubuntu'
 ];
 
@@ -142,6 +145,19 @@ const OPTIONS_INPUT_TYPE = [
   'url',
   'week'
 ];
+
+export const OPTIONS_CURSOR = [
+  'default',
+  'pointer',
+  'text',
+  'move',
+  'crosshair',
+  'not-allowed',
+  'wait',
+  'help',
+  'grab',
+  'grabbing'
+] as const;
 
 export const FONT_WEIGHT_VALUES = {
   Inherit: 'inherit',
@@ -191,6 +207,7 @@ export default function SettingsPanel() {
       {isVisible(Settings.Space) || <SpaceSettings />}
       {isVisible(Settings.Typography) || <TypographySettings />}
       {isVisible(Settings.Fill) || <FillSettings />}
+      <CursorSettings />
       <StrokeSettings />
       <PageSettings />
     </SettingsContext.Provider>
@@ -246,15 +263,8 @@ function SelectorSettings() {
   const selectedElement = useAppSelector(selectCurrentElement);
   const elements = useAppSelector(selectCurrentPageElements);
 
-  const sortedElementIds = elements
-    .map((el) => el.id)
-    .sort((a, b) => {
-      const [aBase, aNum] = a.split(REGEX_TRAILING_NUMBER_SPLIT);
-      const [bBase, bNum] = b.split(REGEX_TRAILING_NUMBER_SPLIT);
-
-      if (aBase !== bBase) return aBase.localeCompare(bBase);
-      return Number(aNum) - Number(bNum);
-    });
+  const elementMap = generateElementDisplayMap(elements);
+  const displayNames = Object.keys(elementMap);
 
   return (
     <div>
@@ -263,9 +273,9 @@ function SelectorSettings() {
           <Icon icon={LuMonitor} />
           <Select
             name='selector'
-            options={sortedElementIds}
-            defaultSelect={selectedElement.id}
-            onChange={(event) => iframeConnection.send(EditorToIframe.SelectElement, event.target.value)}
+            options={displayNames}
+            defaultSelect={Object.keys(elementMap).find((key) => elementMap[key] === selectedElement.id)}
+            onChange={(event) => iframeConnection.send(EditorToIframe.SelectElement, elementMap[event.target.value])}
           />
         </SelectorContainer>
       </CollapsibleSection>
@@ -446,7 +456,7 @@ function FlexSettings() {
               {OPTIONS_FLEX_DIRECTION.map(({ value, icon }) => (
                 <AppTooltip key={value} label={value} side='top' sideOffset={5} sizeSmall>
                   <DisplayOptionButton
-                    $active={(flexDirection || 'column') === value}
+                    $active={flexDirection === value}
                     onClick={() => handleSelect(value as FlexDirectionOption)}
                   >
                     <Icon icon={icon} size='md' />
@@ -689,6 +699,23 @@ function FillSettings() {
           <SubTitle>Background Color</SubTitle>
           <PropertyEditor styleName='backgroundColor'>
             <ColorPicker defaultValue={style.backgroundColor} />
+          </PropertyEditor>
+        </div>
+      </CollapsibleSection>
+    </div>
+  );
+}
+
+function CursorSettings() {
+  const style = useStyle();
+
+  return (
+    <div>
+      <CollapsibleSection title='Cursor'>
+        <div>
+          <SubTitle>Type</SubTitle>
+          <PropertyEditor styleName='cursor'>
+            <Select defaultSelect={style.cursor || 'default'} options={OPTIONS_CURSOR} />
           </PropertyEditor>
         </div>
       </CollapsibleSection>

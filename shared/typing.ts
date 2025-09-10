@@ -1,4 +1,4 @@
-import { FlexDirectionOption, FONT_WEIGHT_VALUES } from '../src/features/editor/panels/SettingsPanel';
+import { FlexDirectionOption, FONT_WEIGHT_VALUES, OPTIONS_CURSOR } from '../src/features/editor/panels/SettingsPanel';
 import { Device, ElementsName } from './constants';
 
 export type DeviceType = Lowercase<keyof typeof Device>;
@@ -52,6 +52,7 @@ export interface ImageElement extends PageElement {
 }
 
 export type PageElementStyle = Partial<{
+  position: 'absolute' | 'relative';
   width: number | 'fill' | 'auto';
   height: number | 'screen' | 'fill' | 'auto';
   left: number;
@@ -92,6 +93,7 @@ export type PageElementStyle = Partial<{
   borderBottom: string;
   borderLeft: string;
   borderRadius: number;
+  cursor: (typeof OPTIONS_CURSOR)[number];
   zIndex: number;
 }>;
 

@@ -1,5 +1,5 @@
 import { extractTransform } from '@compiler/utils/extractTransform';
-import { PAGE_PADDING, PAGE_PADDING_X } from '@shared/constants';
+import { ElementsName, PAGE_PADDING, PAGE_PADDING_X } from '@shared/constants';
 import Moveable, { MoveableProps, OnDrag, OnResize, OnRotate } from 'moveable';
 import { SELECTOR_ROOT } from '../constants';
 import { state } from '../model';
@@ -10,6 +10,8 @@ import elementController from './elementController';
 /**
  * Constants
  */
+
+const ELEMENTS_WITH_PADDING = new Set([ElementsName.Heading, ElementsName.Text, ElementsName.Link]);
 
 const CONFIG: MoveableProps = {
   target: null,
@@ -63,6 +65,7 @@ class MoveableController {
 
   setTarget(target: HTMLElement) {
     this.moveable.target = target;
+    this.moveable.padding = ELEMENTS_WITH_PADDING.has(target.dataset.name as ElementsName) ? 10 : 0;
     dragButtonView.move(target.clientHeight, state.scaleFactor, getVerticalBorderSum(target));
   }
 
@@ -79,7 +82,9 @@ class MoveableController {
   }
 
   initGuidelines() {
-    this.moveable.elementGuidelines = [...(document.querySelector(SELECTOR_ROOT)?.querySelectorAll('*') || [])];
+    this.moveable.elementGuidelines = [
+      ...(document.querySelector(SELECTOR_ROOT)?.querySelectorAll('[data-name]') || [])
+    ];
     this.moveable.horizontalGuidelines = [0, document.body.clientWidth / 2, document.body.clientWidth];
     this.moveable.verticalGuidelines = [0, document.body.clientHeight / 2, document.body.clientHeight];
   }

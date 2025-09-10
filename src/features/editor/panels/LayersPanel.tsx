@@ -16,6 +16,7 @@ import {
 import styled from 'styled-components';
 import Icon from '../../../components/Icon';
 import { useAppSelector } from '../../../store';
+import { generateElementDisplayMap } from '../../../utils/generateElementDisplayMap';
 import { selectCurrentPageElementsTree } from '../editorSlice';
 
 /**
@@ -43,12 +44,21 @@ export default function LayersPanel() {
   const getChildren = (parentId: string) => childrenMap[parentId] || [];
   const rootElements = getChildren('root');
 
+  const allElements = Object.values(childrenMap).flat();
+  const displayMap = generateElementDisplayMap(allElements);
+
   return (
     <>
       <Title>Layers</Title>
       <LayerList>
         {rootElements.map((el) => (
-          <LayerNode key={el.id} element={el} getChildren={getChildren} selectedElementId={selectedElementId} />
+          <LayerNode
+            key={el.id}
+            element={el}
+            getChildren={getChildren}
+            selectedElementId={selectedElementId}
+            displayMap={displayMap}
+          />
         ))}
       </LayerList>
     </>
@@ -59,20 +69,17 @@ function LayerNode({
   element,
   getChildren,
   nested = false,
-  selectedElementId
+  selectedElementId,
+  displayMap
 }: {
   element: PageElement;
   getChildren: (parentId: string) => PageElement[];
   nested?: boolean;
   selectedElementId: string | null;
+  displayMap: Record<string, string>; // add display map
 }) {
   const [expanded, setExpanded] = useState(false);
-
-  const children: PageElement[] = [];
-  for (const child of getChildren(element.id)) {
-    children.push(child);
-  }
-
+  const children: PageElement[] = getChildren(element.id);
   const hasChildren = children.length > 0;
 
   const handleClick = () => {
@@ -80,13 +87,15 @@ function LayerNode({
     iframeConnection.send(EditorToIframe.SelectElement, element.id);
   };
 
+  const readableName = Object.keys(displayMap).find((key) => displayMap[key] === element.id) || element.id;
+
   return (
     <LayerItem>
       <LayerHeader onClick={handleClick}>
         {hasChildren && <ChevronIcon icon={LuChevronRight} size='md' $expanded={expanded} />}
         <LayerBox $nested={nested} $selected={selectedElementId === element.id}>
           <Icon icon={ICON_MAP[element.name] || LuSquare} color='var(--color-white)' />
-          <span>{element.id}</span>
+          <span>{readableName}</span>
         </LayerBox>
       </LayerHeader>
 
@@ -99,6 +108,7 @@ function LayerNode({
               getChildren={getChildren}
               nested
               selectedElementId={selectedElementId}
+              displayMap={displayMap}
             />
           ))}
         </NestedList>

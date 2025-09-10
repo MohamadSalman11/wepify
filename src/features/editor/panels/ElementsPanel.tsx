@@ -28,13 +28,13 @@ export default function ElementsPanel() {
   const { isDisabled } = useElementDisable();
 
   const handleImageUpload = useImageUpload(
-    async (blob: Blob) => {
+    async (file: File) => {
       const id = nanoid();
-      const url = URL.createObjectURL(blob);
-      const additionalProps = { blobId: id, url, size: blob.size };
+      const url = URL.createObjectURL(file);
+      const additionalProps = { fileId: id, url, size: file.size };
 
       iframeConnection.send(EditorToIframe.InsertElement, { name: ElementsName.Image, additionalProps });
-      await AppStorage.addToObject(StorageKey.Images, id, blob);
+      await AppStorage.addToObject(StorageKey.Images, id, file);
     },
     (message) => AppToast.error(message)
   );

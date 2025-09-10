@@ -30,7 +30,7 @@ const SYNC_ACTIONS = new Set([
 const saveSiteDebounced = debounce(async (site: Site, dispatch: AppDispatch) => {
   await AppStorage.updateObject(StorageKey.Sites, site.id, site);
   dispatch(setStoring(false));
-}, 1000);
+});
 
 const editorMiddleware: Middleware = (store) => (next) => (action: any) => {
   const result = next(action);

@@ -68,9 +68,9 @@ export class StyleGenerator {
     this.setIfDefined('borderColor', s.borderColor);
     this.setIfDefined('borderWidth', s.borderWidth, true);
     this.setIfDefined('borderRadius', s.borderRadius, true);
+    this.setIfDefined('cursor', s.cursor);
     this.setIfDefined('zIndex', s.zIndex);
-
-    if (this.isDefined(s.zIndex)) this.styles.position = 'relative';
+    this.setIfDefined('position', s.position);
   }
 
   private applyFlexStyles() {

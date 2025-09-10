@@ -1,4 +1,5 @@
 import { DomCreator } from '@compiler/dom/DomCreator';
+import { nanoid } from '@reduxjs/toolkit';
 import { ElementsName, IframeToEditor } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
 import { DeviceSimulator, PageElement } from '@shared/typing';
@@ -7,6 +8,7 @@ import { state } from '../model';
 import dragButtonView from '../views/dragButtonView';
 import elementView from '../views/elementView';
 import pageView from '../views/pageView';
+import elementController from './elementController';
 import moveableController from './moveableController';
 
 /**
@@ -77,10 +79,10 @@ class PageController {
     const idMap: Record<string, string> = {};
 
     for (const element of elements) {
-      const existingCount = document.querySelectorAll(`[data-name='${element.name}']`).length;
-      const newElementId = `${element.name}-${existingCount + 1}`;
+      const newElementId = nanoid();
       const parentId = element.parentId;
       const currentSectionEl = document.querySelector('[data-selected-section]') as HTMLElement;
+      const currentElId = elementController.currentEl.id;
 
       idMap[element.id] = newElementId;
       element.id = newElementId;
@@ -89,18 +91,22 @@ class PageController {
         element.parentId = idMap[parentId || ''] || currentSectionEl.id;
       }
 
-      const domEl = new DomCreator(element).domElement;
+      const domEl = new DomCreator(element, state.deviceSimulator.type).domElement;
 
       if (index === 0) {
         firstElement = domEl;
+
+        if (elementController.currentElName !== ElementsName.Section) {
+          element.parentId = currentElId;
+        }
       }
 
       index += 1;
-      elementView.render(domEl, element.parentId);
+      elementView.render(domEl, index - 1 === 0 ? currentElId : element.parentId);
       iframeConnection.send(IframeToEditor.StoreElement, element);
     }
 
-    firstElement?.scrollIntoView();
+    firstElement?.scrollIntoView({ block: 'center' });
   }
 }
 

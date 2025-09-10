@@ -31,7 +31,7 @@ const REGEX = {
   QUESTION_MARK_AMPERSAND: /\?&/,
   TRAILING_AMPERSAND: /&$/,
   ATTRS_TO_REMOVE:
-    /\s(?:target|spellcheck|data-name|data-not-moveable|data-focusable|data-content-editable|data-can-not-have-children)(?:=["'][^"']*["'])?/g
+    /\s(?:target|spellcheck|data-name|data-blob-id|data-not-moveable|data-focusable|data-content-editable|data-can-not-have-children)(?:=["'][^"']*["'])?/g
 };
 
 /**
@@ -123,21 +123,21 @@ export class HTMLMinifier {
     return result;
   }
 
-  private getUsedFonts() {
+  private getUsedFonts(): Set<string> {
     const fonts = new Set<string>();
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = this.html;
 
-    for (const el of document.querySelectorAll<HTMLElement>('*')) {
-      const style = getComputedStyle(el);
+    for (const el of tempDiv.querySelectorAll<HTMLElement>('*')) {
+      const style = el.getAttribute('style');
+      if (!style) continue;
 
-      if (style.fontFamily) {
-        const fontFamilies = style.fontFamily.split(',');
-
+      const fontMatch = style.match(/font-family\s*:\s*([^;]+)/i);
+      if (fontMatch) {
+        const fontFamilies = fontMatch[1].split(',');
         for (const f of fontFamilies) {
           const clean = f.trim().replace(REGEX.QUOTES_TRIM, '');
-
-          if (clean) {
-            fonts.add(clean);
-          }
+          if (clean) fonts.add(clean);
         }
       }
     }

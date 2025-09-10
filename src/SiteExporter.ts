@@ -3,9 +3,11 @@ import { CSSMinifier } from '@compiler/minifier/CSSMinifier';
 import { HTMLMinifier } from '@compiler/minifier/HTMLMinifier';
 import { CSSGenerator } from '@compiler/style/CSSGenerator';
 import cssFile from '@iframe/style.css?raw';
-import { ElementsName } from '@shared/constants';
+import { ElementsName, FONTS_URL } from '@shared/constants';
 import { Page, Site } from '@shared/typing';
 import JSZip from 'jszip';
+import { StorageKey } from './constant';
+import { AppStorage } from './utils/appStorage';
 import favicon from '/favicon.ico';
 
 /**
@@ -13,7 +15,6 @@ import favicon from '/favicon.ico';
  */
 
 const DEFAULT_IMAGES_COUNT = 0;
-const SELECTOR_DATA_IMAGE = 'img[src^="data:image"]';
 const SITE_JSON_WARNING = `⚠️ Do NOT modify any fields in this file manually, it will break the application. Upload it and edit in the app`;
 
 enum File {
@@ -28,7 +29,7 @@ enum File {
 
 enum Folders {
   Root = 'src',
-  Images = 'src/images'
+  Images = 'images'
 }
 
 const DOCUMENT_HEAD_TEMPLATE = `
@@ -38,7 +39,7 @@ const DOCUMENT_HEAD_TEMPLATE = `
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Oswald:wght@200..700&family=Pacifico&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,800&family=Raleway:ital,wght@0,100..900;1,100..900&family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Savate:ital,wght@0,200..900;1,200..900&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
+      href="${FONTS_URL}"
       rel="stylesheet"
     />
     <link rel="icon" type="image/x-icon" href="${File.Favicon}" />
@@ -52,6 +53,7 @@ const DOCUMENT_HEAD_TEMPLATE = `
 class SiteExporter {
   private zip: JSZip;
   private imageCount = DEFAULT_IMAGES_COUNT;
+  private imagesBase64Map: Record<string, string> = {};
 
   constructor(
     private site: Site,
@@ -80,7 +82,10 @@ class SiteExporter {
       await this.addPage(page);
     }
 
-    this.zip.file(File.SiteJson, JSON.stringify({ __WARNING__: SITE_JSON_WARNING, ...this.site }, null, 2));
+    this.zip.file(
+      File.SiteJson,
+      JSON.stringify({ __WARNING__: SITE_JSON_WARNING, ...this.site, images: this.imagesBase64Map }, null, 2)
+    );
 
     const content = await this.zip.generateAsync({ type: 'blob' });
     this.downloadBlob(content, File.ZipDownload);
@@ -130,7 +135,7 @@ class SiteExporter {
       doc.body.append(domEl);
     }
 
-    this.processImages(doc);
+    await this.processImages(doc);
 
     const htmlMinifier = new HTMLMinifier(doc.documentElement.outerHTML);
     const html = this.shouldMinify ? await htmlMinifier.minify() : await htmlMinifier.cleanUp();
@@ -141,21 +146,34 @@ class SiteExporter {
     folder.file(fileName, html);
   }
 
-  private processImages(doc: Document) {
-    const images = doc.querySelectorAll(SELECTOR_DATA_IMAGE) as NodeListOf<HTMLImageElement>;
+  private async processImages(doc: Document) {
+    const imagesMap = await AppStorage.get<Record<string, Blob>>(StorageKey.Images);
+    const images = doc.querySelectorAll('img') as NodeListOf<HTMLImageElement>;
 
     if (images.length === 0) return;
 
-    const imagesFolder = this.zip.folder(Folders.Images)!;
+    const imagesFolder = this.zip.folder(`${Folders.Root}/${Folders.Images}`)!;
 
     for (const img of images) {
-      const src = img.src;
-      const ext = src.slice(src.indexOf('/') + 1, src.indexOf(';'));
-      const base64 = src.split(',')[1];
+      const blobId = img.dataset.blobId;
+      if (!blobId) continue;
+
+      const blob = imagesMap[blobId];
+      if (!blob) continue;
+
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
+        reader.addEventListener('error', reject);
+        reader.readAsDataURL(blob);
+      });
+
+      const ext = blob.type.split('/')[1] || 'png';
       const fileName = `image_${++this.imageCount}.${ext}`;
 
       imagesFolder.file(fileName, base64, { base64: true });
-      img.src = `images/${fileName}`;
+      img.src = `./${Folders.Images}/${fileName}`;
+      this.imagesBase64Map[blobId] = base64;
     }
   }
 }

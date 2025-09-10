@@ -30,13 +30,14 @@ class ContextMenuView {
 
   private generateMarkup(x: number, y: number) {
     return `
-    <ul id="${ID_CONTEXT_MENU}" style="left:${x}px; top:${y}px;">
-      <li data-action="${ContextMenuAction.Copy}"><img src="/clipboard-copy.svg" alt="Copy"/> Copy</li>
-      <li data-action="${ContextMenuAction.Paste}"><img src="/clipboard-paste.svg" alt="Paste"/> Paste</li>
-      <li data-action="${ContextMenuAction.BringToFront}"><img src="/bring-to-front.svg" alt="Bring to Front"/> Bring to Front</li>
-      <li data-action="${ContextMenuAction.SendToBack}"><img src="/send-to-back.svg" alt="Send to Back"/> Send to Back</li>
-      <li data-action="${ContextMenuAction.Delete}"><img src="/trash.svg" alt="Delete"/> Delete</li>
-    </ul>
+  <ul id="${ID_CONTEXT_MENU}" style="left:${x}px; top:${y}px;">
+    <li data-action="${ContextMenuAction.Copy}"><img src="/clipboard-copy.svg" alt="Copy"/> Copy</li>
+    <li data-action="${ContextMenuAction.Paste}"><img src="/clipboard-paste.svg" alt="Paste"/> Paste</li>
+    <li data-action="${ContextMenuAction.BringToFront}"><img src="/bring-to-front.svg" alt="Bring to Front"/> Bring to Front</li>
+    <li data-action="${ContextMenuAction.SendToBack}"><img src="/send-to-back.svg" alt="Send to Back"/> Send to Back</li>
+    <li data-action="${ContextMenuAction.AllowOverlap}"><img src="/overlay.svg" alt="Allow Overlap"/> Allow Overlap</li>
+    <li data-action="${ContextMenuAction.Delete}"><img src="/trash.svg" alt="Delete"/> Delete</li>
+  </ul>
   `;
   }
 }

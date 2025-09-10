@@ -59,9 +59,9 @@ export class DomCreator {
     if (!moveable) domEl.dataset.notMoveable = '';
     if (attrs) Object.assign(domEl, attrs);
 
-    if (url && domEl instanceof HTMLImageElement) {
-      domEl.src = url;
-      domEl.addEventListener('load', () => domEl.click());
+    if (domEl instanceof HTMLImageElement) {
+      if (url) domEl.src = url;
+      if (this.pageEl.blobId) domEl.dataset.blobId = this.pageEl.blobId;
     }
   }
 

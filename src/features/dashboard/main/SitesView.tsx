@@ -36,7 +36,7 @@ import { deleteSite, duplicateSite, setProcessing, setSiteStarred, updateSite } 
 
 const BODY_SCROLL_OFFSET = 75;
 
-const MAX_SITE_NAME_LENGTH = 12;
+const MAX_SITE_NAME_LENGTH = 15;
 const MAX_SITE_DESCRIPTION_LENGTH = 20;
 
 /**

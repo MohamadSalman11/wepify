@@ -2,8 +2,8 @@ import type { PageElement } from './typing';
 
 export const PAGE_PADDING = 60;
 export const PAGE_PADDING_X = PAGE_PADDING * 2;
-export const ID_FIRST_SECTION = 'section-1';
-export const FONTS_URL = `https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Oswald:wght@200..700&family=Pacifico&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,800&family=Raleway:ital,wght@0,100..900;1,100..900&family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Savate:ital,wght@0,200..900;1,200..900&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap`;
+export const ID_FIRST_SECTION = 'bU5PbWRnb6tbn6zQBhyOk';
+export const FONTS_URL = `https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Oswald:wght@200..700&family=Pacifico&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,800&family=Raleway:ital,wght@0,100..900;1,100..900&family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Rubik:ital,wght@0,300..900;1,300..900&family=Savate:ital,wght@0,200..900;1,200..900&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Amatic+SC:wght@400;700&family=Anta&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap`;
 
 export enum Device {
   Monitor = 'monitor',
@@ -181,11 +181,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
       fontWeight: 'Bold',
       color: '#000000',
       width: 'auto',
-      height: 'auto',
-      paddingTop: 12,
-      paddingRight: 16,
-      paddingLeft: 16,
-      paddingBottom: 12
+      height: 'auto'
     }
   },
   text: {
@@ -201,11 +197,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
       height: 'auto',
       fontSize: 18,
       fontFamily: 'Inherit',
-      color: '#000000',
-      paddingTop: 12,
-      paddingRight: 16,
-      paddingLeft: 16,
-      paddingBottom: 12
+      color: '#000000'
     }
   },
   link: {
@@ -221,11 +213,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
       fontFamily: 'Inherit',
       color: '#1352F1',
       width: 'auto',
-      height: 'auto',
-      paddingTop: 12,
-      paddingRight: 16,
-      paddingLeft: 16,
-      paddingBottom: 12
+      height: 'auto'
     },
     attrs: {
       href: ''

@@ -69,6 +69,11 @@ class ElementView {
   updateSelection(newTarget: HTMLElement) {
     const selectedItem = document.querySelector(SELECTOR_SELECTED_ITEM);
     const selectedSection = document.querySelector(SELECTOR_SELECTED_SECTION);
+    const hoverBox = document.querySelector('.hover-box') as HTMLDivElement;
+
+    if (hoverBox) {
+      hoverBox.style.display = 'none';
+    }
 
     selectedItem?.removeAttribute(ATTR_SELECTED_ITEM);
     selectedSection?.removeAttribute(ATTR_SELECTED_SECTION);

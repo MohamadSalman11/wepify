@@ -13,6 +13,14 @@ const controlDocumentClick = (event: globalThis.MouseEvent) => {
   elementController.handleDocumentClick(event);
 };
 
+const controlDocumentMouseover = (event: MouseEvent) => {
+  elementController.handleMouseover(event);
+};
+
+const controlDocumentMouseout = (event: MouseEvent) => {
+  elementController.handleMouseout(event);
+};
+
 const controlInputChange = (event: Event) => {
   elementController.handleInputChange(event);
 };
@@ -79,6 +87,8 @@ window.addEventListener('resize', handleWindowResize);
 window.addEventListener('load', handleWindowLoad);
 document.addEventListener('input', controlInputChange);
 document.addEventListener('click', controlDocumentClick);
+document.addEventListener('mouseover', controlDocumentMouseover);
+document.addEventListener('mouseout', controlDocumentMouseout);
 document.addEventListener('keydown', controlEditableButton);
 document.addEventListener('contextmenu', contextMenuController.show.bind(contextMenuController));
 document.addEventListener('keydown', keyboardController.handleKeydown);

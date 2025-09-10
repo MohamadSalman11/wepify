@@ -15,6 +15,7 @@ import moveableController from './moveableController';
 
 const ATTR_CONTENT_EDITABLE = 'contenteditable';
 const SELECTOR_FIRST_SECTION = `#${ID_FIRST_SECTION}`;
+const CLASS_ELEMENT_HOVERED = 'element-hovered';
 
 const DATASET_NOT_MOVEABLE = 'notMoveable';
 const DATASET_FOCUSABLE = 'focusable';
@@ -162,6 +163,48 @@ class ElementController {
     elementView.updateSelection(el);
   }
 
+  handleMouseover(event: MouseEvent) {
+    const el = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-name]') : null;
+    if (!el) return;
+
+    const elName = el.dataset.name;
+    const elId = el.id;
+
+    if (elName !== ElementsName.Section && this.currentEl.id !== elId) {
+      el.classList.add(CLASS_ELEMENT_HOVERED);
+
+      const hoverBox = document.querySelector('.hover-box') as HTMLElement;
+      const hoverBadge = hoverBox.querySelector('.hover-badge') as HTMLElement;
+
+      const rect = el.getBoundingClientRect();
+      const style = getComputedStyle(el);
+      const borderRadius = Number.parseFloat(style.borderRadius || '0');
+
+      let offset = 0.4;
+      if (borderRadius > 0) offset = 5;
+
+      hoverBox.style.width = `${rect.width + offset * 2}px`;
+      hoverBox.style.height = `${rect.height + offset * 2}px`;
+
+      hoverBox.style.top = `${rect.top + window.scrollY - offset}px`;
+      hoverBox.style.left = `${rect.left + window.scrollX - offset}px`;
+
+      hoverBox.style.display = 'flex';
+      hoverBadge.textContent = elName || '';
+    }
+  }
+
+  handleMouseout(event: MouseEvent) {
+    const el = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-name]') : null;
+    if (!el) return;
+
+    if (!el.contains(event.relatedTarget as Node)) {
+      el.classList.remove(CLASS_ELEMENT_HOVERED);
+
+      const hoverBox = document.querySelector('.hover-box') as HTMLElement;
+      hoverBox.style.display = 'none';
+    }
+  }
   handleInputChange(event: Event) {
     const target = event.target as HTMLElement;
     const isInput = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;

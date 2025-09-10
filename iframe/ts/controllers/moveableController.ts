@@ -47,7 +47,7 @@ const CONFIG: MoveableProps = {
  */
 
 class MoveableController {
-  private moveable!: Moveable;
+  private moveable: Moveable = {} as Moveable;
 
   // private
   init() {

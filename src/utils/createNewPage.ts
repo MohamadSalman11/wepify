@@ -3,7 +3,7 @@ import { ELEMENTS_TEMPLATE, ID_FIRST_SECTION } from '@shared/constants';
 import type { Page } from '@shared/typing';
 
 const DEFAULT_TITLE = 'Untitled';
-const ID_SECOND_SECTION = 'UY1c4SoMuuJkON52iMJNp';
+const ID_SECOND_SECTION = 'section-LsldXZKZ';
 const DEFAULT_PAGE_BACKGROUND_COLOR = '#343c44';
 
 export const createNewPage = (name: string, title?: string): Page => ({

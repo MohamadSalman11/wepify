@@ -1,10 +1,10 @@
 import { DomCreator } from '@compiler/dom/DomCreator';
-import { nanoid } from '@reduxjs/toolkit';
 import { ElementsName, IframeToEditor } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
 import { DeviceSimulator, PageElement } from '@shared/typing';
 import { SELECTOR_DRAG_BUTTON, SELECTOR_SECTION } from '../constants';
 import { state } from '../model';
+import { generateElementId } from '../utils/generateElementId';
 import dragButtonView from '../views/dragButtonView';
 import elementView from '../views/elementView';
 import pageView from '../views/pageView';
@@ -79,7 +79,7 @@ class PageController {
     const idMap: Record<string, string> = {};
 
     for (const element of elements) {
-      const newElementId = nanoid();
+      const newElementId = generateElementId(element.name);
       const parentId = element.parentId;
       const currentSectionEl = document.querySelector('[data-selected-section]') as HTMLElement;
       const currentElId = elementController.currentEl.id;

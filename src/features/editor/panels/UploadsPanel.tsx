@@ -1,24 +1,25 @@
 import { nanoid } from '@reduxjs/toolkit';
 import { EditorToIframe, ElementsName } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
+import { Site } from '@shared/typing';
 import { Dispatch, MouseEvent, RefObject, useEffect, useRef, useState } from 'react';
 import { LuTrash2 } from 'react-icons/lu';
 import Masonry from 'react-masonry-css';
 import styled from 'styled-components';
 import Button from '../../../components/Button';
 import Icon from '../../../components/Icon';
+import LoadingDots from '../../../components/LoadingDots';
 import { StorageKey, ToastMessages } from '../../../constant';
 import { useFilePicker } from '../../../hooks/useFilePicker';
 import { useImageUpload } from '../../../hooks/useImageUpload';
-import { useAppSelector } from '../../../store';
 import { AppStorage } from '../../../utils/appStorage';
 import { AppToast } from '../../../utils/appToast';
-import { selectCurrentSite } from '../editorSlice';
 
 /**
  * Constants
  */
 
+const DELAY_DELETE_IMAGE = 800;
 const ACCEPTED_FILE_TYPE = 'image/*';
 
 /**
@@ -103,21 +104,9 @@ export default function UploadsPanel() {
     <>
       {input}
       <Button fullWidth onClick={openFilePicker} disabled={uploading}>
-        {uploading ? 'Uploading...' : 'Upload File'}
+        {uploading ? <LoadingDots color='var(--color-white)' /> : 'Upload File'}
       </Button>
-      {images.length === 0 && (
-        <EmptyMessage>
-          {loadingImages ? (
-            <LoadingDots>
-              <span></span>
-              <span></span>
-              <span></span>
-            </LoadingDots>
-          ) : (
-            'No images uploaded yet'
-          )}
-        </EmptyMessage>
-      )}
+      {images.length === 0 && <EmptyMessage>{loadingImages ? <LoadingDots /> : 'No images uploaded yet'}</EmptyMessage>}
       <MasonryGrid breakpointCols={2} className='masonry-grid' columnClassName='masonry-grid_column'>
         {images?.map((img, i) => (
           <MediaItem key={img.id} img={img} index={i} urlsRef={urlsRef} setImages={setImages} />
@@ -138,34 +127,50 @@ function MediaItem({
   urlsRef: RefObject<string[]>;
   setImages: Dispatch<React.SetStateAction<Image[]>>;
 }) {
-  const site = useAppSelector(selectCurrentSite);
+  const [deleting, setDeleting] = useState(false);
 
-  const handleDeleteImage = (event: MouseEvent<HTMLSpanElement>) => {
+  const handleDeleteImage = async (event: MouseEvent<HTMLSpanElement>) => {
     event.stopPropagation();
+
+    if (deleting) {
+      return;
+    }
+
+    setDeleting(true);
 
     const { id, url } = img;
 
-    const pages = site ? Object.values(site.pages) : [];
-    const elements = pages.flatMap((page) => Object.values(page.elements));
-    const used = elements.some((el) => 'blobId' in el && el.blobId === id);
+    const sites = await AppStorage.get<Record<string, Site>>(StorageKey.Sites);
+
+    const used = Object.values(sites).some((site) =>
+      Object.values(site.pages).some((page) =>
+        Object.values(page.elements).some((el) => 'blobId' in el && el.blobId === id)
+      )
+    );
 
     if (used) {
+      await new Promise((resolve) => setTimeout(resolve, DELAY_DELETE_IMAGE));
       AppToast.error(ToastMessages.image.used);
+      setDeleting(false);
       return;
     }
+
+    await new Promise((resolve) => setTimeout(resolve, DELAY_DELETE_IMAGE));
 
     setImages((prev) => prev.filter((img) => img.id !== id));
 
     URL.revokeObjectURL(url);
     urlsRef.current = urlsRef.current.filter((u) => u !== url);
-    AppStorage.deleteFromObject(StorageKey.Images, id);
+    await AppStorage.deleteFromObject(StorageKey.Images, id);
+
+    setTimeout(() => setDeleting(false), DELAY_DELETE_IMAGE);
   };
 
   return (
-    <StyledMediaItem key={img.id} onClick={() => handleAddMediaItem(img)}>
+    <StyledMediaItem key={img.id} $deleting={deleting} onClick={() => handleAddMediaItem(img)}>
       <img src={img.url} alt={`uploaded image ${index + 1}`} loading='lazy' />
       <span onClick={handleDeleteImage}>
-        <Icon icon={LuTrash2} color='var(--color-gray)' />
+        {deleting ? <LoadingDots size={6} gap={2} /> : <Icon icon={LuTrash2} color='var(--color-gray)' />}
       </span>
     </StyledMediaItem>
   );
@@ -215,7 +220,7 @@ const MasonryGrid = styled(Masonry)`
   }
 `;
 
-const StyledMediaItem = styled.div`
+const StyledMediaItem = styled.div<{ $deleting: boolean }>`
   position: relative;
   border-radius: var(--border-radius-md);
   overflow: hidden;
@@ -233,7 +238,7 @@ const StyledMediaItem = styled.div`
     position: absolute;
     top: 5px;
     right: 8px;
-    transform: translateY(-4rem);
+    transform: translateY(${({ $deleting }) => ($deleting ? '0' : '-4rem')});
     transition: transform 0.2s ease-in-out;
     box-shadow: var(--box-shadow);
     border-radius: var(--border-radius-sm);
@@ -251,40 +256,4 @@ const EmptyMessage = styled.div`
   text-align: center;
   color: var(--color-gray-light);
   font-size: 1.2rem;
-`;
-
-const LoadingDots = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.4rem;
-  margin-top: 4.8rem;
-
-  span {
-    display: block;
-    animation: bounce 0.6s infinite alternate;
-    border-radius: 50%;
-    background-color: var(--color-gray);
-    width: 0.8rem;
-    height: 0.8rem;
-  }
-
-  span:nth-child(2) {
-    animation-delay: 0.2s;
-  }
-
-  span:nth-child(3) {
-    animation-delay: 0.4s;
-  }
-
-  @keyframes bounce {
-    0% {
-      transform: translateY(0);
-      opacity: 0.6;
-    }
-    100% {
-      transform: translateY(-10px);
-      opacity: 1;
-    }
-  }
 `;

@@ -1,8 +1,9 @@
 import { nanoid } from '@reduxjs/toolkit';
-import { ELEMENTS_TEMPLATE, ID_FIRST_SECTION } from '@shared/constants';
+import { ELEMENTS_TEMPLATE } from '@shared/constants';
 import type { Page } from '@shared/typing';
 
 const DEFAULT_TITLE = 'Untitled';
+const ID_FIRST_SECTION = 'section-aVwkhXvy';
 const ID_SECOND_SECTION = 'section-LsldXZKZ';
 const DEFAULT_PAGE_BACKGROUND_COLOR = '#343c44';
 

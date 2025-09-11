@@ -1,7 +1,7 @@
 import { DomCreator } from '@compiler/dom/DomCreator';
 import { StyleGenerator } from '@compiler/style/StyleGenerator';
 import { resolveStyleDependencies } from '@compiler/utils/resolveStyleDependencies';
-import { ElementsName, ID_FIRST_SECTION, IframeToEditor } from '@shared/constants';
+import { ElementsName, IframeToEditor } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
 import { PageElement, PageElementStyle } from '@shared/typing';
 import { SELECTOR_SECTION } from '../constants';
@@ -14,7 +14,6 @@ import moveableController from './moveableController';
  */
 
 const ATTR_CONTENT_EDITABLE = 'contenteditable';
-const SELECTOR_FIRST_SECTION = `#${ID_FIRST_SECTION}`;
 const CLASS_ELEMENT_HOVERED = 'element-hovered';
 
 const DATASET_NOT_MOVEABLE = 'notMoveable';
@@ -54,7 +53,7 @@ class ElementController {
 
     iframeConnection.send(IframeToEditor.StoreElement, {
       ...newPageEl,
-      parentId: resolvedParentId
+      parentId: name === ElementsName.Section ? null : resolvedParentId
     });
   }
 
@@ -83,10 +82,9 @@ class ElementController {
     const targetId = this.currentEl.id;
     const parentEl = this.currentEl.parentElement;
     const isSectionEl = this.currentElName === ElementsName.Section;
-    const isFirstSectionEl = targetId === ID_FIRST_SECTION;
     const sectionEl = isSectionEl ? this.currentEl.previousElementSibling : this.currentEl.closest(SELECTOR_SECTION);
 
-    if (!sectionEl || !parentEl || !targetId || isFirstSectionEl) {
+    if (!sectionEl || !parentEl || !targetId) {
       return;
     }
 
@@ -282,8 +280,7 @@ class ElementController {
       return proposedParentId || this.currentEl.id;
     }
 
-    return (this.currentEl.parentElement || this.currentEl.closest(SELECTOR_SECTION) || { id: SELECTOR_FIRST_SECTION })
-      .id;
+    return (this.currentEl.parentElement || (this.currentEl.closest(SELECTOR_SECTION) as HTMLElement)).id;
   }
 
   private syncContentEditable(oldEl: HTMLElement, newEl: HTMLElement) {

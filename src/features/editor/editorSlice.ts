@@ -8,7 +8,7 @@ import {
   nanoid,
   PayloadAction
 } from '@reduxjs/toolkit';
-import { Device, ElementsName, ID_FIRST_SECTION, SCREEN_SIZES } from '@shared/constants';
+import { Device, ElementsName, SCREEN_SIZES } from '@shared/constants';
 import { DeviceSimulator, Page, PageElement, Site } from '@shared/typing';
 import { StorageKey } from '../../constant';
 import { RootState } from '../../store';
@@ -48,7 +48,7 @@ export const EMPTY_SITE: Site = {
 const initialState: EditorState = {
   currentSite: null,
   currentPageId: null,
-  currentElementId: ID_FIRST_SECTION,
+  currentElementId: '',
   copiedElement: [],
   loading: true,
   storing: false,

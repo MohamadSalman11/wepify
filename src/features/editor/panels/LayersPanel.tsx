@@ -1,7 +1,7 @@
 import { EditorToIframe } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
 import type { PageElement } from '@shared/typing';
-import { DragEvent, MouseEvent, useState } from 'react';
+import { DragEvent, MouseEvent, useEffect, useState } from 'react';
 import type { IconType } from 'react-icons';
 import {
   LuChevronRight,
@@ -97,11 +97,26 @@ function LayerNode({
   draggedId: string;
   setDraggedId: (id: string) => void;
 }) {
-  const [expanded, setExpanded] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const children: PageElement[] = getChildren(element.id);
   const hasChildren = children.length > 0;
   const readableName = Object.keys(displayMap).find((key) => displayMap[key] === element.id) || element.id;
+  const [expanded, setExpanded] = useState(() => hasChildren && hasSelectedDescendant(element.id, selectedElementId));
+
+  useEffect(() => {
+    if (hasChildren && hasSelectedDescendant(element.id, selectedElementId)) {
+      setExpanded(true);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [element.id, hasChildren, selectedElementId]);
+
+  function hasSelectedDescendant(elementId: string, selectedId: string | null): boolean {
+    if (!selectedId) return false;
+    const children = getChildren(elementId);
+    if (children.some((child) => child.id === selectedId)) return true;
+    return children.some((child) => hasSelectedDescendant(child.id, selectedId));
+  }
 
   const handleClick = (event: MouseEvent<HTMLLIElement>) => {
     event.stopPropagation();

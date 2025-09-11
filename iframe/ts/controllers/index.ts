@@ -65,6 +65,10 @@ iframeConnection.on(EditorToIframe.InsertElements, (payload) => {
   pageController.renderElements(payload);
 });
 
+iframeConnection.on(EditorToIframe.ChangeElementPosition, (payload) => {
+  elementController.changePosition(payload.elementId, payload.newIndex);
+});
+
 iframeConnection.on(EditorToIframe.SelectElement, (payload) => {
   elementController.select(payload);
 });

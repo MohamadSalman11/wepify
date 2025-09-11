@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch, useAppSelector } from '../../../store';
 import {
   addElement,
+  changeElementPosition,
   copyElement,
   deleteElement,
   selectCurrentPage,
@@ -78,6 +79,7 @@ export const useIframeConnection = () => {
     iframeConnection.on(IframeToEditor.CopyElement, () => dispatch(copyElement()));
     iframeConnection.on(IframeToEditor.SelectElement, (payload) => dispatch(setCurrentElement(payload)));
     iframeConnection.on(IframeToEditor.StoreElement, (payload) => dispatch(addElement(payload)));
+    iframeConnection.on(IframeToEditor.ElementPositionChanged, (payload) => dispatch(changeElementPosition(payload)));
     iframeConnection.on(IframeToEditor.UpdateElement, (payload) => dispatch(updateElement(payload)));
     iframeConnection.on(IframeToEditor.DeleteElement, (payload) => dispatch(deleteElement(payload)));
 

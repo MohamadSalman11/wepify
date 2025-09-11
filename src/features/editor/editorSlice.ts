@@ -166,16 +166,24 @@ const editorSlice = createSlice({
       if (!state.currentSite || !state.currentPageId) return;
 
       const deletedElId = action.payload;
-      const parentIds = new Set<string>([deletedElId]);
       const page = state.currentSite.pages[state.currentPageId];
+      const toDelete = new Set<string>([deletedElId]);
 
-      delete page.elements[deletedElId];
+      let added = true;
 
-      for (const id of Object.keys(page.elements)) {
-        if (parentIds.has(page.elements[id].parentId || '')) {
-          parentIds.add(id);
-          delete page.elements[id];
+      while (added) {
+        added = false;
+        for (const [id, el] of Object.entries(page.elements)) {
+          const parentId = el.parentId || '';
+          if (toDelete.has(parentId) && !toDelete.has(id)) {
+            toDelete.add(id);
+            added = true;
+          }
         }
+      }
+
+      for (const id of toDelete) {
+        delete page.elements[id];
       }
     },
     updateElement(state, action: PayloadAction<{ id: string; updates: Partial<PageElement> }>) {
@@ -200,27 +208,51 @@ const editorSlice = createSlice({
 
       applyResponsiveUpdates(element, updates, device);
     },
+    changeElementPosition(state, action: PayloadAction<{ newOrder: string[] }>) {
+      const page = state.currentSite?.pages[state.currentPageId || ''];
+      if (!page) return;
+
+      const { newOrder } = action.payload;
+
+      const newSortedElements = { ...page.elements };
+
+      for (const id of newOrder) {
+        if (newSortedElements[id]) {
+          const el = newSortedElements[id];
+
+          delete newSortedElements[id];
+
+          newSortedElements[id] = el;
+        }
+      }
+
+      page.elements = newSortedElements;
+    },
     copyElement(state) {
       const pages = state.currentSite?.pages;
       const currentPageId = state.currentPageId;
 
-      if (!pages || !currentPageId) {
-        return;
-      }
+      if (!pages || !currentPageId) return;
 
       const page = pages[currentPageId];
-      const copiedParentIds = new Set<string>();
+      const copiedElements: PageElement[] = [];
+      const copiedParentIds = new Set<string>([state.currentElementId]);
 
-      const copiedElements = Object.values(page.elements).filter((element) => {
-        const parentId = element.parentId || '';
+      copiedElements.push(page.elements[state.currentElementId]);
 
-        if (copiedParentIds.has(parentId) || element.id === state.currentElementId) {
-          copiedParentIds.add(element.id);
-          return true;
+      let added = true;
+
+      while (added) {
+        added = false;
+        for (const el of Object.values(page.elements)) {
+          const parentId = el.parentId || '';
+          if (copiedParentIds.has(parentId) && !copiedParentIds.has(el.id)) {
+            copiedParentIds.add(el.id);
+            copiedElements.push(el);
+            added = true;
+          }
         }
-
-        return false;
-      });
+      }
 
       state.copiedElement = copiedElements;
     },
@@ -269,10 +301,18 @@ const editorSlice = createSlice({
   }
 });
 
-const createLengthBasedSelector = createSelectorCreator(
-  lruMemoize,
-  (prev: any[], next: any[]) => prev.length === next.length
-);
+const createLengthBasedSelector = createSelectorCreator(lruMemoize, (prev: any[], next: any[]) => {
+  if (prev.length !== next.length) return false;
+
+  let i = 0;
+
+  for (const el of prev) {
+    if (el.id !== next[i].id) return false;
+    i++;
+  }
+
+  return true;
+});
 
 const createFieldsBasedSelector = <T>(keys: (keyof T)[]) =>
   createSelectorCreator(lruMemoize, (prev: T[], next: T[]) => {
@@ -339,6 +379,7 @@ export const {
   deletePage,
   deleteElement,
   setCurrentElement,
+  changeElementPosition,
   updateElement,
   copyElement,
   setDeviceSimulator,

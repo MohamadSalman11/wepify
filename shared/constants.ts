@@ -43,6 +43,7 @@ export enum EditorToIframe {
   InsertElement = 'INSERT_ELEMENT',
   InsertElements = 'INSERT_ELEMENTS',
   UpdateElement = 'EDITOR_UPDATE_ELEMENT',
+  ChangeElementPosition = 'CHANGE_ELEMENT_POSITION',
   SelectElement = 'EDITOR_SELECT_ELEMENT'
 }
 
@@ -51,6 +52,7 @@ export enum IframeToEditor {
   PageUpdated = 'PAGE_UPDATED',
   PageRendered = 'PAGE_RENDERED',
   StoreElement = 'STORE_ELEMENT',
+  ElementPositionChanged = 'ELEMENT_POSITION_CHANGED',
   UpdateElement = 'IFRAME_UPDATE_ELEMENT',
   SelectElement = 'IFRAME_SELECT_ELEMENT',
   CopyElement = 'COPY_ELEMENT',

@@ -7,6 +7,7 @@ import { debounce } from '../../utils/debounce';
 import {
   addElement,
   addPage,
+  changeElementPosition,
   deleteElement,
   deletePage,
   duplicatePage,
@@ -21,6 +22,7 @@ const SYNC_ACTIONS = new Set([
   addPage.type,
   duplicatePage.type,
   updateElement.type,
+  changeElementPosition.type,
   deletePage.type,
   deleteElement.type,
   addElement.type,

@@ -96,6 +96,30 @@ class ElementController {
     iframeConnection.send(IframeToEditor.DeleteElement, targetId);
   }
 
+  changePosition(elementId: string, newIndex: number) {
+    const element = document.querySelector(`#${elementId}`) as HTMLElement;
+    if (!element) return;
+
+    const parent = element.parentElement;
+    if (!parent) return;
+
+    parent.removeChild(element);
+
+    const siblings = [...parent.children];
+    const index = Math.max(0, Math.min(newIndex, siblings.length));
+
+    if (index >= siblings.length) {
+      parent.append(element);
+    } else {
+      parent.insertBefore(element, siblings[index]);
+    }
+
+    moveableController.clearTarget();
+
+    const newOrder = [...parent.children].map((el) => el.id);
+    iframeConnection.send(IframeToEditor.ElementPositionChanged, { newOrder });
+  }
+
   allowOverlap() {
     this.update({ style: { position: 'absolute' } });
   }

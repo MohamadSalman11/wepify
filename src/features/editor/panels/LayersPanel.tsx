@@ -1,18 +1,9 @@
 import { EditorToIframe } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
 import type { PageElement } from '@shared/typing';
-import { useState } from 'react';
+import { DragEvent, MouseEvent, useState } from 'react';
 import type { IconType } from 'react-icons';
-import {
-  LuChevronRight,
-  LuFileVideo,
-  LuGroup,
-  LuHeading,
-  LuImage,
-  LuLink,
-  LuSquare,
-  LuTextCursorInput
-} from 'react-icons/lu';
+import { LuChevronRight, LuGroup, LuHeading, LuImage, LuLink, LuSquare, LuTextCursorInput } from 'react-icons/lu';
 import styled from 'styled-components';
 import Icon from '../../../components/Icon';
 import { useAppSelector } from '../../../store';
@@ -29,7 +20,6 @@ const ICON_MAP: Record<string, IconType> = {
   input: LuTextCursorInput,
   heading: LuHeading,
   img: LuImage,
-  video: LuFileVideo,
   link: LuLink
 };
 
@@ -40,6 +30,7 @@ const ICON_MAP: Record<string, IconType> = {
 export default function LayersPanel() {
   const selectedElementId = useAppSelector((state) => state.editor.currentElementId);
   const childrenMap = useAppSelector(selectCurrentPageElementsTree);
+  const [draggedId, setDraggedId] = useState<string>('');
 
   const getChildren = (parentId: string) => childrenMap[parentId] || [];
   const rootElements = getChildren('root');
@@ -58,6 +49,9 @@ export default function LayersPanel() {
             getChildren={getChildren}
             selectedElementId={selectedElementId}
             displayMap={displayMap}
+            childrenMap={childrenMap}
+            draggedId={draggedId}
+            setDraggedId={setDraggedId}
           />
         ))}
       </LayerList>
@@ -70,35 +64,88 @@ function LayerNode({
   getChildren,
   nested = false,
   selectedElementId,
-  displayMap
+  displayMap,
+  childrenMap,
+  draggedId,
+  setDraggedId
 }: {
   element: PageElement;
   getChildren: (parentId: string) => PageElement[];
   nested?: boolean;
   selectedElementId: string | null;
-  displayMap: Record<string, string>; // add display map
+  displayMap: Record<string, string>;
+  childrenMap: ReturnType<typeof selectCurrentPageElementsTree>;
+  draggedId: string;
+  setDraggedId: (id: string) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
   const children: PageElement[] = getChildren(element.id);
   const hasChildren = children.length > 0;
+  const readableName = Object.keys(displayMap).find((key) => displayMap[key] === element.id) || element.id;
 
-  const handleClick = () => {
+  const handleClick = (event: MouseEvent<HTMLLIElement>) => {
+    event.stopPropagation();
+
     if (hasChildren) setExpanded((prev) => !prev);
     iframeConnection.send(EditorToIframe.SelectElement, element.id);
   };
 
-  const readableName = Object.keys(displayMap).find((key) => displayMap[key] === element.id) || element.id;
+  const handleDragStart = (event: DragEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    setDraggedId?.(element.id);
+  };
+
+  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+
+    const draggedElement = Object.values(childrenMap)
+      .flat()
+      .find((el) => el.id === draggedId);
+
+    if (draggedElement && draggedElement.parentId === element.parentId && draggedElement.id !== element.id) {
+      setIsDragOver(true);
+    } else {
+      setIsDragOver(false);
+    }
+  };
+
+  const handleDragLeave = () => {
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+
+    if (!isDragOver) {
+      return;
+    }
+
+    const parentChildren = getChildren(nested ? element.parentId || '' : 'root');
+    const targetIndex = parentChildren.findIndex((el) => el.id === element.id);
+
+    iframeConnection.send(EditorToIframe.ChangeElementPosition, { elementId: draggedId, newIndex: targetIndex });
+    setIsDragOver(false);
+  };
 
   return (
-    <LayerItem>
-      <LayerHeader onClick={handleClick}>
+    <LayerItem onClick={handleClick}>
+      <LayerHeader>
         {hasChildren && <ChevronIcon icon={LuChevronRight} size='md' $expanded={expanded} />}
-        <LayerBox $nested={nested} $selected={selectedElementId === element.id}>
+        <LayerBox
+          $isDragOver={isDragOver}
+          $nested={nested}
+          $selected={selectedElementId === element.id}
+          draggable
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
           <Icon icon={ICON_MAP[element.name] || LuSquare} color='var(--color-white)' />
           <span>{readableName}</span>
         </LayerBox>
       </LayerHeader>
-
       {hasChildren && expanded && (
         <NestedList>
           {children.map((child) => (
@@ -109,6 +156,9 @@ function LayerNode({
               nested
               selectedElementId={selectedElementId}
               displayMap={displayMap}
+              childrenMap={childrenMap}
+              draggedId={draggedId}
+              setDraggedId={setDraggedId}
             />
           ))}
         </NestedList>
@@ -131,21 +181,26 @@ const LayerList = styled.ul`
   flex-direction: column;
   row-gap: 1.2rem;
   list-style: none;
+  background-color: transparent;
 `;
 
 const LayerItem = styled.li`
   display: flex;
   flex-direction: column;
+  transform: translate(0, 0);
 `;
 
-const LayerBox = styled.div<{ $nested?: boolean; $selected?: boolean }>`
+const LayerBox = styled.div<{ $nested?: boolean; $selected?: boolean; $isDragOver: boolean }>`
+  cursor: grab;
   display: flex;
   align-items: center;
   gap: 1.2rem;
   padding: 1.2rem 1.6rem;
-  background-color: ${({ $selected }) => ($selected ? 'var(--color-primary-light)' : 'var(--color-gray-light-2)')};
+  background-color: ${({ $selected, $isDragOver }) =>
+    $isDragOver ? 'var(--color-white)' : $selected ? 'var(--color-primary-light)' : 'var(--color-gray-light-2)'};
   border-radius: var(--border-radius-md);
-  cursor: pointer;
+  border: ${({ $isDragOver }) => ($isDragOver ? '2px dashed var(--color-primary)' : 'none')};
+  box-shadow: ${({ $isDragOver }) => ($isDragOver ? 'var(--box-shadow)' : 'none')};
   margin-left: ${({ $nested }) => ($nested ? 'auto' : '0')};
   width: ${({ $nested }) => ($nested ? '90%' : '100%')};
 

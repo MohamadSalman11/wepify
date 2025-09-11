@@ -14,7 +14,7 @@ const SELECTOR_BODY = 'body';
 class ContextMenuView {
   private bodyEl: HTMLBodyElement | null = document.querySelector(SELECTOR_BODY);
 
-  renderContextMenu(x: number, y: number, disabledActions: ContextMenuAction[] = []) {
+  renderContextMenu(x: number, y: number, disabledActions: ContextMenuAction[] = [], isAnyElCopied: boolean) {
     if (!this.bodyEl) {
       return;
     }
@@ -22,18 +22,19 @@ class ContextMenuView {
     const existing = document.querySelector(SELECTOR_CONTEXT_MENU);
     existing?.remove();
 
-    this.bodyEl.insertAdjacentHTML('beforeend', this.generateMarkup(x, y, disabledActions));
+    this.bodyEl.insertAdjacentHTML('beforeend', this.generateMarkup(x, y, disabledActions, isAnyElCopied));
   }
 
   removeContextMenu() {
     document.querySelector(SELECTOR_CONTEXT_MENU)?.remove();
   }
 
-  private generateMarkup(x: number, y: number, disabledActions: ContextMenuAction[] = []) {
+  private generateMarkup(x: number, y: number, disabledActions: ContextMenuAction[] = [], isAnyElCopied: boolean) {
     const isOverlapped = elementController.isOverlapped();
     const overlapText = isOverlapped ? 'Disable Overlap' : 'Allow Overlap';
     const overlapIcon = isOverlapped ? '/overlap-off.svg' : '/overlap-on.svg';
     const isDisabled = (action: ContextMenuAction) => disabledActions.includes(action);
+    const isPasteDisabled = isDisabled(ContextMenuAction.Paste);
 
     return `
       <ul id="${ID_CONTEXT_MENU}" style="left:${x}px; top:${y}px;">
@@ -42,9 +43,7 @@ class ContextMenuView {
         </li>
         <li
           data-action="${ContextMenuAction.Paste}"
-          class=" ${isDisabled(ContextMenuAction.Paste) ? 'disabled' : ''} ${
-            elementController.canAcceptChildren() ? '' : 'not-allowed'
-          }"
+          class=" ${isPasteDisabled || !isAnyElCopied ? 'disabled' : ''} ${isPasteDisabled ? 'not-allowed' : ''}"
         >
           <img src="/clipboard-paste.svg" alt="Paste" /> Paste
         </li>

@@ -176,12 +176,13 @@ class ElementController {
   }
 
   copy() {
-    state.copiedElId = this.currentEl.id;
+    state.copiedElName = this.currentElName;
     iframeConnection.send(IframeToEditor.CopyElement);
   }
 
   paste() {
     iframeConnection.send(IframeToEditor.PasteElement);
+    moveableController.clearTarget();
   }
 
   set(el: HTMLElement) {

@@ -4,13 +4,13 @@ import { DeviceSimulator } from '@shared/typing';
 export const state: {
   initRender: boolean;
   scaleFactor: number;
-  copiedElId: string | null;
+  copiedElName: string | null;
   deviceSimulator: DeviceSimulator;
   longPressTimer: ReturnType<typeof setTimeout> | null;
 } = {
   initRender: true,
   scaleFactor: 1,
-  copiedElId: null,
+  copiedElName: null,
   deviceSimulator: {
     type: Device.Monitor,
     width: SCREEN_SIZES[Device.Monitor].width,

@@ -68,6 +68,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     name: ElementsName.Section,
     moveable: false,
     focusable: false,
+    canHaveChildren: true,
     contentEditable: false,
     style: {
       width: 'fill',
@@ -84,6 +85,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     name: ElementsName.Container,
     moveable: true,
     focusable: false,
+    canHaveChildren: true,
     contentEditable: false,
     style: {
       width: 150,
@@ -100,6 +102,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     name: ElementsName.Grid,
     moveable: true,
     focusable: false,
+    canHaveChildren: true,
     contentEditable: false,
     style: {
       width: 500,
@@ -127,6 +130,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     name: ElementsName.GridItem,
     moveable: false,
     focusable: false,
+    canHaveChildren: true,
     contentEditable: false,
     style: {
       fontFamily: 'Inherit',
@@ -142,6 +146,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     name: ElementsName.List,
     moveable: true,
     focusable: false,
+    canHaveChildren: true,
     contentEditable: false,
     style: {
       fontSize: 20,
@@ -161,6 +166,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     name: ElementsName.ListItem,
     moveable: false,
     focusable: true,
+    canHaveChildren: false,
     contentEditable: true,
     content: 'list item',
     style: {
@@ -176,6 +182,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     name: ElementsName.Heading,
     moveable: true,
     focusable: true,
+    canHaveChildren: false,
     contentEditable: true,
     content: 'First heading',
     style: {
@@ -193,6 +200,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     name: ElementsName.Text,
     moveable: true,
     focusable: true,
+    canHaveChildren: false,
     contentEditable: true,
     content: 'Your description goes here',
     style: {
@@ -209,6 +217,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     name: ElementsName.Link,
     moveable: true,
     focusable: true,
+    canHaveChildren: false,
     contentEditable: true,
     content: 'Your text link',
     style: {
@@ -228,6 +237,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     name: ElementsName.Button,
     moveable: true,
     focusable: true,
+    canHaveChildren: false,
     contentEditable: true,
     content: 'text',
     style: {
@@ -250,6 +260,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     name: ElementsName.Input,
     moveable: true,
     focusable: true,
+    canHaveChildren: false,
     contentEditable: false,
     style: {
       fontSize: 14,
@@ -280,6 +291,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     name: ElementsName.Image,
     moveable: true,
     focusable: false,
+    canHaveChildren: false,
     contentEditable: false,
     style: {
       width: 'auto',

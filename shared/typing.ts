@@ -40,6 +40,7 @@ export interface PageElement {
   contentEditable: boolean;
   focusable: boolean;
   moveable: boolean;
+  canHaveChildren: boolean;
   content?: string;
   style: PageElementStyle;
   attrs?: PageElementAttrs;

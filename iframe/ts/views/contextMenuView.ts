@@ -1,4 +1,5 @@
 import { ContextMenuAction, ID_CONTEXT_MENU, SELECTOR_CONTEXT_MENU } from '../constants';
+import elementController from '../controllers/elementController';
 
 /**
  * Constants
@@ -13,7 +14,7 @@ const SELECTOR_BODY = 'body';
 class ContextMenuView {
   private bodyEl: HTMLBodyElement | null = document.querySelector(SELECTOR_BODY);
 
-  renderContextMenu(x: number, y: number) {
+  renderContextMenu(x: number, y: number, disabledActions: ContextMenuAction[] = []) {
     if (!this.bodyEl) {
       return;
     }
@@ -21,24 +22,49 @@ class ContextMenuView {
     const existing = document.querySelector(SELECTOR_CONTEXT_MENU);
     existing?.remove();
 
-    this.bodyEl.insertAdjacentHTML('beforeend', this.generateMarkup(x, y));
+    this.bodyEl.insertAdjacentHTML('beforeend', this.generateMarkup(x, y, disabledActions));
   }
 
   removeContextMenu() {
     document.querySelector(SELECTOR_CONTEXT_MENU)?.remove();
   }
 
-  private generateMarkup(x: number, y: number) {
+  private generateMarkup(x: number, y: number, disabledActions: ContextMenuAction[] = []) {
+    const isDisabled = (action: ContextMenuAction) => disabledActions.includes(action);
+
     return `
-  <ul id="${ID_CONTEXT_MENU}" style="left:${x}px; top:${y}px;">
-    <li data-action="${ContextMenuAction.Copy}"><img src="/clipboard-copy.svg" alt="Copy"/> Copy</li>
-    <li data-action="${ContextMenuAction.Paste}"><img src="/clipboard-paste.svg" alt="Paste"/> Paste</li>
-    <li data-action="${ContextMenuAction.BringToFront}"><img src="/bring-to-front.svg" alt="Bring to Front"/> Bring to Front</li>
-    <li data-action="${ContextMenuAction.SendToBack}"><img src="/send-to-back.svg" alt="Send to Back"/> Send to Back</li>
-    <li data-action="${ContextMenuAction.AllowOverlap}"><img src="/overlay.svg" alt="Allow Overlap"/> Allow Overlap</li>
-    <li data-action="${ContextMenuAction.Delete}"><img src="/trash.svg" alt="Delete"/> Delete</li>
-  </ul>
-  `;
+      <ul id="${ID_CONTEXT_MENU}" style="left:${x}px; top:${y}px;">
+        <li data-action="${ContextMenuAction.Copy}" class="${isDisabled(ContextMenuAction.Copy) ? 'disabled' : ''}">
+          <img src="/clipboard-copy.svg" alt="Copy" /> Copy
+        </li>
+        <li
+          data-action="${ContextMenuAction.Paste}"
+          class=" ${isDisabled(ContextMenuAction.Paste) ? 'disabled' : ''} ${elementController.canAcceptChildren() ? '' : 'not-allowed'}">
+          <img src="/clipboard-paste.svg" alt="Paste" /> Paste
+        </li>
+        <li
+          data-action="${ContextMenuAction.BringToFront}"
+          class="${isDisabled(ContextMenuAction.BringToFront) ? 'disabled' : ''}"
+        >
+          <img src="/bring-to-front.svg" alt="Bring to Front" /> Bring to Front
+        </li>
+        <li
+          data-action="${ContextMenuAction.SendToBack}"
+          class="${isDisabled(ContextMenuAction.SendToBack) ? 'disabled' : ''}"
+        >
+          <img src="/send-to-back.svg" alt="Send to Back" /> Send to Back
+        </li>
+        <li
+          data-action="${ContextMenuAction.AllowOverlap}"
+          class="${isDisabled(ContextMenuAction.AllowOverlap) ? 'disabled' : ''}"
+        >
+          <img src="/overlay.svg" alt="Allow Overlap" /> Allow Overlap
+        </li>
+        <li data-action="${ContextMenuAction.Delete}" class="${isDisabled(ContextMenuAction.Delete) ? 'disabled' : ''}">
+          <img src="/trash.svg" alt="Delete" /> Delete
+        </li>
+      </ul>
+    `;
   }
 }
 

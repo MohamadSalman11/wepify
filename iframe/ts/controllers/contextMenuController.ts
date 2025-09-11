@@ -29,17 +29,23 @@ class ContextMenuController {
   show(event: MouseEvent | TouchEvent) {
     event.preventDefault();
 
-    const closestSection = (event.target as HTMLElement).closest(SELECTOR_SECTION);
-    const moveableControlBox = (event.target as HTMLElement).closest(SELECTOR_MOVEABLE_CONTROL_BOX);
+    const targetEl = event.target as HTMLElement;
+    const closestSection = targetEl.closest(SELECTOR_SECTION);
+    const moveableControlBox = targetEl.closest(SELECTOR_MOVEABLE_CONTROL_BOX);
 
     if (!closestSection && !moveableControlBox) {
       return;
     }
 
     const { pageX, pageY } = this.getEventCoordinates(event);
+    const disabledActions: ContextMenuAction[] = [];
+
+    if (!elementController.canAcceptChildren(elementController.currentEl) || !state.copiedElId) {
+      disabledActions.push(ContextMenuAction.Paste);
+    }
 
     contextMenuView.removeContextMenu();
-    contextMenuView.renderContextMenu(pageX, pageY);
+    contextMenuView.renderContextMenu(pageX, pageY, disabledActions);
   }
 
   handleAction(event: globalThis.MouseEvent) {
@@ -64,13 +70,24 @@ class ContextMenuController {
   };
 
   handleDocumentClick(event: globalThis.MouseEvent) {
-    const clickedInside = (event.target as HTMLElement)?.closest(SELECTOR_CONTEXT_MENU);
+    const target = event.target as HTMLElement;
+    const contextMenu = target.closest(SELECTOR_CONTEXT_MENU);
 
-    if (clickedInside) {
+    if (!contextMenu) {
+      contextMenuView.removeContextMenu();
+      return;
+    }
+
+    const listItem = target.closest(SELECTOR_LIST_ITEM) as HTMLElement | null;
+    const isActionDisabled = listItem?.classList.contains('disabled');
+
+    if (listItem && !isActionDisabled) {
       this.handleAction(event);
     }
 
-    contextMenuView.removeContextMenu();
+    if (!isActionDisabled) {
+      contextMenuView.removeContextMenu();
+    }
   }
 
   // private

@@ -136,8 +136,17 @@ section::after {
   height: 16px;
 }
 
-#context-menu li:hover {
+#context-menu li.disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+#context-menu li:not(.disabled):hover {
   background-color: #f2f4f7;
+}
+
+#context-menu li.not-allowed {
+  cursor: not-allowed;
 }
 
 button span {

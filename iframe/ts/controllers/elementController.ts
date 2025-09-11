@@ -5,6 +5,7 @@ import { ElementsName, IframeToEditor } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
 import { PageElement, PageElementStyle } from '@shared/typing';
 import { SELECTOR_SECTION } from '../constants';
+import { state } from '../model';
 import { createNewElement } from '../utils/createNewElement';
 import elementView from '../views/elementView';
 import moveableController from './moveableController';
@@ -165,6 +166,7 @@ class ElementController {
   }
 
   copy() {
+    state.copiedElId = this.currentEl.id;
     iframeConnection.send(IframeToEditor.CopyElement);
   }
 
@@ -183,6 +185,10 @@ class ElementController {
     this.currentElName = targetName;
 
     elementView.updateSelection(el);
+  }
+
+  canAcceptChildren(el?: HTMLElement) {
+    return !this.hasDataset(el || this.currentEl, DATASET_CANNOT_HAVE_CHILDREN);
   }
 
   handleMouseover(event: MouseEvent) {

@@ -41,7 +41,7 @@ export class DomCreator {
 
   private maybeApplyProperties(domEl: HTMLElement) {
     let targetEl: HTMLElement = domEl;
-    const { name, content, attrs, moveable, contentEditable, focusable, url } = this.pageEl;
+    const { name, content, attrs, moveable, contentEditable, focusable, canHaveChildren, url } = this.pageEl;
 
     if (name === ElementsName.Button) {
       const span = domEl.querySelector('span');
@@ -57,6 +57,7 @@ export class DomCreator {
     if (content) targetEl.textContent = content;
     if (focusable) domEl.dataset.focusable = '';
     if (!moveable) domEl.dataset.notMoveable = '';
+    if (!canHaveChildren) domEl.dataset.canNotHaveChildren = '';
     if (attrs) Object.assign(domEl, attrs);
 
     if (domEl instanceof HTMLImageElement) {

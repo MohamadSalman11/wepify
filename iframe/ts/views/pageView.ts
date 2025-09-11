@@ -15,20 +15,20 @@ type Size = { width: number; height: number };
  */
 
 class PageView {
-  private rootEl: HTMLDivElement | null = document.querySelector(SELECTOR_ROOT);
+  private pageEl: HTMLDivElement | null = document.querySelector(SELECTOR_ROOT);
 
   // public
   renderElements = (elements: PageElement[], device?: DeviceType) => {
-    if (!this.rootEl) {
+    if (!this.pageEl) {
       return;
     }
 
-    this.rootEl.innerHTML = '';
+    this.pageEl.innerHTML = '';
 
     const domTreeBuilder = new DomTreeBuilder(elements, device);
 
     for (const domEl of domTreeBuilder.domTree) {
-      this.rootEl.append(domEl);
+      this.pageEl.append(domEl);
     }
   };
 
@@ -57,8 +57,18 @@ class PageView {
     state.scaleFactor = scaleFactor;
     page.style.width = `${deviceSimulator.width + PAGE_PADDING_X}px`;
     page.style.height = `${deviceSimulator.height}px`;
-    page.style.scale = String(scaleFactor);
+    page.style.transform = `scale(${String(scaleFactor)})`;
     page.style.transformOrigin = 'top left';
+  }
+
+  zoom(step: number) {
+    if (!this.pageEl) {
+      return;
+    }
+
+    state.scaleFactor = state.scaleFactor + step;
+    this.pageEl.style.transform = `scale(${state.scaleFactor})`;
+    this.pageEl.style.transformOrigin = 'top left';
   }
 
   // private

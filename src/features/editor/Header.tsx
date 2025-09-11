@@ -11,7 +11,9 @@ import {
   LuMonitor,
   LuRefreshCw,
   LuSmartphone,
-  LuTablet
+  LuTablet,
+  LuZoomIn,
+  LuZoomOut
 } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -127,7 +129,7 @@ function DevicePreviewButton({
       isActive={isActive}
       borderRadius='md'
       icon={icon}
-      tooltipLabel={getTooltipLabel(deviceType)}
+      tooltipLabel={getDeviceTooltipLabel(deviceType)}
       tooltipSideOffset={10}
       onClick={handleClick}
     />
@@ -153,6 +155,19 @@ function EditorActions() {
         <Icon icon={LuEye} hover tooltipLabel='Preview Site' />
       </ConfirmNavigation>
       <Divider rotate={90} width={30} />
+      <Icon
+        icon={LuZoomIn}
+        hover
+        tooltipLabel='Zoom In'
+        onClick={() => iframeConnection.send(EditorToIframe.ZoomInPage, 0.1)}
+      />
+      <Icon
+        icon={LuZoomOut}
+        hover
+        tooltipLabel='Zoom Out'
+        onClick={() => iframeConnection.send(EditorToIframe.ZoomInPage, -0.1)}
+      />
+      <Divider rotate={90} width={30} />
       <Dropdown>
         <Dropdown.Open>
           <Button variation='secondary'>Download</Button>
@@ -173,7 +188,7 @@ function EditorActions() {
   );
 }
 
-const getTooltipLabel = (deviceType: DeviceType) => {
+const getDeviceTooltipLabel = (deviceType: DeviceType) => {
   switch (deviceType) {
     case Device.Monitor:
       return 'Edit for Desktop version';
@@ -208,16 +223,6 @@ const StyledHeader = styled.header`
     &:nth-child(1) {
       width: 30rem;
     }
-
-    &:nth-child(3) {
-      width: 52rem;
-    }
-
-    &:nth-child(2) {
-      justify-content: center;
-      min-width: 42rem;
-      max-width: 42rem;
-    }
   }
 `;
 
@@ -233,12 +238,8 @@ const StyledDevicePreviewControls = styled.div`
 
 const StyledEditorActions = styled.div`
   display: flex;
-  column-gap: 2.4rem;
+  column-gap: 1.2rem;
   align-items: center;
-
-  @media (max-width: ${Breakpoint.Desktop}em) {
-    column-gap: 1.2rem;
-  }
 `;
 
 const DesignInfo = styled.div`

@@ -57,6 +57,10 @@ iframeConnection.on(EditorToIframe.UpdatePage, (payload) => {
   pageController.update(payload);
 });
 
+iframeConnection.on(EditorToIframe.ZoomInPage, (payload) => {
+  pageView.zoom(payload);
+});
+
 iframeConnection.on(EditorToIframe.InsertElement, (payload) => {
   elementController.insert(payload);
 });

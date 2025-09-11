@@ -39,6 +39,8 @@ export const SCREEN_SIZES = {
 export enum EditorToIframe {
   RenderPage = 'RENDER_PAGE',
   UpdatePage = 'UPDATE_PAGE',
+  ZoomInPage = 'ZOOM_IN_PAGE',
+  ZoomOutPage = 'ZOOM_OUT_PAGE',
   DeviceChanged = 'DEVICE_CHANGED',
   InsertElement = 'INSERT_ELEMENT',
   InsertElements = 'INSERT_ELEMENTS',

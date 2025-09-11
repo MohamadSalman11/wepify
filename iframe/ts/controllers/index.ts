@@ -59,6 +59,7 @@ iframeConnection.on(EditorToIframe.UpdatePage, (payload) => {
 
 iframeConnection.on(EditorToIframe.ZoomInPage, (payload) => {
   pageView.zoom(payload);
+  moveableController.clearTarget();
 });
 
 iframeConnection.on(EditorToIframe.InsertElement, (payload) => {

@@ -3,7 +3,18 @@ import iframeConnection from '@shared/iframeConnection';
 import type { PageElement } from '@shared/typing';
 import { DragEvent, MouseEvent, useState } from 'react';
 import type { IconType } from 'react-icons';
-import { LuChevronRight, LuGroup, LuHeading, LuImage, LuLink, LuSquare, LuTextCursorInput } from 'react-icons/lu';
+import {
+  LuChevronRight,
+  LuGrid2X2,
+  LuHeading,
+  LuImage,
+  LuLink,
+  LuList,
+  LuListOrdered,
+  LuRectangleHorizontal,
+  LuSquare,
+  LuTextCursorInput
+} from 'react-icons/lu';
 import styled from 'styled-components';
 import Icon from '../../../components/Icon';
 import { useAppSelector } from '../../../store';
@@ -15,12 +26,20 @@ import { selectCurrentPageElementsTree } from '../editorSlice';
  */
 
 const ICON_MAP: Record<string, IconType> = {
-  group: LuGroup,
+  section: LuSquare,
   container: LuSquare,
+  grid: LuGrid2X2,
+  gridItem: LuSquare,
+  item: LuSquare,
+  image: LuImage,
   input: LuTextCursorInput,
+  link: LuLink,
+  a: LuLink,
+  list: LuList,
+  listItem: LuListOrdered,
   heading: LuHeading,
-  img: LuImage,
-  link: LuLink
+  text: LuTextCursorInput,
+  button: LuRectangleHorizontal
 };
 
 /**

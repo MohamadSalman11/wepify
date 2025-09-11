@@ -5,6 +5,7 @@ import { Site } from '@shared/typing';
 import { Dispatch, MouseEvent, RefObject, useEffect, useRef, useState } from 'react';
 import { LuTrash2 } from 'react-icons/lu';
 import Masonry from 'react-masonry-css';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import Button from '../../../components/Button';
 import Icon from '../../../components/Icon';
@@ -14,6 +15,7 @@ import { useFilePicker } from '../../../hooks/useFilePicker';
 import { useImageUpload } from '../../../hooks/useImageUpload';
 import { AppStorage } from '../../../utils/appStorage';
 import { AppToast } from '../../../utils/appToast';
+import { setStoring } from '../editorSlice';
 
 /**
  * Constants
@@ -127,6 +129,7 @@ function MediaItem({
   urlsRef: RefObject<string[]>;
   setImages: Dispatch<React.SetStateAction<Image[]>>;
 }) {
+  const dispatch = useDispatch();
   const [deleting, setDeleting] = useState(false);
 
   const handleDeleteImage = async (event: MouseEvent<HTMLSpanElement>) => {
@@ -137,6 +140,7 @@ function MediaItem({
     }
 
     setDeleting(true);
+    dispatch(setStoring(true));
 
     const { id, url } = img;
 
@@ -152,6 +156,7 @@ function MediaItem({
       await new Promise((resolve) => setTimeout(resolve, DELAY_DELETE_IMAGE));
       AppToast.error(ToastMessages.image.used);
       setDeleting(false);
+      dispatch(setStoring(false));
       return;
     }
 
@@ -163,7 +168,8 @@ function MediaItem({
     urlsRef.current = urlsRef.current.filter((u) => u !== url);
     await AppStorage.deleteFromObject(StorageKey.Images, id);
 
-    setTimeout(() => setDeleting(false), DELAY_DELETE_IMAGE);
+    setDeleting(false);
+    dispatch(setStoring(false));
   };
 
   return (

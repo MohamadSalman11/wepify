@@ -11,6 +11,7 @@
 
 .moveable-control-box {
   --moveable-color: #b7bbbf !important;
+  z-index: 9999999 !important;
 }
 
 .moveable-line {
@@ -158,7 +159,7 @@ button span {
   position: absolute;
   justify-content: flex-start;
   align-items: flex-start;
-  z-index: 9999;
+  z-index: 99999;
   border: 2px solid #3e7df5;
   background: transparent;
   pointer-events: none;
@@ -175,7 +176,6 @@ button span {
   top: -2px;
   left: -2px;
   transform: translateY(-100%);
-  z-index: 9999;
   border-top-right-radius: 4px;
   border-top-left-radius: 4px;
   background-color: #3e7df5;

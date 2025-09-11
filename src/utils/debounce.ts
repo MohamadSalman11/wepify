@@ -1,4 +1,4 @@
-export const debounce = <F extends (...args: any[]) => void>(func: F, wait = 300) => {
+export const debounce = <F extends (...args: any[]) => void>(func: F, wait = 500) => {
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
   return (...args: Parameters<F>) => {

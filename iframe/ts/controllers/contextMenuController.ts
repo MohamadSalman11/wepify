@@ -15,7 +15,7 @@ const actions: Record<ContextMenuAction, () => void> = {
   [ContextMenuAction.Copy]: () => elementController.copy(),
   [ContextMenuAction.Paste]: () => elementController.paste(),
   [ContextMenuAction.Delete]: () => elementController.delete(),
-  [ContextMenuAction.AllowOverlap]: () => elementController.allowOverlap(),
+  [ContextMenuAction.ToggleOverlap]: () => elementController.toggleOverlap(),
   [ContextMenuAction.BringToFront]: () => elementController.bringToFrontOrSendToBack(true),
   [ContextMenuAction.SendToBack]: () => elementController.bringToFrontOrSendToBack(false)
 };

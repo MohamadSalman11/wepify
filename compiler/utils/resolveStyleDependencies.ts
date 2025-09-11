@@ -49,8 +49,9 @@ export const resolveStyleDependencies = (style: StyleUpdates, el: HTMLElement | 
 
     const currentValues = extractor?.(el instanceof HTMLElement ? el : new DomCreator(el).domElement) ?? {};
 
-    for (const prop of props) {
-      resolved[prop] = style[prop] ?? currentValues[prop];
+    for (const key of Object.keys(currentValues)) {
+      resolved[key as keyof PageElementStyle] =
+        style[key as keyof PageElementStyle] ?? currentValues[key as keyof PageElementStyle];
     }
   }
 

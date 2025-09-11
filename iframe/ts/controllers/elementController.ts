@@ -119,8 +119,18 @@ class ElementController {
     iframeConnection.send(IframeToEditor.ElementPositionChanged, { newOrder });
   }
 
-  allowOverlap() {
-    this.update({ style: { position: 'absolute' } });
+  toggleOverlap() {
+    const current = this.currentEl;
+    if (!current) return;
+
+    const computed = getComputedStyle(current);
+    const hasZIndex = computed.zIndex !== 'auto' && computed.zIndex !== '';
+
+    if (this.isOverlapped()) {
+      this.update({ style: { position: hasZIndex ? 'relative' : '' } });
+    } else {
+      this.update({ style: { position: 'absolute' } });
+    }
   }
 
   select(id: string) {
@@ -185,6 +195,11 @@ class ElementController {
     this.currentElName = targetName;
 
     elementView.updateSelection(el);
+  }
+
+  isOverlapped(el?: HTMLElement) {
+    const target = el || this.currentEl;
+    return getComputedStyle(target).position === 'absolute';
   }
 
   canAcceptChildren(el?: HTMLElement) {

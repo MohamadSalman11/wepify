@@ -53,7 +53,7 @@ export interface ImageElement extends PageElement {
 }
 
 export type PageElementStyle = Partial<{
-  position: 'absolute' | 'relative';
+  position: 'absolute' | 'relative' | '';
   width: number | 'fill' | 'auto';
   height: number | 'screen' | 'fill' | 'auto';
   left: number;

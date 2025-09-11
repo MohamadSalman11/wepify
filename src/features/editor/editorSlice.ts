@@ -23,6 +23,7 @@ const EMPTY_ELEMENT: PageElement = {
   contentEditable: false,
   focusable: false,
   moveable: false,
+  canHaveChildren: true,
   style: {}
 };
 

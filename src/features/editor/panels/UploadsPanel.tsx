@@ -246,7 +246,7 @@ const StyledMediaItem = styled.div`
   }
 `;
 
-const EmptyMessage = styled.p`
+const EmptyMessage = styled.div`
   margin-top: 2.4rem;
   text-align: center;
   color: var(--color-gray-light);

@@ -194,7 +194,7 @@ class ElementController {
     const elName = el.dataset.name;
     const elId = el.id;
 
-    if (elName !== ElementsName.Section && this.currentEl.id !== elId) {
+    if (this.currentEl.id !== elId) {
       el.classList.add(CLASS_ELEMENT_HOVERED);
 
       const hoverBox = document.querySelector('.hover-box') as HTMLElement;
@@ -204,7 +204,7 @@ class ElementController {
       const style = getComputedStyle(el);
       const borderRadius = Number.parseFloat(style.borderRadius || '0');
 
-      let offset = 0.4;
+      let offset = 0.5;
       if (borderRadius > 0) offset = 5;
 
       hoverBox.style.width = `${rect.width + offset * 2}px`;

@@ -15,12 +15,11 @@ import moveableController from './moveableController';
  */
 
 const ATTR_CONTENT_EDITABLE = 'contenteditable';
-const CLASS_ELEMENT_HOVERED = 'element-hovered';
-
 const DATASET_NOT_MOVEABLE = 'notMoveable';
 const DATASET_FOCUSABLE = 'focusable';
 const DATASET_CONTENT_EDITABLE = 'contentEditable';
 const DATASET_CANNOT_HAVE_CHILDREN = 'canNotHaveChildren';
+const SELECTOR_ELEMENT = '[data-name]';
 
 const SCROLL_ALIGN_START = 'start';
 const SCROLL_ALIGN_CENTER = 'center';
@@ -91,18 +90,23 @@ class ElementController {
 
     this.currentEl.remove();
     elementView.click(sectionEl as HTMLElement);
-
     iframeConnection.send(IframeToEditor.DeleteElement, targetId);
   }
 
-  changePosition(elementId: string, newIndex: number) {
-    const element = document.querySelector(`#${elementId}`) as HTMLElement;
-    if (!element) return;
+  changePosition(elId: string, newIndex: number) {
+    const el = document.querySelector(`#${elId}`) as HTMLElement;
 
-    const parent = element.parentElement;
-    if (!parent) return;
+    if (!el) {
+      return;
+    }
 
-    parent.removeChild(element);
+    const parent = el.parentElement;
+
+    if (!parent) {
+      return;
+    }
+
+    el.remove();
 
     const siblings = [...parent.children];
     const index = Math.max(0, Math.min(newIndex, siblings.length));
@@ -121,7 +125,10 @@ class ElementController {
 
   toggleOverlap() {
     const current = this.currentEl;
-    if (!current) return;
+
+    if (!current) {
+      return;
+    }
 
     const computed = getComputedStyle(current);
     const hasZIndex = computed.zIndex !== 'auto' && computed.zIndex !== '';
@@ -143,6 +150,16 @@ class ElementController {
     elementView.click(el);
     elementView.scrollIntoView(this.getScrollAlignment());
     iframeConnection.send(IframeToEditor.SelectElement, id);
+  }
+
+  copy() {
+    state.copiedElName = this.currentElName;
+    iframeConnection.send(IframeToEditor.CopyElement);
+  }
+
+  paste() {
+    iframeConnection.send(IframeToEditor.PasteElement);
+    moveableController.clearTarget();
   }
 
   bringToFrontOrSendToBack(shouldBringToFront: boolean) {
@@ -175,16 +192,6 @@ class ElementController {
     }
   }
 
-  copy() {
-    state.copiedElName = this.currentElName;
-    iframeConnection.send(IframeToEditor.CopyElement);
-  }
-
-  paste() {
-    iframeConnection.send(IframeToEditor.PasteElement);
-    moveableController.clearTarget();
-  }
-
   set(el: HTMLElement) {
     const targetName = el.dataset.name;
 
@@ -206,57 +213,35 @@ class ElementController {
     );
   }
 
+  canAcceptChildren(el?: HTMLElement) {
+    return !this.hasDataset(el || this.currentEl, DATASET_CANNOT_HAVE_CHILDREN);
+  }
+
   isOverlapped(el?: HTMLElement) {
     const target = el || this.currentEl;
     return getComputedStyle(target).position === 'absolute';
   }
 
-  canAcceptChildren(el?: HTMLElement) {
-    return !this.hasDataset(el || this.currentEl, DATASET_CANNOT_HAVE_CHILDREN);
-  }
-
   handleMouseover(event: MouseEvent) {
-    const el = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-name]') : null;
-    if (!el) return;
+    const el = event.target instanceof Element ? event.target.closest<HTMLElement>(SELECTOR_ELEMENT) : null;
 
-    const elName = el.dataset.name;
-    const elId = el.id;
-
-    if (this.currentEl.id !== elId) {
-      el.classList.add(CLASS_ELEMENT_HOVERED);
-
-      const hoverBox = document.querySelector('.hover-box') as HTMLElement;
-      const hoverBadge = hoverBox.querySelector('.hover-badge') as HTMLElement;
-
-      const rect = el.getBoundingClientRect();
-      const style = getComputedStyle(el);
-      const borderRadius = Number.parseFloat(style.borderRadius || '0');
-
-      let offset = 0.5;
-      if (borderRadius > 0) offset = 5;
-
-      hoverBox.style.width = `${rect.width + offset * 2}px`;
-      hoverBox.style.height = `${rect.height + offset * 2}px`;
-
-      hoverBox.style.top = `${rect.top + window.scrollY - offset}px`;
-      hoverBox.style.left = `${rect.left + window.scrollX - offset}px`;
-
-      hoverBox.style.display = 'flex';
-      hoverBadge.textContent = elName || '';
+    if (!el || el.id === this.currentEl.id) {
+      return;
     }
+
+    elementView.showHover(el);
   }
 
   handleMouseout(event: MouseEvent) {
-    const el = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-name]') : null;
-    if (!el) return;
+    const el = (event.target as HTMLElement)?.closest<HTMLElement>(SELECTOR_ELEMENT);
 
-    if (!el.contains(event.relatedTarget as Node)) {
-      el.classList.remove(CLASS_ELEMENT_HOVERED);
-
-      const hoverBox = document.querySelector('.hover-box') as HTMLElement;
-      hoverBox.style.display = 'none';
+    if (!el || el.contains(event.relatedTarget as Node)) {
+      return;
     }
+
+    elementView.hideHover(el);
   }
+
   handleInputChange(event: Event) {
     const target = event.target as HTMLElement;
     const isInput = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;
@@ -274,7 +259,7 @@ class ElementController {
     event.stopPropagation();
 
     const oldEl = this.currentEl;
-    const newEl = (event.target as HTMLElement)?.closest('[data-name]') as HTMLElement | null;
+    const newEl = (event.target as HTMLElement)?.closest(SELECTOR_ELEMENT) as HTMLElement | null;
     const newElName = newEl?.dataset.name;
     const currentEl = this.currentEl;
 

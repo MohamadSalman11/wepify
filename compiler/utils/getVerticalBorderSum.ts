@@ -1,5 +1,5 @@
-export const getVerticalBorderSum = (target: HTMLElement): number => {
-  const styles = getComputedStyle(target);
+export const getVerticalBorderSum = (el: HTMLElement): number => {
+  const styles = getComputedStyle(el);
 
   const topStyle = styles.borderTopStyle;
   const bottomStyle = styles.borderBottomStyle;

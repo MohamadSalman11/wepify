@@ -1,9 +1,9 @@
 import { extractTransform } from '@compiler/utils/extractTransform';
+import { getVerticalBorderSum } from '@compiler/utils/getVerticalBorderSum';
 import { ElementsName, PAGE_PADDING, PAGE_PADDING_X } from '@shared/constants';
 import Moveable, { MoveableProps, OnDrag, OnResize, OnRotate } from 'moveable';
 import { SELECTOR_ROOT } from '../constants';
 import { state } from '../model';
-import { getVerticalBorderSum } from '../utils/getVerticalBorderSum';
 import dragButtonView from '../views/dragButtonView';
 import elementController from './elementController';
 

@@ -1,5 +1,6 @@
 import * as Tooltip from '@radix-ui/react-tooltip';
 import clsx from 'clsx';
+import styles from './AppTooltip.module.css';
 
 /**
  * Constants
@@ -36,12 +37,12 @@ export default function AppTooltip({
       <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
       <Tooltip.Portal>
         <Tooltip.Content
-          className={clsx('TooltipContent', sizeSmall && 'TooltipSmall')}
+          className={clsx(styles.tooltipContent, sizeSmall && styles.tooltipSmall)}
           side={side}
           sideOffset={sideOffset}
         >
           {label}
-          <Tooltip.Arrow className='TooltipArrow' />
+          <Tooltip.Arrow className={styles.tooltipArrow} />
         </Tooltip.Content>
       </Tooltip.Portal>
     </Tooltip.Root>

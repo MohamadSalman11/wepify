@@ -87,30 +87,6 @@ const baseStyles = css`
     border-radius: var(--border-radius-md);
     background-color: var(--color-gray-light-2);
   }
-
-  .TooltipContent {
-    z-index: 100;
-    animation-duration: 0.2s;
-    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-    will-change: transform, opacity;
-    box-shadow: var(--box-shadow);
-    border-radius: var(--border-radius-md);
-    background-color: var(--color-primary-light);
-    padding: 1rem 1.2rem;
-    color: var(--color-white);
-    font-size: 1.4rem;
-    user-select: none;
-  }
-
-  .TooltipArrow {
-    z-index: var(--zindex-tooltip);
-    fill: var(--color-primary-light);
-  }
-
-  .TooltipSmall {
-    padding: 0.6rem 0.8rem;
-    font-size: 1rem;
-  }
 `;
 
 export default baseStyles;

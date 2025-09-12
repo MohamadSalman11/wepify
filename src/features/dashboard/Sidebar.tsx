@@ -108,33 +108,15 @@ export default function Sidebar() {
       AppToast.custom(ToastMessages.site.importing, { icon });
 
       const siteId = nanoid();
-      const pagesWithNewIds: Record<string, Page> = {};
       const text = await file.text();
       const parsedSite: Site & { __WARNING__?: string; images?: Record<string, string> } = JSON.parse(text);
-
-      for (const key in parsedSite.pages) {
-        const page = parsedSite.pages[key];
-        const newId = nanoid();
-        pagesWithNewIds[newId] = { ...page, id: newId };
-      }
 
       if (!validateSiteJson(parsedSite)) {
         throw new Error(ToastMessages.site.importInvalid);
       }
 
-      const importedImages = parsedSite.images || {};
       const storedImages = (await AppStorage.get<Record<string, Blob>>(StorageKey.Images)) || {};
-      const newImagesMap: Record<string, Blob> = { ...storedImages };
-
-      for (const [oldBlobId, base64] of Object.entries(importedImages)) {
-        if (!storedImages[oldBlobId]) {
-          const file = await base64ToFile(base64);
-
-          if (file) {
-            newImagesMap[oldBlobId] = file;
-          }
-        }
-      }
+      const newImagesMap = await maybeMergeImportedImages(parsedSite.images || {}, storedImages);
 
       await AppStorage.set(StorageKey.Images, newImagesMap);
 
@@ -144,7 +126,7 @@ export default function Sidebar() {
       const importedSite = {
         ...parsedSite,
         id: siteId,
-        pages: pagesWithNewIds
+        pages: parsedSite.pages
       };
 
       dispatch({ type: addSite.type, payload: toSiteMetadata(importedSite), meta: { rawSite: importedSite } });
@@ -188,6 +170,25 @@ export default function Sidebar() {
     </StyledSidebar>
   );
 }
+
+const maybeMergeImportedImages = async (
+  importedImages: Record<string, string>,
+  storedImages: Record<string, Blob>
+): Promise<Record<string, Blob>> => {
+  const newImagesMap: Record<string, Blob> = { ...storedImages };
+
+  for (const [oldBlobId, base64] of Object.entries(importedImages)) {
+    if (!storedImages[oldBlobId]) {
+      const file = await base64ToFile(base64);
+
+      if (file) {
+        newImagesMap[oldBlobId] = file;
+      }
+    }
+  }
+
+  return newImagesMap;
+};
 
 const validate = (obj: Site | Page | PageElement, schema: Record<string, string>): boolean => {
   if (typeof obj !== 'object' || obj === null) return false;

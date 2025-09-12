@@ -35,6 +35,7 @@ const PRESET_COLORS = [
  */
 
 interface ColorPickerProps {
+  id?: string;
   defaultValue?: string;
   onChange?: (event: { target: { value: string | number } }) => void;
 }
@@ -43,7 +44,7 @@ interface ColorPickerProps {
  * Component definition
  */
 
-export default function ColorPicker({ defaultValue, onChange }: ColorPickerProps) {
+export default function ColorPicker({ id, defaultValue, onChange }: ColorPickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [hex, setHex] = useState(defaultValue || DEFAULT_COLOR);
   const colorPickerRef = useOutsideClick<HTMLDivElement>(() => setIsOpen(false));
@@ -83,7 +84,14 @@ export default function ColorPicker({ defaultValue, onChange }: ColorPickerProps
     <div ref={colorPickerRef}>
       <Preview onClick={() => setIsOpen(!isOpen)}>
         <PreviewBox style={{ backgroundColor: hex }} />
-        <PreviewInput type='text' value={hex} onChange={handleHexInputChange} />
+        <PreviewInput
+          id={id}
+          type='text'
+          value={hex}
+          onChange={handleHexInputChange}
+          autoComplete='off'
+          spellCheck={false}
+        />
       </Preview>
       {isOpen && <StyledSketch presetColors={PRESET_COLORS} color={hex} onChange={handleSketchColorChange} />}
     </div>

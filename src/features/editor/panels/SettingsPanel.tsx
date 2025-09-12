@@ -2,7 +2,7 @@ import { resolveAlignment, reverseResolveAlignment } from '@compiler/utils/resol
 import { EditorToIframe, ElementsName } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
 import type { PageElement, PageElementAttrs, PageElementStyle } from '@shared/typing';
-import { cloneElement, createContext, useContext, useEffect, useState, type ReactElement } from 'react';
+import { ComponentProps, createContext, ElementType, Fragment, useContext, useEffect, useState } from 'react';
 import {
   LuAlignCenter,
   LuAlignEndHorizontal,
@@ -44,10 +44,14 @@ import { useStyle } from '../hooks/useStyle';
  * Constants
  */
 
+const PROPERTY_EDITOR_PREFIX = 'property-editor';
+
 const DEFAULT_BORDER_RADIUS = 0;
 const DEFAULT_BORDER_COLOR = '#3e7df5';
 const DEFAULT_BORDER_WIDTH = 2;
-const REGEX_TRAILING_NUMBER_SPLIT = /-(\d+)$/;
+const DEFAULT_ALIGN_ITEMS = 'flex-start';
+const DEFAULT_JUSTIFY_CONTENT = 'flex-start';
+const DEFAULT_FLEX_DIRECTION = 'column';
 
 const OPTIONS_COLUMN = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const OPTIONS_COLUMN_WIDTH = ['auto', 50, 100, 150, 200, 250, 300];
@@ -159,6 +163,8 @@ export const OPTIONS_CURSOR = [
   'grabbing'
 ] as const;
 
+export const OPTIONS_CURSOR_PLAIN: string[] = [...OPTIONS_CURSOR];
+
 export const FONT_WEIGHT_VALUES = {
   Inherit: 'inherit',
   Thin: '100',
@@ -183,10 +189,35 @@ export type FlexDirectionOption = 'row' | 'column' | 'row-reverse' | 'column-rev
 type StyleProp = keyof PageElementStyle;
 type BorderSide = 'Top' | 'Right' | 'Bottom' | 'Left';
 type HandleElementChange = (updates: Partial<PageElement>) => void;
+type PropertyEditorControlledProps = 'id' | 'value' | 'onChange' | 'onBlur';
 
 interface SettingsContextProps {
   handleElementChange: HandleElementChange;
 }
+
+interface PropertyEditorBaseProps {
+  type?: 'text' | 'number';
+  label?: string;
+  styleName?: StyleProp;
+  attrName?: keyof NonNullable<PageElementAttrs>;
+  fallbackValue?: string | number;
+  wrapper?: ElementType;
+}
+
+type InputProps = PropertyEditorBaseProps & {
+  as?: 'input';
+} & Omit<ComponentProps<typeof Input>, PropertyEditorControlledProps>;
+
+type SelectProps = PropertyEditorBaseProps & {
+  as: 'select';
+  defaultSelect?: string | number;
+} & Omit<ComponentProps<typeof Select>, PropertyEditorControlledProps | 'defaultSelect'>;
+
+type ColorPickerProps = PropertyEditorBaseProps & {
+  as: 'colorPicker';
+} & Omit<ComponentProps<typeof ColorPicker>, PropertyEditorControlledProps>;
+
+type PropertyEditorProps = InputProps | SelectProps | ColorPickerProps;
 
 /**
  * Component definition
@@ -214,55 +245,9 @@ export default function SettingsPanel() {
   );
 }
 
-function PropertyEditor({
-  children,
-  styleName,
-  attrName
-}: {
-  children: ReactElement<typeof Input | typeof Select>;
-  styleName?: StyleProp;
-  attrName?: keyof NonNullable<PageElementAttrs>;
-}) {
-  const { handleElementChange } = useSettingsContext();
-
-  const [localValue, setLocalValue] = useState('');
-
-  useEffect(() => {
-    setLocalValue(children.props.value ?? '');
-  }, [children.props.value]);
-
-  return cloneElement(children, {
-    value: localValue,
-    onChange: (event: any) => {
-      let value: string | number = event.target.value;
-      const isEmpty = typeof value === 'string' && value.trim() === '';
-      const isLinkInput = attrName !== 'href';
-
-      setLocalValue(value);
-
-      if (isEmpty && isLinkInput) {
-        return;
-      }
-
-      if (!Number.isNaN(Number(value))) {
-        value = Number(value);
-      }
-
-      if (styleName) {
-        handleElementChange({ style: { [styleName]: value } });
-      }
-
-      if (attrName) {
-        handleElementChange({ attrs: { [attrName]: value } });
-      }
-    }
-  });
-}
-
 function SelectorSettings() {
   const selectedElement = useAppSelector(selectCurrentElement);
   const elements = useAppSelector(selectCurrentPageElements);
-
   const elementMap = generateElementDisplayMap(elements);
   const displayNames = Object.keys(elementMap);
 
@@ -311,46 +296,35 @@ function SizeSettings() {
       <CollapsibleSection title='Size' open>
         <GridContainer>
           <SizeRow>
-            <label htmlFor='settings-panel-input-left'>X</label>
-            <PropertyEditor styleName='left'>
-              <Input id='settings-panel-input-left' type='number' value={parseNumber(style.left)} />
-            </PropertyEditor>
+            <PropertyEditor as='input' styleName='left' type='number' label='X' wrapper={Fragment} />
           </SizeRow>
           <SizeRow>
-            <label htmlFor='settings-panel-input-top'>Y</label>
-            <PropertyEditor styleName='top'>
-              <Input id='settings-panel-input-top' type='number' value={parseNumber(style.top)} />
-            </PropertyEditor>
+            <PropertyEditor as='input' styleName='top' type='number' label='Y' wrapper={Fragment} />
           </SizeRow>
           <SizeRow>
-            <label htmlFor='settings-panel-input-width'>W</label>
-            <PropertyEditor styleName='width'>
-              <Select
-                id='settings-panel-input-width'
-                editable
-                editInputType='text'
-                options={OPTIONS_SIZE}
-                defaultSelect={parseNumber(style.width)}
-              />
-            </PropertyEditor>
+            <PropertyEditor
+              as='select'
+              styleName='width'
+              label='W'
+              wrapper={Fragment}
+              editable
+              editInputType='text'
+              options={OPTIONS_SIZE}
+            />
           </SizeRow>
           <SizeRow>
-            <label htmlFor='settings-panel-input-height'>H</label>
-            <PropertyEditor styleName='height'>
-              <Select
-                id='settings-panel-input-height'
-                editable
-                editInputType='text'
-                options={['screen', ...OPTIONS_SIZE]}
-                defaultSelect={parseNumber(style.height)}
-              />
-            </PropertyEditor>
+            <PropertyEditor
+              as='select'
+              styleName='height'
+              label='H'
+              wrapper={Fragment}
+              editable
+              editInputType='text'
+              options={['screen', ...OPTIONS_SIZE]}
+            />
           </SizeRow>
           <SizeRow>
-            <label htmlFor='settings-panel-input-rotate'>R</label>
-            <PropertyEditor styleName='rotate'>
-              <Input id='settings-panel-input-rotate' type='number' value={parseNumber(style.rotate)} />
-            </PropertyEditor>
+            <PropertyEditor as='input' styleName='rotate' type='number' label='R' wrapper={Fragment} />
           </SizeRow>
           <RotationContainer>
             <AppTooltip label='Rotate -90°' side='top' sideOffset={5} sizeSmall>
@@ -372,9 +346,9 @@ function SizeSettings() {
 function AlignmentSettings() {
   const style = useStyle();
   const { handleElementChange } = useSettingsContext();
-  const justifyContent = style.justifyContent || 'flex-start';
-  const alignItems = style.alignItems || 'flex-start';
-  const flexDirection = style.flexDirection || 'column';
+  const justifyContent = style.justifyContent || DEFAULT_JUSTIFY_CONTENT;
+  const alignItems = style.alignItems || DEFAULT_ALIGN_ITEMS;
+  const flexDirection = style.flexDirection || DEFAULT_FLEX_DIRECTION;
 
   const [resolvedJustifyName, resolvedJustifyValue] = reverseResolveAlignment(
     'justifyContent',
@@ -420,7 +394,7 @@ function AlignmentSettings() {
 function FlexSettings() {
   const style = useStyle();
   const { handleElementChange } = useSettingsContext();
-  const { justifyContent, columnGap, rowGap, flexDirection } = style;
+  const { justifyContent, flexDirection } = style;
   const jcValue = justifyContent?.replace(/^space-/, '') || '';
   const space = OPTIONS_SPACE_VALUE.has(jcValue) ? jcValue : 'none';
 
@@ -432,26 +406,31 @@ function FlexSettings() {
     <div>
       <CollapsibleSection title='Flex'>
         <GridContainer>
+          <PropertyEditor
+            as='select'
+            styleName='columnGap'
+            type='number'
+            label='Gap X'
+            editable
+            options={OPTIONS_COLUMN_GAP}
+          />
+          <PropertyEditor
+            as='select'
+            styleName='rowGap'
+            type='number'
+            label='Gap Y'
+            editable
+            options={OPTIONS_ROW_GAP}
+          />
+          <PropertyEditor
+            as='select'
+            styleName='justifyContent'
+            label='Space'
+            defaultSelect={space}
+            options={OPTIONS_SPACE}
+          />
           <div>
-            <SubTitle>Gap X</SubTitle>
-            <PropertyEditor styleName='columnGap'>
-              <Select editable defaultSelect={parseNumber(columnGap)} options={OPTIONS_COLUMN_GAP} />
-            </PropertyEditor>
-          </div>
-          <div>
-            <SubTitle>Gap Y</SubTitle>
-            <PropertyEditor styleName='rowGap'>
-              <Select editable defaultSelect={parseNumber(rowGap)} options={OPTIONS_ROW_GAP} />
-            </PropertyEditor>
-          </div>
-          <div>
-            <SubTitle>Space</SubTitle>
-            <PropertyEditor styleName='justifyContent'>
-              <Select defaultSelect={space} options={OPTIONS_SPACE} />
-            </PropertyEditor>
-          </div>
-          <div>
-            <SubTitle>Direction</SubTitle>
+            <Label>Direction</Label>
             <DisplayOptionsWrapper>
               {OPTIONS_FLEX_DIRECTION.map(({ value, icon }) => (
                 <AppTooltip key={value} label={value} side='top' sideOffset={5} sizeSmall>
@@ -472,56 +451,21 @@ function FlexSettings() {
 }
 
 function SpaceSettings() {
-  const { marginTop, marginRight, marginBottom, marginLeft, paddingTop, paddingRight, paddingBottom, paddingLeft } =
-    useStyle();
-
   return (
     <div>
       <CollapsibleSection title='Spacing'>
         <SpaceBox>
-          <div>
-            <PropertyEditor styleName='marginTop'>
-              <input type='number' value={parseNumber(marginTop)} />
-            </PropertyEditor>
-          </div>
+          <PropertyEditor as='input' styleName='marginTop' type='number' />
           <PaddingBox>
-            <div>
-              <PropertyEditor styleName='paddingTop'>
-                <input type='number' value={parseNumber(paddingTop)} />
-              </PropertyEditor>
-            </div>
+            <PropertyEditor as='input' styleName='paddingTop' type='number' />
             <div>&nbsp;</div>
-            <div>
-              <PropertyEditor styleName='paddingLeft'>
-                <input type='number' value={parseNumber(paddingLeft)} />
-              </PropertyEditor>
-            </div>
-            <div>
-              <PropertyEditor styleName='paddingRight'>
-                <input type='number' value={parseNumber(paddingRight)} />
-              </PropertyEditor>
-            </div>
-            <div>
-              <PropertyEditor styleName='paddingBottom'>
-                <input type='number' value={parseNumber(paddingBottom)} />
-              </PropertyEditor>
-            </div>
+            <PropertyEditor as='input' styleName='paddingLeft' type='number' />
+            <PropertyEditor as='input' styleName='paddingRight' type='number' />
+            <PropertyEditor as='input' styleName='paddingBottom' type='number' />
           </PaddingBox>
-          <div>
-            <PropertyEditor styleName='marginLeft'>
-              <input type='number' value={parseNumber(marginLeft)} />
-            </PropertyEditor>
-          </div>
-          <div>
-            <PropertyEditor styleName='marginRight'>
-              <input type='number' value={parseNumber(marginRight)} />
-            </PropertyEditor>
-          </div>
-          <div>
-            <PropertyEditor styleName='marginBottom'>
-              <input type='number' value={parseNumber(marginBottom)} />
-            </PropertyEditor>
-          </div>
+          <PropertyEditor as='input' styleName='marginLeft' type='number' />
+          <PropertyEditor as='input' styleName='marginRight' type='number' />
+          <PropertyEditor as='input' styleName='marginBottom' type='number' />
         </SpaceBox>
       </CollapsibleSection>
     </div>
@@ -529,63 +473,44 @@ function SpaceSettings() {
 }
 
 function GridSettings() {
-  const { columns, rows, columnWidth, rowHeight, columnGap, rowGap } = useStyle();
-
   return (
     <div>
       <CollapsibleSection title='Grid' open>
         <GridContainer>
-          <div>
-            <SubTitle>Columns</SubTitle>
-            <PropertyEditor styleName='columns'>
-              <Select editable defaultSelect={parseNumber(columns)} options={OPTIONS_COLUMN} />
-            </PropertyEditor>
-          </div>
-          <div>
-            <SubTitle>Rows</SubTitle>
-            <PropertyEditor styleName='rows'>
-              <Select editable defaultSelect={parseNumber(rows)} options={OPTIONS_ROW} />
-            </PropertyEditor>
-          </div>
-          <div>
-            <SubTitle>Width</SubTitle>
-            <PropertyEditor styleName='columnWidth'>
-              <Select
-                editable
-                editInputType='text'
-                defaultSelect={parseNumber(columnWidth)}
-                options={OPTIONS_COLUMN_WIDTH}
-              />
-            </PropertyEditor>
-          </div>
-          <div>
-            <SubTitle>Height</SubTitle>
-            <PropertyEditor styleName='rowHeight'>
-              <Select
-                editable
-                editInputType='text'
-                defaultSelect={parseNumber(rowHeight)}
-                options={OPTIONS_ROW_HEIGHT}
-              />
-            </PropertyEditor>
-          </div>
-          <div>
-            <SubTitle>Gap X</SubTitle>
-            <PropertyEditor styleName='columnGap'>
-              <Select
-                editable
-                editInputType='text'
-                defaultSelect={parseNumber(columnGap)}
-                options={OPTIONS_COLUMN_GAP}
-              />
-            </PropertyEditor>
-          </div>
-          <div>
-            <SubTitle>Gap Y</SubTitle>
-            <PropertyEditor styleName='rowGap'>
-              <Select editable editInputType='text' defaultSelect={parseNumber(rowGap)} options={OPTIONS_ROW_GAP} />
-            </PropertyEditor>
-          </div>
+          <PropertyEditor as='select' styleName='columns' label='Columns' editable options={OPTIONS_COLUMN} />
+          <PropertyEditor as='select' styleName='rows' label='Rows' editable options={OPTIONS_ROW} />
+          <PropertyEditor
+            as='select'
+            styleName='columnWidth'
+            label='Width'
+            editable
+            editInputType='text'
+            options={OPTIONS_COLUMN_WIDTH}
+          />
+          <PropertyEditor
+            as='select'
+            styleName='rowHeight'
+            label='Height'
+            editable
+            editInputType='text'
+            options={OPTIONS_ROW_HEIGHT}
+          />
+          <PropertyEditor
+            as='select'
+            styleName='columnGap'
+            label='Gap X'
+            editable
+            editInputType='text'
+            options={OPTIONS_COLUMN_GAP}
+          />
+          <PropertyEditor
+            as='select'
+            styleName='rowGap'
+            label='Gap Y'
+            editable
+            editInputType='text'
+            options={OPTIONS_ROW_GAP}
+          />
         </GridContainer>
       </CollapsibleSection>
     </div>
@@ -593,40 +518,22 @@ function GridSettings() {
 }
 
 function LinkSettings() {
-  const href = useAppSelector(selectCurrentElement).attrs?.href;
-
   return (
     <div>
       <CollapsibleSection title='Link' open>
-        <div>
-          <PropertyEditor attrName='href'>
-            <Input type='text' value={href || ''} placeholder='https://example.com' />
-          </PropertyEditor>
-        </div>
+        <PropertyEditor as='input' attrName='href' type='text' placeholder='https://example.com' />
       </CollapsibleSection>
     </div>
   );
 }
 
 function InputSettings() {
-  const attrs = useAppSelector(selectCurrentElement).attrs;
-
   return (
     <div>
       <CollapsibleSection title='Input' open>
         <GridContainer>
-          <div>
-            <SubTitle>Placeholder</SubTitle>
-            <PropertyEditor attrName='placeholder'>
-              <Input type='text' value={attrs?.placeholder || ''} />
-            </PropertyEditor>
-          </div>
-          <div>
-            <SubTitle>Type</SubTitle>
-            <PropertyEditor attrName='type'>
-              <Select editInputType='text' defaultSelect={attrs?.type || ''} options={OPTIONS_INPUT_TYPE} />
-            </PropertyEditor>
-          </div>
+          <PropertyEditor as='input' attrName='placeholder' type='text' label='Placeholder' />
+          <PropertyEditor as='select' attrName='type' label='Type' editInputType='text' options={OPTIONS_INPUT_TYPE} />
         </GridContainer>
       </CollapsibleSection>
     </div>
@@ -636,41 +543,28 @@ function InputSettings() {
 function TypographySettings() {
   const name = useAppSelector(selectCurrentElement).name;
   const { handleElementChange } = useSettingsContext();
-  const { textAlign, fontFamily, fontWeight, fontSize, color } = useStyle();
+  const { textAlign } = useStyle();
   const showTextAlign = [ElementsName.Heading, ElementsName.Text, ElementsName.Link, ElementsName.Input].includes(name);
 
   return (
     <TypographyContainer>
       <CollapsibleSection title='Typography'>
-        <div>
-          <SubTitle>Font Family</SubTitle>
-          <PropertyEditor styleName='fontFamily'>
-            <Select defaultSelect={fontFamily ?? ''} options={OPTIONS_FONT} />
-          </PropertyEditor>
-        </div>
+        <PropertyEditor as='select' styleName='fontFamily' label='Font Family' options={OPTIONS_FONT} />
         <GridContainer>
-          <div>
-            <SubTitle>Weight</SubTitle>
-            <PropertyEditor styleName='fontWeight'>
-              <Select defaultSelect={fontWeight ?? ''} options={Object.keys(FONT_WEIGHT_VALUES)} />
-            </PropertyEditor>
-          </div>
-          <div>
-            <SubTitle>Font Size</SubTitle>
-            <PropertyEditor styleName='fontSize'>
-              <Select editable editInputType='text' defaultSelect={parseNumber(fontSize)} options={OPTIONS_FONT_SIZE} />
-            </PropertyEditor>
-          </div>
+          <PropertyEditor as='select' styleName='fontWeight' label='Weight' options={Object.keys(FONT_WEIGHT_VALUES)} />
+          <PropertyEditor
+            as='select'
+            styleName='fontSize'
+            label='Font Size'
+            editable
+            editInputType='text'
+            options={OPTIONS_FONT_SIZE}
+          />
         </GridContainer>
-        <div>
-          <SubTitle>Color</SubTitle>
-          <PropertyEditor styleName='color'>
-            <ColorPicker defaultValue={color ?? ''} />
-          </PropertyEditor>
-        </div>
+        <PropertyEditor as='colorPicker' styleName='color' label='Color' />
         {showTextAlign && (
           <div>
-            <SubTitle>Text Align</SubTitle>
+            <Label>Text Align</Label>
             <TextAlignContainer>
               {OPTIONS_TEXT_ALIGN.map(({ value, icon }) => (
                 <AppTooltip key={value} label={value} side='top' sideOffset={5} sizeSmall>
@@ -690,17 +584,10 @@ function TypographySettings() {
 }
 
 function FillSettings() {
-  const style = useStyle();
-
   return (
     <div>
       <CollapsibleSection title='Fill'>
-        <div>
-          <SubTitle>Background Color</SubTitle>
-          <PropertyEditor styleName='backgroundColor'>
-            <ColorPicker defaultValue={style.backgroundColor} />
-          </PropertyEditor>
-        </div>
+        <PropertyEditor as='colorPicker' styleName='backgroundColor' label='Background Color' />
       </CollapsibleSection>
     </div>
   );
@@ -712,12 +599,13 @@ function CursorSettings() {
   return (
     <div>
       <CollapsibleSection title='Cursor'>
-        <div>
-          <SubTitle>Type</SubTitle>
-          <PropertyEditor styleName='cursor'>
-            <Select defaultSelect={style.cursor || 'default'} options={OPTIONS_CURSOR} />
-          </PropertyEditor>
-        </div>
+        <PropertyEditor
+          as='select'
+          styleName='cursor'
+          label='Type'
+          defaultSelect={style.cursor || 'default'}
+          options={OPTIONS_CURSOR_PLAIN}
+        />
       </CollapsibleSection>
     </div>
   );
@@ -729,7 +617,6 @@ function StrokeSettings() {
     borderRight,
     borderBottom,
     borderLeft,
-    borderRadius = DEFAULT_BORDER_RADIUS,
     borderColor = DEFAULT_BORDER_COLOR,
     borderWidth = DEFAULT_BORDER_WIDTH
   } = useStyle();
@@ -752,22 +639,26 @@ function StrokeSettings() {
     <div>
       <CollapsibleSection title='Stroke'>
         <GridContainer>
-          <div>
-            <PropertyEditor styleName='borderColor'>
-              <ColorPicker defaultValue={borderColor} />
-            </PropertyEditor>
-          </div>
+          <PropertyEditor as='colorPicker' styleName='borderColor' fallbackValue={DEFAULT_BORDER_COLOR} />
           <StrokeWidthContainer>
-            <StrokeLabel>width</StrokeLabel>
-            <PropertyEditor styleName='borderWidth'>
-              <Input type='number' value={borderWidth} />
-            </PropertyEditor>
+            <StrokeLabel htmlFor={`${PROPERTY_EDITOR_PREFIX}-input-borderWidth`}>width</StrokeLabel>
+            <PropertyEditor
+              as='input'
+              styleName='borderWidth'
+              type='number'
+              wrapper={Fragment}
+              fallbackValue={DEFAULT_BORDER_WIDTH}
+            />
           </StrokeWidthContainer>
           <StrokeWidthContainer>
-            <StrokeLabel>radius</StrokeLabel>
-            <PropertyEditor styleName='borderRadius'>
-              <Input type='number' value={borderRadius} />
-            </PropertyEditor>
+            <StrokeLabel htmlFor={`${PROPERTY_EDITOR_PREFIX}-input-borderRadius`}>radius</StrokeLabel>
+            <PropertyEditor
+              as='input'
+              styleName='borderRadius'
+              type='number'
+              wrapper={Fragment}
+              fallbackValue={DEFAULT_BORDER_RADIUS}
+            />
           </StrokeWidthContainer>
           <StrokePosition>
             {OPTIONS_BORDER.map(({ side, icon }) => {
@@ -797,7 +688,7 @@ function PageSettings() {
   return (
     <div>
       <CollapsibleSection title='Page'>
-        <SubTitle>Background Color</SubTitle>
+        <Label>Background Color</Label>
         <div>
           <div>
             <ColorPicker
@@ -813,9 +704,81 @@ function PageSettings() {
   );
 }
 
+function PropertyEditor({
+  as = 'input',
+  type = 'text',
+  label,
+  styleName,
+  attrName,
+  fallbackValue,
+  wrapper: Wrapper = 'div',
+  ...props
+}: PropertyEditorProps) {
+  const { handleElementChange } = useSettingsContext();
+  const currentEl = useAppSelector(selectCurrentElement);
+  const style = useStyle();
+  const attrs = currentEl.attrs || {};
+  const [value, setValue] = useState(getCurrentValue);
+
+  function getCurrentValue() {
+    const val = styleName ? style[styleName] : attrName ? attrs[attrName] : '';
+
+    if (val === undefined || val === '') {
+      return fallbackValue === undefined ? (type === 'number' ? 0 : '') : fallbackValue;
+    }
+
+    return type === 'number' ? (parseNumber(val) ?? 0) : (val ?? '');
+  }
+
+  useEffect(() => {
+    setValue(getCurrentValue());
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentEl.id]);
+
+  const id = `${PROPERTY_EDITOR_PREFIX}-${as}-${styleName || attrName}`;
+
+  const commonProps = {
+    id,
+    value,
+    onBlur: () => setValue(getCurrentValue()),
+    onChange: (event: any) => {
+      let value: string | number = event.target.value;
+      const isEmpty = typeof value === 'string' && value.trim() === '';
+
+      setValue(value);
+
+      if (isEmpty) return;
+      if (!Number.isNaN(Number(value))) value = Number(value);
+
+      if (styleName) handleElementChange({ style: { [styleName]: value } });
+      if (attrName) handleElementChange({ attrs: { [attrName]: value } });
+    }
+  };
+
+  return (
+    <Wrapper>
+      {label && <Label htmlFor={id}>{label}</Label>}
+      {as === 'select' && (
+        <Select
+          {...commonProps}
+          {...(props as SelectProps)}
+          defaultSelect={(props as SelectProps).defaultSelect ?? getCurrentValue()}
+        />
+      )}
+      {as === 'colorPicker' && (
+        <ColorPicker {...commonProps} {...(props as ColorPickerProps)} defaultValue={getCurrentValue() as string} />
+      )}
+      {as === 'input' && (
+        <Input {...commonProps} {...(props as InputProps)} type={type} spellCheck={false} autoComplete='off' />
+      )}
+    </Wrapper>
+  );
+}
+
 const parseNumber = (value: number | string | undefined) => {
-  if (value === undefined) {
-    return 0;
+  if (!value) {
+    return;
   }
 
   if (typeof value === 'string' && Number.isNaN(Number.parseFloat(value))) {
@@ -858,13 +821,6 @@ const GridContainer = styled.div`
   gap: 1.6rem;
 `;
 
-const SubTitle = styled.label`
-  display: inline-block;
-  margin-bottom: 1.2rem;
-  color: var(--color-gray-light-2);
-  font-size: 1.2rem;
-`;
-
 const StrokeWidthContainer = styled.div`
   position: relative;
 
@@ -872,6 +828,13 @@ const StrokeWidthContainer = styled.div`
     padding-left: 1.2rem;
     width: 100%;
   }
+`;
+
+const Label = styled.label`
+  display: inline-block;
+  margin-bottom: 1.2rem;
+  color: var(--color-gray-light-2);
+  font-size: 1.2rem;
 `;
 
 const StrokeLabel = styled.label`
@@ -898,7 +861,7 @@ const SelectorContainer = styled.div`
   font-size: 1.2rem;
 `;
 
-const SizeRow = styled.div<{ $disabled?: boolean }>`
+const SizeRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -906,8 +869,7 @@ const SizeRow = styled.div<{ $disabled?: boolean }>`
   color: var(--color-gray);
 
   label {
-    min-width: 1rem;
-    ${(props) => props.$disabled && 'color: var(--color-gray-light-3);'}
+    margin: 0;
   }
 `;
 
@@ -966,6 +928,7 @@ const SpaceBox = styled.div`
   input {
     outline: none;
     background-color: transparent;
+    padding: 0;
     width: 2.6rem;
     text-align: center;
   }

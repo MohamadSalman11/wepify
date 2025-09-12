@@ -72,7 +72,15 @@ export default function Select({
         onClick={!editable && !disabled ? toggleDropdown : undefined}
       >
         {editable ? (
-          <LabelInput id={id} type={editInputType} value={selected} disabled={disabled} onChange={handleInputChange} />
+          <LabelInput
+            id={id}
+            type={editInputType}
+            value={selected}
+            disabled={disabled}
+            onChange={handleInputChange}
+            autoComplete='off'
+            spellCheck={false}
+          />
         ) : (
           <LabelEditable>{selected || 'Select...'}</LabelEditable>
         )}

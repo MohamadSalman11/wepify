@@ -15,6 +15,9 @@ import favicon from '/favicon.ico';
  */
 
 const DEFAULT_IMAGES_COUNT = 0;
+const DEFAULT_IMAGE_EXTENSION = 'png';
+
+const SELECTOR_IMG = 'img';
 const SITE_JSON_WARNING = `⚠️ Do NOT modify any fields in this file manually, it will break the application. Upload it and edit in the app`;
 
 enum File {
@@ -111,8 +114,8 @@ class SiteExporter {
       const indexCssFinal = this.shouldMinify ? new CSSMinifier(cssData.normalCSS).minify() : cssData.normalCSS;
       const responsiveCssFinal = this.shouldMinify ? new CSSMinifier(cssData.mediaCSS).minify() : cssData.mediaCSS;
 
-      folder.file(`${pageId}_index.css`, indexCssFinal);
-      folder.file(`${pageId}_responsive.css`, responsiveCssFinal);
+      folder.file(`${pageId}_${File.IndexCSS}`, indexCssFinal);
+      folder.file(`${pageId}_${File.ResponsiveCSS}`, responsiveCssFinal);
     }
   }
 
@@ -148,7 +151,7 @@ class SiteExporter {
 
   private async processImages(doc: Document) {
     const imagesMap = await AppStorage.get<Record<string, Blob>>(StorageKey.Images);
-    const images = doc.querySelectorAll('img') as NodeListOf<HTMLImageElement>;
+    const images = doc.querySelectorAll(SELECTOR_IMG) as NodeListOf<HTMLImageElement>;
 
     if (images.length === 0) return;
 
@@ -168,7 +171,7 @@ class SiteExporter {
         reader.readAsDataURL(blob);
       });
 
-      const ext = blob.type.split('/')[1] || 'png';
+      const ext = blob.type.split('/')[1] || DEFAULT_IMAGE_EXTENSION;
       const fileName = `image_${++this.imageCount}.${ext}`;
 
       imagesFolder.file(fileName, base64, { base64: true });

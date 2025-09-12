@@ -53,7 +53,7 @@ export class HTMLMinifier {
       .trim();
   }
 
-  public async cleanUp() {
+  async cleanUp() {
     let fontsURL = FONTS_URL;
     const usedFonts = this.getUsedFonts();
     const unusedFonts = OPTIONS_FONT.filter((font) => !usedFonts.has(font));
@@ -76,6 +76,7 @@ export class HTMLMinifier {
 
     return await prettier.format(cleanedHTML, this.getPrettierOptions());
   }
+
   // private
   private filterClasses(_match: string, classes: string): string {
     const trimmedClasses = classes.split(REGEX.WHITESPACE).filter(Boolean).join(' ');

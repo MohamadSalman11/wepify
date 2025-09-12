@@ -205,8 +205,8 @@ html {
 //
 
 [data-selected-section]::after {
-  background-color: $color-primary;
-  color: $color-white;
+  background-color: $color-primary !important;
+  color: $color-white !important;
 }
 
 [data-selected-item] {

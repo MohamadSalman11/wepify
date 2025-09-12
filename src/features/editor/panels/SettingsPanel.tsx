@@ -51,7 +51,8 @@ const DEFAULT_BORDER_COLOR = '#3e7df5';
 const DEFAULT_BORDER_WIDTH = 2;
 const DEFAULT_ALIGN_ITEMS = 'flex-start';
 const DEFAULT_JUSTIFY_CONTENT = 'flex-start';
-const DEFAULT_FLEX_DIRECTION = 'column';
+const DEFAULT_FLEX_DIRECTION = 'row';
+const DEFAULT_TEXT_ALIGN = 'left';
 
 const OPTIONS_COLUMN = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const OPTIONS_COLUMN_WIDTH = ['auto', 50, 100, 150, 200, 250, 300];
@@ -483,6 +484,7 @@ function GridSettings() {
             as='select'
             styleName='columnWidth'
             label='Width'
+            fallbackValue='auto'
             editable
             editInputType='text'
             options={OPTIONS_COLUMN_WIDTH}
@@ -491,6 +493,7 @@ function GridSettings() {
             as='select'
             styleName='rowHeight'
             label='Height'
+            fallbackValue='auto'
             editable
             editInputType='text'
             options={OPTIONS_ROW_HEIGHT}
@@ -570,7 +573,7 @@ function TypographySettings() {
                 <AppTooltip key={value} label={value} side='top' sideOffset={5} sizeSmall>
                   <Icon
                     icon={icon}
-                    isSelected={(textAlign || 'left') === value}
+                    isSelected={(textAlign || DEFAULT_TEXT_ALIGN) === value}
                     onClick={() => handleElementChange({ style: { textAlign: value } })}
                   />
                 </AppTooltip>

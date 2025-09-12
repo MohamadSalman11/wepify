@@ -1,4 +1,5 @@
 import { applyResponsiveUpdates } from '@compiler/utils/applyResponsiveUpdates';
+import { cleanElement } from '@compiler/utils/cleanElement';
 import {
   createAsyncThunk,
   createSelector,
@@ -199,6 +200,7 @@ const editorSlice = createSlice({
       if (device === Device.Monitor) element.style = { ...element.style, ...updates.style };
 
       applyResponsiveUpdates(element, updates, device);
+      cleanElement(element);
     },
     changeElementPosition(state, action: PayloadAction<{ newOrder: string[] }>) {
       const page = state.currentSite?.pages[state.currentPageId || ''];

@@ -53,15 +53,13 @@ export interface ImageElement extends PageElement {
 }
 
 export type PageElementStyle = Partial<{
-  position: 'absolute' | 'relative' | '';
+  position: 'absolute' | 'relative' | 'static';
   width: number | 'fill' | 'auto';
   height: number | 'screen' | 'fill' | 'auto';
   left: number;
   top: number;
   color: string;
   backgroundColor: string;
-  transitionType: string;
-  transitionDuration: number;
   fontSize: number | 'Inherit';
   fontFamily: string;
   fontWeight: keyof typeof FONT_WEIGHT_VALUES;

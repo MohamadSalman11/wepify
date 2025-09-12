@@ -99,5 +99,9 @@ document.addEventListener('mouseover', controlDocumentMouseover);
 document.addEventListener('mouseout', controlDocumentMouseout);
 document.addEventListener('keydown', controlEditableButton);
 document.addEventListener('contextmenu', contextMenuController.show.bind(contextMenuController));
-document.addEventListener('touchstart', contextMenuController.handleTouchStart, { passive: false });
+
+document.addEventListener('touchstart', contextMenuController.handleTouchStart.bind(contextMenuController), {
+  passive: false
+});
+
 document.addEventListener('touchend', contextMenuController.handleTouchEnd);

@@ -5,19 +5,6 @@ import { RootState } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
 import { toSiteMetadata } from '../../utils/toSiteMetadata';
 
-export const loadSitesFromStorage = createAsyncThunk('dashboard/loadSitesFromStorage', async () => {
-  const sites = await AppStorage.get<Record<string, Site>>(StorageKey.Sites, {});
-  const sitesMetadata: Record<string, SiteMetadata> = {};
-
-  for (const [id, site] of Object.entries(sites)) {
-    sitesMetadata[id] = toSiteMetadata(site);
-  }
-
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  return sitesMetadata;
-});
-
 interface DashboardState {
   sites: Record<string, SiteMetadata>;
   loading: boolean;
@@ -31,6 +18,19 @@ const initialState: DashboardState = {
   processing: false,
   error: undefined
 };
+
+export const loadSitesFromStorage = createAsyncThunk('dashboard/loadSitesFromStorage', async () => {
+  const sites = await AppStorage.get<Record<string, Site>>(StorageKey.Sites, {});
+  const sitesMetadata: Record<string, SiteMetadata> = {};
+
+  for (const [id, site] of Object.entries(sites)) {
+    sitesMetadata[id] = toSiteMetadata(site);
+  }
+
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  return sitesMetadata;
+});
 
 const dashboardSlice = createSlice({
   name: 'dashboard',

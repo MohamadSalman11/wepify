@@ -1,7 +1,7 @@
 import { StyleGenerator } from '@compiler/style/StyleGenerator';
 import { resolveStyleDependencies } from '@compiler/utils/resolveStyleDependencies';
 import { SCREEN_SIZES } from '@shared/constants';
-import { Page, PageElement, ResponsiveDeviceType } from '@shared/typing';
+import { Page, PageElement, PageElementStyle, ResponsiveDeviceType } from '@shared/typing';
 
 /**
  * Types
@@ -107,7 +107,7 @@ export class CSSGenerator {
         }
 
         mediaStylesMap[maxWidth][`#${element.id}`] = new StyleGenerator(
-          resolveStyleDependencies(style, element)
+          resolveStyleDependencies(style, element) as PageElementStyle
         ).generate();
       }
     }

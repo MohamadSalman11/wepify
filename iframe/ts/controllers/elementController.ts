@@ -198,6 +198,14 @@ class ElementController {
     elementView.updateSelection(el);
   }
 
+  canPasteHere() {
+    return (
+      this.canAcceptChildren(this.currentEl) &&
+      (this.currentElName !== ElementsName.Grid || state.copiedElName === ElementsName.GridItem) &&
+      (this.currentElName !== ElementsName.List || state.copiedElName === ElementsName.ListItem)
+    );
+  }
+
   isOverlapped(el?: HTMLElement) {
     const target = el || this.currentEl;
     return getComputedStyle(target).position === 'absolute';

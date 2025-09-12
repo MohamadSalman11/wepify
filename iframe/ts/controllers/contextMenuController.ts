@@ -1,4 +1,3 @@
-import { ElementsName } from '@shared/constants';
 import { SELECTOR_SECTION } from '../constants';
 import { state } from '../model';
 import contextMenuView, { SELECTOR_CONTEXT_MENU } from '../views/contextMenuView';
@@ -50,11 +49,7 @@ class ContextMenuController {
     const { pageX, pageY } = this.getEventCoordinates(event);
     const disabledActions: ContextMenuAction[] = [];
 
-    if (
-      !elementController.canAcceptChildren(elementController.currentEl) ||
-      (elementController.currentElName === ElementsName.Grid && state.copiedElName !== ElementsName.GridItem) ||
-      (elementController.currentElName === ElementsName.List && state.copiedElName !== ElementsName.ListItem)
-    ) {
+    if (!elementController.canPasteHere()) {
       disabledActions.push(ContextMenuAction.Paste);
     }
 

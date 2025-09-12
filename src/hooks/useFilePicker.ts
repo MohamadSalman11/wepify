@@ -1,5 +1,5 @@
 import { ElementsName } from '@shared/constants';
-import { createElement, useMemo, useRef } from 'react';
+import { ChangeEvent, createElement, useMemo, useRef } from 'react';
 
 interface UseFilePickerProps {
   accept?: string;

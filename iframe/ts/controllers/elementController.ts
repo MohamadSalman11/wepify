@@ -112,9 +112,9 @@ class ElementController {
     const index = Math.max(0, Math.min(newIndex, siblings.length));
 
     if (index >= siblings.length) {
-      parent.append(element);
+      parent.append(el);
     } else {
-      parent.insertBefore(element, siblings[index]);
+      parent.insertBefore(el, siblings[index]);
     }
 
     moveableController.clearTarget();

@@ -521,7 +521,7 @@ function LinkSettings() {
   return (
     <div>
       <CollapsibleSection title='Link' open>
-        <PropertyEditor as='input' attrName='href' type='text' placeholder='https://example.com' />
+        <PropertyEditor as='input' attrName='href' placeholder='https://example.com' />
       </CollapsibleSection>
     </div>
   );
@@ -744,12 +744,16 @@ function PropertyEditor({
     onBlur: () => setValue(getCurrentValue()),
     onChange: (event: any) => {
       let value: string | number = event.target.value;
+      const isLink = attrName === 'href';
       const isEmpty = typeof value === 'string' && value.trim() === '';
 
       setValue(value);
 
-      if (isEmpty) return;
-      if (!Number.isNaN(Number(value))) value = Number(value);
+      if (isEmpty && !isLink) return;
+
+      if (type === 'number' && !isEmpty) {
+        value = Number(value);
+      }
 
       if (styleName) handleElementChange({ style: { [styleName]: value } });
       if (attrName) handleElementChange({ attrs: { [attrName]: value } });

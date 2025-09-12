@@ -2,10 +2,7 @@
  * Constants
  */
 
-const ALL_ORIGINS = '*';
-const PROD_ORIGIN = 'https://wepify.mohamad-salman.dev';
-const TARGET_ORIGIN = import.meta.env.MODE === 'production' ? PROD_ORIGIN : ALL_ORIGINS;
-
+const TARGET_ORIGIN = '*';
 const SELECTOR_IFRAME = 'iframe';
 
 /**

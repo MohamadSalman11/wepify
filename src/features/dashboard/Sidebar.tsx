@@ -39,6 +39,7 @@ const ELEMENT_SCHEMA: Record<RequiredKeys<PageElement>, JsType> = {
   contentEditable: 'boolean',
   focusable: 'boolean',
   moveable: 'boolean',
+  canHaveChildren: 'boolean',
   style: 'object'
 };
 

@@ -5,12 +5,14 @@ import { SELECTOR_ROOT, SELECTOR_SECTION } from '../constants';
  * Constants
  */
 
+const SELECTOR_HOVER_BOX = '.hover-box';
 const SELECTOR_SELECTED_ITEM = '[data-selected-item]';
 const SELECTOR_SELECTED_SECTION = '[data-selected-section]';
 const SELECTOR_ITEM = '[data-name="gridItem"], [data-name="listItem"]';
+
+const TAG_SECTION = 'SECTION';
 const ATTR_SELECTED_SECTION = 'data-selected-section';
 const ATTR_SELECTED_ITEM = 'data-selected-item';
-const TAG_SECTION = 'SECTION';
 
 /**
  * Class definition
@@ -69,7 +71,7 @@ class ElementView {
   updateSelection(newTarget: HTMLElement) {
     const selectedItem = document.querySelector(SELECTOR_SELECTED_ITEM);
     const selectedSection = document.querySelector(SELECTOR_SELECTED_SECTION);
-    const hoverBox = document.querySelector('.hover-box') as HTMLDivElement;
+    const hoverBox = document.querySelector(SELECTOR_HOVER_BOX) as HTMLDivElement;
 
     if (hoverBox) {
       hoverBox.style.display = 'none';

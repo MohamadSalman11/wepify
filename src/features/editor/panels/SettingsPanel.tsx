@@ -734,7 +734,7 @@ function PropertyEditor({
     setValue(getCurrentValue());
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentEl.id]);
+  }, [currentEl.id, styleName ? style[styleName] : null, attrName ? attrs[attrName] : null]);
 
   const id = `${PROPERTY_EDITOR_PREFIX}-${as}-${styleName || attrName}`;
 

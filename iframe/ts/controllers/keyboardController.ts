@@ -1,5 +1,3 @@
-import { SELECTOR_SECTION } from '../constants';
-import { state } from '../model';
 import elementController from './elementController';
 
 /**
@@ -7,8 +5,6 @@ import elementController from './elementController';
  */
 
 enum KeyboardKeys {
-  F12 = 'F12',
-  I = 'I',
   C = 'c',
   V = 'v'
 }
@@ -20,14 +16,9 @@ enum KeyboardKeys {
 class KeyboardController {
   // public
   handleKeydown(event: KeyboardEvent) {
-    const target = state.target;
+    const el = elementController.currentEl;
 
-    if (!target) {
-      return;
-    }
-
-    if (this.isDevToolsKey(event)) {
-      this.openDevToolsSection(target);
+    if (!el) {
       return;
     }
 
@@ -44,21 +35,6 @@ class KeyboardController {
   }
 
   // private
-  private isDevToolsKey(event: KeyboardEvent) {
-    const key = event.key;
-
-    return (
-      key === KeyboardKeys.F12 ||
-      (event.ctrlKey && event.shiftKey && key === KeyboardKeys.I) ||
-      (event.metaKey && event.altKey && key === KeyboardKeys.I)
-    );
-  }
-
-  private openDevToolsSection(target: HTMLElement) {
-    const sectionElement = target.querySelector(SELECTOR_SECTION) as HTMLElement | null;
-    sectionElement?.click();
-  }
-
   private isCopyShortcut(event: KeyboardEvent) {
     return (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === KeyboardKeys.C;
   }

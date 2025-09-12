@@ -1,6 +1,5 @@
 import { EditorToIframe } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
-import type { PageElement } from '@shared/typing';
 import { DragEvent, MouseEvent, useEffect, useState } from 'react';
 import type { IconType } from 'react-icons';
 import {
@@ -41,6 +40,16 @@ const ICON_MAP: Record<string, IconType> = {
   text: LuTextCursorInput,
   button: LuRectangleHorizontal
 };
+
+/**
+ * Types
+ */
+
+interface LayerElement {
+  id: string;
+  name: string;
+  parentId: string;
+}
 
 /**
  * Component definition
@@ -88,8 +97,8 @@ function LayerNode({
   draggedId,
   setDraggedId
 }: {
-  element: PageElement;
-  getChildren: (parentId: string) => PageElement[];
+  element: LayerElement;
+  getChildren: (parentId: string) => LayerElement[];
   nested?: boolean;
   selectedElementId: string | null;
   displayMap: Record<string, string>;
@@ -98,7 +107,7 @@ function LayerNode({
   setDraggedId: (id: string) => void;
 }) {
   const [isDragOver, setIsDragOver] = useState(false);
-  const children: PageElement[] = getChildren(element.id);
+  const children: LayerElement[] = getChildren(element.id);
   const hasChildren = children.length > 0;
   const readableName = Object.keys(displayMap).find((key) => displayMap[key] === element.id) || element.id;
   const [expanded, setExpanded] = useState(() => hasChildren && hasSelectedDescendant(element.id, selectedElementId));

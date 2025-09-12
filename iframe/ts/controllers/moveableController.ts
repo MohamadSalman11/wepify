@@ -70,7 +70,9 @@ class MoveableController {
   }
 
   clearTarget() {
-    this.moveable.target = null;
+    if (this.moveable.target !== null) {
+      this.moveable.target = null;
+    }
   }
 
   updateRect() {

@@ -1,4 +1,4 @@
-import { ContextMenuAction } from '../constants';
+import { ContextMenuAction } from '../controllers/contextMenuController';
 import elementController from '../controllers/elementController';
 
 /**

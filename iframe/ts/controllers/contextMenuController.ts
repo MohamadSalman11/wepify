@@ -1,5 +1,5 @@
 import { ElementsName } from '@shared/constants';
-import { ContextMenuAction, SELECTOR_SECTION } from '../constants';
+import { SELECTOR_SECTION } from '../constants';
 import { state } from '../model';
 import contextMenuView, { SELECTOR_CONTEXT_MENU } from '../views/contextMenuView';
 import elementController from './elementController';
@@ -11,6 +11,15 @@ import elementController from './elementController';
 const LONG_PRESS_DURATION = 500;
 const SELECTOR_LIST_ITEM = 'li';
 const SELECTOR_MOVEABLE_CONTROL_BOX = '.moveable-control-box';
+
+export enum ContextMenuAction {
+  Copy = 'copy',
+  Paste = 'paste',
+  BringToFront = 'bring-to-front',
+  SendToBack = 'send-to-back',
+  ToggleOverlap = 'toggle-overlap',
+  Delete = 'delete'
+}
 
 const actions: Record<ContextMenuAction, () => void> = {
   [ContextMenuAction.Copy]: () => elementController.copy(),

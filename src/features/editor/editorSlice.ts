@@ -15,6 +15,19 @@ import { RootState } from '../../store';
 import { AppStorage } from '../../utils/appStorage';
 import { mapBlobsToElements } from '../../utils/mapBlobsToElements';
 
+interface EditorState {
+  currentSite: Site | null;
+  currentPageId: string | null;
+  currentElementId: string;
+  copiedElement: PageElement[];
+  loading: boolean;
+  storing: boolean;
+  dataLoaded: boolean;
+  iframeReady: boolean;
+  error?: string;
+  deviceSimulator: DeviceSimulator;
+}
+
 const EMPTY_ELEMENT: PageElement = {
   id: '',
   parentId: '',
@@ -80,19 +93,6 @@ export const loadSiteFromStorage = createAsyncThunk(
   }
 );
 
-interface EditorState {
-  currentSite: Site | null;
-  currentPageId: string | null;
-  currentElementId: string;
-  copiedElement: PageElement[];
-  loading: boolean;
-  storing: boolean;
-  dataLoaded: boolean;
-  iframeReady: boolean;
-  error?: string;
-  deviceSimulator: DeviceSimulator;
-}
-
 const editorSlice = createSlice({
   name: 'editor',
   initialState,
@@ -145,9 +145,7 @@ const editorSlice = createSlice({
     deletePage(state, action: PayloadAction<{ id: string; nextPageId: string }>) {
       const { id, nextPageId } = action.payload;
 
-      if (!state.currentSite || !state.currentSite.pages[id]) {
-        return;
-      }
+      if (!state.currentSite || !state.currentSite.pages[id]) return;
 
       state.currentPageId = nextPageId;
       delete state.currentSite.pages[id];
@@ -193,24 +191,18 @@ const editorSlice = createSlice({
       const element = page?.elements[id];
       const device = state.deviceSimulator.type;
 
-      if (!element) {
-        return;
-      }
-
-      if (updates.content) {
-        element.content = updates.content;
-      }
+      if (!element) return;
+      if (updates.content) element.content = updates.content;
 
       element.attrs = { ...element.attrs, ...updates.attrs };
 
-      if (device === Device.Monitor) {
-        element.style = { ...element.style, ...updates.style };
-      }
+      if (device === Device.Monitor) element.style = { ...element.style, ...updates.style };
 
       applyResponsiveUpdates(element, updates, device);
     },
     changeElementPosition(state, action: PayloadAction<{ newOrder: string[] }>) {
       const page = state.currentSite?.pages[state.currentPageId || ''];
+
       if (!page) return;
 
       const { newOrder } = action.payload;

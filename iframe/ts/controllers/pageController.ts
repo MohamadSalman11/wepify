@@ -79,7 +79,7 @@ class PageController {
     const idMap: Record<string, string> = {};
 
     for (const element of elements) {
-      const newElementId = generateElementId(element.name);
+      const newElementId = generateElementId();
       const parentId = element.parentId;
       const currentSectionEl = document.querySelector('[data-selected-section]') as HTMLElement;
       const currentElId = elementController.currentEl.id;

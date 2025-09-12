@@ -1,5 +1,7 @@
+const REGEX_REPEAT = /repeat\((\d+),\s*([^)]+)\)/;
+
 export const extractGridColumns = (gridTemplateColumns: string) => {
-  const match = gridTemplateColumns.match(/repeat\((\d+),\s*([^\)]+)\)/);
+  const match = gridTemplateColumns.match(REGEX_REPEAT);
 
   return {
     columns: match ? Number(match[1]) : 0,
@@ -8,7 +10,7 @@ export const extractGridColumns = (gridTemplateColumns: string) => {
 };
 
 export const extractGridRows = (gridTemplateRows: string) => {
-  const match = gridTemplateRows.match(/repeat\((\d+),\s*([^\)]+)\)/);
+  const match = gridTemplateRows.match(REGEX_REPEAT);
 
   return {
     rows: match ? Number(match[1]) : 0,

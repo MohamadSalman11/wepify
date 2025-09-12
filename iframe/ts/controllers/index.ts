@@ -4,7 +4,6 @@ import { state } from '../model';
 import pageView from '../views/pageView';
 import contextMenuController from './contextMenuController';
 import elementController from './elementController';
-import keyboardController from './keyboardController';
 import moveableController from './moveableController';
 import pageController from './pageController';
 
@@ -100,6 +99,5 @@ document.addEventListener('mouseover', controlDocumentMouseover);
 document.addEventListener('mouseout', controlDocumentMouseout);
 document.addEventListener('keydown', controlEditableButton);
 document.addEventListener('contextmenu', contextMenuController.show.bind(contextMenuController));
-document.addEventListener('keydown', keyboardController.handleKeydown);
 document.addEventListener('touchstart', contextMenuController.handleTouchStart, { passive: false });
 document.addEventListener('touchend', contextMenuController.handleTouchEnd);

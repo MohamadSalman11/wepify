@@ -1,0 +1,229 @@
+//
+// Variables
+//
+
+$font-family-base: 'Inter', sans-serif;
+
+$color-primary: #3e7df5;
+$color-gray: #b7bbbf;
+$color-gray-light: #bec9d5;
+$color-gray-light-hover: #a3aebc;
+$color-bg-light: #f2f4f7;
+$color-dark: #343c44;
+$color-white: #fff;
+
+$z-index-context-menu: 99999;
+$z-index-moveable-box: 99998;
+$z-index-hover-box: 99997;
+
+$border-radius-sm: 0.4rem;
+$border-radius-md: 0.6rem;
+$border-radius-lg: 0.8rem;
+
+//
+// Fonts
+//
+
+@font-face {
+  font-weight: 400;
+  src: url('/fonts/inter-regular.woff2') format('woff2');
+  font-family: 'Inter';
+}
+
+//
+// Base styles
+//
+
+html {
+  transform: translateZ(0);
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform;
+  scrollbar-color: $color-gray-light $color-white;
+  font-size: 62.5%;
+
+  &::-webkit-scrollbar {
+    width: 0.8rem;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: $color-white;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: $border-radius-lg;
+    background-color: $color-gray-light;
+
+    &:hover {
+      background-color: $color-gray-light-hover;
+    }
+  }
+}
+
+#iframe-root {
+  transform: translateZ(0);
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform;
+  counter-reset: section-counter;
+  margin: 0 auto;
+  padding-top: 6rem;
+  padding-right: 6rem;
+  padding-left: 6rem;
+
+  &::after {
+    display: inline-block;
+    background-color: transparent;
+    width: 100%;
+    height: 6rem;
+    content: '';
+  }
+
+  section {
+    position: relative;
+    counter-increment: section-counter;
+
+    &::after {
+      display: block;
+      display: flex;
+      position: absolute;
+      top: 0;
+      left: 0;
+      justify-content: center;
+      align-items: center;
+      transform: translate(-100%);
+      border-radius: $border-radius-md 0 $border-radius-md $border-radius-md;
+      background-color: $color-bg-light;
+      width: 2rem;
+      height: 2rem;
+      content: counter(section-counter);
+      color: $color-dark;
+      font-size: 1rem;
+    }
+  }
+}
+
+//
+// Components
+//
+
+.context-menu {
+  position: fixed;
+  z-index: $z-index-context-menu;
+  margin: 0;
+  box-shadow: 0 3px 8px rgba($color-dark, 0.24);
+  border-radius: $border-radius-sm;
+  background-color: $color-white;
+  padding: 0;
+  width: 20rem;
+  overflow: hidden;
+  color: $color-dark;
+  font-weight: 400;
+  font-family: $font-family-base;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    padding: 1.2rem;
+    font-size: 1.4rem;
+    user-select: none;
+
+    img {
+      width: 1.6rem;
+      height: 1.6rem;
+    }
+
+    &.disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    &.not-allowed {
+      cursor: not-allowed;
+    }
+
+    &:not(.disabled):hover {
+      background-color: $color-bg-light;
+    }
+  }
+}
+
+.hover-box {
+  display: none;
+  position: absolute;
+  justify-content: flex-start;
+  align-items: flex-start;
+  z-index: $z-index-hover-box;
+  border: 2px solid $color-primary;
+  background: transparent;
+  pointer-events: none;
+
+  .hover-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    .hover-badge {
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      transform: translateY(-100%);
+      border-top-right-radius: $border-radius-sm;
+      border-top-left-radius: $border-radius-sm;
+      background-color: $color-primary;
+      padding: 0.2rem 0.6rem;
+      pointer-events: none;
+      color: $color-white;
+      font-size: 1.2rem;
+      font-family: $font-family-base;
+      text-transform: capitalize;
+      white-space: nowrap;
+    }
+  }
+}
+
+.moveable {
+  &-control-box {
+    --moveable-color: #{$color-gray} !important;
+    z-index: $z-index-moveable-box !important;
+  }
+
+  &-line {
+    border: 1px solid $color-gray !important;
+  }
+
+  &-origin {
+    display: none !important;
+  }
+}
+
+//
+// Utilities
+//
+
+[data-selected-section]::after {
+  background-color: $color-primary;
+  color: $color-white;
+}
+
+[data-selected-item] {
+  position: relative;
+  box-shadow: 0 0 0 2px $color-primary;
+}
+
+[contenteditable='true'] {
+  cursor: text;
+  outline: none;
+}
+
+.drag-target-button {
+  cursor: move;
+  user-select: none;
+}
+
+button span {
+  display: block;
+}

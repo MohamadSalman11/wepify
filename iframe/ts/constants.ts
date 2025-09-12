@@ -1,9 +1,5 @@
-export const ID_CONTEXT_MENU = 'context-menu';
 export const SELECTOR_SECTION = 'section';
 export const SELECTOR_ROOT = '#iframe-root';
-export const SELECTOR_DRAG_BUTTON_ID = 'dragTargetButton';
-export const SELECTOR_DRAG_BUTTON = `#${SELECTOR_DRAG_BUTTON_ID}`;
-export const SELECTOR_CONTEXT_MENU = `#${ID_CONTEXT_MENU}`;
 
 export enum ContextMenuAction {
   Copy = 'copy',

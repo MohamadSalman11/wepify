@@ -1,4 +1,3 @@
-import { SELECTOR_DRAG_BUTTON_ID } from '../constants';
 import moveIcon from '/move.png';
 
 /**
@@ -8,7 +7,10 @@ import moveIcon from '/move.png';
 const DEFAULT_SCALE_FACTOR = 1;
 const DRAG_BUTTON_OFFSET_X = -2;
 const DRAG_BUTTON_OFFSET_Y = 16;
+
+const CLASS_DRAG_TARGET_BUTTON = 'drag-target-button';
 const SELECTOR_MOVEABLE_CONTROL = '.moveable-control';
+export const SELECTOR_DRAG_BUTTON = `.${CLASS_DRAG_TARGET_BUTTON}`;
 
 /**
  * Class definition
@@ -27,7 +29,7 @@ class DragButtonView {
     }
 
     img.src = moveIcon;
-    img.id = SELECTOR_DRAG_BUTTON_ID;
+    img.classList.add(CLASS_DRAG_TARGET_BUTTON);
 
     this.button = img;
     moveableControlEl.append(img);

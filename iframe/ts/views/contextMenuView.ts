@@ -1,4 +1,4 @@
-import { ContextMenuAction, ID_CONTEXT_MENU, SELECTOR_CONTEXT_MENU } from '../constants';
+import { ContextMenuAction } from '../constants';
 import elementController from '../controllers/elementController';
 
 /**
@@ -6,6 +6,8 @@ import elementController from '../controllers/elementController';
  */
 
 const SELECTOR_BODY = 'body';
+const CLASS_CONTEXT_MENU = 'context-menu';
+export const SELECTOR_CONTEXT_MENU = `.${CLASS_CONTEXT_MENU}`;
 
 /**
  * Class definition
@@ -37,7 +39,7 @@ class ContextMenuView {
     const isPasteDisabled = isDisabled(ContextMenuAction.Paste);
 
     return `
-      <ul id="${ID_CONTEXT_MENU}" style="left:${x}px; top:${y}px;">
+      <ul class="${CLASS_CONTEXT_MENU}" style="left:${x}px; top:${y}px;">
         <li data-action="${ContextMenuAction.Copy}" class="${isDisabled(ContextMenuAction.Copy) ? 'disabled' : ''}">
           <img src="/clipboard-copy.svg" alt="Copy" /> Copy
         </li>

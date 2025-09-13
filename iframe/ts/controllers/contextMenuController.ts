@@ -103,7 +103,25 @@ class ContextMenuController {
   private getEventCoordinates(event: MouseEvent | TouchEvent) {
     const x = 'touches' in event ? (event.touches?.[0]?.clientX ?? 0) : event.clientX;
     const y = 'touches' in event ? (event.touches?.[0]?.clientY ?? 0) : event.clientY;
-    return { x, y };
+
+    const menuEl = document.querySelector(SELECTOR_CONTEXT_MENU) as HTMLElement | null;
+
+    let finalX = x;
+    let finalY = y;
+
+    if (menuEl) {
+      const menuRect = menuEl.getBoundingClientRect();
+
+      if (x + menuRect.width > window.innerWidth) {
+        finalX = Math.max(0, window.innerWidth - menuRect.width);
+      }
+
+      if (y + menuRect.height > window.innerHeight) {
+        finalY = Math.max(0, window.innerHeight - menuRect.height);
+      }
+    }
+
+    return { x: finalX, y: finalY };
   }
 }
 

@@ -16,23 +16,24 @@ export const SELECTOR_CONTEXT_MENU = `.${CLASS_CONTEXT_MENU}`;
 class ContextMenuView {
   private bodyEl: HTMLBodyElement | null = document.querySelector(SELECTOR_BODY);
 
+  // public
   renderContextMenu(x: number, y: number, disabledActions: ContextMenuAction[] = [], isAnyElCopied: boolean) {
     if (!this.bodyEl) {
       return;
     }
 
-    console.log(x, y);
-
     const existing = document.querySelector(SELECTOR_CONTEXT_MENU);
-    existing?.remove();
 
+    existing?.remove();
     this.bodyEl.insertAdjacentHTML('beforeend', this.generateMarkup(x, y, disabledActions, isAnyElCopied));
+    this.maybeChangeMenuPosition(x, y);
   }
 
   removeContextMenu() {
     document.querySelector(SELECTOR_CONTEXT_MENU)?.remove();
   }
 
+  // private
   private generateMarkup(x: number, y: number, disabledActions: ContextMenuAction[] = [], isAnyElCopied: boolean) {
     const isOverlapped = elementController.isOverlapped();
     const overlapText = isOverlapped ? 'Disable Overlap' : 'Allow Overlap';
@@ -71,6 +72,37 @@ class ContextMenuView {
         </li>
       </ul>
     `;
+  }
+
+  private maybeChangeMenuPosition(x: number, y: number) {
+    const menuEl = document.querySelector(SELECTOR_CONTEXT_MENU) as HTMLUListElement;
+
+    if (!menuEl) {
+      return { x, y };
+    }
+
+    let finalX = x;
+    let finalY = y;
+    let changed = false;
+    const menuRect = menuEl.getBoundingClientRect();
+
+    const docWidth = document.documentElement.clientWidth;
+    const docHeight = document.documentElement.clientHeight;
+
+    if (menuRect.right > docWidth) {
+      finalX = Math.max(0, x - (menuRect.right - docWidth));
+      changed = true;
+    }
+
+    if (menuRect.bottom > docHeight) {
+      finalY = Math.max(0, y - (menuRect.bottom - docHeight));
+      changed = true;
+    }
+
+    if (changed) {
+      menuEl.style.left = `${finalX}px`;
+      menuEl.style.top = `${finalY}px`;
+    }
   }
 }
 

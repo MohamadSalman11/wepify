@@ -730,7 +730,7 @@ function PropertyEditor({
       return fallbackValue === undefined ? (type === 'number' ? 0 : '') : fallbackValue;
     }
 
-    return type === 'number' ? (parseNumber(val) ?? 0) : (val ?? '');
+    return parseNumber(val) ?? (type === 'number' ? 0 : '');
   }
 
   useEffect(() => {

@@ -12,6 +12,7 @@ html {
 
 body {
   position: relative;
+  line-height: 1.5;
   list-style-position: inside;
 }
 

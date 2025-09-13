@@ -24,7 +24,7 @@ const STYLE_DEPENDENCY_GROUPS: Record<string, DependencyGroup> = {
   },
   gridTemplateRows: {
     props: ['rows', 'rowHeight'],
-    extractor: (currentEl) => extractGridRows(currentEl.style.gridTemplateColumns)
+    extractor: (currentEl) => extractGridRows(currentEl.style.gridTemplateRows)
   }
 };
 

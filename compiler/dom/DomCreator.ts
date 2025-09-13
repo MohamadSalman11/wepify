@@ -1,7 +1,8 @@
 import { StyleGenerator } from '@compiler/style/StyleGenerator';
 import { getMergedResponsiveStyle } from '@compiler/utils/getMergedResponsiveStyle';
+import { resolveStyleDependencies } from '@compiler/utils/resolveStyleDependencies';
 import { ElementsName } from '@shared/constants';
-import { DeviceType, ImageElement, PageElement } from '@shared/typing';
+import { DeviceType, ImageElement, PageElement, PageElementStyle } from '@shared/typing';
 
 /**
  * Class definition
@@ -23,7 +24,7 @@ export class DomCreator {
   private createEl() {
     const { id, tag, name } = this.pageEl;
     const domEl = document.createElement(tag);
-    const mergedStyle = this.getMergedStyle();
+    const mergedStyle = resolveStyleDependencies(this.getMergedStyle(), domEl) as PageElementStyle;
     const inlineStyle = new StyleGenerator(mergedStyle).generate();
 
     if (name === ElementsName.Button) {

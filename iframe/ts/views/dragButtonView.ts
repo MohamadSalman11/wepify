@@ -35,16 +35,17 @@ class DragButtonView {
     moveableControlEl.append(img);
   }
 
-  move(elementHeight: number, scaleFactor: number = DEFAULT_SCALE_FACTOR, borderWidth?: number) {
-    const position = this.calculatePosition(elementHeight, scaleFactor, borderWidth);
+  move(elementHeight: number, scaleFactor: number = DEFAULT_SCALE_FACTOR) {
+    const position = this.calculatePosition(elementHeight, scaleFactor);
     this.button.style.transform = `translateZ(0px) translate(${position.x}px, ${position.y}px)`;
   }
 
   // private
-  private calculatePosition(elementHeight: number, scaleFactor: number, borderWidth?: number) {
+  private calculatePosition(elementHeight: number, scaleFactor: number) {
     const scale = scaleFactor === DEFAULT_SCALE_FACTOR ? 1 : scaleFactor / DEFAULT_SCALE_FACTOR;
     const x = DRAG_BUTTON_OFFSET_X;
-    const y = elementHeight * scale + DRAG_BUTTON_OFFSET_Y + (borderWidth || 0);
+    const y = elementHeight * scale + DRAG_BUTTON_OFFSET_Y;
+
     return { x, y };
   }
 }

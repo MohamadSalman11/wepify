@@ -1,5 +1,4 @@
 import { extractTransform } from '@compiler/utils/extractTransform';
-import { getVerticalBorderSum } from '@compiler/utils/getVerticalBorderSum';
 import { ElementsName, PAGE_PADDING, PAGE_PADDING_X } from '@shared/constants';
 import Moveable, { MoveableProps, OnDrag, OnResize, OnRotate } from 'moveable';
 import { SELECTOR_ROOT } from '../constants';
@@ -11,6 +10,7 @@ import elementController from './elementController';
  * Constants
  */
 
+const MOVEABLE_PADDING = 10;
 const ELEMENTS_WITH_PADDING = new Set([ElementsName.Heading, ElementsName.Text, ElementsName.Link]);
 
 const CONFIG: MoveableProps = {
@@ -64,9 +64,12 @@ class MoveableController {
   }
 
   setTarget(target: HTMLElement) {
+    const shouldAddPadding = ELEMENTS_WITH_PADDING.has(target.dataset.name as ElementsName);
+
     this.moveable.target = target;
-    this.moveable.padding = ELEMENTS_WITH_PADDING.has(target.dataset.name as ElementsName) ? 10 : 0;
-    dragButtonView.move(target.clientHeight, state.scaleFactor, getVerticalBorderSum(target));
+    this.moveable.padding = shouldAddPadding ? MOVEABLE_PADDING : 0;
+
+    this.updateDragButton(target);
   }
 
   clearTarget() {
@@ -101,9 +104,7 @@ class MoveableController {
       .on('drag', this.onDrag)
       .on('resize', this.onResize)
       .on('rotate', this.onRotate)
-      .on('render', ({ target }) => {
-        dragButtonView.move(target.clientHeight, state.scaleFactor, getVerticalBorderSum(target as HTMLElement));
-      });
+      .on('render', ({ target }) => this.updateDragButton(target as HTMLElement));
   }
 
   private onDrag = (event: OnDrag) => {
@@ -132,6 +133,13 @@ class MoveableController {
     const { rotate } = extractTransform(event.transform);
 
     elementController.update({ style: { rotate } });
+  }
+
+  private updateDragButton(target: HTMLElement) {
+    const clientHeight = target.offsetHeight;
+    const extraPadding = ELEMENTS_WITH_PADDING.has(target.dataset.name as ElementsName) ? MOVEABLE_PADDING * 3.2 : 0;
+
+    dragButtonView.move(clientHeight + extraPadding, state.scaleFactor);
   }
 }
 

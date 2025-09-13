@@ -56,10 +56,8 @@ class ElementView {
 
     hoverBox.style.width = `${rect.width + offset * 2}px`;
     hoverBox.style.height = `${rect.height + offset * 2}px`;
-
     hoverBox.style.top = `${rect.top + window.scrollY - offset}px`;
     hoverBox.style.left = `${rect.left + window.scrollX - offset}px`;
-
     hoverBox.style.display = 'flex';
     hoverBadge.textContent = elName || '';
   }

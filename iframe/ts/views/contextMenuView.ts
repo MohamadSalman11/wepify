@@ -21,6 +21,8 @@ class ContextMenuView {
       return;
     }
 
+    console.log(x, y);
+
     const existing = document.querySelector(SELECTOR_CONTEXT_MENU);
     existing?.remove();
 

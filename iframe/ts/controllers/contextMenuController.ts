@@ -46,7 +46,7 @@ class ContextMenuController {
       return;
     }
 
-    const { pageX, pageY } = this.getEventCoordinates(event);
+    const { x, y } = this.getEventCoordinates(event);
     const disabledActions: ContextMenuAction[] = [];
 
     if (!elementController.canPasteHere()) {
@@ -54,7 +54,7 @@ class ContextMenuController {
     }
 
     contextMenuView.removeContextMenu();
-    contextMenuView.renderContextMenu(pageX, pageY, disabledActions, Boolean(state.copiedElName));
+    contextMenuView.renderContextMenu(x, y, disabledActions, Boolean(state.copiedElName));
   }
 
   handleAction(event: globalThis.MouseEvent) {
@@ -101,9 +101,9 @@ class ContextMenuController {
 
   // private
   private getEventCoordinates(event: MouseEvent | TouchEvent) {
-    const pageX = 'touches' in event ? (event.touches?.[0]?.pageX ?? 0) : event.pageX;
-    const pageY = 'touches' in event ? (event.touches?.[0]?.pageY ?? 0) : event.pageY;
-    return { pageX, pageY };
+    const x = 'touches' in event ? (event.touches?.[0]?.clientX ?? 0) : event.clientX;
+    const y = 'touches' in event ? (event.touches?.[0]?.clientY ?? 0) : event.clientY;
+    return { x, y };
   }
 }
 

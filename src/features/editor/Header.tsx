@@ -159,13 +159,13 @@ function EditorActions() {
         icon={LuZoomIn}
         hover
         tooltipLabel='Zoom In'
-        onClick={() => iframeConnection.send(EditorToIframe.ZoomInPage, 0.1)}
+        onClick={() => iframeConnection.send(EditorToIframe.ZoomInPage, 0.02)}
       />
       <Icon
         icon={LuZoomOut}
         hover
         tooltipLabel='Zoom Out'
-        onClick={() => iframeConnection.send(EditorToIframe.ZoomInPage, -0.1)}
+        onClick={() => iframeConnection.send(EditorToIframe.ZoomInPage, -0.02)}
       />
       <Divider rotate={90} width={30} />
       <Dropdown>

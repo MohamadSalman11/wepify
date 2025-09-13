@@ -15,7 +15,9 @@ type Size = { width: number; height: number };
  */
 
 class PageView {
+  private pageWrapperEl: HTMLDivElement | null = document.querySelector('.iframe-root-wrapper');
   private pageEl: HTMLDivElement | null = document.querySelector(SELECTOR_ROOT);
+  private readonly minScale = 0.3;
 
   // public
   renderElements = (elements: PageElement[], device?: DeviceType) => {
@@ -33,32 +35,30 @@ class PageView {
   };
 
   setBackground(color: string) {
-    const page = document.body;
+    const body = document.body;
 
-    if (!page) {
+    if (!body) {
       return;
     }
 
-    page.style.backgroundColor = color;
+    body.style.backgroundColor = color;
   }
 
   setDeviceSimulator(deviceSimulator: DeviceSimulator) {
-    const page = document.querySelector(SELECTOR_ROOT) as HTMLIFrameElement;
-
-    if (!page) {
+    if (!this.pageEl) {
       return;
     }
 
     const scaleFactor = this.calculateScaleFactorToFit(
-      { width: document.body.clientWidth, height: document.body.clientHeight },
+      { width: document.body.offsetWidth, height: document.body.offsetHeight },
       deviceSimulator
     );
 
     state.scaleFactor = scaleFactor;
-    page.style.width = `${deviceSimulator.width + PAGE_PADDING_X}px`;
-    page.style.height = `${deviceSimulator.height}px`;
-    page.style.transform = `scale(${String(scaleFactor)})`;
-    page.style.transformOrigin = 'top left';
+    this.pageEl.style.width = `${deviceSimulator.width + PAGE_PADDING_X}px`;
+    this.pageEl.style.transform = `scale(${String(scaleFactor)}) translateZ(0)`;
+
+    this.updatePageWrapperSize();
   }
 
   zoom(step: number) {
@@ -66,9 +66,12 @@ class PageView {
       return;
     }
 
-    state.scaleFactor = state.scaleFactor + step;
-    this.pageEl.style.transform = `scale(${state.scaleFactor})`;
-    this.pageEl.style.transformOrigin = 'top left';
+    let newScale = state.scaleFactor + step;
+    newScale = Math.max(this.minScale, newScale);
+    state.scaleFactor = newScale;
+    this.pageEl.style.transform = `scale(${state.scaleFactor}) translateZ(0)`;
+
+    this.updatePageWrapperSize();
   }
 
   // private
@@ -81,6 +84,16 @@ class PageView {
     }
 
     return 1;
+  }
+
+  private updatePageWrapperSize() {
+    if (!this.pageWrapperEl || !this.pageEl) {
+      return;
+    }
+
+    const rawWidth = this.pageEl.offsetWidth;
+
+    this.pageWrapperEl.style.width = `${rawWidth * state.scaleFactor}px`;
   }
 }
 

@@ -1,6 +1,5 @@
 import { createPortal } from 'react-dom';
 import styled, { keyframes } from 'styled-components';
-import { LoadingMessages } from '../constant';
 import Button from './Button';
 import Logo from './Logo';
 
@@ -8,33 +7,36 @@ import Logo from './Logo';
  * Types
  */
 
-interface LoadingScreenProps {
-  text?: string;
-  buttonText?: string;
-  handler?: () => void;
+interface FullScreenMessageProps {
+  mode: 'loading' | 'message';
+  message: string;
+  actionLabel?: string;
+  onAction?: () => void;
 }
 
 /**
- * Component definition
+ * Component
  */
 
-export default function LoadingScreen({ text = LoadingMessages.Dashboard, buttonText, handler }: LoadingScreenProps) {
+export default function FullScreenMessage({ mode, message, actionLabel, onAction }: FullScreenMessageProps) {
   return createPortal(
-    <StyledLoadingScreen>
+    <StyledScreen>
       <LogoWrapper>
         <Logo />
         Wepify
       </LogoWrapper>
-      <LoadingBarWrapper>
-        <LoadingBar />
-      </LoadingBarWrapper>
-      <LoadingText>{text}</LoadingText>
-      {buttonText && (
-        <Button onClick={handler} size='sm'>
-          Back to dashboard
+      {mode === 'loading' && (
+        <LoadingBarWrapper>
+          <LoadingBar />
+        </LoadingBarWrapper>
+      )}
+      <MessageText>{message}</MessageText>
+      {mode === 'message' && actionLabel && (
+        <Button onClick={onAction} size='sm'>
+          {actionLabel}
         </Button>
       )}
-    </StyledLoadingScreen>,
+    </StyledScreen>,
     document.body
   );
 }
@@ -43,7 +45,7 @@ export default function LoadingScreen({ text = LoadingMessages.Dashboard, button
  * Styles
  */
 
-const StyledLoadingScreen = styled.div`
+const StyledScreen = styled.div`
   position: absolute;
   left: 0;
   top: 0;
@@ -102,6 +104,8 @@ const LoadingBar = styled.div`
   animation: ${indeterminate} 1.5s infinite linear;
 `;
 
-const LoadingText = styled.p`
+const MessageText = styled.p`
   font-size: 1.4rem;
+  max-width: 40rem;
+  text-align: center;
 `;

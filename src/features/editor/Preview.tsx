@@ -10,7 +10,7 @@ import { useDispatch } from 'react-redux';
 import { NavigateFunction, useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from '../../components/Button';
-import LoadingScreen from '../../components/LoadingScreen';
+import FullScreenMessage from '../../components/FullScreenMessage';
 import { EditorPath, LoadingMessages, Path } from '../../constant';
 import { useAppSelector } from '../../store';
 import { buildPath } from '../../utils/buildPath';
@@ -126,7 +126,7 @@ export default function Preview() {
       {loading && (
         <>
           <title>{LoadingMessages.SitePreview}</title>
-          <LoadingScreen text={LoadingMessages.SitePreview} />
+          <FullScreenMessage mode='loading' message={LoadingMessages.SitePreview} />
         </>
       )}
     </>

@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
-import { Outlet, useLocation, useParams } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import styled, { css } from 'styled-components';
+import FullScreenMessage from '../components/FullScreenMessage';
 import Canvas from '../features/editor/Canvas';
-import { loadSiteFromStorage } from '../features/editor/editorSlice';
+import { clearError, loadSiteFromStorage } from '../features/editor/editorSlice';
 import Header from '../features/editor/Header';
 import Panel, { usePanel } from '../features/editor/panels';
 import Sidebar from '../features/editor/Sidebar';
@@ -15,18 +16,34 @@ import { AppDispatch, useAppSelector } from '../store';
  */
 
 export default function Editor() {
+  const navigate = useNavigate();
   const dispatch: AppDispatch = useDispatch();
   const location = useLocation();
   const { siteId, pageId } = useParams();
   const { leftPanelOpen } = usePanel();
   const isPreview = location.pathname.endsWith('/preview');
   const loading = useAppSelector((state) => state.editor.loading);
+  const error = useAppSelector((state) => state.editor.error);
 
   useEffect(() => {
     if (siteId && pageId) {
       dispatch(loadSiteFromStorage({ siteId, pageId }));
     }
   }, [dispatch, siteId, pageId]);
+
+  if (error) {
+    return (
+      <FullScreenMessage
+        mode='message'
+        message={error}
+        actionLabel='Back to Dashboard'
+        onAction={() => {
+          dispatch(clearError());
+          navigate('/dashboard');
+        }}
+      />
+    );
+  }
 
   if (isPreview) {
     return (

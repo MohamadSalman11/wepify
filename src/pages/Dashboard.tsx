@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 import styled, { css } from 'styled-components';
-import LoadingScreen from '../components/LoadingScreen';
+import FullScreenMessage from '../components/FullScreenMessage';
+import { LoadingMessages } from '../constant';
 import { loadSitesFromStorage } from '../features/dashboard/dashboardSlice';
 import Header from '../features/dashboard/Header';
 import Main from '../features/dashboard/main/Main';
@@ -26,7 +27,7 @@ export default function Dashboard() {
     return (
       <>
         <title>{'Loading Sites... - Wepify Dashboard'}</title>
-        <LoadingScreen />
+        <FullScreenMessage mode='loading' message={LoadingMessages.Dashboard} />
       </>
     );
   }

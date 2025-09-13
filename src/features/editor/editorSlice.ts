@@ -75,11 +75,11 @@ const initialState: EditorState = {
 
 export const loadSiteFromStorage = createAsyncThunk(
   'editor/loadSiteFromStorage',
-  async ({ siteId, pageId }: { siteId: string; pageId: string }) => {
+  async ({ siteId, pageId }: { siteId: string; pageId: string }, { rejectWithValue }) => {
     const sites = await AppStorage.get<Record<string, Site>>(StorageKey.Sites);
 
     if (!sites || !sites[siteId]) {
-      throw new Error('Site not found');
+      return rejectWithValue('This site could not be found. It may have been deleted or not created yet.');
     }
 
     const site = sites[siteId];
@@ -275,6 +275,9 @@ const editorSlice = createSlice({
     },
     setIframeReady(state, action) {
       state.iframeReady = action.payload;
+    },
+    clearError(state) {
+      state.error = undefined;
     }
   },
   extraReducers: (builder) => {
@@ -291,7 +294,7 @@ const editorSlice = createSlice({
       })
       .addCase(loadSiteFromStorage.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = (action.payload as string) || action.error.message;
       });
   }
 });
@@ -381,6 +384,7 @@ export const {
   setPageAsIndex,
   setStoring,
   setLoading,
-  setIframeReady
+  setIframeReady,
+  clearError
 } = editorSlice.actions;
 export default editorSlice.reducer;

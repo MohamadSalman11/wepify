@@ -1,6 +1,6 @@
 import { useBeforeUnload } from 'react-router-dom';
 import styled from 'styled-components';
-import LoadingScreen from '../../components/LoadingScreen';
+import FullScreenMessage from '../../components/FullScreenMessage';
 import { LoadingMessages, MESSAGE_UNSAVED_CHANGES } from '../../constant';
 import { useNetworkStatus } from '../../hooks/useNetworkStatus';
 import { useAppSelector } from '../../store';
@@ -37,7 +37,7 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
       {loading && (
         <>
           <title>{LoadingMessages.Editor}</title>
-          <LoadingScreen text={LoadingMessages.Editor} />
+          <FullScreenMessage mode='loading' message={LoadingMessages.Editor} />
         </>
       )}
     </StyledCanvas>

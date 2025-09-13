@@ -58,6 +58,7 @@ class PageController {
 
     if (!isDeviceChanged) {
       iframeConnection.send(IframeToEditor.PageRendered);
+      iframeConnection.send(IframeToEditor.SelectElement, target.id);
     }
   }
 

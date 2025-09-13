@@ -36,6 +36,18 @@ const controlEditableButton = (event: KeyboardEvent) => {
   }
 };
 
+const controlPaste = (event: ClipboardEvent) => {
+  const active = document.activeElement as HTMLElement;
+
+  if (!active?.isContentEditable) {
+    return;
+  }
+
+  event.preventDefault();
+  const text = event.clipboardData?.getData('text/plain') ?? '';
+  document.execCommand('insertText', false, text);
+};
+
 const handleWindowResize = () => {
   moveableController.clearTarget();
   setTimeout(() => pageView.setDeviceSimulator(state.deviceSimulator));
@@ -91,6 +103,7 @@ iframeConnection.on(EditorToIframe.DeviceChanged, (payload) => {
   moveableController.clearTarget();
 });
 
+document.addEventListener('paste', controlPaste);
 window.addEventListener('resize', handleWindowResize);
 window.addEventListener('load', handleWindowLoad);
 document.addEventListener('input', controlInputChange);

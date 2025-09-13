@@ -52,7 +52,11 @@ const cleanStyle = (style: PageElementStyle) => {
   for (const key in style) {
     const k = key as keyof PageElementStyle;
     const value = style[k];
-    const shouldDelete = value === '' || value == null || value === DEFAULT_STYLE[k];
+    const shouldDelete =
+      value === '' ||
+      value == null ||
+      value === DEFAULT_STYLE[k] ||
+      (k === 'color' && (value === '#000000' || value === '#000'));
 
     if (shouldDelete) {
       delete style[k];

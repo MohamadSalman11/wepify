@@ -76,7 +76,6 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
       height: 'screen',
       fontSize: 20,
       fontFamily: 'Inter',
-      color: '#000000',
       backgroundColor: '#fff'
     }
   },
@@ -93,7 +92,6 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
       height: 100,
       fontFamily: 'Inherit',
       fontSize: 20,
-      color: '#000000',
       backgroundColor: '#313334'
     }
   },
@@ -111,7 +109,6 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
       fontSize: 20,
       fontFamily: 'Inherit',
       backgroundColor: '#343C44',
-      color: '#000000',
       display: 'grid',
       columnGap: 12,
       rowGap: 12,
@@ -137,8 +134,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
       fontFamily: 'Inherit',
       fontWeight: 'Inherit',
       fontSize: 'Inherit',
-      backgroundColor: '#b8e986',
-      color: '#000000'
+      backgroundColor: '#b8e986'
     }
   },
   list: {
@@ -157,8 +153,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
       paddingTop: 24,
       paddingRight: 32,
       paddingLeft: 32,
-      paddingBottom: 24,
-      color: '#000000'
+      paddingBottom: 24
     }
   },
   listItem: {
@@ -173,8 +168,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     style: {
       fontFamily: 'Inherit',
       fontWeight: 'Inherit',
-      fontSize: 'Inherit',
-      color: '#000000'
+      fontSize: 'Inherit'
     }
   },
   heading: {
@@ -190,7 +184,6 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
       fontSize: 32,
       fontFamily: 'Inherit',
       fontWeight: 'Bold',
-      color: '#000000',
       width: 'auto',
       height: 'auto'
     }
@@ -208,8 +201,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
       width: 'auto',
       height: 'auto',
       fontSize: 18,
-      fontFamily: 'Inherit',
-      color: '#000000'
+      fontFamily: 'Inherit'
     }
   },
   link: {
@@ -266,7 +258,6 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     style: {
       fontSize: 14,
       fontFamily: 'Inherit',
-      color: '#000000',
       width: 150,
       height: 'auto',
       borderRadius: 12,

@@ -67,10 +67,12 @@ class SiteExporter {
     this.shouldMinify = shouldMinify;
   }
 
+  // public
   downloadZip = async () => {
     await this.exportSite();
   };
 
+  // private
   private async exportSite() {
     const srcFolder = this.zip.folder(Folders.Root)!;
 
@@ -90,8 +92,10 @@ class SiteExporter {
       JSON.stringify({ __WARNING__: SITE_JSON_WARNING, ...this.site, images: this.imagesBase64Map }, null, 2)
     );
 
+    const fileName = `wepify-${this.sanitizeName(this.site.name)}.zip`;
     const content = await this.zip.generateAsync({ type: 'blob' });
-    this.downloadBlob(content, File.ZipDownload);
+
+    this.downloadBlob(content, fileName);
   }
 
   private downloadBlob(blob: Blob, fileName: string) {
@@ -178,6 +182,13 @@ class SiteExporter {
       img.src = `./${Folders.Images}/${fileName}`;
       this.imagesBase64Map[blobId] = base64;
     }
+  }
+
+  private sanitizeName(name: string) {
+    return name
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '');
   }
 }
 

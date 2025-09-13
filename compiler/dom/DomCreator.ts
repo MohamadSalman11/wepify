@@ -24,8 +24,9 @@ export class DomCreator {
   private createEl() {
     const { id, tag, name } = this.pageEl;
     const domEl = document.createElement(tag);
-    const mergedStyle = resolveStyleDependencies(this.getMergedStyle(), domEl) as PageElementStyle;
-    const inlineStyle = new StyleGenerator(mergedStyle).generate();
+    const mergedStyle = this.getMergedStyle();
+    const resolvedStyle = resolveStyleDependencies(mergedStyle, domEl);
+    const inlineStyle = new StyleGenerator(resolvedStyle as PageElementStyle).generate();
 
     if (name === ElementsName.Button) {
       domEl.insertAdjacentHTML('afterbegin', '<span></span>');

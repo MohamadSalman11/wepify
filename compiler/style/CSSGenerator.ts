@@ -95,7 +95,8 @@ export class CSSGenerator {
   }
 
   private extractStyles(element: PageElement) {
-    const normalStyles = new StyleGenerator(element.style).generate();
+    const resolvedNormalStyle = resolveStyleDependencies(element.style, element) as PageElementStyle;
+    const normalStyles = new StyleGenerator(resolvedNormalStyle).generate();
     const mediaStylesMap: MediaMap = {};
 
     if (element.responsive) {

@@ -1,6 +1,6 @@
 import { EditorToIframe } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
-import { DragEvent, MouseEvent, useEffect, useState } from 'react';
+import { DragEvent, MouseEvent, useEffect, useRef, useState } from 'react';
 import type { IconType } from 'react-icons';
 import {
   LuChevronRight,
@@ -106,11 +106,18 @@ function LayerNode({
   draggedId: string;
   setDraggedId: (id: string) => void;
 }) {
+  const layerRef = useRef<HTMLDivElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const children: LayerElement[] = getChildren(element.id);
   const hasChildren = children.length > 0;
   const readableName = Object.keys(displayMap).find((key) => displayMap[key] === element.id) || element.id;
   const [expanded, setExpanded] = useState(() => hasChildren && hasSelectedDescendant(element.id, selectedElementId));
+
+  useEffect(() => {
+    if (selectedElementId === element.id && layerRef.current) {
+      layerRef.current.scrollIntoView({ block: 'nearest' });
+    }
+  }, [selectedElementId, element.id]);
 
   useEffect(() => {
     if (hasChildren && hasSelectedDescendant(element.id, selectedElementId)) {
@@ -176,6 +183,7 @@ function LayerNode({
       <LayerHeader>
         {hasChildren && <ChevronIcon icon={LuChevronRight} size='md' $expanded={expanded} />}
         <LayerBox
+          ref={layerRef}
           $isDragOver={isDragOver}
           $nested={nested}
           $selected={selectedElementId === element.id}

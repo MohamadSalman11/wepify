@@ -34,7 +34,7 @@ export default function ElementsPanel() {
       const additionalProps = { fileId: id, url, size: file.size };
 
       iframeConnection.send(EditorToIframe.InsertElement, { name: ElementsName.Image, additionalProps });
-      await AppStorage.addToObject(StorageKey.Images, id, file);
+      await AppStorage.addToObject(StorageKey.Images, id, file, { first: true });
     },
     (message) => AppToast.error(message)
   );

@@ -95,7 +95,7 @@ export default function Sidebar() {
     };
 
     dispatch(setLoading(true));
-    await AppStorage.addToObject(StorageKey.Sites, siteId, site);
+    await AppStorage.addToObject(StorageKey.Sites, siteId, site, { first: true });
     navigate(buildPath(Path.Editor, { siteId, pageId: page.id }));
   };
 

@@ -29,7 +29,7 @@ const dashboardMiddleware: Middleware = (store) => (next) => async (action: any)
     const rawSite: Site | undefined = action.meta?.rawSite;
 
     if (rawSite) {
-      await AppStorage.addToObject(StorageKey.Sites, rawSite.id, rawSite);
+      await AppStorage.addToObject(StorageKey.Sites, rawSite.id, rawSite, { first: true });
     }
   }
 

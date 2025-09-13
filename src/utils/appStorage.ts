@@ -17,15 +17,20 @@ export const AppStorage = {
     await STORAGE.removeItem(key);
   },
 
-  async addToObject<T extends Record<string, any>>(key: StorageKey, id: string, value: any) {
+  async addToObject<T extends Record<string, any>>(
+    key: StorageKey,
+    id: string,
+    value: any,
+    options?: { first?: boolean }
+  ) {
     const items = (await this.get<T>(key, {} as T)) as Record<string, any>;
 
     if (!(id in items)) {
-      items[id] = value;
-      await this.set(key, items as T);
+      const newItems = options?.first ? { [id]: value, ...items } : { ...items, [id]: value };
+
+      await this.set(key, newItems as T);
     }
   },
-
   async updateObject<T extends Record<string, any>>(key: StorageKey, id: string, updates: Partial<T>) {
     const items = (await this.get<Record<string, T>>(key, {})) as Record<string, T>;
 

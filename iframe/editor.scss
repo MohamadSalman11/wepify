@@ -207,6 +207,7 @@ html {
 [data-selected-section]::after {
   background-color: $color-primary !important;
   color: $color-white !important;
+  font-family: $font-family-base !important;
 }
 
 [data-selected-item] {

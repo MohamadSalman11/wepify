@@ -136,6 +136,8 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     contentEditable: false,
     domIndex: 0,
     style: {
+      width: 'fill',
+      height: 'fill',
       fontFamily: 'Inherit',
       fontWeight: 'Inherit',
       fontSize: 'Inherit',

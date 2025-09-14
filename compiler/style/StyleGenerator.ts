@@ -97,12 +97,12 @@ export class StyleGenerator {
 
     if (this.isDefined(s.columns) && this.isDefined(s.columnWidth)) {
       this.styles['gridTemplateColumns'] =
-        `repeat(${s.columns}, ${s.columnWidth}${typeof s.columnWidth === 'number' ? 'px' : ''})`;
+        `repeat(${s.columns}, ${s.columnWidth === 'auto' ? '1fr' : s.columnWidth}${typeof s.columnWidth === 'number' ? 'px' : ''})`;
     }
 
     if (this.isDefined(s.rows) && this.isDefined(s.rowHeight)) {
       this.styles['gridTemplateRows'] =
-        `repeat(${s.rows}, ${s.rowHeight}${typeof s.rowHeight === 'number' ? 'px' : ''})`;
+        `repeat(${s.rows}, ${s.rowHeight === 'auto' ? '1fr' : s.rowHeight}${typeof s.rowHeight === 'number' ? 'px' : ''})`;
     }
   }
 
@@ -120,7 +120,7 @@ export class StyleGenerator {
     if (value === 'screen') return '100vh';
     if (value === 'fill') return '100%';
     if (value === 'fit') return 'fit-content';
-    if (value === 'auto') return 'auto';
+    if (value === 'auto') return '';
     return addPx ? `${value}px` : String(value);
   }
 }

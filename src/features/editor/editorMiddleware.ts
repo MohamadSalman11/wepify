@@ -6,6 +6,7 @@ import { AppStorage } from '../../utils/appStorage';
 import { debounce } from '../../utils/debounce';
 import {
   addElement,
+  addElements,
   addPage,
   changeElementPosition,
   deleteElement,
@@ -26,6 +27,7 @@ const SYNC_ACTIONS = new Set([
   deletePage.type,
   deleteElement.type,
   addElement.type,
+  addElements.type,
   setPageAsIndex.type
 ]);
 

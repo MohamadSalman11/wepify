@@ -41,7 +41,7 @@ export interface PageElement {
   focusable: boolean;
   moveable: boolean;
   canHaveChildren: boolean;
-  domIndex?: number;
+  domIndex: number;
   content?: string;
   style: PageElementStyle;
   attrs?: PageElementAttrs;
@@ -55,8 +55,8 @@ export interface ImageElement extends PageElement {
 
 export type PageElementStyle = Partial<{
   position: 'absolute' | 'relative' | 'static';
-  width: number | 'fill' | 'auto';
-  height: number | 'screen' | 'fill' | 'auto';
+  width: number | 'fill' | 'fit' | 'auto';
+  height: number | 'screen' | 'fill' | 'fit' | 'auto';
   left: number;
   top: number;
   color: string;

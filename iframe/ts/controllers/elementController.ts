@@ -5,7 +5,7 @@ import { resolveStyleDependencies } from '@compiler/utils/resolveStyleDependenci
 import { ElementsName, IframeToEditor } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
 import { PageElement, PageElementStyle } from '@shared/typing';
-import { SELECTOR_SECTION } from '../constants';
+import { ID_ROOT_EL, SELECTOR_SECTION } from '../constants';
 import { state } from '../model';
 import { createNewElement } from '../utils/createNewElement';
 import { generateElementId } from '../utils/generateElementId';
@@ -40,7 +40,9 @@ class ElementController {
   insert({ name, additionalProps }: { name: string; additionalProps?: Record<string, any> }) {
     const newPageEl = createNewElement(name, additionalProps);
     const domEl = new DomCreator(newPageEl as PageElement).domElement;
-    const resolvedParentId = this.resolveParentId();
+    const resolvedParentId = this.resolveParentId(name);
+
+    newPageEl.domIndex = this.getNextDomIndex(resolvedParentId || ID_ROOT_EL);
 
     elementView.render(domEl, resolvedParentId);
     elementView.click(domEl);
@@ -55,7 +57,7 @@ class ElementController {
 
     iframeConnection.send(IframeToEditor.StoreElement, {
       ...newPageEl,
-      parentId: name === ElementsName.Section ? null : resolvedParentId
+      parentId: resolvedParentId
     });
   }
 
@@ -92,7 +94,10 @@ class ElementController {
 
     this.currentEl.remove();
     elementView.click(sectionEl as HTMLElement);
-    iframeConnection.send(IframeToEditor.DeleteElement, targetId);
+
+    const newOrder = [...parentEl.children].map((el) => el.id);
+
+    iframeConnection.send(IframeToEditor.DeleteElement, { id: targetId, newOrder });
   }
 
   changePosition(elId: string, newIndex: number) {
@@ -211,14 +216,24 @@ class ElementController {
     }
 
     const domTree = new DomTreeBuilder(elements, state.deviceSimulator.type).domTree;
-    const topElement = domTree[0];
+    const rootElement = domTree[0];
 
-    elementView.render(topElement, currentElId);
-    topElement.scrollIntoView({ block: 'center' });
+    elementView.render(rootElement, currentElId);
+    rootElement.scrollIntoView({ block: 'center' });
 
-    for (const element of elements) {
-      iframeConnection.send(IframeToEditor.StoreElement, element);
+    const rootPageElement = elements.find((el) => el.id === rootElement.id);
+
+    if (rootPageElement) {
+      const parentId = rootPageElement.name === ElementsName.Section ? null : currentElId;
+
+      if (parentId) {
+        rootPageElement.parentId = parentId;
+      }
+
+      rootPageElement.domIndex = this.getNextDomIndex(parentId || ID_ROOT_EL) - 1;
     }
+
+    iframeConnection.send(IframeToEditor.StoreElements, elements);
   }
 
   set(el: HTMLElement) {
@@ -317,11 +332,15 @@ class ElementController {
     }
   }
 
-  private resolveParentId(proposedParentId?: string): string {
+  private resolveParentId(elName: string) {
+    if (elName === ElementsName.Section) {
+      return null;
+    }
+
     const canHaveChildren = !this.hasDataset(this.currentEl, DATASET_CANNOT_HAVE_CHILDREN);
 
     if (canHaveChildren) {
-      return proposedParentId || this.currentEl.id;
+      return this.currentEl.id;
     }
 
     return (this.currentEl.parentElement || (this.currentEl.closest(SELECTOR_SECTION) as HTMLElement)).id;
@@ -353,6 +372,16 @@ class ElementController {
 
   private getScrollAlignment() {
     return this.currentElName === ElementsName.Section ? SCROLL_ALIGN_START : SCROLL_ALIGN_CENTER;
+  }
+
+  private getNextDomIndex(parentId?: string) {
+    const parentEl = document.querySelector(`#${parentId}`);
+
+    if (!parentEl) {
+      return 0;
+    }
+
+    return parentEl.children.length;
   }
 }
 

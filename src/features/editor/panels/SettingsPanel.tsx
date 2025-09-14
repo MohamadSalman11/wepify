@@ -54,6 +54,7 @@ const DEFAULT_ALIGN_ITEMS = 'flex-start';
 const DEFAULT_JUSTIFY_CONTENT = 'flex-start';
 const DEFAULT_FLEX_DIRECTION = 'row';
 const DEFAULT_TEXT_ALIGN = 'left';
+const DEFAULT_SIZE = 'auto';
 
 const OPTIONS_COLUMN = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const OPTIONS_COLUMN_WIDTH = ['auto', 50, 100, 150, 200, 250, 300];
@@ -63,7 +64,7 @@ const OPTIONS_ROW_HEIGHT = OPTIONS_COLUMN_WIDTH;
 const OPTIONS_ROW = OPTIONS_COLUMN;
 const OPTIONS_SPACE = ['between', 'around', 'evenly', 'none'];
 const OPTIONS_FONT_SIZE = ['Inherit', 10, 11, 12, 13, 14, 15, 16, 20, 24, 32, 36, 40, 48, 64, 96, 128];
-const OPTIONS_SIZE = ['fill', 'auto', 50, 100, 150, 250, 500];
+const OPTIONS_SIZE = ['fill', 'fit', 'auto', 50, 100, 150, 250, 500];
 const OPTIONS_SPACE_VALUE = new Set(['between', 'around', 'evenly']);
 
 const OPTIONS_BORDER = [
@@ -308,6 +309,7 @@ function SizeSettings() {
               as='select'
               styleName='width'
               label='W'
+              fallbackValue={DEFAULT_SIZE}
               wrapper={Fragment}
               editable
               editInputType='text'
@@ -319,6 +321,7 @@ function SizeSettings() {
               as='select'
               styleName='height'
               label='H'
+              fallbackValue={DEFAULT_SIZE}
               wrapper={Fragment}
               editable
               editInputType='text'

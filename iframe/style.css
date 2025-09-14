@@ -45,9 +45,3 @@ button,
 a {
   cursor: pointer;
 }
-
-div,
-section,
-ul {
-  flex-wrap: wrap;
-}

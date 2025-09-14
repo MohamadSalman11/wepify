@@ -119,7 +119,8 @@ export class StyleGenerator {
     if (value === undefined) return undefined;
     if (value === 'screen') return '100vh';
     if (value === 'fill') return '100%';
-    if (value === 'auto') return 'fit-content';
+    if (value === 'fit') return 'fit-content';
+    if (value === 'auto') return 'auto';
     return addPx ? `${value}px` : String(value);
   }
 }

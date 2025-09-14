@@ -54,6 +54,7 @@ export enum IframeToEditor {
   PageUpdated = 'PAGE_UPDATED',
   PageRendered = 'PAGE_RENDERED',
   StoreElement = 'STORE_ELEMENT',
+  StoreElements = 'STORE_ELEMENTS',
   ElementPositionChanged = 'ELEMENT_POSITION_CHANGED',
   UpdateElement = 'IFRAME_UPDATE_ELEMENT',
   SelectElement = 'IFRAME_SELECT_ELEMENT',
@@ -71,6 +72,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     focusable: false,
     canHaveChildren: true,
     contentEditable: false,
+    domIndex: 0,
     style: {
       width: 'fill',
       height: 'screen',
@@ -87,6 +89,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     focusable: false,
     canHaveChildren: true,
     contentEditable: false,
+    domIndex: 0,
     style: {
       width: 150,
       height: 100,
@@ -103,6 +106,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     focusable: false,
     canHaveChildren: true,
     contentEditable: false,
+    domIndex: 0,
     style: {
       width: 500,
       height: 250,
@@ -130,6 +134,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     focusable: false,
     canHaveChildren: true,
     contentEditable: false,
+    domIndex: 0,
     style: {
       fontFamily: 'Inherit',
       fontWeight: 'Inherit',
@@ -145,11 +150,12 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     focusable: false,
     canHaveChildren: true,
     contentEditable: false,
+    domIndex: 0,
     style: {
       fontSize: 20,
       fontFamily: 'Inherit',
-      width: 'auto',
-      height: 'auto',
+      width: 'fit',
+      height: 'fit',
       paddingTop: 24,
       paddingRight: 32,
       paddingLeft: 32,
@@ -165,6 +171,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     canHaveChildren: false,
     contentEditable: true,
     content: 'list item',
+    domIndex: 0,
     style: {
       fontFamily: 'Inherit',
       fontWeight: 'Inherit',
@@ -180,12 +187,13 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     canHaveChildren: false,
     contentEditable: true,
     content: 'First heading',
+    domIndex: 0,
     style: {
       fontSize: 32,
       fontFamily: 'Inherit',
       fontWeight: 'Bold',
-      width: 'auto',
-      height: 'auto'
+      width: 'fit',
+      height: 'fit'
     }
   },
   text: {
@@ -197,9 +205,10 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     canHaveChildren: false,
     contentEditable: true,
     content: 'Your description goes here',
+    domIndex: 0,
     style: {
-      width: 'auto',
-      height: 'auto',
+      width: 'fit',
+      height: 'fit',
       fontSize: 18,
       fontFamily: 'Inherit'
     }
@@ -213,12 +222,13 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     canHaveChildren: false,
     contentEditable: true,
     content: 'Your text link',
+    domIndex: 0,
     style: {
       fontSize: 20,
       fontFamily: 'Inherit',
       color: '#1352F1',
-      width: 'auto',
-      height: 'auto'
+      width: 'fit',
+      height: 'fit'
     },
     attrs: {
       href: ''
@@ -233,11 +243,11 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     canHaveChildren: false,
     contentEditable: true,
     content: 'text',
+    domIndex: 0,
     style: {
       fontSize: 18,
       fontFamily: 'Inherit',
       width: 150,
-      height: 'auto',
       backgroundColor: '#3e7df5',
       color: '#ffffff',
       borderRadius: 16,
@@ -255,11 +265,11 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     focusable: true,
     canHaveChildren: false,
     contentEditable: false,
+    domIndex: 0,
     style: {
       fontSize: 14,
       fontFamily: 'Inherit',
       width: 150,
-      height: 'auto',
       borderRadius: 12,
       paddingTop: 6,
       paddingRight: 6,
@@ -285,9 +295,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
     focusable: false,
     canHaveChildren: false,
     contentEditable: false,
-    style: {
-      width: 'auto',
-      height: 'auto'
-    }
+    domIndex: 0,
+    style: {}
   }
 } as const;

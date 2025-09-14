@@ -24,10 +24,10 @@ class ElementView {
   private domEl!: HTMLElement;
   private rootEl: HTMLDivElement | null = document.querySelector(SELECTOR_ROOT);
 
-  render = (domEl: HTMLElement, parentId?: string) => {
+  render = (domEl: HTMLElement, parentId?: string | null) => {
     this.domEl = domEl;
 
-    if (domEl.tagName === TAG_SECTION) {
+    if (!parentId || domEl.tagName === TAG_SECTION) {
       this.rootEl?.append(domEl);
       return;
     }

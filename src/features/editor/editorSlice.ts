@@ -38,6 +38,7 @@ const EMPTY_ELEMENT: PageElement = {
   focusable: false,
   moveable: false,
   canHaveChildren: true,
+  domIndex: 0,
   style: {}
 };
 
@@ -159,13 +160,23 @@ const editorSlice = createSlice({
 
       page.elements[element.id] = element;
     },
+    addElements(state, action: PayloadAction<PageElement[]>) {
+      if (!state.currentSite || !state.currentPageId) return;
+
+      const page = state.currentSite.pages[state.currentPageId];
+      const elements = action.payload;
+
+      for (const element of elements) {
+        page.elements[element.id] = element;
+      }
+    },
     setCurrentElement(state, action: PayloadAction<string>) {
       state.currentElementId = action.payload;
     },
-    deleteElement(state, action: PayloadAction<string>) {
+    deleteElement(state, action: PayloadAction<{ id: string; newOrder?: string[] }>) {
       if (!state.currentSite || !state.currentPageId) return;
 
-      const deletedElId = action.payload;
+      const { id: deletedElId, newOrder } = action.payload;
       const page = state.currentSite.pages[state.currentPageId];
       const toDelete = new Set<string>([deletedElId]);
 
@@ -184,6 +195,13 @@ const editorSlice = createSlice({
 
       for (const id of toDelete) {
         delete page.elements[id];
+      }
+
+      if (newOrder) {
+        for (const [i, elId] of newOrder.entries()) {
+          const el = page.elements[elId];
+          if (el) el.domIndex = i;
+        }
       }
     },
     updateElement(state, action: PayloadAction<{ id: string; updates: Partial<PageElement> }>) {
@@ -352,6 +370,7 @@ export const {
   updatePage,
   addPage,
   addElement,
+  addElements,
   duplicatePage,
   deletePage,
   deleteElement,

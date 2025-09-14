@@ -76,19 +76,23 @@ export class StyleGenerator {
   private applyFlexStyles() {
     const s = this.style;
 
+    const isRowDirection =
+      !this.isDefined(s.flexDirection) || s.flexDirection === 'row' || s.flexDirection === 'row-reverse';
+
+    const shouldApplyFlexWrap = s.display === 'flex' && isRowDirection;
+
     if (this.isDefined(s.justifyContent)) {
-      this.styles['justifyContent'] = OPTIONS_SPACE.has(s.justifyContent)
-        ? `space-${s.justifyContent}`
-        : s.justifyContent;
+      this.styles.justifyContent = OPTIONS_SPACE.has(s.justifyContent) ? `space-${s.justifyContent}` : s.justifyContent;
     }
+
+    this.styles.flexWrap = shouldApplyFlexWrap ? 'wrap' : '';
   }
 
   private applyTransform() {
     const s = this.style;
 
     if ([s.left, s.top, s.rotate, s.scaleX, s.scaleY].every((v) => this.isDefined(v))) {
-      this.styles['transform'] =
-        `translate(${s.left}px, ${s.top}px) rotate(${s.rotate}deg) scale(${s.scaleX}, ${s.scaleY})`;
+      this.styles.transform = `translate(${s.left}px, ${s.top}px) rotate(${s.rotate}deg) scale(${s.scaleX}, ${s.scaleY})`;
     }
   }
 
@@ -96,13 +100,11 @@ export class StyleGenerator {
     const s = this.style;
 
     if (this.isDefined(s.columns) && this.isDefined(s.columnWidth)) {
-      this.styles['gridTemplateColumns'] =
-        `repeat(${s.columns}, ${s.columnWidth === 'auto' ? '1fr' : s.columnWidth}${typeof s.columnWidth === 'number' ? 'px' : ''})`;
+      this.styles.gridTemplateColumns = `repeat(${s.columns}, ${s.columnWidth === 'auto' ? '1fr' : s.columnWidth}${typeof s.columnWidth === 'number' ? 'px' : ''})`;
     }
 
     if (this.isDefined(s.rows) && this.isDefined(s.rowHeight)) {
-      this.styles['gridTemplateRows'] =
-        `repeat(${s.rows}, ${s.rowHeight === 'auto' ? '1fr' : s.rowHeight}${typeof s.rowHeight === 'number' ? 'px' : ''})`;
+      this.styles.gridTemplateRows = `repeat(${s.rows}, ${s.rowHeight === 'auto' ? '1fr' : s.rowHeight}${typeof s.rowHeight === 'number' ? 'px' : ''})`;
     }
   }
 

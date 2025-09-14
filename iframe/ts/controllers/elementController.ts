@@ -276,14 +276,8 @@ class ElementController {
     elementView.showHover(el);
   }
 
-  handleMouseout(event: MouseEvent) {
-    const el = (event.target as HTMLElement)?.closest<HTMLElement>(SELECTOR_ELEMENT);
-
-    if (!el || el.contains(event.relatedTarget as Node)) {
-      return;
-    }
-
-    elementView.hideHover(el);
+  handleMouseout() {
+    elementView.hideHover();
   }
 
   handleInputChange(event: Event) {

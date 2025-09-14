@@ -62,10 +62,14 @@ class ElementView {
     hoverBadge.textContent = elName || '';
   }
 
-  hideHover(el: HTMLElement) {
-    el.classList.remove(CLASS_ELEMENT_HOVERED);
-    const hoverBox = document.querySelector(SELECTOR_HOVER_BOX) as HTMLElement;
-    hoverBox.style.display = 'none';
+  hideHover() {
+    const el = document.querySelector(`.${CLASS_ELEMENT_HOVERED}`);
+
+    if (el) {
+      el.classList.remove(CLASS_ELEMENT_HOVERED);
+      const hoverBox = document.querySelector(SELECTOR_HOVER_BOX) as HTMLElement;
+      hoverBox.style.display = 'none';
+    }
   }
 
   updateAttributes(updates: PageElementAttrs) {

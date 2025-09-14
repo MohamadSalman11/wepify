@@ -48,6 +48,18 @@ const controlPaste = (event: ClipboardEvent) => {
   document.execCommand('insertText', false, text);
 };
 
+const controlUndoRedo = (event: KeyboardEvent) => {
+  const isUndo = (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z';
+
+  const isRedo =
+    (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'z') ||
+    (event.ctrlKey && event.key.toLowerCase() === 'y');
+
+  if ((isUndo || isRedo) && !elementController.currentEl?.isContentEditable) {
+    event.preventDefault();
+  }
+};
+
 const handleWindowResize = () => {
   moveableController.clearTarget();
   setTimeout(() => pageView.setDeviceSimulator(state.deviceSimulator));
@@ -106,6 +118,7 @@ iframeConnection.on(EditorToIframe.DeviceChanged, (payload) => {
 document.addEventListener('paste', controlPaste);
 window.addEventListener('resize', handleWindowResize);
 window.addEventListener('load', handleWindowLoad);
+document.addEventListener('keydown', controlUndoRedo);
 document.addEventListener('input', controlInputChange);
 document.addEventListener('click', controlDocumentClick);
 document.addEventListener('mouseover', controlDocumentMouseover);

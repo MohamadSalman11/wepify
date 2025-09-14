@@ -45,13 +45,14 @@ const dashboardMiddleware: Middleware = (store) => (next) => async (action: any)
 
   if (action.type === duplicateSite.type) {
     const { id, newId } = action.payload;
-    const { createdAt, lastModified } = store.getState().dashboard.sites[newId];
+    const { createdAt, lastModified, isStarred } = store.getState().dashboard.sites[newId];
     const sitesStorage = await AppStorage.get<Record<string, Site>>(StorageKey.Sites, {});
 
     if (sitesStorage[id]) {
       await AppStorage.addToObject(StorageKey.Sites, newId, {
         ...sitesStorage[id],
         id: newId,
+        isStarred,
         createdAt,
         lastModified
       });

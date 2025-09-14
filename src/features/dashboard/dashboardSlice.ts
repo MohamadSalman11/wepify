@@ -59,6 +59,7 @@ const dashboardSlice = createSlice({
         state.sites[newId] = {
           ...existing,
           id: newId,
+          isStarred: false,
           createdAt: Date.now(),
           lastModified: Date.now()
         };

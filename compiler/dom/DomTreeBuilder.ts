@@ -53,6 +53,8 @@ export class DomTreeBuilder {
     const childElements = this.childrenByParent[parentId] || [];
     const domElements: HTMLElement[] = [];
 
+    childElements.sort((a, b) => (a.domIndex ?? 0) - (b.domIndex ?? 0));
+
     for (const element of childElements) {
       const domEl = new DomCreator(element, this.device).domElement;
       const grandchildren = this.buildDomForParent(element.id);

@@ -17,7 +17,6 @@ import {
 import styled from 'styled-components';
 import Icon from '../../../components/Icon';
 import { useAppSelector } from '../../../store';
-import { generateElementDisplayMap } from '../../../utils/generateElementDisplayMap';
 import { selectCurrentPageElementsTree } from '../editorSlice';
 
 /**
@@ -49,6 +48,7 @@ interface LayerElement {
   id: string;
   name: string;
   parentId: string;
+  domIndex: number;
 }
 
 /**
@@ -59,12 +59,8 @@ export default function LayersPanel() {
   const selectedElementId = useAppSelector((state) => state.editor.currentElementId);
   const childrenMap = useAppSelector(selectCurrentPageElementsTree);
   const [draggedId, setDraggedId] = useState<string>('');
-
   const getChildren = (parentId: string) => childrenMap[parentId] || [];
-  const rootElements = getChildren('root');
-
-  const allElements = Object.values(childrenMap).flat();
-  const displayMap = generateElementDisplayMap(allElements);
+  const rootElements = [...getChildren('root')].sort((a, b) => a.domIndex - b.domIndex);
 
   return (
     <>
@@ -76,7 +72,6 @@ export default function LayersPanel() {
             element={el}
             getChildren={getChildren}
             selectedElementId={selectedElementId}
-            displayMap={displayMap}
             childrenMap={childrenMap}
             draggedId={draggedId}
             setDraggedId={setDraggedId}
@@ -92,7 +87,6 @@ function LayerNode({
   getChildren,
   nested = false,
   selectedElementId,
-  displayMap,
   childrenMap,
   draggedId,
   setDraggedId
@@ -101,16 +95,14 @@ function LayerNode({
   getChildren: (parentId: string) => LayerElement[];
   nested?: boolean;
   selectedElementId: string | null;
-  displayMap: Record<string, string>;
   childrenMap: ReturnType<typeof selectCurrentPageElementsTree>;
   draggedId: string;
   setDraggedId: (id: string) => void;
 }) {
   const layerRef = useRef<HTMLDivElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
-  const children: LayerElement[] = getChildren(element.id);
+  const children: LayerElement[] = [...getChildren(element.id)].sort((a, b) => a.domIndex - b.domIndex);
   const hasChildren = children.length > 0;
-  const readableName = Object.keys(displayMap).find((key) => displayMap[key] === element.id) || element.id;
   const [expanded, setExpanded] = useState(() => hasChildren && hasSelectedDescendant(element.id, selectedElementId));
 
   useEffect(() => {
@@ -166,15 +158,27 @@ function LayerNode({
 
   const handleDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
+    if (!draggedId) return;
 
-    if (!isDragOver) {
+    const target = event.currentTarget;
+    const container = target.closest('ul');
+
+    if (!container) {
       return;
     }
 
-    const parentChildren = getChildren(nested ? element.parentId || '' : 'root');
-    const targetIndex = parentChildren.findIndex((el) => el.id === element.id);
+    const siblings = [...container.querySelectorAll<HTMLElement>('[draggable]')];
+    const newIndex = siblings.indexOf(target);
 
-    iframeConnection.send(EditorToIframe.ChangeElementPosition, { elementId: draggedId, newIndex: targetIndex });
+    if (newIndex === -1) {
+      return;
+    }
+
+    iframeConnection.send(EditorToIframe.ChangeElementPosition, {
+      elementId: draggedId,
+      newIndex
+    });
+
     setIsDragOver(false);
   };
 
@@ -194,7 +198,7 @@ function LayerNode({
           onDrop={handleDrop}
         >
           <Icon icon={ICON_MAP[element.name] || LuSquare} color='var(--color-white)' />
-          <span>{readableName}</span>
+          <span>{element.name}</span>
         </LayerBox>
       </LayerHeader>
       {hasChildren && expanded && (
@@ -206,7 +210,6 @@ function LayerNode({
               getChildren={getChildren}
               nested
               selectedElementId={selectedElementId}
-              displayMap={displayMap}
               childrenMap={childrenMap}
               draggedId={draggedId}
               setDraggedId={setDraggedId}

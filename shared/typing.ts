@@ -41,6 +41,7 @@ export interface PageElement {
   focusable: boolean;
   moveable: boolean;
   canHaveChildren: boolean;
+  domIndex?: number;
   content?: string;
   style: PageElementStyle;
   attrs?: PageElementAttrs;
@@ -101,6 +102,10 @@ export type PageElementAttrs = Partial<{
   placeholder: string;
   href: string;
 }>;
+
+export interface CopiedPageElement extends PageElement {
+  isRoot?: boolean;
+}
 
 export type JsType = 'string' | 'number' | 'boolean' | 'object' | 'undefined' | 'function' | 'symbol' | 'bigint';
 

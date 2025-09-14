@@ -2,7 +2,7 @@ export const generateElementDisplayMap = (elements: { id: string; name: string }
   const elementTypeCount: Record<string, number> = {};
   const displayMap: Record<string, string> = {};
 
-  const sortedElements = [...elements].sort((a, b) => a.name.localeCompare(b.name));
+  const sortedElements = [...elements];
 
   for (const el of sortedElements) {
     const type = el.name;

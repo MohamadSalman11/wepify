@@ -77,8 +77,8 @@ iframeConnection.on(EditorToIframe.InsertElement, (payload) => {
   elementController.insert(payload);
 });
 
-iframeConnection.on(EditorToIframe.InsertElements, (payload) => {
-  pageController.renderElements(payload);
+iframeConnection.on(EditorToIframe.InsertCopiedElement, (payload) => {
+  elementController.insertCopied(payload);
 });
 
 iframeConnection.on(EditorToIframe.ChangeElementPosition, (payload) => {

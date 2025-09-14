@@ -1,4 +1,5 @@
 import { DomCreator } from '@compiler/dom/DomCreator';
+import { DomTreeBuilder } from '@compiler/dom/DomTreeBuilder';
 import { StyleGenerator } from '@compiler/style/StyleGenerator';
 import { resolveStyleDependencies } from '@compiler/utils/resolveStyleDependencies';
 import { ElementsName, IframeToEditor } from '@shared/constants';
@@ -7,6 +8,7 @@ import { PageElement, PageElementStyle } from '@shared/typing';
 import { SELECTOR_SECTION } from '../constants';
 import { state } from '../model';
 import { createNewElement } from '../utils/createNewElement';
+import { generateElementId } from '../utils/generateElementId';
 import elementView from '../views/elementView';
 import moveableController from './moveableController';
 
@@ -120,6 +122,7 @@ class ElementController {
     moveableController.clearTarget();
 
     const newOrder = [...parent.children].map((el) => el.id);
+
     iframeConnection.send(IframeToEditor.ElementPositionChanged, { newOrder });
   }
 
@@ -189,6 +192,32 @@ class ElementController {
       for (const [index, el] of others.entries()) {
         el.style.zIndex = String(index + 1);
       }
+    }
+  }
+
+  insertCopied(elements: PageElement[]) {
+    const idMap: Record<string, string> = {};
+    const currentSectionEl = document.querySelector('[data-selected-section]') as HTMLElement;
+    const currentElId = this.currentEl.id;
+
+    for (const element of elements) {
+      const newId = generateElementId();
+      idMap[element.id] = newId;
+      element.id = newId;
+
+      if (currentSectionEl && element.name !== ElementsName.Section) {
+        element.parentId = idMap[element.parentId || ''] || currentSectionEl.id;
+      }
+    }
+
+    const domTree = new DomTreeBuilder(elements, state.deviceSimulator.type).domTree;
+    const topElement = domTree[0];
+
+    elementView.render(topElement, currentElId);
+    topElement.scrollIntoView({ block: 'center' });
+
+    for (const element of elements) {
+      iframeConnection.send(IframeToEditor.StoreElement, element);
     }
   }
 

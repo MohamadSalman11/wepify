@@ -204,24 +204,16 @@ const editorSlice = createSlice({
     },
     changeElementPosition(state, action: PayloadAction<{ newOrder: string[] }>) {
       const page = state.currentSite?.pages[state.currentPageId || ''];
-
       if (!page) return;
 
       const { newOrder } = action.payload;
 
-      const newSortedElements = { ...page.elements };
-
-      for (const id of newOrder) {
-        if (newSortedElements[id]) {
-          const el = newSortedElements[id];
-
-          delete newSortedElements[id];
-
-          newSortedElements[id] = el;
+      for (const [i, id] of newOrder.entries()) {
+        const el = page.elements[id];
+        if (el) {
+          el.domIndex = i;
         }
       }
-
-      page.elements = newSortedElements;
     },
     copyElement(state) {
       const pages = state.currentSite?.pages;
@@ -299,19 +291,6 @@ const editorSlice = createSlice({
   }
 });
 
-const createLengthBasedSelector = createSelectorCreator(lruMemoize, (prev: any[], next: any[]) => {
-  if (prev.length !== next.length) return false;
-
-  let i = 0;
-
-  for (const el of prev) {
-    if (el.id !== next[i].id) return false;
-    i++;
-  }
-
-  return true;
-});
-
 const createFieldsBasedSelector = <T>(keys: (keyof T)[]) =>
   createSelectorCreator(lruMemoize, (prev: T[], next: T[]) => {
     if (prev.length !== next.length) return false;
@@ -343,14 +322,14 @@ export const selectCurrentPageElements = createSelector([selectCurrentPage], (pa
   page ? Object.values(page.elements) : []
 );
 
-export const selectCurrentPageElementsTree = createLengthBasedSelector([selectCurrentPageElements], (elements) => {
-  const map: Record<string, { id: string; parentId: string; name: string }[]> = {};
+export const selectCurrentPageElementsTree = createSelector([selectCurrentPageElements], (elements) => {
+  const map: Record<string, { id: string; parentId: string; name: string; domIndex: number }[]> = {};
 
   for (const el of elements) {
     const parent = el.name === ElementsName.Section ? 'root' : el.parentId || 'root';
 
     if (!map[parent]) map[parent] = [];
-    map[parent].push({ id: el.id, parentId: parent, name: el.name });
+    map[parent].push({ id: el.id, parentId: parent, name: el.name, domIndex: el.domIndex ?? 0 });
   }
 
   return map;

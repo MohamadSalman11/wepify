@@ -1,14 +1,10 @@
-import { DomCreator } from '@compiler/dom/DomCreator';
-import { ElementsName, IframeToEditor } from '@shared/constants';
+import { IframeToEditor } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
 import { DeviceSimulator, PageElement } from '@shared/typing';
 import { SELECTOR_SECTION } from '../constants';
 import { state } from '../model';
-import { generateElementId } from '../utils/generateElementId';
 import dragButtonView, { SELECTOR_DRAG_BUTTON } from '../views/dragButtonView';
-import elementView from '../views/elementView';
 import pageView from '../views/pageView';
-import elementController from './elementController';
 import moveableController from './moveableController';
 
 /**
@@ -72,42 +68,6 @@ class PageController {
     if (state.initRender) return;
 
     iframeConnection.send(IframeToEditor.PageUpdated, updates);
-  }
-
-  renderElements(elements: PageElement[]) {
-    let index = 0;
-    let firstElement: HTMLElement | undefined;
-    const idMap: Record<string, string> = {};
-
-    for (const element of elements) {
-      const newElementId = generateElementId();
-      const parentId = element.parentId;
-      const currentSectionEl = document.querySelector('[data-selected-section]') as HTMLElement;
-      const currentElId = elementController.currentEl.id;
-
-      idMap[element.id] = newElementId;
-      element.id = newElementId;
-
-      if (currentSectionEl && element.name !== ElementsName.Section) {
-        element.parentId = idMap[parentId || ''] || currentSectionEl.id;
-      }
-
-      const domEl = new DomCreator(element, state.deviceSimulator.type).domElement;
-
-      if (index === 0) {
-        firstElement = domEl;
-
-        if (elementController.currentElName !== ElementsName.Section) {
-          element.parentId = currentElId;
-        }
-      }
-
-      index += 1;
-      elementView.render(domEl, index - 1 === 0 ? currentElId : element.parentId);
-      iframeConnection.send(IframeToEditor.StoreElement, element);
-    }
-
-    firstElement?.scrollIntoView({ block: 'center' });
   }
 }
 

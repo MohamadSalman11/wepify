@@ -43,7 +43,7 @@ export enum EditorToIframe {
   ZoomOutPage = 'ZOOM_OUT_PAGE',
   DeviceChanged = 'DEVICE_CHANGED',
   InsertElement = 'INSERT_ELEMENT',
-  InsertElements = 'INSERT_ELEMENTS',
+  InsertCopiedElement = 'INSERT_COPIED_ELEMENT',
   UpdateElement = 'EDITOR_UPDATE_ELEMENT',
   ChangeElementPosition = 'CHANGE_ELEMENT_POSITION',
   SelectElement = 'EDITOR_SELECT_ELEMENT'

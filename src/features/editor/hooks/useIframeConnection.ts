@@ -71,7 +71,7 @@ export const useIframeConnection = () => {
 
   useEffect(() => {
     iframeConnection.on(IframeToEditor.PasteElement, () => {
-      iframeConnection.send(EditorToIframe.InsertElements, copiedElement);
+      iframeConnection.send(EditorToIframe.InsertCopiedElement, copiedElement);
     });
   }, [copiedElement]);
 

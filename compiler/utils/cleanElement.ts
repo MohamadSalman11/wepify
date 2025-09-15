@@ -3,7 +3,6 @@ import { PageElement, PageElementStyle } from '@shared/typing';
 const DEFAULT_STYLE: Partial<PageElementStyle> = {
   width: 'auto',
   height: 'auto',
-  position: 'static',
   left: 0,
   top: 0,
   rotate: 0,

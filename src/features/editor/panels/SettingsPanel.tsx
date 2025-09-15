@@ -751,12 +751,12 @@ function PropertyEditor({
     onBlur: () => setValue(getCurrentValue()),
     onChange: (event: any) => {
       let value: string | number = event.target.value;
-      const isLink = attrName === 'href';
+      const allowEmptyField = attrName === 'href' || attrName === 'placeholder';
       const isEmpty = typeof value === 'string' && value.trim() === '';
 
       setValue(value);
 
-      if (isEmpty && !isLink) return;
+      if (isEmpty && !allowEmptyField) return;
 
       if (type === 'number' && !isEmpty) {
         value = Number(value);

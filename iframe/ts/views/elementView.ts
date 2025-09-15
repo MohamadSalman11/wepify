@@ -77,7 +77,7 @@ class ElementView {
 
     if (href !== undefined && this.domEl instanceof HTMLAnchorElement) this.domEl.href = href;
     if (type && this.domEl instanceof HTMLInputElement) this.domEl.type = type;
-    if (placeholder && this.domEl instanceof HTMLInputElement) this.domEl.placeholder = placeholder;
+    if (placeholder !== undefined && this.domEl instanceof HTMLInputElement) this.domEl.placeholder = placeholder;
   }
 
   updateSelection(newTarget: HTMLElement) {

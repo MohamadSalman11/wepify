@@ -1,0 +1,59 @@
+<svg width="0" height="0" class="hidden">
+  <symbol xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" id="bring-to-front">
+    <rect x="8" y="8" width="8" height="8" rx="2"></rect>
+    <path d="M4 10a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2"></path>
+    <path d="M14 20a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2"></path>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" id="clipboard-copy">
+    <rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect>
+    <path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"></path>
+    <path d="M16 4h2a2 2 0 0 1 2 2v4"></path>
+    <path d="M21 14H11"></path>
+    <path d="m15 10-4 4 4 4"></path>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" id="clipboard-paste">
+    <path d="M11 14h10"></path>
+    <path d="M16 4h2a2 2 0 0 1 2 2v1.344"></path>
+    <path d="m17 18 4-4-4-4"></path>
+    <path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 1.793-1.113"></path>
+    <rect x="8" y="2" width="8" height="4" rx="1"></rect>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 30 30" id="overlap-off">
+    <rect x="5" y="5" width="14" height="14" rx="2"></rect>
+    <rect x="11" y="11" width="14" height="14" rx="2"></rect>
+    <line x1="4" y1="26" x2="26" y2="4"></line>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 30 30" id="overlap-on">
+    <rect x="5" y="5" width="14" height="14" rx="2"></rect>
+    <rect x="11" y="11" width="14" height="14" rx="2"></rect>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" id="send-to-back">
+    <rect x="14" y="14" width="8" height="8" rx="2"></rect>
+    <rect x="2" y="2" width="8" height="8" rx="2"></rect>
+    <path d="M7 14v1a2 2 0 0 0 2 2h1"></path>
+    <path d="M14 7h1a2 2 0 0 1 2 2v1"></path>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" id="trash">
+    <path d="M10 11v6"></path>
+    <path d="M14 11v6"></path>
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+    <path d="M3 6h18"></path>
+    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" id="wrap-off">
+    <path d="m16 16-3 3 3 3"></path>
+    <path d="M3 12h14.5a1 1 0 0 1 0 7H13"></path>
+    <path d="M3 19h6"></path>
+    <path d="M3 5h18"></path>
+    <line x1="23" y1="1" x2="1" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line>
+  </symbol>
+  <symbol xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" id="wrap-on">
+    <path d="m16 16-3 3 3 3"></path>
+    <path d="M3 12h14.5a1 1 0 0 1 0 7H13"></path>
+    <path d="M3 19h6"></path>
+    <path d="M3 5h18"></path>
+  </symbol>
+</svg>
+
+
+

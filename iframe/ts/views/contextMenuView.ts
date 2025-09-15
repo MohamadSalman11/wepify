@@ -40,43 +40,49 @@ class ContextMenuView {
     const isOverlapped = elementController.isOverlapped();
     const isWrapped = elementController.isWrapped();
     const overlapText = isOverlapped ? 'Disable Overlap' : 'Allow Overlap';
-    const overlapIcon = isOverlapped ? '/overlap-off.svg' : '/overlap-on.svg';
+    const overlapIcon = isOverlapped ? 'overlap-off' : 'overlap-on';
     const wrapText = isWrapped ? 'Disable Wrap' : 'Allow Wrap';
-    const wrapIcon = isWrapped ? '/wrap-off.svg' : '/wrap-on.svg';
+    const wrapIcon = isWrapped ? 'wrap-off.svg' : 'wrap-on';
     const isPasteDisabled = isDisabled(ContextMenuAction.Paste);
 
     return `
       <ul class="${CLASS_CONTEXT_MENU}" style="left:${x}px; top:${y}px;">
         <li data-action="${ContextMenuAction.Copy}" class="${isDisabled(ContextMenuAction.Copy) ? 'disabled' : ''}">
-          <img src="/clipboard-copy.svg" alt="Copy" /> Copy
+         ${this.getSvgMarkup('clipboard-copy')} Copy
         </li>
         <li
           data-action="${ContextMenuAction.Paste}"
           class=" ${isPasteDisabled || !isAnyElCopied ? 'disabled' : ''} ${isPasteDisabled ? 'not-allowed' : ''}"
         >
-          <img src="/clipboard-paste.svg" alt="Paste" /> Paste
+         ${this.getSvgMarkup('clipboard-paste')} Paste
         </li>
         <li
           data-action="${ContextMenuAction.BringToFront}"
           class="${isDisabled(ContextMenuAction.BringToFront) ? 'disabled' : ''}"
         >
-          <img src="/bring-to-front.svg" alt="Bring to Front" /> Bring to Front
+          ${this.getSvgMarkup('bring-to-front')} Bring to Front
         </li>
         <li
           data-action="${ContextMenuAction.SendToBack}"
           class="${isDisabled(ContextMenuAction.SendToBack) ? 'disabled' : ''}"
         >
-          <img src="/send-to-back.svg" alt="Send to Back" /> Send to Back
+          ${this.getSvgMarkup('send-to-back')} Send to Back
         </li>
         <li data-action="${ContextMenuAction.ToggleOverlap}">
-          <img src="${overlapIcon}" alt="${overlapText}" /> ${overlapText}
+          ${this.getSvgMarkup(overlapIcon)} ${overlapText}
         </li>
-        <li data-action="${ContextMenuAction.ToggleWrap}"><img src="${wrapIcon}" alt="${wrapText}" /> ${wrapText}</li>
+        <li data-action="${ContextMenuAction.ToggleWrap}">
+         ${this.getSvgMarkup(wrapIcon)} ${wrapText}
+         </li>
         <li data-action="${ContextMenuAction.Delete}" class="${isDisabled(ContextMenuAction.Delete) ? 'disabled' : ''}">
-          <img src="/trash.svg" alt="Delete" /> Delete
+          ${this.getSvgMarkup('trash')} Delete
         </li>
       </ul>
     `;
+  }
+
+  private getSvgMarkup(id: string) {
+    return `<svg><use href="/sprite.svg#${id}"></use></svg>`;
   }
 
   private maybeChangeMenuPosition(x: number, y: number) {

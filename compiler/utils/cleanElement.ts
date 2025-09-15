@@ -10,6 +10,7 @@ const DEFAULT_STYLE: Partial<PageElementStyle> = {
   scaleX: 1,
   scaleY: 1,
   textAlign: 'start',
+  opacity: 1,
   justifyContent: 'flex-start',
   alignItems: 'flex-start',
   flexWrap: 'nowrap',

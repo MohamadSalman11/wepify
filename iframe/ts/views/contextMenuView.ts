@@ -39,10 +39,15 @@ class ContextMenuView {
 
     const isOverlapped = elementController.isOverlapped();
     const isWrapped = elementController.isWrapped();
+    const isHidden = elementController.isHidden();
+
     const overlapText = isOverlapped ? 'Disable Overlap' : 'Allow Overlap';
-    const overlapIcon = isOverlapped ? 'overlap-off' : 'overlap-on';
     const wrapText = isWrapped ? 'Disable Wrap' : 'Allow Wrap';
+    const visibilityText = isHidden ? 'Show' : 'Hide';
+    const overlapIcon = isOverlapped ? 'overlap-off' : 'overlap-on';
     const wrapIcon = isWrapped ? 'wrap-off.svg' : 'wrap-on';
+    const visibilityIcon = isHidden ? 'eye-on' : 'eye-off';
+
     const isPasteDisabled = isDisabled(ContextMenuAction.Paste);
 
     return `
@@ -74,6 +79,9 @@ class ContextMenuView {
         <li data-action="${ContextMenuAction.ToggleWrap}">
          ${this.getSvgMarkup(wrapIcon)} ${wrapText}
          </li>
+        <li data-action="${ContextMenuAction.ToggleVisibility}">
+        ${this.getSvgMarkup(visibilityIcon)} ${visibilityText}
+        </li>
         <li data-action="${ContextMenuAction.Delete}" class="${isDisabled(ContextMenuAction.Delete) ? 'disabled' : ''}">
           ${this.getSvgMarkup('trash')} Delete
         </li>

@@ -156,6 +156,16 @@ class ElementController {
     }
   }
 
+  toggleVisibility() {
+    if (this.isHidden()) {
+      this.update({ style: { opacity: 1 } });
+      this.updateMoveableTarget();
+    } else {
+      this.update({ style: { opacity: 0 } });
+      moveableController.clearTarget();
+    }
+  }
+
   select(id: string) {
     const el = document.querySelector(`#${id}`) as HTMLElement;
 
@@ -279,6 +289,11 @@ class ElementController {
     return getComputedStyle(target).flexWrap === 'wrap';
   }
 
+  isHidden(el?: HTMLElement) {
+    const target = el || this.currentEl;
+    return getComputedStyle(target).display === 'none';
+  }
+
   handleMouseover(event: MouseEvent) {
     const el = event.target instanceof Element ? event.target.closest<HTMLElement>(SELECTOR_ELEMENT) : null;
 
@@ -326,7 +341,12 @@ class ElementController {
     this.syncContentEditable(oldEl, newEl);
     this.maybeFocus(newEl);
 
-    this.updateMoveableTarget();
+    if (this.isHidden()) {
+      moveableController.clearTarget();
+    } else {
+      this.updateMoveableTarget();
+    }
+
     iframeConnection.send(IframeToEditor.SelectElement, newEl.id);
   }
 

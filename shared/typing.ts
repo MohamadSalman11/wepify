@@ -68,6 +68,7 @@ export type PageElementStyle = Partial<{
   scaleX: number;
   scaleY: number;
   textAlign: string;
+  opacity: number;
   display: string;
   flexDirection: FlexDirectionOption;
   flexWrap: 'wrap' | 'nowrap';

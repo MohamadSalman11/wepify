@@ -15,7 +15,7 @@ const STYLE_DEPENDENCY_GROUPS: Record<string, DependencyGroup> = {
     extractor: (currentEl) => extractZIndex(currentEl.style)
   },
   flex: {
-    props: ['display', 'flexDirection', 'alignItems', 'justifyContent'],
+    props: ['display', 'flexDirection', 'alignItems', 'justifyContent', 'opacity'],
     extractor: (currentEl) => extractFlex(currentEl.style)
   },
   gridTemplateColumns: {

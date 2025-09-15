@@ -76,6 +76,12 @@ export class StyleGenerator {
     if (this.isDefined(s.width) && !Number.isNaN(Number(s.width))) {
       this.styles.maxWidth = '100%';
     }
+
+    if (this.isDefined(s.opacity) && s.opacity !== 1) {
+      this.styles.display = 'none';
+    } else if (this.isDefined(s.display)) {
+      this.styles.display = s.display;
+    }
   }
 
   private applyFlexStyles() {

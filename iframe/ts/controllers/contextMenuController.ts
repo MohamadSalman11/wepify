@@ -53,8 +53,12 @@ class ContextMenuController {
     const { x, y } = this.getEventCoordinates(event);
     const disabledActions: ContextMenuAction[] = [];
 
-    if (!elementController.canPasteHere()) {
+    if (!elementController.canPaste()) {
       disabledActions.push(ContextMenuAction.Paste);
+    }
+
+    if (!elementController.canWrap()) {
+      disabledActions.push(ContextMenuAction.ToggleWrap);
     }
 
     contextMenuView.removeContextMenu();

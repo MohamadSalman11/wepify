@@ -45,10 +45,11 @@ class ContextMenuView {
     const wrapText = isWrapped ? 'Disable Wrap' : 'Allow Wrap';
     const visibilityText = isHidden ? 'Show' : 'Hide';
     const overlapIcon = isOverlapped ? 'overlap-off' : 'overlap-on';
-    const wrapIcon = isWrapped ? 'wrap-off.svg' : 'wrap-on';
+    const wrapIcon = isWrapped ? 'wrap-off' : 'wrap-on';
     const visibilityIcon = isHidden ? 'eye-on' : 'eye-off';
 
     const isPasteDisabled = isDisabled(ContextMenuAction.Paste);
+    const isOverlapDisabled = isDisabled(ContextMenuAction.ToggleWrap);
 
     return `
       <ul class="${CLASS_CONTEXT_MENU}" style="left:${x}px; top:${y}px;">
@@ -57,7 +58,7 @@ class ContextMenuView {
         </li>
         <li
           data-action="${ContextMenuAction.Paste}"
-          class=" ${isPasteDisabled || !isAnyElCopied ? 'disabled' : ''} ${isPasteDisabled ? 'not-allowed' : ''}"
+          class="${isPasteDisabled || !isAnyElCopied ? 'disabled' : ''} ${isPasteDisabled ? 'not-allowed' : ''}"
         >
          ${this.getSvgMarkup('clipboard-paste')} Paste
         </li>
@@ -76,7 +77,7 @@ class ContextMenuView {
         <li data-action="${ContextMenuAction.ToggleOverlap}">
           ${this.getSvgMarkup(overlapIcon)} ${overlapText}
         </li>
-        <li data-action="${ContextMenuAction.ToggleWrap}">
+        <li data-action="${ContextMenuAction.ToggleWrap}" class="${isOverlapDisabled ? 'disabled not-allowed' : ''}">
          ${this.getSvgMarkup(wrapIcon)} ${wrapText}
          </li>
         <li data-action="${ContextMenuAction.ToggleVisibility}">

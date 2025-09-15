@@ -45,7 +45,7 @@ class ElementController {
     newPageEl.domIndex = this.getNextDomIndex(resolvedParentId || ID_ROOT_EL);
 
     elementView.render(domEl, resolvedParentId);
-    elementView.click(domEl);
+    this.select(domEl.id);
 
     moveableController.addElementToGuidelines(this.currentEl);
 
@@ -267,12 +267,16 @@ class ElementController {
     elementView.updateSelection(el);
   }
 
-  canPasteHere() {
+  canPaste() {
     return (
       this.canAcceptChildren(this.currentEl) &&
       (this.currentElName !== ElementsName.Grid || state.copiedElName === ElementsName.GridItem) &&
       (this.currentElName !== ElementsName.List || state.copiedElName === ElementsName.ListItem)
     );
+  }
+
+  canWrap() {
+    return this.canAcceptChildren(this.currentEl) && this.currentElName !== ElementsName.Grid;
   }
 
   canAcceptChildren(el?: HTMLElement) {

@@ -22,7 +22,7 @@ import { addPage, deletePage, duplicatePage, selectPagesMetadata, setPageAsIndex
  * Constants
  */
 
-const MAX_PAGE_NAME_LENGTH = 6;
+const MAX_PAGE_NAME_LENGTH = 7;
 const CLASS_BUTTON_PAGE_ACTIONS = 'page-actions-button';
 const SELECTOR_BUTTON_PAGE_ACTIONS = `.${CLASS_BUTTON_PAGE_ACTIONS}`;
 

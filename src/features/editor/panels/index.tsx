@@ -97,18 +97,18 @@ const StyledPanel = styled.div<{ $sectioned: boolean; $borderDir: BorderDirectio
   background-color: var(--color-white);
   z-index: var(--zindex-panel);
 
-  padding: ${({ $sectioned }) => ($sectioned ? '0' : '3.2rem 2.4rem')};
   ${({ $borderDir }) => css`border-${$borderDir}: var(--border-base);`}
 `;
 
 const PanelContainer = styled.div<{ $sectioned: boolean }>`
+  width: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  scrollbar-width: none;
+  scrollbar-width: thin;
   max-height: 100%;
 
   &::-webkit-scrollbar {
-    display: none;
+    width: 0.6rem;
   }
 
   ${({ $sectioned }) =>
@@ -120,6 +120,25 @@ const PanelContainer = styled.div<{ $sectioned: boolean }>`
         border-bottom: var(--border-base);
         padding: 3.2rem 2.2rem;
         width: 100%;
+      }
+    `}
+
+  ${({ $sectioned }) =>
+    !$sectioned &&
+    css`
+      & > ul,
+      .masonry-grid {
+        padding: 2.4rem;
+      }
+
+      & > span {
+        margin: 3.2rem 2.4rem 0rem 2.4rem;
+      }
+
+      & > button {
+        margin-top: 3.2rem;
+        margin-left: 2.4rem;
+        width: calc(100% - 4.5rem);
       }
     `}
 `;
@@ -138,4 +157,9 @@ const StyledButton = styled.button`
     margin-top: 0.15rem;
     margin-left: 0.1rem;
   }
+`;
+
+export const SectionTitle = styled.span`
+  display: inline-block;
+  font-size: 1.4rem;
 `;

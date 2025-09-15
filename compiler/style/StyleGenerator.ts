@@ -72,6 +72,10 @@ export class StyleGenerator {
     this.setIfDefined('cursor', s.cursor);
     this.setIfDefined('zIndex', s.zIndex);
     this.setIfDefined('position', s.position);
+
+    if (this.isDefined(s.width) && !Number.isNaN(Number(s.width))) {
+      this.styles.maxWidth = '100%';
+    }
   }
 
   private applyFlexStyles() {

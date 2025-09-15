@@ -85,7 +85,11 @@ const baseStyles = css`
 
   ::-webkit-scrollbar-thumb {
     border-radius: var(--border-radius-md);
-    background-color: var(--color-gray-light-2);
+    background-color: var(--color-gray-light-3);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-gray-light-3);
   }
 `;
 

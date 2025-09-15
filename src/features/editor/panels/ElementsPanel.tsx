@@ -4,6 +4,7 @@ import iframeConnection from '@shared/iframeConnection';
 import { ChangeEvent } from 'react';
 import { LuImage, LuSearch } from 'react-icons/lu';
 import styled from 'styled-components';
+import { SectionTitle } from '.';
 import Input from '../../../components/form/Input';
 import Icon from '../../../components/Icon';
 import { StorageKey } from '../../../constant';
@@ -307,6 +308,7 @@ const MediaItem = styled(PanelItem)`
 
 const SearchBar = styled.div`
   position: relative;
+  margin-top: 2.4rem;
 
   svg {
     position: absolute;
@@ -341,10 +343,4 @@ const PanelBox = styled.div`
     left: 50%;
     transform: translate(-50%, -50%);
   }
-`;
-
-const SectionTitle = styled.span`
-  display: inline-block;
-  margin-bottom: 2.4rem;
-  font-size: 2rem;
 `;

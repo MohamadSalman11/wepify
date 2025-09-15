@@ -313,7 +313,6 @@ const StyledPagesList = styled.ul`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.2rem;
-  margin-top: 2.4rem;
   list-style: none;
 `;
 

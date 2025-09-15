@@ -15,6 +15,7 @@ import {
   LuTextCursorInput
 } from 'react-icons/lu';
 import styled from 'styled-components';
+import { SectionTitle } from '.';
 import Icon from '../../../components/Icon';
 import { useAppSelector } from '../../../store';
 import { selectCurrentPageElementsTree } from '../editorSlice';
@@ -64,7 +65,7 @@ export default function LayersPanel() {
 
   return (
     <>
-      <Title>Layers</Title>
+      <SectionTitle>Layers</SectionTitle>
       <LayerList>
         {rootElements.map((el) => (
           <LayerNode
@@ -225,12 +226,7 @@ function LayerNode({
  * Styles
  */
 
-const Title = styled.span`
-  font-size: 1.4rem;
-`;
-
 const LayerList = styled.ul`
-  margin-top: 2.4rem;
   display: flex;
   flex-direction: column;
   row-gap: 1.2rem;

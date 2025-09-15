@@ -203,7 +203,6 @@ const MasonryGrid = styled(Masonry)`
   display: flex !important;
   flex-direction: row !important;
   gap: 1.2rem;
-  margin-top: 2.4rem;
   width: 100%;
 
   & > div {

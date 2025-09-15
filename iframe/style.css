@@ -12,6 +12,8 @@ html {
 
 body {
   position: relative;
+  margin: 0 auto;
+  max-width: 1920px;
   line-height: 1.5;
   list-style-position: inside;
 }

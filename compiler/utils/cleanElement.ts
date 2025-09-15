@@ -12,6 +12,7 @@ const DEFAULT_STYLE: Partial<PageElementStyle> = {
   textAlign: 'start',
   justifyContent: 'flex-start',
   alignItems: 'flex-start',
+  flexWrap: 'nowrap',
   columnGap: 0,
   rowGap: 0,
   columns: 0,

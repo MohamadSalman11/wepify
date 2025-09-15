@@ -35,10 +35,14 @@ class ContextMenuView {
 
   // private
   private generateMarkup(x: number, y: number, disabledActions: ContextMenuAction[] = [], isAnyElCopied: boolean) {
+    const isDisabled = (action: ContextMenuAction) => disabledActions.includes(action);
+
     const isOverlapped = elementController.isOverlapped();
+    const isWrapped = elementController.isWrapped();
     const overlapText = isOverlapped ? 'Disable Overlap' : 'Allow Overlap';
     const overlapIcon = isOverlapped ? '/overlap-off.svg' : '/overlap-on.svg';
-    const isDisabled = (action: ContextMenuAction) => disabledActions.includes(action);
+    const wrapText = isWrapped ? 'Disable Wrap' : 'Allow Wrap';
+    const wrapIcon = isWrapped ? '/wrap-off.svg' : '/wrap-on.svg';
     const isPasteDisabled = isDisabled(ContextMenuAction.Paste);
 
     return `
@@ -67,6 +71,7 @@ class ContextMenuView {
         <li data-action="${ContextMenuAction.ToggleOverlap}">
           <img src="${overlapIcon}" alt="${overlapText}" /> ${overlapText}
         </li>
+        <li data-action="${ContextMenuAction.ToggleWrap}"><img src="${wrapIcon}" alt="${wrapText}" /> ${wrapText}</li>
         <li data-action="${ContextMenuAction.Delete}" class="${isDisabled(ContextMenuAction.Delete) ? 'disabled' : ''}">
           <img src="/trash.svg" alt="Delete" /> Delete
         </li>

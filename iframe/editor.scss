@@ -129,12 +129,14 @@ html {
     gap: 1rem;
     cursor: pointer;
     padding: 1.2rem;
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     user-select: none;
 
-    img {
-      width: 1.6rem;
-      height: 1.6rem;
+    img,
+    svg {
+      width: 1.4rem;
+      height: 1.4rem;
+      color: $color-gray;
     }
 
     &.disabled {

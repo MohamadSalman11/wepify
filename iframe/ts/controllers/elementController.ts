@@ -148,6 +148,14 @@ class ElementController {
     }
   }
 
+  toggleWrap() {
+    if (this.isWrapped()) {
+      this.update({ style: { flexWrap: 'nowrap' } });
+    } else {
+      this.update({ style: { flexWrap: 'wrap' } });
+    }
+  }
+
   select(id: string) {
     const el = document.querySelector(`#${id}`) as HTMLElement;
 
@@ -264,6 +272,11 @@ class ElementController {
   isOverlapped(el?: HTMLElement) {
     const target = el || this.currentEl;
     return getComputedStyle(target).position === 'absolute';
+  }
+
+  isWrapped(el?: HTMLElement) {
+    const target = el || this.currentEl;
+    return getComputedStyle(target).flexWrap === 'wrap';
   }
 
   handleMouseover(event: MouseEvent) {

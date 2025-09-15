@@ -50,6 +50,7 @@ export class StyleGenerator {
     this.setIfDefined('textAlign', s.textAlign);
     this.setIfDefined('display', s.display);
     this.setIfDefined('flexDirection', s.flexDirection);
+    this.setIfDefined('flexWrap', s.flexWrap);
     this.setIfDefined('alignItems', s.alignItems);
     this.setIfDefined('columnGap', s.columnGap, true);
     this.setIfDefined('rowGap', s.rowGap, true);
@@ -76,16 +77,9 @@ export class StyleGenerator {
   private applyFlexStyles() {
     const s = this.style;
 
-    const isRowDirection =
-      !this.isDefined(s.flexDirection) || s.flexDirection === 'row' || s.flexDirection === 'row-reverse';
-
-    const shouldApplyFlexWrap = s.display === 'flex' && isRowDirection;
-
     if (this.isDefined(s.justifyContent)) {
       this.styles.justifyContent = OPTIONS_SPACE.has(s.justifyContent) ? `space-${s.justifyContent}` : s.justifyContent;
     }
-
-    this.styles.flexWrap = shouldApplyFlexWrap ? 'wrap' : '';
   }
 
   private applyTransform() {

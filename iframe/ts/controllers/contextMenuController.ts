@@ -17,6 +17,7 @@ export enum ContextMenuAction {
   BringToFront = 'bring-to-front',
   SendToBack = 'send-to-back',
   ToggleOverlap = 'toggle-overlap',
+  ToggleWrap = 'toggle-wrap',
   Delete = 'delete'
 }
 
@@ -25,6 +26,7 @@ const actions: Record<ContextMenuAction, () => void> = {
   [ContextMenuAction.Paste]: () => elementController.paste(),
   [ContextMenuAction.Delete]: () => elementController.delete(),
   [ContextMenuAction.ToggleOverlap]: () => elementController.toggleOverlap(),
+  [ContextMenuAction.ToggleWrap]: () => elementController.toggleWrap(),
   [ContextMenuAction.BringToFront]: () => elementController.bringToFrontOrSendToBack(true),
   [ContextMenuAction.SendToBack]: () => elementController.bringToFrontOrSendToBack(false)
 };

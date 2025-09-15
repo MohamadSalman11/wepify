@@ -70,6 +70,7 @@ export type PageElementStyle = Partial<{
   textAlign: string;
   display: string;
   flexDirection: FlexDirectionOption;
+  flexWrap: 'wrap' | 'nowrap';
   justifyContent: string;
   alignItems: string;
   columnGap: number;

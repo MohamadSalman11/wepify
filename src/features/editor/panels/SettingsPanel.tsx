@@ -252,7 +252,9 @@ function SelectorSettings() {
   const selectedElement = useAppSelector(selectCurrentElement);
   const elements = useAppSelector(selectCurrentPageElements);
   const elementMap = generateElementDisplayMap(elements);
-  const displayNames = Object.keys(elementMap);
+  const displayNames = Object.keys(elementMap).sort((a, b) =>
+    a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+  );
 
   return (
     <div>

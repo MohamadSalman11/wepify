@@ -122,6 +122,7 @@ export class StyleGenerator {
     if (value === 'screen') return '100vh';
     if (value === 'fill') return '100%';
     if (value === 'fit') return 'fit-content';
+    if (value === 'half') return '50%';
     if (value === 'auto') return '';
     return addPx ? `${value}px` : String(value);
   }

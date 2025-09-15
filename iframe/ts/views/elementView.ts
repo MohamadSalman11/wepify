@@ -6,7 +6,6 @@ import { SELECTOR_ROOT, SELECTOR_SECTION } from '../constants';
  */
 
 const SELECTOR_HOVER_BOX = '.hover-box';
-const SELECTOR_HOVER_BADGE = '.hover-badge';
 const SELECTOR_SELECTED_ITEM = '[data-selected-item]';
 const SELECTOR_SELECTED_SECTION = '[data-selected-section]';
 const SELECTOR_ITEM = '[data-name="gridItem"], [data-name="listItem"]';
@@ -40,10 +39,10 @@ class ElementView {
   showHover(el: HTMLElement) {
     const elName = el.dataset.name;
 
+    this.hideHover();
+
     el.classList.add(CLASS_ELEMENT_HOVERED);
 
-    const hoverBox = document.querySelector(SELECTOR_HOVER_BOX) as HTMLElement;
-    const hoverBadge = hoverBox.querySelector(SELECTOR_HOVER_BADGE) as HTMLElement;
     const rect = el.getBoundingClientRect();
     const style = getComputedStyle(el);
     const borderRadius = Number.parseFloat(style.borderRadius || '0');
@@ -54,12 +53,12 @@ class ElementView {
       offset = 5;
     }
 
-    hoverBox.style.width = `${rect.width + offset * 2}px`;
-    hoverBox.style.height = `${rect.height + offset * 2}px`;
-    hoverBox.style.top = `${rect.top + window.scrollY - offset}px`;
-    hoverBox.style.left = `${rect.left + window.scrollX - offset}px`;
-    hoverBox.style.display = 'flex';
-    hoverBadge.textContent = elName || '';
+    const width = rect.width + offset * 2;
+    const height = rect.height + offset * 2;
+    const top = rect.top + window.scrollY - offset;
+    const left = rect.left + window.scrollX - offset;
+
+    document.body.insertAdjacentHTML('beforeend', this.generateHoverBoxMarkup(elName || '', width, height, top, left));
   }
 
   hideHover() {
@@ -67,8 +66,8 @@ class ElementView {
 
     if (el) {
       el.classList.remove(CLASS_ELEMENT_HOVERED);
-      const hoverBox = document.querySelector(SELECTOR_HOVER_BOX) as HTMLElement;
-      hoverBox.style.display = 'none';
+      const hoverBox = document.querySelector(SELECTOR_HOVER_BOX);
+      hoverBox?.remove();
     }
   }
 
@@ -119,6 +118,22 @@ class ElementView {
 
   scrollIntoView(block: 'start' | 'center' = 'center') {
     this.domEl.scrollIntoView({ block });
+  }
+
+  // private
+  private generateHoverBoxMarkup(elName: string, width: number, height: number, top: number, left: number) {
+    return `
+    <div class="hover-box" style="
+      width: ${width}px;
+      height: ${height}px;
+      top: ${top}px;
+      left: ${left}px;
+    ">
+      <div class="hover-inner">
+        <div class="hover-badge">${elName}</div>
+      </div>
+    </div>
+  `;
   }
 }
 

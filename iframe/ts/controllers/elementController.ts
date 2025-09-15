@@ -94,9 +94,13 @@ class ElementController {
     const targetId = this.currentEl.id;
     const parentEl = this.currentEl.parentElement;
     const isSectionEl = this.currentElName === ElementsName.Section;
-    const sectionEl = isSectionEl ? this.currentEl.previousElementSibling : this.currentEl.closest(SELECTOR_SECTION);
+    const sectionCount = document.querySelectorAll(SELECTOR_SECTION).length;
 
-    if (!sectionEl || !parentEl || !targetId) {
+    const sectionEl = isSectionEl
+      ? this.currentEl.previousElementSibling || this.currentEl.nextElementSibling
+      : this.currentEl.closest(SELECTOR_SECTION);
+
+    if (!sectionEl || sectionCount === 1 || !parentEl || !targetId) {
       return;
     }
 

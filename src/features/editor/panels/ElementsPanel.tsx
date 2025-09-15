@@ -52,8 +52,8 @@ export default function ElementsPanel() {
           <Input
             size='md'
             type='text'
-            placeholder='Search by ID'
-            onChange={handleSearchElement}
+            placeholder='Find text on page'
+            onChange={handleSearchText}
             onBlur={(event) => (event.target.value = '')}
           />
         </SearchBar>
@@ -164,9 +164,8 @@ const handleAddElement = (name: string) => {
   iframeConnection.send(EditorToIframe.InsertElement, { name });
 };
 
-const handleSearchElement = (event: ChangeEvent<HTMLInputElement>) => {
-  const id = event.target.value;
-  iframeConnection.send(EditorToIframe.SelectElement, id);
+const handleSearchText = (event: ChangeEvent<HTMLInputElement>) => {
+  iframeConnection.send(EditorToIframe.SearchText, event.target.value);
 };
 
 /**

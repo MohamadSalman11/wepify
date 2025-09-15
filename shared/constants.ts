@@ -46,7 +46,8 @@ export enum EditorToIframe {
   InsertCopiedElement = 'INSERT_COPIED_ELEMENT',
   UpdateElement = 'EDITOR_UPDATE_ELEMENT',
   ChangeElementPosition = 'CHANGE_ELEMENT_POSITION',
-  SelectElement = 'EDITOR_SELECT_ELEMENT'
+  SelectElement = 'EDITOR_SELECT_ELEMENT',
+  SearchText = 'SEARCH_TEXT'
 }
 
 export enum IframeToEditor {

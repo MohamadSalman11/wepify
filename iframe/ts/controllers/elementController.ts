@@ -16,6 +16,8 @@ import moveableController from './moveableController';
  * Constants
  */
 
+const PARSE_INT_RADIX = 10;
+
 const ATTR_CONTENT_EDITABLE = 'contenteditable';
 const DATASET_NOT_MOVEABLE = 'notMoveable';
 const DATASET_FOCUSABLE = 'focusable';
@@ -26,7 +28,13 @@ const SELECTOR_ELEMENT = '[data-name]';
 const SCROLL_ALIGN_START = 'start';
 const SCROLL_ALIGN_CENTER = 'center';
 
-const PARSE_INT_RADIX = 10;
+const SELECTORS_SEARCHABLE = [
+  '[data-name="heading"]',
+  '[data-name="text"]',
+  '[data-name="link"]',
+  '[data-name="button"]',
+  '[data-name="input"]'
+];
 
 /**
  * Class definition
@@ -176,6 +184,31 @@ class ElementController {
     elementView.click(el);
     elementView.scrollIntoView(this.getScrollAlignment());
     iframeConnection.send(IframeToEditor.SelectElement, id);
+  }
+
+  searchText(value: string) {
+    if (!value) {
+      elementView.hideHover();
+      return;
+    }
+
+    const elements = document.querySelectorAll<HTMLElement>(SELECTORS_SEARCHABLE.join(','));
+
+    for (const el of elements) {
+      let text = el.textContent?.toLowerCase().trim() || '';
+
+      if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+        text = (el.value || el.placeholder || '').toLowerCase().trim();
+      }
+
+      if (text.includes(value.toLowerCase())) {
+        elementView.showHover(el);
+        el.scrollIntoView({ block: 'center' });
+        return;
+      } else {
+        elementView.hideHover();
+      }
+    }
   }
 
   copy() {

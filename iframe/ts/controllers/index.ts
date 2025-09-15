@@ -16,8 +16,8 @@ const controlDocumentMouseover = (event: MouseEvent) => {
   elementController.handleMouseover(event);
 };
 
-const controlDocumentMouseout = (event: MouseEvent) => {
-  elementController.handleMouseout(event);
+const controlDocumentMouseout = () => {
+  elementController.handleMouseout();
 };
 
 const controlInputChange = (event: Event) => {
@@ -95,6 +95,10 @@ iframeConnection.on(EditorToIframe.InsertCopiedElement, (payload) => {
 
 iframeConnection.on(EditorToIframe.ChangeElementPosition, (payload) => {
   elementController.changePosition(payload.elementId, payload.newIndex);
+});
+
+iframeConnection.on(EditorToIframe.SearchText, (payload) => {
+  elementController.searchText(payload);
 });
 
 iframeConnection.on(EditorToIframe.SelectElement, (payload) => {

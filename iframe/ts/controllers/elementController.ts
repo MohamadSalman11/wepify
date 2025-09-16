@@ -94,13 +94,12 @@ class ElementController {
     const targetId = this.currentEl.id;
     const parentEl = this.currentEl.parentElement;
     const isSectionEl = this.currentElName === ElementsName.Section;
-    const sectionCount = document.querySelectorAll(SELECTOR_SECTION).length;
 
     const sectionEl = isSectionEl
       ? this.currentEl.previousElementSibling || this.currentEl.nextElementSibling
       : this.currentEl.closest(SELECTOR_SECTION);
 
-    if (!sectionEl || sectionCount === 1 || !parentEl || !targetId) {
+    if (!sectionEl || !this.canDelete() || !parentEl || !targetId) {
       return;
     }
 
@@ -314,6 +313,11 @@ class ElementController {
 
   canWrap() {
     return this.canAcceptChildren(this.currentEl) && this.currentElName !== ElementsName.Grid;
+  }
+
+  canDelete() {
+    const sectionCount = document.querySelectorAll(SELECTOR_SECTION).length;
+    return sectionCount > 1 || this.currentElName !== ElementsName.Section;
   }
 
   canAcceptChildren(el?: HTMLElement) {

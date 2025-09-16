@@ -61,6 +61,10 @@ class ContextMenuController {
       disabledActions.push(ContextMenuAction.ToggleWrap);
     }
 
+    if (!elementController.canDelete()) {
+      disabledActions.push(ContextMenuAction.Delete);
+    }
+
     contextMenuView.removeContextMenu();
     contextMenuView.renderContextMenu(x, y, disabledActions, Boolean(state.copiedElName));
   }

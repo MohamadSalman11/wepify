@@ -1,20 +1,22 @@
 import { Tooltip } from 'radix-ui';
-import 'react-lazy-load-image-component/src/effects/blur.css';
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
+import FullScreenMessage from './components/FullScreenMessage';
 import NotFound from './components/NotFound';
 import RequireDesktop from './components/RequiredDesktop';
-import { DashboardPath, EditorPath, Path } from './constant';
+import { DashboardPath, EditorPath, LoadingMessages, Path } from './constant';
 import HomeSites from './features/dashboard/main/HomeSites';
 import RecentSites from './features/dashboard/main/RecentSites';
 import StarredSites from './features/dashboard/main/StarredSites';
 import Panel, { PanelProvider } from './features/editor/panels';
 import Preview from './features/editor/Preview';
-import Dashboard from './pages/Dashboard';
-import Editor from './pages/Editor';
-import Home from './pages/Home';
 import GlobalStyles from './styles/GlobalStyles';
 import theme from './styles/theme';
+
+const Home = lazy(() => import('./pages/Home'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Editor = lazy(() => import('./pages/Editor'));
 
 function App() {
   return (
@@ -24,12 +26,23 @@ function App() {
           <ThemeProvider theme={theme}>
             <GlobalStyles />
             <Routes>
-              <Route path={Path.Home} element={<Home />} />
+              <Route
+                path={Path.Home}
+                element={
+                  <Suspense fallback={null}>
+                    <Home />
+                  </Suspense>
+                }
+              />
               <Route
                 path={Path.Dashboard}
                 element={
                   <RequireDesktop>
-                    <Dashboard />
+                    <Suspense
+                      fallback={<FullScreenMessage mode='loading' message={LoadingMessages.DashboardCodeSplit} />}
+                    >
+                      <Dashboard />
+                    </Suspense>
                   </RequireDesktop>
                 }
               >
@@ -41,7 +54,9 @@ function App() {
                 path={Path.Editor}
                 element={
                   <RequireDesktop>
-                    <Editor />
+                    <Suspense fallback={<FullScreenMessage mode='loading' message={LoadingMessages.EditorCodeSplit} />}>
+                      <Editor />
+                    </Suspense>
                   </RequireDesktop>
                 }
               >

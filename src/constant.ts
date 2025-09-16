@@ -21,9 +21,11 @@ export enum EditorPath {
 }
 
 export enum LoadingMessages {
-  Dashboard = 'Setting up your management dashboard...',
+  DashboardCodeSplit = 'Preparing your management dashboard...',
+  EditorCodeSplit = 'Preparing your site editor...',
+  Dashboard = 'Loading your sites. Almost there...',
   SitePreview = 'Setting up your site preview...',
-  Editor = 'Setting up your site editor...',
+  Editor = 'Loading your editor content. This should be ready shortly...',
   Error = 'Something went wrong while loading the site.'
 }
 

@@ -115,7 +115,7 @@ class ContextMenuView {
         <li data-action="${ContextMenuAction.ToggleVisibility}">
         ${this.generateSvgMarkup(visibilityIcon)} ${visibilityText}
         </li>
-        <li data-action="${ContextMenuAction.Delete}" class="${isDisabled(ContextMenuAction.Delete) ? 'disabled' : ''}">
+        <li data-action="${ContextMenuAction.Delete}" class="${isDisabled(ContextMenuAction.Delete) ? 'disabled not-allowed' : ''}">
           ${this.generateSvgMarkup('trash')} Delete
         </li>
       </ul>

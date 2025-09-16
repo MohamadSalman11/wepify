@@ -25,7 +25,7 @@ export enum LoadingMessages {
   EditorCodeSplit = 'Preparing your site editor...',
   Dashboard = 'Loading your sites. Almost there...',
   SitePreview = 'Setting up your site preview...',
-  Editor = 'Loading your editor content. This should be ready shortly...',
+  Editor = 'Loading your editor content. Almost there...',
   Error = 'Something went wrong while loading the site.'
 }
 

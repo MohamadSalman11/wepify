@@ -77,21 +77,25 @@ const initialState: EditorState = {
 export const loadSiteFromStorage = createAsyncThunk(
   'editor/loadSiteFromStorage',
   async ({ siteId, pageId }: { siteId: string; pageId: string }, { rejectWithValue }) => {
-    const sites = await AppStorage.get<Record<string, Site>>(StorageKey.Sites);
+    try {
+      const sites = await AppStorage.get<Record<string, Site>>(StorageKey.Sites);
 
-    if (!sites || !sites[siteId]) {
+      if (!sites || !sites[siteId]) {
+        throw new Error('Site not found');
+      }
+
+      const site = sites[siteId];
+      const currentPage = site.pages[pageId];
+      const storedImages = await AppStorage.get<Record<string, File>>(StorageKey.Images, {});
+
+      mapBlobsToElements(currentPage.elements, storedImages);
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      return { site, pageId };
+    } catch {
       return rejectWithValue('This site could not be found. It may have been deleted or not created yet.');
     }
-
-    const site = sites[siteId];
-    const currentPage = site.pages[pageId];
-    const storedImages = await AppStorage.get<Record<string, File>>(StorageKey.Images, {});
-
-    mapBlobsToElements(currentPage.elements, storedImages);
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    return { site, pageId };
   }
 );
 
@@ -285,9 +289,6 @@ const editorSlice = createSlice({
     },
     setIframeReady(state, action) {
       state.iframeReady = action.payload;
-    },
-    clearError(state) {
-      state.error = undefined;
     }
   },
   extraReducers: (builder) => {
@@ -382,7 +383,6 @@ export const {
   setPageAsIndex,
   setStoring,
   setLoading,
-  setIframeReady,
-  clearError
+  setIframeReady
 } = editorSlice.actions;
 export default editorSlice.reducer;

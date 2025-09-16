@@ -4,8 +4,9 @@ import { useDispatch } from 'react-redux';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 import FullScreenMessage from '../components/FullScreenMessage';
+import { Path } from '../constant';
 import Canvas from '../features/editor/Canvas';
-import { clearError, loadSiteFromStorage } from '../features/editor/editorSlice';
+import { loadSiteFromStorage } from '../features/editor/editorSlice';
 import Header from '../features/editor/Header';
 import Panel, { usePanel } from '../features/editor/panels';
 import Sidebar from '../features/editor/Sidebar';
@@ -37,10 +38,7 @@ export default function Editor() {
         mode='message'
         message={error}
         actionLabel='Back to Dashboard'
-        onAction={() => {
-          dispatch(clearError());
-          navigate('/dashboard');
-        }}
+        onAction={() => navigate(Path.Dashboard)}
       />
     );
   }

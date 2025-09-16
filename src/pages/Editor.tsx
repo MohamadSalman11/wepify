@@ -55,12 +55,16 @@ export default function Editor() {
 
   return (
     <StyledEditor $leftPanelOpen={leftPanelOpen}>
-      {loading || <Toaster position='top-center' reverseOrder={false} />}
-      <Sidebar />
-      <Header />
+      {!loading && (
+        <>
+          <Toaster position='top-center' reverseOrder={false} />
+          <Sidebar />
+          <Header />
+        </>
+      )}
       {leftPanelOpen && <Outlet />}
       <Canvas isPreview={isPreview} />
-      <Panel panel='settings' sectioned borderDir='left' />
+      {loading || <Panel panel='settings' sectioned borderDir='left' />}
     </StyledEditor>
   );
 }

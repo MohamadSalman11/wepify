@@ -24,7 +24,6 @@ interface EditorState {
   loading: boolean;
   storing: boolean;
   dataLoaded: boolean;
-  iframeReady: boolean;
   error?: string;
   deviceSimulator: DeviceSimulator;
 }
@@ -69,7 +68,6 @@ const initialState: EditorState = {
   loading: true,
   storing: false,
   dataLoaded: false,
-  iframeReady: false,
   error: undefined,
   deviceSimulator: { type: Device.Monitor, width: SCREEN_SIZES.monitor.width, height: SCREEN_SIZES.monitor.height }
 };
@@ -294,9 +292,6 @@ const editorSlice = createSlice({
     },
     setLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
-    },
-    setIframeReady(state, action) {
-      state.iframeReady = action.payload;
     }
   },
   extraReducers: (builder) => {
@@ -390,7 +385,6 @@ export const {
   setDeviceSimulator,
   setPageAsIndex,
   setStoring,
-  setLoading,
-  setIframeReady
+  setLoading
 } = editorSlice.actions;
 export default editorSlice.reducer;

@@ -14,7 +14,7 @@ import FullScreenMessage from '../../components/FullScreenMessage';
 import { EditorPath, LoadingMessages, Path } from '../../constant';
 import { useAppSelector } from '../../store';
 import { buildPath } from '../../utils/buildPath';
-import { selectPagesMetadata, setIframeReady, setLoading } from './editorSlice';
+import { selectPagesMetadata } from './editorSlice';
 
 /**
  * Constants
@@ -37,15 +37,13 @@ export default function Preview() {
   const { siteId = '', pageId = '' } = useParams();
   const pagesMetadata = useAppSelector(selectPagesMetadata);
   const page = useAppSelector((state) => state.editor.currentSite?.pages[pageId || '']);
-  const loading = useAppSelector((state) => state.editor.loading);
   const [htmlString, setHtmlString] = useState<string>('');
   const [iframeUrl, setIframeUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const handleClosePreview = useCallback(() => {
-    dispatch(setLoading(true));
-    dispatch(setIframeReady(false));
     navigate(buildPath(Path.Editor, { siteId, pageId }));
-  }, [dispatch, navigate, siteId, pageId]);
+  }, [navigate, siteId, pageId]);
 
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
@@ -104,7 +102,7 @@ export default function Preview() {
   const handleIframeLoad = (iframe: HTMLIFrameElement | null) => {
     const doc = iframe?.contentDocument;
     doc?.addEventListener('click', createLinkHandler(pagesMetadata, navigate, siteId!));
-    setTimeout(() => dispatch(setLoading(false)), 1000);
+    setTimeout(() => setLoading(false), 1000);
   };
 
   return (

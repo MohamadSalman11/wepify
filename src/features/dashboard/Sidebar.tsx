@@ -16,7 +16,6 @@ import { buildPath } from '../../utils/buildPath';
 import { createNewPage } from '../../utils/createNewPage';
 import { formatSize } from '../../utils/formatSize';
 import { toSiteMetadata } from '../../utils/toSiteMetadata';
-import { setLoading } from '../editor/editorSlice';
 import { addSite, selectSitesArray, setProcessing } from './dashboardSlice';
 import { StyledLoader } from './main/SitesView';
 
@@ -95,9 +94,7 @@ export default function Sidebar() {
       pages: { [page.id]: page }
     };
 
-    dispatch(setLoading(true));
-    await AppStorage.addToObject(StorageKey.Sites, siteId, site, { first: true });
-    navigate(buildPath(Path.Editor, { siteId, pageId: page.id }));
+    navigate(buildPath(Path.Editor, { siteId, pageId: page.id }), { state: { site } });
   };
 
   // Keep as function declaration to prevent "used before its declaration" error

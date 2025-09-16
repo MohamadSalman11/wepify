@@ -1,3 +1,4 @@
+import { Site } from '@shared/typing';
 import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
@@ -25,12 +26,13 @@ export default function Editor() {
   const isPreview = location.pathname.endsWith('/preview');
   const loading = useAppSelector((state) => state.editor.loading);
   const error = useAppSelector((state) => state.editor.error);
+  const navSite = location.state?.site as Site | undefined;
 
   useEffect(() => {
-    if (siteId && pageId) {
-      dispatch(loadSiteFromStorage({ siteId, pageId }));
+    if (siteId && pageId && !isPreview) {
+      dispatch(loadSiteFromStorage({ siteId, pageId, navState: navSite }));
     }
-  }, [dispatch, siteId, pageId]);
+  }, [dispatch, siteId, pageId, isPreview, navSite]);
 
   if (error) {
     return (

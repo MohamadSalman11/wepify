@@ -26,7 +26,7 @@ import Icon from '../../components/Icon';
 import { Breakpoint, EditorPath } from '../../constant';
 import SiteExporter from '../../SiteExporter';
 import { useAppSelector } from '../../store';
-import { selectCurrentPageElements, selectCurrentSite, setDeviceSimulator, setLoading } from './editorSlice';
+import { selectCurrentPageElements, selectCurrentSite, setDeviceSimulator } from './editorSlice';
 
 /**
  * Constants
@@ -137,13 +137,11 @@ function DevicePreviewButton({
 }
 
 function EditorActions() {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const site = useAppSelector(selectCurrentSite);
   const storing = useAppSelector((state) => state.editor.storing);
 
   const handleSitePreview = () => {
-    dispatch(setLoading(true));
     navigate(EditorPath.Preview);
   };
 

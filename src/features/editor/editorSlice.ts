@@ -76,15 +76,23 @@ const initialState: EditorState = {
 
 export const loadSiteFromStorage = createAsyncThunk(
   'editor/loadSiteFromStorage',
-  async ({ siteId, pageId }: { siteId: string; pageId: string }, { rejectWithValue }) => {
+  async ({ siteId, pageId, navState }: { siteId: string; pageId: string; navState?: Site }, { rejectWithValue }) => {
     try {
-      const sites = await AppStorage.get<Record<string, Site>>(StorageKey.Sites);
+      let site: Site;
 
-      if (!sites || !sites[siteId]) {
-        throw new Error('Site not found');
+      if (navState) {
+        site = navState;
+        await AppStorage.addToObject(StorageKey.Sites, site.id, site);
+      } else {
+        const sites = await AppStorage.get<Record<string, Site>>(StorageKey.Sites);
+
+        if (!sites || !sites[siteId]) {
+          throw new Error('Site not found');
+        }
+
+        site = sites[siteId];
       }
 
-      const site = sites[siteId];
       const currentPage = site.pages[pageId];
       const storedImages = await AppStorage.get<Record<string, File>>(StorageKey.Images, {});
 

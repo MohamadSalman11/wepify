@@ -83,11 +83,7 @@ class ElementController {
     }
 
     moveableController.updateRect();
-
-    iframeConnection.send(IframeToEditor.UpdateElement, {
-      id: this.currentEl.id,
-      updates: { ...updates, style: finalStyle }
-    });
+    this.storeUpdate(this.currentEl.id, { ...updates, style: finalStyle as PageElementStyle });
   }
 
   delete() {
@@ -244,12 +240,16 @@ class ElementController {
     if (shouldBringToFront) {
       for (const [index, el] of others.entries()) {
         el.style.zIndex = String(index);
+        this.storeUpdate(el.id, { style: { zIndex: index } });
       }
+
       this.update({ style: { zIndex: others.length } });
     } else {
       this.update({ style: { zIndex: 0 } });
+
       for (const [index, el] of others.entries()) {
         el.style.zIndex = String(index + 1);
+        this.storeUpdate(el.id, { style: { zIndex: index + 1 } });
       }
     }
   }
@@ -402,6 +402,13 @@ class ElementController {
     if (isFocusable) {
       elementView.focus(newEl);
     }
+  }
+
+  private storeUpdate(id: string, updates: Partial<PageElement>) {
+    iframeConnection.send(IframeToEditor.UpdateElement, {
+      id,
+      updates
+    });
   }
 
   private resolveParentId(elName: string) {

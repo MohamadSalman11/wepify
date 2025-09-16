@@ -3,16 +3,11 @@ import { PageElement, PageElementStyle } from '@shared/typing';
 import { extractFlex } from './extractFlex';
 import { extractGridColumns, extractGridRows } from './extractGrid';
 import { extractTransform } from './extractTransform';
-import { extractZIndex } from './extractZIndex';
 
 const STYLE_DEPENDENCY_GROUPS: Record<string, DependencyGroup> = {
   transform: {
     props: ['left', 'top', 'rotate', 'scaleX', 'scaleY'],
     extractor: (currentEl) => extractTransform(currentEl.style.transform)
-  },
-  zIndex: {
-    props: ['zIndex'],
-    extractor: (currentEl) => extractZIndex(currentEl.style)
   },
   flex: {
     props: ['display', 'flexDirection', 'alignItems', 'justifyContent', 'opacity'],

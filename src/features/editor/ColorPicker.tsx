@@ -2,6 +2,7 @@ import { colorToHex } from '@shared/utils';
 import Sketch from '@uiw/react-color-sketch';
 import { ChangeEvent, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import Button from '../../components/Button';
 import Input from '../../components/form/Input';
 import useOutsideClick from '../../hooks/useOutsideClick';
 
@@ -9,7 +10,7 @@ import useOutsideClick from '../../hooks/useOutsideClick';
  * Constants
  */
 
-const DEFAULT_COLOR = '#ffffff';
+const DEFAULT_COLOR = 'inherit';
 
 const PRESET_COLORS = [
   '#D0021B',
@@ -55,7 +56,8 @@ export default function ColorPicker({ id, defaultValue, onChange }: ColorPickerP
 
   const handleHexInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value.trim();
-    const hex = value.startsWith('#') ? value : `#${value}`;
+    const hex = value === 'inherit' || value === 'transparent' ? value : value.startsWith('#') ? value : `#${value}`;
+
     setHex(hex);
     onChange?.({ target: { value: hex } });
   };
@@ -82,8 +84,8 @@ export default function ColorPicker({ id, defaultValue, onChange }: ColorPickerP
   };
   return (
     <div ref={colorPickerRef}>
-      <Preview onClick={() => setIsOpen(!isOpen)}>
-        <PreviewBox style={{ backgroundColor: hex }} />
+      <Preview onClick={() => setIsOpen(true)}>
+        <PreviewBox style={{ backgroundColor: hex === 'inherit' || hex === 'transparent' ? 'white' : hex }} />
         <PreviewInput
           id={id}
           type='text'
@@ -93,7 +95,33 @@ export default function ColorPicker({ id, defaultValue, onChange }: ColorPickerP
           spellCheck={false}
         />
       </Preview>
-      {isOpen && <StyledSketch presetColors={PRESET_COLORS} color={hex} onChange={handleSketchColorChange} />}
+      {isOpen && (
+        <StyledSketchWrapper>
+          <StyledSketch presetColors={PRESET_COLORS} color={hex || DEFAULT_COLOR} onChange={handleSketchColorChange} />
+          <ButtonGroup>
+            <Button
+              variation='whiteShadow'
+              size='xs'
+              onClick={() => {
+                setHex('transparent');
+                onChange?.({ target: { value: 'transparent' } });
+              }}
+            >
+              Transparent
+            </Button>
+            <Button
+              variation='whiteShadow'
+              size='xs'
+              onClick={() => {
+                setHex('inherit');
+                onChange?.({ target: { value: 'inherit' } });
+              }}
+            >
+              Inherit
+            </Button>
+          </ButtonGroup>
+        </StyledSketchWrapper>
+      )}
     </div>
   );
 }
@@ -102,11 +130,24 @@ export default function ColorPicker({ id, defaultValue, onChange }: ColorPickerP
  * Styles
  */
 
-const StyledSketch = styled(Sketch)`
+const StyledSketchWrapper = styled.div`
   position: absolute;
   right: 35rem;
   bottom: 10rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 0.6rem;
+`;
+
+const StyledSketch = styled(Sketch)`
   background-color: var(--color-white) !important;
+  box-shadow: var(--box-shadow) !important;
+  outline: none !important;
 
   [class^='w-color-editable-input'] {
     color: var(--color-gray) !important;

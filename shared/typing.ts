@@ -64,6 +64,7 @@ export type PageElementStyle = Partial<{
   fontSize: number | 'Inherit';
   fontFamily: string;
   fontWeight: keyof typeof FONT_WEIGHT_VALUES;
+  lineHeight: number;
   rotate: number;
   scaleX: number;
   scaleY: number;

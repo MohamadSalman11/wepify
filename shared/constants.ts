@@ -79,7 +79,7 @@ export const ELEMENTS_TEMPLATE: Record<string, PageElement> = {
       height: 'screen',
       fontSize: 20,
       fontFamily: 'Inter',
-      backgroundColor: '#fff'
+      backgroundColor: '#ffffff'
     }
   },
   container: {

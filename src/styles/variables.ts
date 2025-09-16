@@ -101,6 +101,10 @@ const variables = css`
     --btn-font-size: var(--font-size);
     --btn-white-space: var(--white-space);
 
+    --btn-padding-y-xs: 0.4rem;
+    --btn-padding-x-xs: 0.8rem;
+    --btn-font-size-xs: 1rem;
+
     --btn-padding-y-sm: 0.8rem;
     --btn-padding-x-sm: 1.2rem;
     --btn-font-size-sm: 1.2rem;

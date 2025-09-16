@@ -47,6 +47,7 @@ export class StyleGenerator {
     this.setIfDefined('fontSize', s.fontSize, true);
     this.setIfDefined('fontFamily', s.fontFamily);
     this.setIfDefined('fontWeight', FONT_WEIGHT_VALUES[s.fontWeight as keyof typeof FONT_WEIGHT_VALUES]);
+    this.setIfDefined('lineHeight', s.lineHeight);
     this.setIfDefined('textAlign', s.textAlign);
     this.setIfDefined('display', s.display);
     this.setIfDefined('flexDirection', s.flexDirection);

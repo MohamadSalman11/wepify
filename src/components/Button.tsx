@@ -1,6 +1,6 @@
 import { type ButtonHTMLAttributes, type ReactNode } from 'react';
 import type { IconType } from 'react-icons';
-import styled, { css, type RuleSet } from 'styled-components';
+import styled, { css } from 'styled-components';
 import { Breakpoint } from '../constant';
 import Icon from './Icon';
 
@@ -15,7 +15,7 @@ const DEFAULT_SIZE = 'md';
  * Types
  */
 
-type Size = 'md' | 'sm';
+type Size = keyof typeof sizes;
 type Variation = keyof typeof variations;
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -99,10 +99,30 @@ const variations = {
     &:hover {
       background-color: var(--color-red-light);
     }
+  `,
+  whiteShadow: css`
+    color: var(--color-black);
+    background-color: var(--color-white);
+    box-shadow: var(--box-shadow);
+
+    &:hover {
+      background-color: var(--color-white-2);
+    }
   `
 };
 
-const sizes: Record<Size, RuleSet> = {
+const sizes = {
+  xs: css`
+    ${({ theme: { prefix } }) => css`
+      --${prefix}-btn-padding-y-xs: var(--btn-padding-y-xs);
+      --${prefix}-btn-padding-x-xs: var(--btn-padding-x-xs);
+      --${prefix}-btn-font-size-xs: var(--btn-font-size-xs);
+
+      font-size: var(--${prefix}-btn-font-size-xs);
+      padding: var(--${prefix}-btn-padding-y-xs) var(--${prefix}-btn-padding-x-xs);
+      border-radius: 0.4rem;
+    `}
+  `,
   sm: css`
     ${({ theme: { prefix } }) => css`
     --${prefix}-btn-padding-y-sm: var(--btn-padding-y-sm); 

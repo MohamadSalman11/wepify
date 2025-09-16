@@ -49,7 +49,9 @@ const PROPERTY_EDITOR_PREFIX = 'property-editor';
 const DEFAULT_BORDER_RADIUS = 0;
 const DEFAULT_BORDER_COLOR = '#3e7df5';
 const DEFAULT_BORDER_WIDTH = 2;
-const DEFAULT_COLOR = '#000000';
+const DEFAULT_COLOR = 'inherit';
+const DEFAULT_BACKGROUND_COLOR = 'transparent';
+const DEFAULT_LINE_HEIGHT = 1.2;
 const DEFAULT_ALIGN_ITEMS = 'flex-start';
 const DEFAULT_JUSTIFY_CONTENT = 'flex-start';
 const DEFAULT_FLEX_DIRECTION = 'row';
@@ -569,8 +571,15 @@ function TypographySettings() {
             editInputType='text'
             options={OPTIONS_FONT_SIZE}
           />
+          <PropertyEditor
+            as='input'
+            styleName='lineHeight'
+            label='Line Height'
+            type='number'
+            fallbackValue={DEFAULT_LINE_HEIGHT}
+          />
+          <PropertyEditor as='colorPicker' styleName='color' label='Color' fallbackValue={DEFAULT_COLOR} />
         </GridContainer>
-        <PropertyEditor as='colorPicker' styleName='color' label='Color' fallbackValue={DEFAULT_COLOR} />
         {showTextAlign && (
           <div>
             <Label>Text Align</Label>
@@ -596,7 +605,12 @@ function FillSettings() {
   return (
     <div>
       <CollapsibleSection title='Fill'>
-        <PropertyEditor as='colorPicker' styleName='backgroundColor' label='Background Color' />
+        <PropertyEditor
+          as='colorPicker'
+          styleName='backgroundColor'
+          label='Background Color'
+          fallbackValue={DEFAULT_BACKGROUND_COLOR}
+        />
       </CollapsibleSection>
     </div>
   );

@@ -430,7 +430,9 @@ class ElementController {
 
     if (isContentEditable) {
       newEl.contentEditable = 'true';
-    } else if (oldEl.hasAttribute(ATTR_CONTENT_EDITABLE)) {
+    }
+
+    if (oldEl.hasAttribute(ATTR_CONTENT_EDITABLE) || oldEl.isContentEditable) {
       oldEl.removeAttribute(ATTR_CONTENT_EDITABLE);
     }
   }

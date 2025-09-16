@@ -53,7 +53,6 @@ export class DomCreator {
     if (contentEditable) {
       domEl.dataset.contentEditable = '';
       targetEl.spellcheck = false;
-      targetEl.contentEditable = 'true';
     }
 
     if (content) targetEl.textContent = content;

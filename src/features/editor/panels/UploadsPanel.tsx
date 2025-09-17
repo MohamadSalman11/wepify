@@ -175,9 +175,9 @@ function MediaItem({
   return (
     <StyledMediaItem key={img.id} $deleting={deleting} onClick={() => handleAddMediaItem(img)}>
       <img src={img.url} alt={`uploaded image ${index + 1}`} loading='lazy' />
-      <span onClick={handleDeleteImage}>
+      <button onClick={handleDeleteImage}>
         {deleting ? <LoadingDots size={6} gap={2} /> : <Icon icon={LuTrash2} color='var(--color-gray)' />}
-      </span>
+      </button>
     </StyledMediaItem>
   );
 }
@@ -239,7 +239,7 @@ const StyledMediaItem = styled.div<{ $deleting: boolean }>`
     object-fit: contain;
   }
 
-  > span {
+  > button {
     position: absolute;
     top: 5px;
     right: 8px;
@@ -249,9 +249,17 @@ const StyledMediaItem = styled.div<{ $deleting: boolean }>`
     border-radius: var(--border-radius-sm);
     background-color: var(--color-white);
     padding: 0.4rem;
+
+    &:hover {
+      background-color: var(--color-red);
+
+      svg {
+        color: var(--color-white) !important;
+      }
+    }
   }
 
-  &:hover > span {
+  &:hover > button {
     transform: translateY(0);
   }
 `;

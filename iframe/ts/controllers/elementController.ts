@@ -428,6 +428,10 @@ class ElementController {
   private syncContentEditable(oldEl: HTMLElement, newEl: HTMLElement) {
     const isContentEditable = this.hasDataset(newEl, DATASET_CONTENT_EDITABLE);
 
+    if (newEl.id === oldEl.id) {
+      return;
+    }
+
     if (isContentEditable) {
       newEl.contentEditable = 'true';
     }

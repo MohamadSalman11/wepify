@@ -1,5 +1,5 @@
 import { extractTransform } from '@compiler/utils/extractTransform';
-import { ElementsName, PAGE_PADDING, PAGE_PADDING_X } from '@shared/constants';
+import { ElementsName } from '@shared/constants';
 import Moveable, { MoveableProps, OnDrag, OnResize, OnRotate } from 'moveable';
 import { SELECTOR_ROOT } from '../constants';
 import { state } from '../model';
@@ -122,10 +122,7 @@ class MoveableController {
     }
 
     elementController.update({
-      style: {
-        width: width === sectionEl.clientWidth - PAGE_PADDING_X ? 'fill' : width,
-        height: height === sectionEl.clientHeight - PAGE_PADDING ? 'fill' : height
-      }
+      style: { width, height }
     });
   }
 

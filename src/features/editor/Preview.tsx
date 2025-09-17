@@ -102,7 +102,7 @@ export default function Preview() {
   const handleIframeLoad = (iframe: HTMLIFrameElement | null) => {
     const doc = iframe?.contentDocument;
     doc?.addEventListener('click', createLinkHandler(pagesMetadata, navigate, siteId!));
-    setTimeout(() => setLoading(false), 1000);
+    setTimeout(() => setLoading(false), 1250);
   };
 
   return (

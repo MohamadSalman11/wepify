@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useBeforeUnload } from 'react-router-dom';
 import styled from 'styled-components';
 import FullScreenMessage from '../../components/FullScreenMessage';
@@ -20,6 +21,7 @@ const IFRAME_TITLE = 'Site Preview';
 export default function Canvas({ isPreview }: { isPreview: boolean }) {
   const loading = useAppSelector((state) => state.editor.loading);
   const storing = useAppSelector((state) => state.editor.storing);
+  const [delayedLoading, setDelayedLoading] = useState(loading);
 
   useNetworkStatus();
   useIframeConnection();
@@ -31,10 +33,22 @@ export default function Canvas({ isPreview }: { isPreview: boolean }) {
     }
   });
 
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+
+    if (loading) {
+      setDelayedLoading(true);
+    } else {
+      timeout = setTimeout(() => setDelayedLoading(false), 250);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [loading]);
+
   return (
     <StyledCanvas id='canvas'>
       <iframe src={IFRAME_SRC} title={IFRAME_TITLE} />
-      {loading && (
+      {delayedLoading && (
         <>
           <title>{LoadingMessages.Editor}</title>
           <FullScreenMessage mode='loading' message={LoadingMessages.Editor} />

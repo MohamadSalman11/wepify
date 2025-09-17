@@ -115,7 +115,9 @@ function DevicePreviewButton({
   const dispatch = useDispatch();
   const elements = useAppSelector(selectCurrentPageElements);
 
-  const handleClick = () => {
+  const handleClick = (event: MouseEvent) => {
+    event.stopPropagation();
+
     const deviceSimulator = { type: deviceType, ...screenSize };
 
     dispatch(setDeviceSimulator(deviceSimulator));

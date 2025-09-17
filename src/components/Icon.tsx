@@ -38,7 +38,7 @@ interface IconProps {
   tooltipSide?: 'top' | 'right' | 'bottom' | 'left';
   tooltipSideOffset?: number;
   borderRadius?: BorderRadius;
-  onClick?: () => void;
+  onClick?: (event: any) => void;
   className?: string;
 }
 

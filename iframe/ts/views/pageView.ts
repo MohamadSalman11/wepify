@@ -18,6 +18,7 @@ class PageView {
   private pageWrapperEl: HTMLDivElement | null = document.querySelector('.iframe-root-wrapper');
   private pageEl: HTMLDivElement | null = document.querySelector(SELECTOR_ROOT);
   private readonly minScale = 0.3;
+  private readonly maxScrollbarWidth = 40;
 
   // public
   renderElements = (elements: PageElement[], device?: DeviceType) => {
@@ -79,7 +80,7 @@ class PageView {
     const needsScaling = deviceSize.width > containerSize.width;
 
     if (needsScaling) {
-      const scaleX = containerSize.width / (deviceSize.width + PAGE_PADDING_X);
+      const scaleX = (containerSize.width - this.maxScrollbarWidth) / (deviceSize.width + PAGE_PADDING_X);
       return Math.min(scaleX, 1);
     }
 
@@ -91,9 +92,9 @@ class PageView {
       return;
     }
 
-    const rawWidth = this.pageEl.offsetWidth;
-
-    this.pageWrapperEl.style.width = `${rawWidth * state.scaleFactor}px`;
+    const rect = this.pageEl.getBoundingClientRect();
+    this.pageWrapperEl.style.width = `${rect.width}px`;
+    this.pageWrapperEl.style.height = `${rect.height}px`;
   }
 }
 

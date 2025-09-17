@@ -24,36 +24,30 @@ export const useIframeConnection = () => {
   const [iframeReady, setIframeReady] = useState(false);
   const pageId = useAppSelector(selectCurrentPageId);
   const elements = useAppSelector(selectCurrentPageElements);
-  const deviceSimulator = useAppSelector((state) => state.editor.deviceSimulator);
   const dataLoaded = useAppSelector((state) => state.editor.dataLoaded);
   const copiedElement = useAppSelector((state) => state.editor.copiedElement);
   const pageBackgroundColor = useAppSelector(selectCurrentPage).backgroundColor;
   const elementsRef = useRef(elements);
-  const deviceSimulatorRef = useRef(deviceSimulator);
   const backgroundColorRef = useRef(pageBackgroundColor);
 
   elementsRef.current = elements;
-
-  useEffect(() => {
-    deviceSimulatorRef.current = deviceSimulator;
-  }, [deviceSimulator]);
 
   useEffect(() => {
     backgroundColorRef.current = pageBackgroundColor;
   }, [pageBackgroundColor]);
 
   const renderPageInIframe = useCallback(() => {
+    const { width, height } = SCREEN_SIZES.monitor;
+    const deviceSimulator = { type: Device.Monitor, width, height };
+
     const payload = {
       elements: elementsRef.current,
-      deviceSimulator: deviceSimulatorRef.current,
+      deviceSimulator: deviceSimulator,
       backgroundColor: backgroundColorRef.current
     };
 
     const handlePageRendered = () => {
       setTimeout(() => {
-        const { width, height } = SCREEN_SIZES.monitor;
-        const deviceSimulator = { type: Device.Monitor, width, height };
-
         dispatch(setLoading(false));
         dispatch(setDeviceSimulator(deviceSimulator));
         iframeConnection.send(EditorToIframe.DeviceChanged, { deviceSimulator });

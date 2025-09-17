@@ -70,7 +70,7 @@ export type PageElementStyle = Partial<{
   scaleY: number;
   textAlign: string;
   opacity: number;
-  display: string;
+  display: 'flex' | 'grid' | 'none';
   flexDirection: FlexDirectionOption;
   flexWrap: 'wrap' | 'nowrap';
   justifyContent: string;

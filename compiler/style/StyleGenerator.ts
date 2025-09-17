@@ -78,10 +78,11 @@ export class StyleGenerator {
       this.styles.maxWidth = '100%';
     }
 
-    if (this.isDefined(s.opacity) && s.opacity !== 1) {
-      this.styles.display = 'none';
-    } else if (this.isDefined(s.display)) {
-      this.styles.display = s.display;
+    if (this.isDefined(s.opacity)) {
+      const shouldHide = s.opacity === 0;
+      const opacity = shouldHide ? 0 : 1;
+
+      this.styles.opacity = opacity;
     }
   }
 

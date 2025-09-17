@@ -10,7 +10,7 @@ const STYLE_DEPENDENCY_GROUPS: Record<string, DependencyGroup> = {
     extractor: (currentEl) => extractTransform(currentEl.style.transform)
   },
   flex: {
-    props: ['display', 'flexDirection', 'alignItems', 'justifyContent', 'opacity'],
+    props: ['display', 'flexDirection', 'alignItems', 'justifyContent'],
     extractor: (currentEl) => extractFlex(currentEl.style)
   },
   gridTemplateColumns: {
@@ -32,7 +32,7 @@ type DependencyGroup = {
   extractor?: (currentEl: HTMLElement) => StyleUpdates;
 };
 
-export const resolveStyleDependencies = (style: StyleUpdates, el: HTMLElement | PageElement) => {
+export const resolveStyleDependencies = (style: StyleUpdates, el: HTMLElement | PageElement): PageElementStyle => {
   const resolved: StyleUpdates = {};
 
   for (const { props, extractor } of Object.values(STYLE_DEPENDENCY_GROUPS)) {
@@ -50,5 +50,5 @@ export const resolveStyleDependencies = (style: StyleUpdates, el: HTMLElement | 
     }
   }
 
-  return { ...style, ...resolved };
+  return { ...style, ...resolved } as PageElementStyle;
 };

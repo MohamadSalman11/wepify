@@ -336,7 +336,7 @@ class ElementController {
 
   isHidden(el?: HTMLElement) {
     const target = el || this.currentEl;
-    return getComputedStyle(target).display === 'none';
+    return getComputedStyle(target).opacity === '0';
   }
 
   handleMouseover(event: MouseEvent) {

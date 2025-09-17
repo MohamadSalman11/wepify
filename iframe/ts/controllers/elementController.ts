@@ -145,11 +145,8 @@ class ElementController {
       return;
     }
 
-    const computed = getComputedStyle(current);
-    const hasZIndex = computed.zIndex !== 'auto' && computed.zIndex !== '';
-
     if (this.isOverlapped()) {
-      this.update({ style: { position: hasZIndex ? 'relative' : '' } });
+      this.update({ style: { position: 'relative' } });
     } else {
       this.update({ style: { position: 'absolute' } });
     }

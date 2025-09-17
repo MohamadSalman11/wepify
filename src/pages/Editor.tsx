@@ -29,7 +29,7 @@ export default function Editor() {
   const navSite = location.state?.site as Site | undefined;
 
   useEffect(() => {
-    if (siteId && pageId && !isPreview) {
+    if (siteId && pageId) {
       dispatch(loadSiteFromStorage({ siteId, pageId, navState: navSite }));
     }
   }, [dispatch, siteId, pageId, isPreview, navSite]);

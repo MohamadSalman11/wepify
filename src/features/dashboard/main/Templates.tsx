@@ -5,6 +5,8 @@ import styled from 'styled-components';
 import { Path } from '../../../constant';
 import { buildPath } from '../../../utils/buildPath';
 import { importSiteFromJson } from '../../../utils/importSiteFromJson';
+import foodImg from '/templates-images/food.png';
+import portfolioImg from '/templates-images/portfolio.png';
 
 /**
  * Constants
@@ -14,13 +16,13 @@ const TEMP_TEMPLATES = [
   {
     id: nanoid(),
     description: 'Portfolio - Projects Showcase',
-    image: '/templates-images/portfolio.png',
+    image: portfolioImg,
     json: '/templates/portfolio.json'
   },
   {
     id: nanoid(),
     description: 'Food - Hero Section',
-    image: '/templates-images/food.png',
+    image: foodImg,
     json: '/templates/food.json'
   }
 ];

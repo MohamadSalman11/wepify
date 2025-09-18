@@ -48,7 +48,7 @@ export default function UploadsPanel() {
     async (blob: Blob) => {
       try {
         const id = nanoid();
-        await AppStorage.addToObject(StorageKey.Images, id, blob, { first: true });
+        await AppStorage.addToObject(StorageKey.Images, id, blob);
 
         const url = URL.createObjectURL(blob);
         urlsRef.current.push(url);

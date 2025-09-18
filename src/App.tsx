@@ -8,6 +8,7 @@ import { DashboardPath, EditorPath, Path } from './constant';
 import HomeSites from './features/dashboard/main/HomeSites';
 import RecentSites from './features/dashboard/main/RecentSites';
 import StarredSites from './features/dashboard/main/StarredSites';
+import Templates from './features/dashboard/main/Templates';
 import Panel, { PanelProvider } from './features/editor/panels';
 import Preview from './features/editor/Preview';
 import Dashboard from './pages/Dashboard';
@@ -43,6 +44,7 @@ function App() {
                 <Route index element={<HomeSites />} />
                 <Route path={DashboardPath.Recent} element={<RecentSites />} />
                 <Route path={DashboardPath.Starred} element={<StarredSites />} />
+                <Route path={DashboardPath.Templates} element={<Templates />} />
               </Route>
               <Route
                 path={Path.Editor}

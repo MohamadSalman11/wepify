@@ -19,5 +19,5 @@ export default function StarredSites() {
   const sites = useAppSelector(selectSitesArray);
   const starredSites = sites.filter((site) => site.isStarred);
 
-  return <SitesView sites={starredSites} title='Starred' emptyStateMessages={EMPTY_STATE_STARRED_SITES} />;
+  return <SitesView sites={starredSites} emptyStateMessages={EMPTY_STATE_STARRED_SITES} />;
 }

@@ -19,5 +19,5 @@ export default function RecentSites() {
   const sites = useAppSelector(selectSitesArray);
   const recentSites = [...sites].sort((a, b) => b.lastModified - a.lastModified);
 
-  return <SitesView sites={recentSites} title='Recent' emptyStateMessages={EMPTY_STATE_RECENT_SITES} />;
+  return <SitesView sites={recentSites} emptyStateMessages={EMPTY_STATE_RECENT_SITES} />;
 }

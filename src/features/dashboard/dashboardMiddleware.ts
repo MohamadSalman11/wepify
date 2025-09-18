@@ -6,7 +6,6 @@ import { AppToast } from '../../utils/appToast';
 import { addSite, deleteSite, duplicateSite, setProcessing, setSiteStarred, updateSite } from './dashboardSlice';
 
 export const ToastMap = {
-  [addSite.type]: () => AppToast.success(ToastMessages.site.imported),
   [updateSite.type]: () => AppToast.success(ToastMessages.site.updated),
   [deleteSite.type]: () => AppToast.success(ToastMessages.site.deleted),
   [duplicateSite.type]: () => AppToast.success(ToastMessages.site.duplicated)
@@ -14,8 +13,8 @@ export const ToastMap = {
 
 const dashboardMiddleware: Middleware = (store) => (next) => async (action: any) => {
   const result = next(action);
-  const actionsToSync = [addSite.type, updateSite.type, deleteSite.type, duplicateSite.type];
-  const actionsWithoutProcessing = [setSiteStarred.type];
+  const actionsToSync = [updateSite.type, deleteSite.type, duplicateSite.type];
+  const actionsWithoutProcessing = [addSite.type, setSiteStarred.type];
 
   if (![...actionsToSync, ...actionsWithoutProcessing].includes(action.type)) {
     return result;
@@ -29,7 +28,7 @@ const dashboardMiddleware: Middleware = (store) => (next) => async (action: any)
     const rawSite: Site | undefined = action.meta?.rawSite;
 
     if (rawSite) {
-      await AppStorage.addToObject(StorageKey.Sites, rawSite.id, rawSite, { first: true });
+      await AppStorage.addToObject(StorageKey.Sites, rawSite.id, rawSite);
     }
   }
 

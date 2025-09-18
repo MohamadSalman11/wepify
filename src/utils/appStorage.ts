@@ -24,9 +24,10 @@ export const AppStorage = {
     options?: { first?: boolean }
   ) {
     const items = (await this.get<T>(key, {} as T)) as Record<string, any>;
+    const { first = true } = options || {};
 
     if (!(id in items)) {
-      const newItems = options?.first ? { [id]: value, ...items } : { ...items, [id]: value };
+      const newItems = first ? { [id]: value, ...items } : { ...items, [id]: value };
 
       await this.set(key, newItems as T);
     }

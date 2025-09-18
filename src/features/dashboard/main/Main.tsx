@@ -12,18 +12,25 @@ import SitesView from './SitesView';
  * Constants
  */
 
-const EXCLUDED_SEARCH_PATHS = new Set([DashboardPath.Recent, DashboardPath.Starred]);
+const EXCLUDED_SEARCH_PATHS = new Set([DashboardPath.Recent, DashboardPath.Starred, DashboardPath.Templates]);
 
 const EMPTY_STATE_FILTERED_SITES = {
   title: 'No matching result',
   info: 'Try adjusting or clearing your filters to find sites.'
 };
 
+const TITLES = {
+  [Path.Dashboard.replace('/', '')]: 'Sites',
+  [DashboardPath.Recent]: 'Recent',
+  [DashboardPath.Starred]: 'Starred',
+  [DashboardPath.Templates]: 'Templates'
+};
+
 /**
  * Component definition
  */
 
-export default function MainDashboard() {
+export default function Main() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [filteredSites, setFilteredSites] = useState<SiteMetadata[]>([]);
@@ -48,12 +55,8 @@ export default function MainDashboard() {
           setIsFiltering={setIsFiltering}
         />
       )}
-
-      {isFiltering ? (
-        <SitesView sites={filteredSites} title={filterLabel} emptyStateMessages={EMPTY_STATE_FILTERED_SITES} />
-      ) : (
-        <Outlet />
-      )}
+      <h2>{filterLabel || TITLES[lastPathSegment]}</h2>
+      {isFiltering ? <SitesView sites={filteredSites} emptyStateMessages={EMPTY_STATE_FILTERED_SITES} /> : <Outlet />}
     </Container>
   );
 }
@@ -71,4 +74,16 @@ const Container = styled.main`
   background-color: var(--color-white);
   position: relative;
   overflow-y: hidden;
+
+  h2 {
+    position: sticky;
+    top: 0;
+    margin-top: 5.2rem;
+    margin-bottom: 1.6rem;
+    background-color: var(--color-white);
+    padding: 1.2rem;
+    width: 100%;
+    font-weight: var(--font-weight-regular);
+    font-size: 2rem;
+  }
 `;

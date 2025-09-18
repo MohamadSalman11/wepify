@@ -54,16 +54,13 @@ interface EmptyStateMessages {
 
 export default function SitesView({
   sites,
-  title,
   emptyStateMessages
 }: {
   sites: SiteMetadata[];
-  title: string;
   emptyStateMessages: EmptyStateMessages;
 }) {
   return (
     <StyledSiteView>
-      <h2>{title}</h2>
       <SiteSection>
         <TableHead />
         <TableBody sites={sites} emptyStateMessages={emptyStateMessages} />
@@ -334,22 +331,10 @@ const StyledSiteView = styled.div`
   max-width: 192rem;
   margin-left: auto;
   margin-right: auto;
-  margin-top: 5.2rem;
-
-  h2 {
-    position: sticky;
-    top: 0;
-    background-color: var(--color-white);
-    padding: 1.2rem;
-    width: 100%;
-    font-weight: var(--font-weight-regular);
-    font-size: 2rem;
-  }
 `;
 
 const SiteSection = styled.section`
   width: 100%;
-  margin-top: 1.6rem;
   font-size: 1.4rem;
   margin-bottom: 20rem;
 `;

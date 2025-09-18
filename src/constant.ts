@@ -9,7 +9,8 @@ export enum Path {
 
 export enum DashboardPath {
   Recent = 'recent',
-  Starred = 'starred'
+  Starred = 'starred',
+  Templates = 'templates'
 }
 
 export enum EditorPath {

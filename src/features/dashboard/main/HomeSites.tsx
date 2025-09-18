@@ -18,5 +18,5 @@ const EMPTY_STATE_HOME_SITES = {
 export default function HomeSites() {
   const sites = useAppSelector(selectSitesArray);
 
-  return <SitesView sites={sites} title='Sites' emptyStateMessages={EMPTY_STATE_HOME_SITES} />;
+  return <SitesView sites={sites} emptyStateMessages={EMPTY_STATE_HOME_SITES} />;
 }

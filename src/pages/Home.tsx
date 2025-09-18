@@ -26,6 +26,9 @@ export default function Home() {
           <Button variation='secondary'>Watch Video</Button>
         </ButtonGroup>
       </Container>
+      <ImageWrapper>
+        <PreviewImage src='/home-img.png' alt='Wepify editor' />
+      </ImageWrapper>
       <Footer />
     </StyledHome>
   );
@@ -82,4 +85,33 @@ const ButtonGroup = styled.div`
   flex-wrap: wrap;
   justify-content: center;
   margin-top: 1.2rem;
+`;
+
+const ImageWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  margin: 8rem auto;
+  max-width: 120rem;
+  padding: 0 2rem;
+  perspective: 2000px;
+`;
+
+const PreviewImage = styled.img`
+  width: 100%;
+  max-width: 105rem;
+  height: auto;
+
+  border-radius: var(--border-radius-xl);
+  border: 7px solid var(--color-white-3);
+  background: var(--color-white);
+  transform: skewY(-1.5deg) rotateX(1deg);
+  box-shadow: var(--box-shadow-2);
+
+  transition:
+    transform 0.4s ease,
+    box-shadow 0.4s ease;
+
+  &:hover {
+    transform: skewY(-1.5deg) rotateX(1deg) translateY(-8px) scale(1.02);
+  }
 `;

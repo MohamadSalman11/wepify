@@ -34,7 +34,6 @@ class ContextMenuView {
   }
 
   // private
-
   private maybeChangeMenuPosition(x: number, y: number) {
     const menuEl = document.querySelector(SELECTOR_CONTEXT_MENU) as HTMLUListElement;
 

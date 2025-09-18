@@ -1,7 +1,7 @@
 import { createGlobalStyle } from 'styled-components';
 
-import baseStyle from './base-styles';
-import resetStyles from './reset-styles';
+import baseStyle from './baseStyles';
+import resetStyles from './resetStyles';
 import variables from './variables';
 
 const GlobalStyles = createGlobalStyle`

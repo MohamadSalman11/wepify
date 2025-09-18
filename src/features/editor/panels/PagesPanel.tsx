@@ -1,5 +1,4 @@
 import type { PageMetadata } from '@shared/typing';
-import { generateFileNameFromPageName } from '@shared/utils';
 import { useState, type MouseEvent } from 'react';
 import { LuCopy, LuEllipsis, LuHouse, LuLink, LuPencil, LuSquareMenu, LuTrash2 } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
@@ -16,6 +15,7 @@ import { AppToast } from '../../../utils/appToast';
 import { buildPath } from '../../../utils/buildPath';
 import { createNewPage } from '../../../utils/createNewPage';
 import { FormValidator } from '../../../utils/FormValidator';
+import { generateFileNameFromPageName } from '../../../utils/generateFileNameFromPageName';
 import { addPage, deletePage, duplicatePage, selectPagesMetadata, setPageAsIndex, updatePage } from '../editorSlice';
 
 /**

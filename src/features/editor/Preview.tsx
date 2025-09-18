@@ -4,7 +4,6 @@ import { CSSGenerator } from '@compiler/style/CSSGenerator';
 import { buildHtmlTemplate } from '@compiler/utils/buildHtmlTemplate';
 import styleCSS from '@iframe/style.css?raw';
 import { PageMetadata } from '@shared/typing';
-import { generateFileNameFromPageName } from '@shared/utils';
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { NavigateFunction, useNavigate, useParams } from 'react-router-dom';
@@ -14,6 +13,7 @@ import FullScreenMessage from '../../components/FullScreenMessage';
 import { EditorPath, LoadingMessages, Path } from '../../constant';
 import { useAppSelector } from '../../store';
 import { buildPath } from '../../utils/buildPath';
+import { generateFileNameFromPageName } from '../../utils/generateFileNameFromPageName';
 import { selectPagesMetadata } from './editorSlice';
 
 /**

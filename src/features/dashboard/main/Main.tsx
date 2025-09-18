@@ -1,5 +1,5 @@
 import { SiteMetadata } from '@shared/typing';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LuArrowLeft } from 'react-icons/lu';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -39,8 +39,16 @@ export default function Main() {
   const lastPathSegment = pathname.split('/').findLast(Boolean) ?? '';
   const hideSearchBox = isFiltering || EXCLUDED_SEARCH_PATHS.has(lastPathSegment as DashboardPath);
 
+  useEffect(() => {
+    if (EXCLUDED_SEARCH_PATHS.has(lastPathSegment as DashboardPath)) {
+      setFilterLabel('');
+      setIsFiltering(false);
+    }
+  }, [lastPathSegment]);
+
   const handleBackClick = () => {
     navigate(Path.Dashboard);
+    setFilterLabel('');
     setIsFiltering(false);
   };
 

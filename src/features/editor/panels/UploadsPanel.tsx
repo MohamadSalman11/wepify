@@ -106,7 +106,7 @@ export default function UploadsPanel() {
     <>
       {input}
       <Button fullWidth onClick={openFilePicker} disabled={uploading}>
-        {uploading ? <LoadingDots color='var(--color-white)' /> : 'Upload File'}
+        {uploading ? <LoadingDots color='var(--color-white)' /> : 'Upload Image'}
       </Button>
       {images.length === 0 && <EmptyMessage>{loadingImages ? <LoadingDots /> : 'No images uploaded yet'}</EmptyMessage>}
       <MasonryGrid breakpointCols={2} className='masonry-grid' columnClassName='masonry-grid_column'>
@@ -176,7 +176,11 @@ function MediaItem({
     <StyledMediaItem key={img.id} $deleting={deleting} onClick={() => handleAddMediaItem(img)}>
       <img src={img.url} alt={`uploaded image ${index + 1}`} loading='lazy' />
       <button onClick={handleDeleteImage}>
-        {deleting ? <LoadingDots size={6} gap={2} /> : <Icon icon={LuTrash2} color='var(--color-gray)' />}
+        {deleting ? (
+          <LoadingDots size={6} gap={2} color='var(--color-white)' />
+        ) : (
+          <Icon icon={LuTrash2} color='var(--color-gray)' />
+        )}
       </button>
     </StyledMediaItem>
   );
@@ -247,7 +251,7 @@ const StyledMediaItem = styled.div<{ $deleting: boolean }>`
     transition: transform 0.2s ease-in-out;
     box-shadow: var(--box-shadow);
     border-radius: var(--border-radius-sm);
-    background-color: var(--color-white);
+    background-color: ${({ $deleting }) => ($deleting ? 'var(--color-red)' : 'var(--color-white)')};
     padding: 0.4rem;
 
     &:hover {

@@ -1,5 +1,5 @@
 import { forwardRef, type InputHTMLAttributes } from 'react';
-import styled, { css, type RuleSet } from 'styled-components';
+import styled, { css } from 'styled-components';
 
 /**
  * Constants
@@ -11,7 +11,7 @@ const DEFAULT_SIZE = 'sm';
  * Types
  */
 
-type Size = 'sm' | 'md' | 'lg';
+type Size = keyof typeof sizes;
 
 interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
   size?: Size;
@@ -30,7 +30,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({ size = DEFAULT_SIZE, p
  * Styles
  */
 
-const sizes: Record<Size, RuleSet> = {
+const sizes = {
   sm: css`
     ${({ theme: { prefix } }) => css`
     --${prefix}-input-padding-y-sm: var(--input-padding-y-sm);

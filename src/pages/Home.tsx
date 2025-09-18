@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import Button from '../components/Button';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
-import { Breakpoint, Path } from '../constant';
+import { Breakpoint, DashboardPath, Path } from '../constant';
 
 /**
  * Component definition
@@ -23,7 +23,9 @@ export default function Home() {
         </Subtitle>
         <ButtonGroup>
           <Button onClick={() => navigate(Path.Dashboard)}>Start Building</Button>
-          <Button variation='secondary'>Watch Video</Button>
+          <Button variation='secondary' onClick={() => navigate(`${Path.Dashboard}/${DashboardPath.Templates}`)}>
+            Use Template
+          </Button>
         </ButtonGroup>
       </Container>
       <ImageWrapper>

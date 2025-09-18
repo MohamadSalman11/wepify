@@ -5,24 +5,28 @@ const baseStyles = css`
     font-weight: 400;
     src: url('/fonts/inter-regular.woff2') format('woff2');
     font-family: 'Inter';
+    font-display: swap;
   }
 
   @font-face {
     font-weight: 500;
     src: url('/fonts/inter-medium.woff2') format('woff2');
     font-family: 'Inter';
+    font-display: swap;
   }
 
   @font-face {
     font-weight: 600;
     src: url('/fonts/inter-semibold.woff2') format('woff2');
     font-family: 'Inter';
+    font-display: swap;
   }
 
   @font-face {
     font-weight: 700;
     src: url('/fonts/inter-bold.woff2') format('woff2');
     font-family: 'Inter';
+    font-display: swap;
   }
 
   body {

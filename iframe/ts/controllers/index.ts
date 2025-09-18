@@ -24,6 +24,18 @@ const controlInputChange = (event: Event) => {
   elementController.handleInputChange(event);
 };
 
+const controlWindowResize = () => {
+  moveableController.clearTarget();
+  setTimeout(() => pageView.setDeviceSimulator(state.deviceSimulator));
+};
+
+const controlWindowLoad = () => {
+  iframeConnection.send(IframeToEditor.IframeReady, {
+    width: document.body.clientWidth,
+    height: document.body.clientHeight
+  });
+};
+
 const controlEditableButton = (event: KeyboardEvent) => {
   const active = document.activeElement as HTMLElement;
   const isEditableSpanInButton = active?.isContentEditable && active.closest('button');
@@ -58,18 +70,6 @@ const controlUndoRedo = (event: KeyboardEvent) => {
   if ((isUndo || isRedo) && !elementController.currentEl?.isContentEditable) {
     event.preventDefault();
   }
-};
-
-const handleWindowResize = () => {
-  moveableController.clearTarget();
-  setTimeout(() => pageView.setDeviceSimulator(state.deviceSimulator));
-};
-
-const handleWindowLoad = () => {
-  iframeConnection.send(IframeToEditor.IframeReady, {
-    width: document.body.clientWidth,
-    height: document.body.clientHeight
-  });
 };
 
 iframeConnection.on(EditorToIframe.RenderPage, (payload) => {
@@ -120,8 +120,8 @@ iframeConnection.on(EditorToIframe.DeviceChanged, (payload) => {
 });
 
 document.addEventListener('paste', controlPaste);
-window.addEventListener('resize', handleWindowResize);
-window.addEventListener('load', handleWindowLoad);
+window.addEventListener('resize', controlWindowResize);
+window.addEventListener('load', controlWindowLoad);
 document.addEventListener('keydown', controlUndoRedo);
 document.addEventListener('input', controlInputChange);
 document.addEventListener('click', controlDocumentClick);
@@ -129,9 +129,7 @@ document.addEventListener('mouseover', controlDocumentMouseover);
 document.addEventListener('mouseout', controlDocumentMouseout);
 document.addEventListener('keydown', controlEditableButton);
 document.addEventListener('contextmenu', contextMenuController.show.bind(contextMenuController));
-
+document.addEventListener('touchend', contextMenuController.handleTouchEnd);
 document.addEventListener('touchstart', contextMenuController.handleTouchStart.bind(contextMenuController), {
   passive: false
 });
-
-document.addEventListener('touchend', contextMenuController.handleTouchEnd);

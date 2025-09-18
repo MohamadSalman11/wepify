@@ -1,12 +1,13 @@
 import { nanoid } from '@reduxjs/toolkit';
 import { EditorToIframe, ElementsName } from '@shared/constants';
 import iframeConnection from '@shared/iframeConnection';
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { LuImage, LuSearch } from 'react-icons/lu';
 import styled from 'styled-components';
 import { SectionTitle } from '.';
 import Input from '../../../components/form/Input';
 import Icon from '../../../components/Icon';
+import LoadingDots from '../../../components/LoadingDots';
 import { StorageKey } from '../../../constant';
 import { useFilePicker } from '../../../hooks/useFilePicker';
 import { useImageUpload } from '../../../hooks/useImageUpload';
@@ -27,20 +28,29 @@ const ACCEPTED_FILE_TYPE = 'image/*';
 
 export default function ElementsPanel() {
   const { isDisabled } = useElementDisable();
+  const [uploading, setUploading] = useState(false);
 
   const handleImageUpload = useImageUpload(
     async (file: File) => {
       const id = nanoid();
       const url = URL.createObjectURL(file);
-      const additionalProps = { fileId: id, url, size: file.size };
+      const additionalProps = { blobId: id, url, size: file.size };
 
       iframeConnection.send(EditorToIframe.InsertElement, { name: ElementsName.Image, additionalProps });
       await AppStorage.addToObject(StorageKey.Images, id, file);
+
+      setUploading(false);
     },
     (message) => AppToast.error(message)
   );
 
-  const { input, openFilePicker } = useFilePicker({ accept: ACCEPTED_FILE_TYPE, onSelect: handleImageUpload });
+  const { input, openFilePicker } = useFilePicker({
+    accept: ACCEPTED_FILE_TYPE,
+    onSelect: (file) => {
+      setUploading(true);
+      handleImageUpload(file);
+    }
+  });
 
   return (
     <>
@@ -149,7 +159,7 @@ export default function ElementsPanel() {
           <PanelList>
             <MediaItem $disabled={isDisabled(ElementsName.Image)}>
               <PanelBox onClick={openFilePicker}>
-                <Icon icon={LuImage} />
+                {uploading ? <LoadingDots size={6} color='var(--color-gray)' /> : <Icon icon={LuImage} />}
               </PanelBox>
               <span>Image</span>
             </MediaItem>

@@ -129,7 +129,7 @@ export class StyleGenerator {
     if (value === 'fill') return '100%';
     if (value === 'fit') return 'fit-content';
     if (value === 'half') return '50%';
-    if (value === 'auto') return '';
+    if (value === 'auto') return 'auto';
     return addPx ? `${value}px` : String(value);
   }
 }

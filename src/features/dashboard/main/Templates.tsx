@@ -1,5 +1,5 @@
 import { nanoid } from '@reduxjs/toolkit';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { Path } from '../../../constant';
@@ -31,9 +31,38 @@ const TEMP_TEMPLATES = [
  * Component definition
  */
 
+let hasLoadedTemplatesOnce = false;
+
 export default function Templates() {
   const navigate = useNavigate();
   const [loadingId, setLoadingId] = useState<string | null>(null);
+
+  const [loadingImages, setLoadingImages] = useState(() => {
+    return hasLoadedTemplatesOnce
+      ? Object.fromEntries(TEMP_TEMPLATES.map((t) => [t.id, false]))
+      : Object.fromEntries(TEMP_TEMPLATES.map((t) => [t.id, true]));
+  });
+
+  useEffect(() => {
+    if (!hasLoadedTemplatesOnce) {
+      (async () => {
+        for (const template of TEMP_TEMPLATES) {
+          const img = new Image();
+          img.src = template.image;
+
+          try {
+            await img.decode?.();
+            await new Promise((resolve) => setTimeout(resolve, 450));
+            setLoadingImages((prev) => ({ ...prev, [template.id]: false }));
+          } catch {
+            setLoadingImages((prev) => ({ ...prev, [template.id]: false }));
+          }
+        }
+
+        hasLoadedTemplatesOnce = true;
+      })();
+    }
+  }, []);
 
   const handleTemplateClick = async (jsonPath: string, id: string) => {
     if (loadingId) {
@@ -66,10 +95,18 @@ export default function Templates() {
             onClick={() => handleTemplateClick(template.json, template.id)}
           >
             <TemplateImageContainer>
-              <TemplateImage src={template.image} alt={template.description} $isLoading={loadingId === template.id} />
+              {loadingImages[template.id] ? (
+                <SkeletonImage />
+              ) : (
+                <TemplateImage src={template.image} alt={template.description} $isLoading={loadingId === template.id} />
+              )}
               {loadingId === template.id && <Spinner />}
             </TemplateImageContainer>
-            <TemplateDescription>{template.description}</TemplateDescription>
+            {loadingImages[template.id] ? (
+              <SkeletonText />
+            ) : (
+              <TemplateDescription>{template.description}</TemplateDescription>
+            )}
           </TemplateCard>
         ))}
       </TemplateGrid>
@@ -144,4 +181,45 @@ const TemplateDescription = styled.p`
   font-size: 1.2rem;
   margin-left: 0.4rem;
   font-weight: var(--font-weight-bold);
+`;
+
+const SkeletonImage = styled.div`
+  width: 29rem;
+  height: 16rem;
+  border-radius: var(--border-radius-md);
+  background: var(--color-gray-light-3);
+  animation: pulse 1.5s infinite;
+
+  @keyframes pulse {
+    0% {
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.6;
+    }
+  }
+`;
+
+const SkeletonText = styled.div`
+  width: 70%;
+  height: 1.5rem;
+  border-radius: 4px;
+  background: var(--color-gray-light-3);
+  margin-left: 0.4rem;
+  animation: pulse 1.5s infinite;
+
+  @keyframes pulse {
+    0% {
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.6;
+    }
+  }
 `;

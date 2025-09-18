@@ -31,37 +31,23 @@ const TEMP_TEMPLATES = [
  * Component definition
  */
 
-let hasLoadedTemplatesOnce = false;
-
 export default function Templates() {
   const navigate = useNavigate();
   const [loadingId, setLoadingId] = useState<string | null>(null);
-
-  const [loadingImages, setLoadingImages] = useState(() => {
-    return hasLoadedTemplatesOnce
-      ? Object.fromEntries(TEMP_TEMPLATES.map((t) => [t.id, false]))
-      : Object.fromEntries(TEMP_TEMPLATES.map((t) => [t.id, true]));
-  });
+  const [loadingImages, setLoadingImages] = useState(Object.fromEntries(TEMP_TEMPLATES.map((t) => [t.id, true])));
 
   useEffect(() => {
-    if (!hasLoadedTemplatesOnce) {
-      (async () => {
-        for (const template of TEMP_TEMPLATES) {
-          const img = new Image();
-          img.src = template.image;
+    (async () => {
+      for (const template of TEMP_TEMPLATES) {
+        const img = new Image();
+        img.src = template.image;
 
-          try {
-            await img.decode?.();
-            await new Promise((resolve) => setTimeout(resolve, 450));
-            setLoadingImages((prev) => ({ ...prev, [template.id]: false }));
-          } catch {
-            setLoadingImages((prev) => ({ ...prev, [template.id]: false }));
-          }
-        }
+        await img.decode?.();
+        await new Promise((resolve) => setTimeout(resolve, 350));
 
-        hasLoadedTemplatesOnce = true;
-      })();
-    }
+        setLoadingImages((prev) => ({ ...prev, [template.id]: false }));
+      }
+    })();
   }, []);
 
   const handleTemplateClick = async (jsonPath: string, id: string) => {
